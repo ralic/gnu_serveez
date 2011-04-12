@@ -121,10 +121,10 @@ svz_hash_key_equals (char *key1, char *key2)
  * This is the default routine for determining the actual hash table
  * key length of the given key @var{key}.
  */
-static unsigned
+static size_t
 svz_hash_key_length (char *key)
 {
-  unsigned len = 0;
+  size_t len = 0;
 
   assert (key);
   while (*key++)
@@ -181,9 +181,9 @@ svz_hash_analyse (svz_hash_t *hash)
  * performed the argument must be @code{NULL}.
  */
 svz_hash_t *
-svz_hash_create (int size, svz_free_func_t destroy)
+svz_hash_create (size_t size, svz_free_func_t destroy)
 {
-  int n;
+  size_t n;
   svz_hash_t *hash;
 
   /* set initial hash table size to a binary value */
@@ -223,7 +223,8 @@ svz_hash_create (int size, svz_free_func_t destroy)
 void
 svz_hash_destroy (svz_hash_t *hash)
 {
-  int n, e;
+  size_t n;
+  int e;
   svz_hash_bucket_t *bucket;
 
   if (hash == NULL)
@@ -256,7 +257,8 @@ svz_hash_destroy (svz_hash_t *hash)
 static void
 svz_hash_rehash (svz_hash_t *hash, int type)
 {
-  int n, e;
+  size_t n;
+  int e;
   svz_hash_bucket_t *bucket, *next_bucket;
 
 #if ENABLE_HASH_ANALYSE
@@ -286,8 +288,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
           bucket = &hash->table[n];
           for (e = 0; e < bucket->size; e++)
             {
-              if ((unsigned long) n !=
-                  HASH_BUCKET (bucket->entry[e].code, hash))
+              if (n != HASH_BUCKET (bucket->entry[e].code, hash))
                 {
                   /* copy this entry to the far entry */
                   next_bucket =
@@ -518,7 +519,8 @@ svz_hash_exists (const svz_hash_t *hash, char *key)
 void
 svz_hash_foreach (svz_hash_do_t *func, svz_hash_t *hash, void *closure)
 {
-  int i, n, e;
+  size_t i, n;
+  int e;
 
   for (i = 0, n = 0;
        i < hash->keys && n < hash->buckets;
@@ -541,7 +543,7 @@ svz_hash_foreach (svz_hash_do_t *func, svz_hash_t *hash, void *closure)
  * This routine delivers the number of keys in the hash table @var{hash}.  If
  * the given @var{hash} is @code{NULL} it returns zero.
  */
-int
+size_t
 svz_hash_size (const svz_hash_t *hash)
 {
   if (hash == NULL)
@@ -557,7 +559,8 @@ char *
 svz_hash_contains (const svz_hash_t *hash, void *value)
 {
   svz_hash_bucket_t *bucket;
-  int n, e;
+  size_t n;
+  int e;
 
   for (n = 0; n < hash->buckets; n++)
     {

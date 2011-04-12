@@ -197,7 +197,7 @@ http_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 int
 http_init (svz_server_t *server)
 {
-  int types = 0;
+  size_t types = 0;
   char *p;
   in_addr_t host = INADDR_ANY;
   http_config_t *cfg = server->cfg;

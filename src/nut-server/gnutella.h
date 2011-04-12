@@ -219,7 +219,7 @@ typedef struct
   int min_speed;            /* minimum connection speed for searching */
   svz_array_t *extensions;  /* file extensions */
   svz_hash_t *net;          /* host catcher */
-  int connections;          /* number of connections to keep up */
+  size_t connections;       /* number of connections to keep up */
   char *force_ip;           /* force the local ip to this value */
   in_addr_t ip;             /* calculated from `force_ip' */
   int force_port;           /* force the local port to this value */

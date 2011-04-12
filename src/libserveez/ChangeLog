@@ -1,5 +1,20 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for ‘svz_hash_t’ dimensions.
+
+	U ≡ "Convert type to ‘size_t’ for local var";
+	S(X) ≡ "Likewise, for struct member(s) X".
+	* hash.c (svz_hash_key_length): Return ‘size_t’; U.
+	(svz_hash_create, svz_hash_destroy): U.
+	(svz_hash_rehash): U; remove cast to ‘unsigned long’.
+	(svz_hash_foreach): U.
+	(svz_hash_size): Return ‘size_t’.
+	(svz_hash_contains): U.
+	* hash.h (svz_hash_t): S (buckets, fill, keys, keylen).
+	(svz_hash_create, svz_hash_size): Update func decls.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for ‘svz_array_t’ dimensions and indices.
 
 	U ≡ "Convert type to ‘size_t’ for local var".

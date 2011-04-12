@@ -50,7 +50,7 @@
 #include "http-cache.h"
 
 svz_hash_t *http_cache = NULL;               /* actual cache entry hash */
-int http_cache_entries = 0;                  /* amount of cache entries */
+size_t http_cache_entries = 0;               /* amount of cache entries */
 http_cache_entry_t *http_cache_first = NULL; /* most recent entry */
 http_cache_entry_t *http_cache_last = NULL;  /* least recent entry */
 
@@ -58,7 +58,7 @@ http_cache_entry_t *http_cache_last = NULL;  /* least recent entry */
  * This will initialize the http cache entries.
  */
 void
-http_alloc_cache (int entries)
+http_alloc_cache (size_t entries)
 {
   if (entries > http_cache_entries || http_cache == NULL)
     {

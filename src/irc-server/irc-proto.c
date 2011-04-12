@@ -806,7 +806,7 @@ regex_channel_internal (SVZ_UNUSED void *k, void *v, void *closure)
 irc_channel_t **
 irc_regex_channel (irc_config_t *cfg, char *regex)
 {
-  int size;
+  size_t size;
 
   if ((size = svz_hash_size (cfg->channels)))
     {
@@ -1026,7 +1026,7 @@ regex_nick_internal (SVZ_UNUSED void *k, void *v, void *closure)
 irc_client_t **
 irc_regex_nick (irc_config_t *cfg, char *regex)
 {
-  int size;
+  size_t size;
 
   if ((size = svz_hash_size (cfg->clients)))
     {

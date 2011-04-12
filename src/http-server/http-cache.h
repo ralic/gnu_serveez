@@ -61,14 +61,14 @@ http_cache_t;
  * http cache structures.
  */
 extern svz_hash_t *http_cache;
-extern int http_cache_entries;
+extern size_t http_cache_entries;
 extern http_cache_entry_t *http_cache_first;
 extern http_cache_entry_t *http_cache_last;
 
 /*
  * Basic http cache functions.
  */
-void http_alloc_cache (int entries);
+void http_alloc_cache (size_t entries);
 void http_free_cache (void);
 void http_refresh_cache (http_cache_t *cache);
 int http_cache_urgency (http_cache_entry_t *cache);
