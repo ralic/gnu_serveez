@@ -766,7 +766,7 @@ svz_icmp_check_request (svz_socket_t *sock)
  * Return @code{NULL} on errors, otherwise an enqueued socket structure.
  */
 svz_socket_t *
-svz_icmp_connect (in_addr_t host, in_port_t port, unsigned char type)
+svz_icmp_connect (in_addr_t host, in_port_t port, uint8_t type)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;

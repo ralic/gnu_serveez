@@ -1,5 +1,15 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘uint8_t’ for ICMP message type.
+
+	U(X) ≡ "Use ‘uint8_t’ for X".
+	* socket.h (svz_socket_t): U (.itype).
+	* icmp-socket.c (svz_icmp_connect): U (3rd arg).
+	* icmp-socket.h (svz_icmp_connect): Update func decl.
+	* portcfg.h (svz_portcfg_t): U (.u.icmp.type).
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for ‘svz_interface_t.index’.
 
 	* interface.h (svz_interface_t index):

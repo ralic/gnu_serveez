@@ -117,7 +117,7 @@ struct svz_socket
   uint16_t sequence;            /* Currently received sequence.  */
   uint16_t send_seq;            /* Send stream sequence number.  */
   uint16_t recv_seq;            /* Receive stream sequence number.  */
-  unsigned char itype;          /* ICMP message type.  */
+  uint8_t itype;                /* ICMP message type.  */
 
   /*
    * READ_SOCKET gets called whenever data is available on the socket.

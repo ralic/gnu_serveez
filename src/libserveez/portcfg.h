@@ -88,7 +88,7 @@ typedef struct svz_portcfg
       char *ipaddr;            /* dotted decimal or "*" */
       struct sockaddr_in addr; /* converted from the above value */
       char *device;            /* network device */
-      unsigned char type;      /* message type */
+      uint8_t type;            /* message type */
     } icmp;
 
     /* raw ip port */

@@ -1,5 +1,11 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘uint8_t’ for ICMP message type.
+
+	* guile.c (guile_define_port): Use ‘uint8_t’ for cast.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for ‘svz_interface_t.index’.
 
 	* option.c (display_ifc): Use ‘%zu’ in format string.

@@ -1220,7 +1220,7 @@ guile_define_port (SCM name, SCM args)
                        PORTCFG_TYPE, action);
           err = -1;
         }
-      SVZ_CFG_ICMP (cfg, type) = (unsigned char) (type & 0xff);
+      SVZ_CFG_ICMP (cfg, type) = (uint8_t) (type & 0xff);
     }
   /* Maybe RAW?  */
   else if (!strcmp (proto, PORTCFG_RAW))
