@@ -1,5 +1,19 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for codec ratio calculation.
+
+	* codec/codec.h (svz_codec_t ratio):
+	Convert 2nd and 3rd arg to ‘size_t *’.
+	* codec/codec.c (svz_codec_ratio):
+	Use ‘size_t’ for local vars ‘in’, ‘out’.
+	* codec/bzip2.c (bzip2_ratio):
+	Use ‘size_t’ for 2nd and 3rd args.
+	* codec/gzlib.c (zlib_ratio): Likewise.
+	* codec/bzip2.h (bzip2_ratio): Update func decl.
+	* codec/gzlib.h (zlib_ratio): Likewise.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop typedef ‘svz_uint8_t’; use ‘uint8_t’ directly.
 
 	* util.h (svz_uint8_t): Delete typedef.

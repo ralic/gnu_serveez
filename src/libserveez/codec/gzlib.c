@@ -112,15 +112,15 @@ zlib_error (svz_codec_data_t *data)
    Returns the current ratio state of 'zlib' codec.  This callback gets
    called if the `code' callback returned @code{SVZ_CODEC_FINISHED}.  */
 int
-zlib_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
+zlib_ratio (svz_codec_data_t *data, size_t *in, size_t *out)
 {
   zlib_data_t *z;
 
   if (data)
     {
       z = data->data;
-      *in = (unsigned long) z->stream.total_in;
-      *out = (unsigned long) z->stream.total_out;
+      *in = (size_t) z->stream.total_in;
+      *out = (size_t) z->stream.total_out;
       return SVZ_CODEC_OK;
     }
   return SVZ_CODEC_ERROR;

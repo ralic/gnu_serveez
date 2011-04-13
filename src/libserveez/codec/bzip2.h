@@ -43,8 +43,7 @@ SBO int bzip2_encode (svz_codec_data_t *);
 SBO int bzip2_decoder_init (svz_codec_data_t *);
 SBO int bzip2_decoder_finalize (svz_codec_data_t *);
 SBO int bzip2_decode (svz_codec_data_t *);
-SBO int bzip2_ratio (svz_codec_data_t *, unsigned long *,
-                     unsigned long *);
+SBO int bzip2_ratio (svz_codec_data_t *, size_t *, size_t *);
 
 __END_DECLS
 

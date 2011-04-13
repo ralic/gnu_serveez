@@ -33,8 +33,7 @@ SBO int zlib_encode (svz_codec_data_t *);
 SBO int zlib_decoder_init (svz_codec_data_t *);
 SBO int zlib_decoder_finalize (svz_codec_data_t *);
 SBO int zlib_decode (svz_codec_data_t *);
-SBO int zlib_ratio (svz_codec_data_t *, unsigned long *,
-                    unsigned long *);
+SBO int zlib_ratio (svz_codec_data_t *, size_t *, size_t *);
 
 __END_DECLS
 

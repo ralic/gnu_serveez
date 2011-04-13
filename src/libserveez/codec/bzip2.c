@@ -171,7 +171,7 @@ bzip2_error (svz_codec_data_t *data)
 /* Saves the number of total input and output bytes within @var{in} and
    @var{out}.  */
 int
-bzip2_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
+bzip2_ratio (svz_codec_data_t *data, size_t *in, size_t *out)
 {
   bzip2_data_t *bz;
 
@@ -180,17 +180,17 @@ bzip2_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
       bz = data->data;
 #if HAVE_BZ2LIB_PREFIX
 # if SIZEOF_LONG <= 4
-      *in = (unsigned long) bz->stream.total_in_lo32;
-      *out = (unsigned long) bz->stream.total_out_lo32;
+      *in = (size_t) bz->stream.total_in_lo32;
+      *out = (size_t) bz->stream.total_out_lo32;
 # else
-      *in = (unsigned long) bz->stream.total_in_hi32 << 32;
-      *in += (unsigned long) bz->stream.total_in_lo32;
-      *out = (unsigned long) bz->stream.total_out_hi32 << 32;
-      *out += (unsigned long) bz->stream.total_out_lo32;
+      *in = (size_t) bz->stream.total_in_hi32 << 32;
+      *in += (size_t) bz->stream.total_in_lo32;
+      *out = (size_t) bz->stream.total_out_hi32 << 32;
+      *out += (size_t) bz->stream.total_out_lo32;
 # endif
 #else
-      *in = (unsigned long) bz->stream.total_in;
-      *out = (unsigned long) bz->stream.total_out;
+      *in = (size_t) bz->stream.total_in;
+      *out = (size_t) bz->stream.total_out;
 #endif
       return SVZ_CODEC_OK;
     }

@@ -200,7 +200,7 @@ svz_codec_unregister (svz_codec_t *codec)
 void
 svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
 {
-  unsigned long in = 0, out = 0;
+  size_t in = 0, out = 0;
 
   if (codec->ratio == NULL)
     return;

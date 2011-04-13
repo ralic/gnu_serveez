@@ -116,7 +116,7 @@ struct svz_codec
   char * (* error) (svz_codec_data_t *);
 
   /* Overall ratio request.  */
-  int (* ratio) (svz_codec_data_t *, unsigned long *, unsigned long *);
+  int (* ratio) (svz_codec_data_t *, size_t *, size_t *);
 
   /* Magic detection sequence.  */
   char *detection;
