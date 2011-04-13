@@ -1,5 +1,12 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile int] Use ‘gi_integer2scm’ more.
+
+	* guile-api.c (scm_return_rpcentry, scm_portmap_list):
+	Use ‘gi_integer2scm’; remove cast to ‘unsigned long’.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop typedef ‘svz_uint8_t’; use ‘uint8_t’ directly.
 
 	* irc-server/irc-crypt.c: Do ‘s/svz_uint8_t/uint8_t/g’.

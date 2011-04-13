@@ -735,7 +735,7 @@ scm_return_rpcentry (struct rpcent *entry)
   ve = SCM_WRITABLE_VELTS (ans);
   ve[0] = gi_string2scm (entry->r_name);
   ve[1] = scm_makfromstrs (-1, entry->r_aliases);
-  ve[2] = gi_nnint2scm ((unsigned long) entry->r_number);
+  ve[2] = gi_integer2scm (entry->r_number);
   return ans;
 }
 
@@ -854,10 +854,10 @@ scm_portmap_list (SCM address)
     {
       mapping = gi_n_vector (4, SCM_UNSPECIFIED);
       ve = SCM_WRITABLE_VELTS (mapping);
-      ve[0] = gi_nnint2scm ((unsigned long) map->pml_map.pm_prog);
-      ve[1] = gi_nnint2scm ((unsigned long) map->pml_map.pm_vers);
-      ve[2] = gi_nnint2scm ((unsigned long) map->pml_map.pm_prot);
-      ve[3] = gi_nnint2scm ((unsigned long) map->pml_map.pm_port);
+      ve[0] = gi_integer2scm (map->pml_map.pm_prog);
+      ve[1] = gi_integer2scm (map->pml_map.pm_vers);
+      ve[2] = gi_integer2scm (map->pml_map.pm_prot);
+      ve[3] = gi_integer2scm (map->pml_map.pm_port);
       list = scm_cons (mapping ,list);
     }
   while ((map = map->pml_next) != NULL);
