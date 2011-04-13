@@ -158,25 +158,6 @@ array_popcount (svz_array_t *array, void *value)
   return found;
 }
 
-/*
- * Return the index of the first occurrence of the value
- * @var{value} in the array @var{array}.  Return (-1) if there is no
- * such value stored within the array.
- */
-unsigned long
-array_idx (svz_array_t *array, void *value)
-{
-  size_t n, size;
-
-  if (array == NULL)
-    return (unsigned long) -1;
-  size = svz_array_size (array);
-  for (n = 0; n < size; n++)
-    if (svz_array_get (array, n) == value)
-      return n;
-  return (unsigned long) -1;
-}
-
 int
 array_main (int argc, char **argv)
 {
@@ -278,23 +259,6 @@ array_main (int argc, char **argv)
   CLEAR (array);
   if (array_popcount (array, (void *) 0) != 0)
     error++;
-  test (error);
-
-  /* check the `index' function */
-  test_print ("     index: ");
-  error = 0;
-  for (n = 0; n < repeat; n++)
-    svz_array_add (array, (void *) 0);
-  if (array_idx (array, (void *) 0) != 0)
-    error++;
-  for (n = 0; n < repeat; n++)
-    {
-      if (array_idx (array, (void *) (n + 1)) != (unsigned long) -1)
-        error++;
-      svz_array_set (array, n, (void *) (n + 1));
-      if (array_idx (array, (void *) (n + 1)) != n)
-        error++;
-    }
   test (error);
 
   /* destroy function */

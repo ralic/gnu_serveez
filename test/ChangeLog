@@ -1,3 +1,10 @@
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v int] Drop defunct "array index" tests.
+
+	* btdt.c (array_idx): Delete func.
+	(array_main) <index>: Delete tests.
+
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘size_t’ for ‘svz_array_t’ dimensions and indices.
