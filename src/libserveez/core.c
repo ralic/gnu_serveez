@@ -624,12 +624,12 @@ svz_file_closeall (void)
  * the permissions if the @code{O_CREAT} flag is set.
  */
 int
-svz_open (const char *file, int flags, unsigned int mode)
+svz_open (const char *file, int flags, mode_t mode)
 {
 #ifndef __MINGW32__
   int fd;
 
-  if ((fd = open (file, flags, (mode_t) mode)) < 0)
+  if ((fd = open (file, flags, mode)) < 0)
     {
       svz_log_sys_error ("open (%s)", file);
       return -1;

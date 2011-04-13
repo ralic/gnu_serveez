@@ -50,7 +50,7 @@ SBO int svz_socket_create_pair (int, svz_t_socket desc[2]);
 SERVEEZ_API char *svz_inet_ntoa (in_addr_t);
 SERVEEZ_API int svz_inet_aton (char *, struct sockaddr_in *);
 SERVEEZ_API int svz_sendfile (int, int, off_t *, unsigned int);
-SERVEEZ_API int svz_open (const char *, int, unsigned int);
+SERVEEZ_API int svz_open (const char *, int, mode_t);
 SERVEEZ_API int svz_close (int);
 SERVEEZ_API int svz_fstat (int, struct stat *);
 SERVEEZ_API FILE *svz_fopen (const char *, const char *);

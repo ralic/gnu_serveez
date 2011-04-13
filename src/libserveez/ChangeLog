@@ -1,3 +1,12 @@
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Use ‘mode_t’ for ‘svz_open’ arg ‘mode’.
+
+	* core.c (svz_open):
+	Convert type to ‘mode_t’ for third arg ‘mode’;
+	remove cast to ‘mode_t’.
+	* core.h (svz_open): Update func decl.
+
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘mode_t’ for ‘svz_pipe_t.perm’.
