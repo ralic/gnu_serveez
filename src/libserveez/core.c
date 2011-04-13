@@ -458,7 +458,7 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
  * read/written or -1 on errors.
  */
 int
-svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
+svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
 {
 #ifndef ENABLE_SENDFILE
   svz_log (SVZ_LOG_ERROR, "sendfile(2) disabled\n");
