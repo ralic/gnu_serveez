@@ -1,5 +1,11 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for ‘svz_interface_t.index’.
+
+	* option.c (display_ifc): Use ‘%zu’ in format string.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile int] Use ‘gi_integer2scm’ more.
 
 	* guile-api.c (scm_return_rpcentry, scm_portmap_list):

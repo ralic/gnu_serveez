@@ -1,5 +1,16 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for ‘svz_interface_t.index’.
+
+	* interface.h (svz_interface_t index):
+	Convert type to ‘size_t’.
+	(svz_interface_add): Convert 1st arg type to ‘size_t’.
+	* interface.c (svz_interface_collect):
+	Use ‘size_t’ for local var.
+	(svz_interface_add): Convert 1st arg type to ‘size_t’.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for ‘svz_sendfile’ arg ‘count’.
 
 	* core.c (svz_sendfile): Convert 3rd arg type to ‘size_t’.

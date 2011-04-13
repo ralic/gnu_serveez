@@ -200,7 +200,7 @@ display_ifc (const svz_interface_t *ifc, SVZ_UNUSED void *closure)
             ifc->description, addr);
   else
     /* interface with interface # only */
-    printf ("%31s%09lu: %s\n",
+    printf ("%31s%09zu: %s\n",
             "interface # ", ifc->index, addr);
   return 0;
 }

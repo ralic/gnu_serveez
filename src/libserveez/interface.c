@@ -522,7 +522,7 @@ svz_interface_collect (void)
       ifr2.ifr_addr.sa_family = AF_INET;
       if (ioctl (fd, SIOCGIFADDR, &ifr2) == 0)
         {
-          static int index = 0;
+          static size_t index = 0;
 
           /*
            * The following cast looks bogus.  ifr2.ifr_addr is a
@@ -579,7 +579,7 @@ destroy_ifc (void *p)
  * the given network interface has been detected by Serveez itself or not.
  */
 int
-svz_interface_add (int index, char *desc, in_addr_t addr, int detected)
+svz_interface_add (size_t index, char *desc, in_addr_t addr, int detected)
 {
   char *p;
   size_t n;

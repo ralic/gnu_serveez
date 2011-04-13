@@ -31,7 +31,7 @@
  */
 typedef struct svz_interface
 {
-  unsigned long index;  /* interface index */
+  size_t index;         /* interface index */
   char *description;    /* interface description */
   in_addr_t ipaddr;     /* its IP address */
   int detected;         /* interface flag */
@@ -44,7 +44,7 @@ __BEGIN_DECLS
 
 /* Export these functions.  */
 SERVEEZ_API int svz_foreach_interface (svz_interface_do_t *, void *);
-SERVEEZ_API int svz_interface_add (int, char *, in_addr_t, int);
+SERVEEZ_API int svz_interface_add (size_t, char *, in_addr_t, int);
 SBO svz_interface_t *svz_interface_search (char *);
 SBO void svz_interface_check (void);
 
