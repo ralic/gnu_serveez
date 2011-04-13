@@ -69,7 +69,7 @@ svz_uint8_t * nut_put_push (nut_push_t *push);
 #define __BSWAP_32(x) ((unsigned long) \
   ((((x) & 0xff000000) >> 24) | (((x) & 0x000000ff) << 24) | \
    (((x) & 0x0000ff00) << 8)  | (((x) & 0x00ff0000) >> 8)))
-#define __BSWAP_16(x) ((unsigned short) \
+#define __BSWAP_16(x) ((uint16_t) \
   ((((x) >> 8) & 0x00ff) | (((x) << 8) & 0xff00)))
 
 #define ltons(x) __BSWAP_16(x)

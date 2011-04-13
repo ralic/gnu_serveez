@@ -31,8 +31,8 @@ typedef struct IPAddrEntry
   unsigned long  iae_mask;
   in_addr_t      iae_bcastaddr;
   unsigned long  iae_reasmsize;
-  unsigned short iae_context;
-  unsigned short iae_pad;
+  uint16_t       iae_context;
+  uint16_t       iae_pad;
 }
 IPAddrEntry;
 

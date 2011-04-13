@@ -99,7 +99,7 @@ nut_pong_t;
 /* search query header */
 typedef struct
 {
-  unsigned short speed; /* minimum speed (in kbps) */
+  uint16_t speed;       /* minimum speed (in kbps) */
   char search[1];       /* search request (NULL terminated) */
 }
 nut_query_t;
@@ -121,8 +121,8 @@ typedef struct
   svz_uint8_t records;    /* number of records which follow this header */
   in_port_t port;         /* listening port number of the host */
   in_addr_t ip;           /* ip address of the host, network byte order */
-  unsigned short speed;   /* speed of the host which found the results */
-  unsigned short pad;     /* dunno */
+  uint16_t speed;         /* speed of the host which found the results */
+  uint16_t pad;           /* dunno */
   nut_record_t record[1]; /* array of records */
   svz_uint8_t id[NUT_GUID_SIZE]; /* clientID128 sending the reply */
 }

@@ -858,7 +858,7 @@ nut_idle_searching (svz_socket_t *sock)
       hdr.ttl = (svz_uint8_t) cfg->ttl;
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_QUERY + strlen (text) + 1;
-      query.speed = (unsigned short) cfg->min_speed;
+      query.speed = (uint16_t) cfg->min_speed;
       header = nut_put_header (&hdr);
       search = nut_put_query (&query);
 

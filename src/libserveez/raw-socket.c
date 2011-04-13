@@ -57,12 +57,12 @@ typedef struct
 {
   svz_uint8_t version_length; /* header length (in DWORDs) and ip version */
   svz_uint8_t tos;            /* type of service = 0 */
-  unsigned short length;      /* total ip packet length */
-  unsigned short ident;       /* ip identifier */
-  unsigned short frag_offset; /* fragment offset (in 8 bytes) and flags */
+  uint16_t length;            /* total ip packet length */
+  uint16_t ident;             /* ip identifier */
+  uint16_t frag_offset;       /* fragment offset (in 8 bytes) and flags */
   svz_uint8_t ttl;            /* time to live */
   svz_uint8_t protocol;       /* ip protocol */
-  unsigned short checksum;    /* ip header checksum */
+  uint16_t checksum;          /* ip header checksum */
   in_addr_t src;              /* source address */
   in_addr_t dst;              /* destination address */
 }
@@ -83,7 +83,7 @@ static svz_ip_header_t *
 svz_raw_get_ip_header (svz_uint8_t *data)
 {
   static svz_ip_header_t hdr;
-  unsigned short uint16;
+  uint16_t uint16;
   unsigned int uint32;
 
   hdr.version_length = *data++;
@@ -114,7 +114,7 @@ svz_raw_get_ip_header (svz_uint8_t *data)
 /*
  * Recalculate any IP checksum.
  */
-unsigned short
+uint16_t
 svz_raw_ip_checksum (svz_uint8_t *data, int len)
 {
   register unsigned checksum = 0;
@@ -142,7 +142,7 @@ svz_raw_ip_checksum (svz_uint8_t *data, int len)
     checksum = (checksum & 0xffff) + (checksum >> 16);
   checksum = ~checksum;
 
-  return htons ((unsigned short) checksum);
+  return htons ((uint16_t) checksum);
 }
 
 /*

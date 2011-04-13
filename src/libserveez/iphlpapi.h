@@ -83,8 +83,8 @@ typedef struct _MIB_IPADDRROW
   DWORD          dwMask;
   DWORD          dwBCastAddr;
   DWORD          dwReasmSize;
-  unsigned short unused1;
-  unsigned short unused2;
+  uint16_t       unused1;
+  uint16_t       unused2;
 }
 MIB_IPADDRROW, *PMIB_IPADDRROW;
 

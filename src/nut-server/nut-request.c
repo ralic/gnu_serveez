@@ -291,7 +291,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
     addr->sin_addr.s_addr : sock->local_addr;
   reply.port = (cfg->port ? cfg->port : addr ?
                 addr->sin_port : sock->local_port);
-  reply.speed = (unsigned short) cfg->speed;
+  reply.speed = (uint16_t) cfg->speed;
 
   /* save packet length */
   hdr->length = SIZEOF_NUT_REPLY + size + NUT_GUID_SIZE;

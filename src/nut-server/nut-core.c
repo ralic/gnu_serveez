@@ -260,7 +260,7 @@ nut_pong_t *
 nut_get_pong (svz_uint8_t *data)
 {
   static nut_pong_t reply;
-  unsigned short uint16;
+  uint16_t uint16;
   unsigned int uint32;
 
   memcpy (&uint16, data, SIZEOF_UINT16);
@@ -281,7 +281,7 @@ nut_put_pong (nut_pong_t *reply)
 {
   static svz_uint8_t buffer[SIZEOF_NUT_PONG];
   svz_uint8_t *data = buffer;
-  unsigned short uint16;
+  uint16_t uint16;
   unsigned int uint32;
 
   uint16 = ntols (reply->port);
@@ -304,7 +304,7 @@ nut_query_t *
 nut_get_query (svz_uint8_t *data)
 {
   static nut_query_t query;
-  unsigned short uint16;
+  uint16_t uint16;
 
   memcpy (&uint16, data, SIZEOF_UINT16);
   query.speed = ltohs (uint16);
@@ -316,7 +316,7 @@ nut_put_query (nut_query_t *query)
 {
   static svz_uint8_t buffer[SIZEOF_NUT_QUERY];
   svz_uint8_t *data = buffer;
-  unsigned short uint16;
+  uint16_t uint16;
 
   uint16 = htols (query->speed);
   memcpy (data, &uint16, SIZEOF_UINT16);
@@ -362,7 +362,7 @@ nut_reply_t *
 nut_get_reply (svz_uint8_t *data)
 {
   static nut_reply_t reply;
-  unsigned short uint16;
+  uint16_t uint16;
 
   reply.records = *data++;
   memcpy (&uint16, data, SIZEOF_UINT16);
@@ -380,7 +380,7 @@ nut_put_reply (nut_reply_t *reply)
 {
   static svz_uint8_t buffer[SIZEOF_NUT_REPLY];
   svz_uint8_t *data = buffer;
-  unsigned short uint16;
+  uint16_t uint16;
 
   *data++ = reply->records;
   uint16 = ntols (reply->port);
@@ -401,7 +401,7 @@ nut_get_push (svz_uint8_t *data)
 {
   static nut_push_t push;
   unsigned int uint32;
-  unsigned short uint16;
+  uint16_t uint16;
 
   memcpy (push.id, data, NUT_GUID_SIZE);
   data += NUT_GUID_SIZE;
@@ -421,7 +421,7 @@ nut_put_push (nut_push_t *push)
   static svz_uint8_t buffer[SIZEOF_NUT_PUSH];
   svz_uint8_t *data = buffer;
   unsigned int uint32;
-  unsigned short uint16;
+  uint16_t uint16;
 
   memcpy (data, push->id, NUT_GUID_SIZE);
   data += NUT_GUID_SIZE;

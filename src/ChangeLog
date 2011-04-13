@@ -1,3 +1,13 @@
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Use ‘uint16_t’ instead of ‘unsigned short’.
+
+	* nut-server/gnutella.c: Do ‘s/unsigned short/uint16_t/g’.
+	* nut-server/gnutella.h: Likewise.
+	* nut-server/nut-core.c: Likewise.
+	* nut-server/nut-core.h: Likewise.
+	* nut-server/nut-request.c: Likewise.
+
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘mode_t’ for ‘svz_pipe_t.perm’.

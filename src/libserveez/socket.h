@@ -114,9 +114,9 @@ struct svz_socket
   int send_buffer_fill;         /* Valid bytes in SEND_BUFFER.  */
   int recv_buffer_fill;         /* Valid bytes in RECV_BUFFER.  */
 
-  unsigned short sequence;      /* Currently received sequence.  */
-  unsigned short send_seq;      /* Send stream sequence number.  */
-  unsigned short recv_seq;      /* Receive stream sequence number.  */
+  uint16_t sequence;            /* Currently received sequence.  */
+  uint16_t send_seq;            /* Send stream sequence number.  */
+  uint16_t recv_seq;            /* Receive stream sequence number.  */
   unsigned char itype;          /* ICMP message type.  */
 
   /*

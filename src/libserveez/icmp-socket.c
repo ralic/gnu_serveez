@@ -97,9 +97,9 @@ typedef struct
 {
   svz_uint8_t type;        /* message type */
   svz_uint8_t code;        /* type sub-code */
-  unsigned short checksum; /* check sum */
-  unsigned short ident;    /* identifier */
-  unsigned short sequence; /* sequence number */
+  uint16_t checksum;       /* check sum */
+  uint16_t ident;          /* identifier */
+  uint16_t sequence;       /* sequence number */
   in_port_t port;          /* remote port address */
 }
 svz_icmp_header_t;
@@ -141,8 +141,8 @@ typedef struct icmp_echo_reply
   in_addr_t Address;       /* source address */
   unsigned long Status;    /* IP status value (see below) */
   unsigned long RTTime;    /* Round Trip Time in milliseconds */
-  unsigned short DataSize; /* reply data size */
-  unsigned short Reserved; /* */
+  uint16_t DataSize;       /* reply data size */
+  uint16_t Reserved;
   void *Data;              /* reply data buffer */
   IPINFO Options;          /* reply options */
 }
@@ -158,7 +158,7 @@ typedef DWORD (__stdcall * IcmpSendEchoProc) (
   HANDLE IcmpHandle,          /* handle returned from ‘IcmpCreateFile’ */
   in_addr_t DestAddress,      /* destination IP address (in network order) */
   void *RequestData,          /* pointer to buffer to send */
-  unsigned short RequestSize, /* length of data in buffer */
+  uint16_t RequestSize,       /* length of data in buffer */
   IPINFO *RequestOptns,       /* see Note 2 */
   void *ReplyBuffer,          /* see Note 1 */
   unsigned long ReplySize,    /* length of reply (at least 1 reply) */
@@ -279,7 +279,7 @@ static svz_icmp_header_t *
 svz_icmp_get_header (svz_uint8_t *data)
 {
   static svz_icmp_header_t hdr;
-  unsigned short uint16;
+  uint16_t uint16;
 
   hdr.type = *data++;
   hdr.code = *data++;
@@ -306,7 +306,7 @@ svz_icmp_put_header (svz_icmp_header_t *hdr)
 {
   static svz_uint8_t buffer[ICMP_HEADER_SIZE];
   svz_uint8_t *data = buffer;
-  unsigned short uint16;
+  uint16_t uint16;
 
   *data++ = hdr->type;
   *data++ = hdr->code;
@@ -624,7 +624,7 @@ svz_icmp_send_control (svz_socket_t *sock, svz_uint8_t type)
   hdr.type = sock->itype;
   hdr.code = type;
   hdr.checksum = svz_raw_ip_checksum (NULL, 0);
-  hdr.ident = (unsigned short) (getpid () + sock->id);
+  hdr.ident = (uint16_t) (getpid () + sock->id);
   hdr.sequence = sock->send_seq;
   hdr.port = sock->remote_port;
   memcpy (&buffer[len], svz_icmp_put_header (&hdr), ICMP_HEADER_SIZE);
@@ -673,7 +673,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
       hdr.type = sock->itype;
       hdr.code = SVZ_ICMP_SERVEEZ_DATA;
       hdr.checksum = svz_raw_ip_checksum ((svz_uint8_t *) buf, size);
-      hdr.ident = (unsigned short) (getpid () + sock->id);
+      hdr.ident = (uint16_t) (getpid () + sock->id);
       hdr.sequence = sock->send_seq++;
       hdr.port = sock->remote_port;
       memcpy (&buffer[len], svz_icmp_put_header (&hdr), ICMP_HEADER_SIZE);
