@@ -555,7 +555,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       /* create new gnutella header */
       nut_calc_guid (hdr.id);
       hdr.function = NUT_PUSH_REQ;
-      hdr.ttl = (svz_uint8_t) cfg->ttl;
+      hdr.ttl = (uint8_t) cfg->ttl;
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_PUSH;
 

@@ -316,8 +316,8 @@ svz_tolower (char *str)
 
   while (*p)
     {
-      *p = (char) (isupper ((svz_uint8_t) * p) ?
-                   tolower ((svz_uint8_t) * p) : *p);
+      *p = (char) (isupper ((uint8_t) * p) ?
+                   tolower ((uint8_t) * p) : *p);
       p++;
     }
   return str;

@@ -27,8 +27,8 @@
 
 __BEGIN_DECLS
 
-SBO uint16_t svz_raw_ip_checksum (svz_uint8_t *, int);
-SBO int svz_raw_check_ip_header (svz_uint8_t *, int);
+SBO uint16_t svz_raw_ip_checksum (uint8_t *, int);
+SBO int svz_raw_check_ip_header (uint8_t *, int);
 
 __END_DECLS
 

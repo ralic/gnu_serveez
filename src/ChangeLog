@@ -1,5 +1,30 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop typedef ‘svz_uint8_t’; use ‘uint8_t’ directly.
+
+	* irc-server/irc-crypt.c: Do ‘s/svz_uint8_t/uint8_t/g’.
+	* irc-server/irc-crypt.h: Likewise.
+	* irc-server/irc-proto.h: Likewise.
+	* libserveez/ChangeLog: Likewise.
+	* libserveez/icmp-socket.c: Likewise.
+	* libserveez/icmp-socket.h: Likewise.
+	* libserveez/raw-socket.c: Likewise.
+	* libserveez/raw-socket.h: Likewise.
+	* libserveez/util.c: Likewise.
+	* libserveez/util.h: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/gnutella.h: Likewise.
+	* nut-server/nut-core.c: Likewise.
+	* nut-server/nut-core.h: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-request.h: Likewise.
+	* nut-server/nut-route.c: Likewise.
+	* nut-server/nut-route.h: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* nut-server/nut-transfer.h: Likewise.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘uint16_t’ instead of ‘unsigned short’.
 
 	* nut-server/gnutella.c: Do ‘s/unsigned short/uint16_t/g’.

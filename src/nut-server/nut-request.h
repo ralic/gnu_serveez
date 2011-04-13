@@ -22,11 +22,11 @@
 #define __NUT_REQUEST_H__ 1
 
 /* Exported functions.  */
-int nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet);
+int nut_reply (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet);
 int nut_push_request (svz_socket_t *sock, nut_header_t *hdr,
-                      svz_uint8_t *packet);
-int nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet);
-int nut_pong (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet);
-int nut_ping (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *null);
+                      uint8_t *packet);
+int nut_query (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet);
+int nut_pong (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet);
+int nut_ping (svz_socket_t *sock, nut_header_t *hdr, uint8_t *null);
 
 #endif /* not __NUT_REQUEST_H__ */

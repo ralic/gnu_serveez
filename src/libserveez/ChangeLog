@@ -1,5 +1,16 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop typedef ‘svz_uint8_t’; use ‘uint8_t’ directly.
+
+	* util.h (svz_uint8_t): Delete typedef.
+	* icmp-socket.c: Do ‘s/svz_uint8_t/uint8_t/g’.
+	* icmp-socket.h: Likewise.
+	* raw-socket.c: Likewise.
+	* raw-socket.h: Likewise.
+	* util.c: Likewise.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘uint16_t’ instead of ‘unsigned short’.
 
 	* icmp-socket.c: Do ‘s/unsigned short/uint16_t/g’.

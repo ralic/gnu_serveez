@@ -27,8 +27,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-typedef unsigned char svz_uint8_t;
-
 /*
  * level of server's verbosity:
  * 0 - only fatal error messages

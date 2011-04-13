@@ -24,8 +24,8 @@
 #define IRC_CRYPT_BYTE   42
 #define IRC_CRYPT_PREFIX '#'
 
-svz_uint8_t irc_gen_key (char *pass);
-void irc_encrypt_text (char *text, svz_uint8_t key);
-char *irc_decrypt_text (char *crypt, svz_uint8_t key);
+uint8_t irc_gen_key (char *pass);
+void irc_encrypt_text (char *text, uint8_t key);
+char *irc_decrypt_text (char *crypt, uint8_t key);
 
 #endif /* not __IRC_CRYPT_H__ */
