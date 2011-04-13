@@ -1,3 +1,10 @@
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Require a C99 compiler.
+
+	* serveez.texi (Build and install): Mention C99 requirement;
+	give example of ‘./configure ... CC=...’ invocation.
+
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Rename some *_updn funcs to svz_updn_all_*.

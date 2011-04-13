@@ -120,6 +120,18 @@ sleepless ~> cd serveez-@value{VERSION}
 @end example
 
 @item Configure the source package for your system:
+Normally, this is done by running the @file{configure} script in the
+top-level directory.
+GNU Serveez needs a reasonably conformant C99 compiler to build.
+If the @file{configure} script is not able to automatically find
+and enable such a compiler, you can specify it directly using
+the @samp{CC} command-line option.  For example:
+@example
+sleepless ~> ./configure --prefix /gnu CC='/gnu/bin/gcc'
+@end example
+Note that in this example you can achieve the same results by
+making sure @file{/gnu/bin} is in the @code{PATH} env var.
+
 In previous Serveez releases, the @file{configure} script had some
 builtin compiler flags for warnings and optimizations, conveniently
 exposed via command-line options.  These are no longer available;

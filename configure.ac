@@ -256,7 +256,9 @@ AC_CHECK_PROG([WINDRES],[windres],[windres],[:])
 dnl
 dnl Check for a proper C compiler.
 dnl
-AC_PROG_CC
+AC_PROG_CC_C99
+AS_IF([test xno = x"$ac_cv_prog_cc_c99"],
+[AC_MSG_ERROR([No C99 capable compiler found -- see README.])])
 AC_USE_SYSTEM_EXTENSIONS dnl FIXME: Is this the right place?
 
 dnl
