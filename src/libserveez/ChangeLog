@@ -1,5 +1,11 @@
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘uint8_t’ for ‘svz_socket_t.oob’.
+
+	* socket.h (svz_socket_t): Use ‘uint8_t’ for ‘.oob’.
+
+2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘uint8_t’ for ICMP message type.
 
 	U(X) ≡ "Use ‘uint8_t’ for X".

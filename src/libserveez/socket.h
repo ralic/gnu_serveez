@@ -215,7 +215,7 @@ struct svz_socket
 
   /* Out-of-band data for TCP protocol.  This byte is used for both,
      receiving and sending.  */
-  unsigned char oob;
+  uint8_t oob;
 
   /* Set to non-zero @code{time} value if the the socket is temporarily
      unavailable (EAGAIN).  This is why we use O_NONBLOCK socket descriptors.  */

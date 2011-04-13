@@ -1136,9 +1136,9 @@ guile_sock_send_oob (SCM sock, SCM oob)
   /* Send the oob byte through TCP sockets only.  */
   if (xsock->proto & SVZ_PROTO_TCP)
     {
-      xsock->oob = (unsigned char)
+      xsock->oob = (uint8_t)
         (SCM_CHARP (oob) ? SCM_CHAR (oob) :
-         (unsigned char) SCM_NUM2INT (SCM_ARG2, oob));
+         (uint8_t) SCM_NUM2INT (SCM_ARG2, oob));
       ret = svz_tcp_send_oob (xsock);
     }
   return ((ret < 0) ? SCM_BOOL_F : SCM_BOOL_T);
