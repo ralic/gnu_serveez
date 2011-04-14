@@ -1,5 +1,12 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[v] Add test for SNTP server; mark xfail.
+
+	* t002: New file.
+	* Makefile.am (TESTS, XFAIL_TESTS): Add t002.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v int] Declare no tests are known to fail.
 
 	* Makefile.am (XFAIL_TESTS): New var.
