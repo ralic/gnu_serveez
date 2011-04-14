@@ -104,7 +104,7 @@ sntp_detect_proto (SVZ_UNUSED svz_server_t *server,
  * Produces the SNTP reply and returns the actual size of it.
  */
 static int
-sntp_create_reply (unsigned char *reply)
+sntp_create_reply (uint8_t *reply)
 {
   unsigned long date;
 
@@ -136,7 +136,7 @@ int
 sntp_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   int ret;
-  unsigned char reply[8];
+  uint8_t reply[8];
 
   sock->check_request = NULL;
 
@@ -164,8 +164,9 @@ sntp_handle_request (svz_socket_t *sock,
                      SVZ_UNUSED char *packet, SVZ_UNUSED int len)
 {
   int ret;
-  unsigned char reply[8];
+  uint8_t reply[8];
 
+  /* FIXME: Don't printf; instead, write.  */
   if ((ret = sntp_create_reply (reply)) == 4)
     {
       svz_udp_printf (sock, "%c%c%c%c",

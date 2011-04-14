@@ -122,11 +122,11 @@ svz_icmp_header_t;
  */
 typedef struct ip_option_information
 {
-  unsigned char Ttl;          /* Time To Live (used for traceroute) */
-  unsigned char Tos;          /* Type Of Service (usually 0) */
-  unsigned char Flags;        /* IP header flags (usually 0) */
-  unsigned char OptionsSize;  /* Size of options data (usually 0, max 40) */
-  unsigned char *OptionsData; /* Options data buffer */
+  uint8_t Ttl;          /* Time To Live (used for traceroute) */
+  uint8_t Tos;          /* Type Of Service (usually 0) */
+  uint8_t Flags;        /* IP header flags (usually 0) */
+  uint8_t OptionsSize;  /* Size of options data (usually 0, max 40) */
+  uint8_t *OptionsData; /* Options data buffer */
 }
 IPINFO;
 

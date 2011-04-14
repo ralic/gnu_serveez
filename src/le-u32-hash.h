@@ -23,9 +23,9 @@
 /* Historical note: This used to be called ‘SVZ_UINT32’.
    The "le" in its new name stands for "little-endian".  */
 #define le_u32_hash(p)                          \
-  ((unsigned char) *p                           \
-   | ((unsigned char) *(p + 1) << 8)            \
-   | ((unsigned char) *(p + 2) << 16)           \
-   | ((unsigned char) *(p + 3) << 24))
+  ((uint8_t) *p                                 \
+   | ((uint8_t) *(p + 1) << 8)                  \
+   | ((uint8_t) *(p + 2) << 16)                 \
+   | ((uint8_t) *(p + 3) << 24))
 
 #endif  /* !defined __LE_U32_HASH_H__ */

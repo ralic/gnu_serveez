@@ -1072,7 +1072,7 @@ static SCM
 guile_read_file (SCM port, SCM size)
 {
   int fdes, len, ret;
-  void *data;
+  uint8_t *data;
 
   /* Check argument list.  */
   SCM_ASSERT_TYPE (SCM_NIMP (port) && SCM_FPORTP (port) &&
@@ -1087,7 +1087,7 @@ guile_read_file (SCM port, SCM size)
     SCM_OUT_OF_RANGE (SCM_ARG2, size);
 
   /* Allocate necessary data.  */
-  data = (unsigned char *) scm_gc_malloc (len, "svz-binary-data");
+  data = scm_gc_malloc (len, "svz-binary-data");
 
   /* Read from file descriptor and evaluate return value.  */
   if ((ret = read (fdes, data, len)) < 0)
@@ -1106,8 +1106,7 @@ guile_read_file (SCM port, SCM size)
     }
   else if (ret != len)
     {
-      data = (unsigned char *)
-        scm_gc_realloc (data, len, ret, "svz-binary-data");
+      data = scm_gc_realloc (data, len, ret, "svz-binary-data");
     }
 
   /* Finally return binary smob.  */

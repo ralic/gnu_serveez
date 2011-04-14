@@ -54,7 +54,7 @@ typedef struct IFEntry
   unsigned long if_mtu;
   unsigned long if_speed;
   unsigned long if_physaddrlen;
-  unsigned char if_physaddr[MAX_PHYSADDR_SIZE];
+  uint8_t  if_physaddr[MAX_PHYSADDR_SIZE];
   unsigned long if_adminstatus;
   unsigned long if_operstatus;
   unsigned long if_lastchange;
@@ -71,7 +71,7 @@ typedef struct IFEntry
   unsigned long if_outerrors;
   unsigned long if_outqlen;
   unsigned long if_descrlen;
-  unsigned char if_descr[1];
+  uint8_t  if_descr[1];
 }
 IFEntry;
 
@@ -133,7 +133,7 @@ TDIObjectID;
 struct tcp_request_query_information_ex
 {
   TDIObjectID ID;                      /* object ID to query.  */
-  unsigned char Context[CONTEXT_SIZE]; /* multi-request context.  Zeroed */
+  uint8_t Context[CONTEXT_SIZE];       /* multi-request context.  Zeroed */
                                        /* for the first request.  */
 };
 

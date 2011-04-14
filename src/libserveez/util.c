@@ -269,7 +269,7 @@ svz_hexdump (FILE *out,    /* output FILE stream */
       for (col = 0; col < MAX_DUMP_LINE; col++, x++)
         {
           if (x < max)
-            fprintf (out, "%02X ", (unsigned char) buffer[x]);
+            fprintf (out, "%02X ", (uint8_t) buffer[x]);
           else
             fprintf (out, "   ");
         }

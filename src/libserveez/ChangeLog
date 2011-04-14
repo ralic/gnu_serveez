@@ -1,3 +1,15 @@
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Use ‘uint8_t’ more.
+
+	S(X) ≡ "Use ‘uint8_t’ or ‘uint8_t *’ for struct member(s) X".
+	* icmp-socket.c
+	(IPINFO): S (Ttl, Tos, Flags, OptionsSize, OptionsData).
+	* ipdata.h
+	(IFEntry): S (if_physaddr, if_descr).
+	(tcp_request_query_information_ex): S (Context).
+	* util.c (svz_hexdump): Use ‘uint8_t’ for cast.
+
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘uint8_t’ for ‘svz_socket_t.oob’.

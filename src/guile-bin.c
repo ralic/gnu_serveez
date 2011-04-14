@@ -44,7 +44,7 @@
  */
 typedef struct guile_bin
 {
-  unsigned char *data; /* data pointer */
+  uint8_t *data;       /* data pointer */
   int size;            /* size of the above data */
   int garbage;         /* if set the data pointer got allocated by
                           the smob functions */
@@ -147,8 +147,7 @@ guile_string_to_bin (SCM string)
   bin->size = SCM_NUM2INT (SCM_ARG1, scm_string_length (string));
   if (bin->size > 0)
     {
-      bin->data = (unsigned char *)
-        scm_gc_malloc (bin->size, "svz-binary-data");
+      bin->data = scm_gc_malloc (bin->size, "svz-binary-data");
       memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
       bin->garbage = 1;
     }
@@ -197,7 +196,7 @@ guile_bin_search (SCM binary, SCM needle)
     {
       guile_bin_t *search = NULL;
       int len;
-      unsigned char *p, *end, *start;
+      uint8_t *p, *end, *start;
 
       if (CHECK_BIN_SMOB (needle))
         search = GET_BIN_SMOB (needle);
@@ -226,12 +225,12 @@ guile_bin_search (SCM binary, SCM needle)
   /* Search for a single byte.  */
   else if (SCM_CHARP (needle) || SCM_EXACTP (needle))
     {
-      unsigned char c;
-      unsigned char *p, *end;
+      uint8_t c;
+      uint8_t *p, *end;
 
-      c = (unsigned char)
+      c = (uint8_t)
         (SCM_CHARP (needle) ? SCM_CHAR (needle) :
-         (unsigned char) SCM_NUM2INT (SCM_ARG2, needle));
+         (uint8_t) SCM_NUM2INT (SCM_ARG2, needle));
       p = bin->data;
       end = p + bin->size;
 
@@ -257,7 +256,7 @@ guile_bin_reverse_x (SCM binary)
 {
   guile_bin_t *bin;
   int first, last;
-  unsigned char b;
+  uint8_t b;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
 
@@ -293,8 +292,7 @@ guile_bin_reverse (SCM binary)
     }
 
   /* Reserve some memory for the new smob.  */
-  reverse->data = (unsigned char *)
-    scm_gc_malloc (reverse->size, "svz-binary-data");
+  reverse->data = scm_gc_malloc (reverse->size, "svz-binary-data");
   reverse->garbage = 1;
 
   /* Apply reverse byte order to the new smob.  */
@@ -325,9 +323,9 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
   if (idx < 0 || idx >= bin->size)
     SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
-  bin->data[idx] = (unsigned char)
+  bin->data[idx] = (uint8_t)
     (SCM_CHARP (value) ? SCM_CHAR (value) :
-     (unsigned char) SCM_NUM2INT (SCM_ARG3, value));
+     (uint8_t) SCM_NUM2INT (SCM_ARG3, value));
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
@@ -375,7 +373,7 @@ guile_bin_concat_x (SCM binary, SCM append)
 {
   guile_bin_t *bin, *concat = NULL;
   int len, equal;
-  unsigned char *p;
+  uint8_t *p;
 
   /* Check arguments first.  */
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
@@ -395,15 +393,13 @@ guile_bin_concat_x (SCM binary, SCM append)
 
   if (bin->garbage)
     {
-      bin->data = (unsigned char *)
-        scm_gc_realloc ((void *) bin->data, bin->size, bin->size + len,
-                        "svz-binary-data");
+      bin->data = scm_gc_realloc (bin->data, bin->size, bin->size + len,
+                                  "svz-binary-data");
     }
   else
     {
-      unsigned char *odata = bin->data;
-      bin->data = (unsigned char *)
-        scm_gc_malloc (bin->size + len, "svz-binary-data");
+      uint8_t *odata = bin->data;
+      bin->data = scm_gc_malloc (bin->size + len, "svz-binary-data");
       memcpy (bin->data, odata, bin->size);
     }
 
@@ -461,7 +457,7 @@ SCM
 guile_bin_to_list (SCM binary)
 {
   guile_bin_t *bin;
-  unsigned char *p;
+  uint8_t *p;
   SCM list;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
@@ -479,7 +475,7 @@ SCM
 guile_list_to_bin (SCM list)
 {
   guile_bin_t *bin;
-  unsigned char *p;
+  uint8_t *p;
   int value;
   SCM val;
 
@@ -489,8 +485,7 @@ guile_list_to_bin (SCM list)
 
   if (bin->size > 0)
     {
-      p = bin->data = (unsigned char *)
-        scm_gc_malloc (bin->size, "svz-binary-data");
+      p = bin->data = scm_gc_malloc (bin->size, "svz-binary-data");
       bin->garbage = 1;
     }
   else
@@ -518,7 +513,7 @@ guile_list_to_bin (SCM list)
           scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
           SCM_OUT_OF_RANGE (SCM_ARGn, val);
         }
-      *p++ = (unsigned char) value;
+      *p++ = (uint8_t) value;
       list = SCM_CDR (list);
     }
 

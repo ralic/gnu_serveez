@@ -1,3 +1,24 @@
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Use ‘uint8_t’ more.
+
+	U ≡ "Use ‘uint8_t’ or ‘uint8_t *’ for local var / cast";
+	C ≡ "Remove cast to ‘unsigned char *’".
+	* guile-api.c (guile_read_file):
+	Use ‘uint8_t *’ directly for local var; C (unsigned char *).
+	* guile-bin.c (guile_bin_t.data): Convert type to ‘uint8_t *’.
+	(guile_string_to_bin): C.
+	(guile_bin_search, guile_bin_reverse_x): U.
+	(guile_bin_reverse): C.
+	(guile_bin_set_x): U.
+	(guile_bin_concat_x): U; C.
+	(guile_bin_to_list): U.
+	(guile_list_to_bin): C; U.
+	* http-server/http-dirlist.c (http_create_uri): U.
+	* le-u32-hash.h (le_u32_hash): U.
+	* sntp-server/sntp-proto.c (sntp_create_reply)
+	(sntp_connect_socket, sntp_handle_request): U.
+
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘uint8_t’ for ‘svz_socket_t.oob’.

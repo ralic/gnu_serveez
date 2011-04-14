@@ -113,7 +113,7 @@ http_create_uri (char *file)
       if (!*p)
         break;
       *dst++ = '%';
-      sprintf (dst, "%02X", (unsigned char) *p++);
+      sprintf (dst, "%02X", (uint8_t) *p++);
       dst += 2;
     }
   *dst = '\0';
