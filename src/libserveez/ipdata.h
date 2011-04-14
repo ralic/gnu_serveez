@@ -27,10 +27,10 @@
 typedef struct IPAddrEntry
 {
   in_addr_t      iae_addr;
-  unsigned long  iae_index;
-  unsigned long  iae_mask;
+  uint32_t       iae_index;
+  uint32_t       iae_mask;
   in_addr_t      iae_bcastaddr;
-  unsigned long  iae_reasmsize;
+  uint32_t       iae_reasmsize;
   uint16_t       iae_context;
   uint16_t       iae_pad;
 }
@@ -49,28 +49,28 @@ IPAddrEntry;
  */
 typedef struct IFEntry
 {
-  unsigned long if_index;
-  unsigned long if_type;
-  unsigned long if_mtu;
-  unsigned long if_speed;
-  unsigned long if_physaddrlen;
+  uint32_t if_index;
+  uint32_t if_type;
+  uint32_t if_mtu;
+  uint32_t if_speed;
+  uint32_t if_physaddrlen;
   uint8_t  if_physaddr[MAX_PHYSADDR_SIZE];
-  unsigned long if_adminstatus;
-  unsigned long if_operstatus;
-  unsigned long if_lastchange;
-  unsigned long if_inoctets;
-  unsigned long if_inucastpkts;
-  unsigned long if_innucastpkts;
-  unsigned long if_indiscards;
-  unsigned long if_inerrors;
-  unsigned long if_inunknownprotos;
-  unsigned long if_outoctets;
-  unsigned long if_outucastpkts;
-  unsigned long if_outnucastpkts;
-  unsigned long if_outdiscards;
-  unsigned long if_outerrors;
-  unsigned long if_outqlen;
-  unsigned long if_descrlen;
+  uint32_t if_adminstatus;
+  uint32_t if_operstatus;
+  uint32_t if_lastchange;
+  uint32_t if_inoctets;
+  uint32_t if_inucastpkts;
+  uint32_t if_innucastpkts;
+  uint32_t if_indiscards;
+  uint32_t if_inerrors;
+  uint32_t if_inunknownprotos;
+  uint32_t if_outoctets;
+  uint32_t if_outucastpkts;
+  uint32_t if_outnucastpkts;
+  uint32_t if_outdiscards;
+  uint32_t if_outerrors;
+  uint32_t if_outqlen;
+  uint32_t if_descrlen;
   uint8_t  if_descr[1];
 }
 IFEntry;
@@ -80,8 +80,8 @@ IFEntry;
  */
 typedef struct TDIEntityID
 {
-  unsigned long tei_entity;
-  unsigned long tei_instance;
+  uint32_t tei_entity;
+  uint32_t tei_instance;
 }
 TDIEntityID;
 
@@ -91,9 +91,9 @@ TDIEntityID;
 typedef struct TDIObjectID
 {
   TDIEntityID   toi_entity;
-  unsigned long toi_class;
-  unsigned long toi_type;
-  unsigned long toi_id;
+  uint32_t      toi_class;
+  uint32_t      toi_type;
+  uint32_t      toi_id;
 }
 TDIObjectID;
 

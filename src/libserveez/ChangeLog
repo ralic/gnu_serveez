@@ -1,5 +1,19 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘uint32_t’ for some IP struct members.
+
+	S(X) ≡ "Use ‘uint32_t’ for struct member(s) X".
+	* ipdata.h (IPAddrEntry):
+	S (iae_index, iae_mask, iae_reasmsize).
+	(IFEntry): S (if_index, if_type, if_mtu, if_speed, if_physaddrlen,
+	if_adminstatus, if_operstatus, if_lastchange, if_inoctets,
+	if_inucastpkts, if_innucastpkts, if_indiscards, if_inerrors,
+	if_inunknownprotos, if_outoctets, if_outucastpkts, if_outnucastpkts,
+	if_outdiscards, if_outerrors, if_outqlen, if_descrlen).
+	(TDIObjectID): S (toi_class, toi_type, toi_id).
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_udp_printf
 
 	* udp-socket.c (svz_udp_printf): Delete func.
