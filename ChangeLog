@@ -1,3 +1,11 @@
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Fix bug: #include <sys/time.h> when seeking ‘gettimeofday’.
+
+	* configure.ac (gettimeofday): New ‘AC_CHECK_DECLS’,
+	but only if the system has <sys/time.h>
+	(AC_CHECK_FUNCS): Remove ‘gettimeofday’.
+
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Require a C99 compiler.

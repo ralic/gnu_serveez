@@ -1,5 +1,15 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Fix bug: #include <sys/time.h> when seeking ‘gettimeofday’.
+
+	* sntp-server/sntp-proto.c: For preproc conditional
+	around #include <sys/time.h>, also check ‘HAVE_DECL_GETTIMEOFDAY’;
+	also in that case, ‘#define USE_GETTIMEOFDAY’.
+	(sntp_create_reply): Don't ‘#if HAVE_GETTIMEOFDAY’;
+	instead ‘#if USE_GETTIMEOFDAY’.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘uint8_t’ more.
 
 	U ≡ "Use ‘uint8_t’ or ‘uint8_t *’ for local var / cast";

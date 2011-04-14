@@ -29,8 +29,9 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-#if HAVE_SYS_TIME_H
+#if HAVE_SYS_TIME_H && HAVE_DECL_GETTIMEOFDAY
 # include <sys/time.h>
+# define USE_GETTIMEOFDAY 1
 #endif
 
 #ifndef __MINGW32__
@@ -108,7 +109,7 @@ sntp_create_reply (uint8_t *reply)
 {
   unsigned long date;
 
-#if HAVE_GETTIMEOFDAY
+#if USE_GETTIMEOFDAY
 
   struct timeval t;
   gettimeofday (&t, NULL);
@@ -118,14 +119,14 @@ sntp_create_reply (uint8_t *reply)
   memcpy (&reply[4], &date, 4);
   return 8;
 
-#else /* not HAVE_GETTIMEOFDAY */
+#else /* not USE_GETTIMEOFDAY */
 
   time_t t = time (NULL);
   date = htonl (SNTP_TIME_CONSTANT + t);
   memcpy (reply, &date, 4);
   return 4;
 
-#endif /* not HAVE_GETTIMEOFDAY */
+#endif /* not USE_GETTIMEOFDAY */
 }
 
 /*

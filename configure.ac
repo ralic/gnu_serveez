@@ -470,6 +470,11 @@ AC_SUBST([SERVEEZ_CFLAGS])
 dnl ----------------------------------------------------------------------
 dnl checks for library functions
 
+AS_IF([SVZ_Y([ac_cv_header_sys_time_h])],
+[AC_CHECK_DECLS([gettimeofday],[],[],[[
+#include <sys/time.h>
+]])])
+
 AC_CHECK_FUNCS([inet_pton])
 AC_CHECK_FUNCS([fwrite_unlocked])
 
@@ -478,7 +483,7 @@ AC_CHECK_FUNCS([times poll waitpid])
 AC_CHECK_FUNCS([uname])
 
 AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
-  getegid gettimeofday shl_load NSAddImage])
+  getegid shl_load NSAddImage])
 
 dnl
 dnl Check for ‘crypt’ function.
