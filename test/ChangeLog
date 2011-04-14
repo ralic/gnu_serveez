@@ -1,5 +1,11 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[v int] Declare no tests are known to fail.
+
+	* Makefile.am (XFAIL_TESTS): New var.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v] Centralize some common Scheme code.
 
 	* common: New file.

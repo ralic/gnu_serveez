@@ -27,6 +27,7 @@ include $(top_srcdir)/build-aux/common.mk
 GUILE = guile
 
 TESTS_ENVIRONMENT = $(GUILE) -s
+XFAIL_TESTS =
 TESTS = t000 t001
 
 CLEANFILES += *.log
