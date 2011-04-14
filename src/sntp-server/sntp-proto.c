@@ -101,12 +101,15 @@ sntp_detect_proto (SVZ_UNUSED svz_server_t *server,
 /* Time offset constant.  */
 #define SNTP_TIME_CONSTANT 2208988800u
 
+typedef int (wr_t) (svz_socket_t *, char *, int len);
+
 /*
- * Produces the SNTP reply and returns the actual size of it.
+ * Produces the SNTP reply and sends it.
  */
 static int
-sntp_create_reply (uint8_t *reply)
+answer (svz_socket_t *sock, wr_t *wr)
 {
+  char reply[8];
   unsigned long date;
 
 #if USE_GETTIMEOFDAY
@@ -117,14 +120,14 @@ sntp_create_reply (uint8_t *reply)
   memcpy (reply, &date, 4);
   date = htonl (t.tv_usec);
   memcpy (&reply[4], &date, 4);
-  return 8;
+  return wr (sock, reply, 8);
 
 #else /* not USE_GETTIMEOFDAY */
 
   time_t t = time (NULL);
   date = htonl (SNTP_TIME_CONSTANT + t);
   memcpy (reply, &date, 4);
-  return 4;
+  return wr (sock, reply, 4);
 
 #endif /* not USE_GETTIMEOFDAY */
 }
@@ -136,25 +139,9 @@ sntp_create_reply (uint8_t *reply)
 int
 sntp_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
-  int ret;
-  uint8_t reply[8];
-
   sock->check_request = NULL;
-
-  /* Simple SNTP.  */
-  if ((ret = sntp_create_reply (reply)) == 4)
-    {
-      sock->flags |= SVZ_SOFLG_FINAL_WRITE;
-      return svz_sock_printf (sock, "%c%c%c%c",
-                              reply[0], reply[1], reply[2], reply[3]);
-    }
-
-  /* Extended SNTP.  */
-  svz_sock_printf (sock, "%c%c%c%c",
-                   reply[0], reply[1], reply[2], reply[3]);
   sock->flags |= SVZ_SOFLG_FINAL_WRITE;
-  return svz_sock_printf (sock, "%c%c%c%c",
-                          reply[4], reply[5], reply[6], reply[7]);
+  return answer (sock, svz_sock_write);
 }
 
 /*
@@ -164,21 +151,7 @@ int
 sntp_handle_request (svz_socket_t *sock,
                      SVZ_UNUSED char *packet, SVZ_UNUSED int len)
 {
-  int ret;
-  uint8_t reply[8];
-
-  /* FIXME: Don't printf; instead, write.  */
-  if ((ret = sntp_create_reply (reply)) == 4)
-    {
-      svz_udp_printf (sock, "%c%c%c%c",
-                      reply[0], reply[1], reply[2], reply[3]);
-      return 0;
-    }
-
-  svz_udp_printf (sock, "%c%c%c%c",
-                  reply[0], reply[1], reply[2], reply[3]);
-  svz_udp_printf (sock, "%c%c%c%c",
-                  reply[4], reply[5], reply[6], reply[7]);
+  answer (sock, svz_udp_write);
   return 0;
 }
 

@@ -1,5 +1,15 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[sntp int] Use svz_{sock,udp}_write directly.
+
+	* sntp-server/sntp-proto.c (wr_t): New typedef.
+	(answer): Rename from ‘sntp_create_reply’; don't
+	take REPLY; instead, take SOCK and WR; apply WR
+	to the computed reply; return what WR returns.
+	(sntp_connect_socket, sntp_handle_request): Use ‘answer’.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Fix bug: #include <sys/time.h> when seeking ‘gettimeofday’.
 
 	* sntp-server/sntp-proto.c: For preproc conditional
