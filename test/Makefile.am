@@ -31,7 +31,7 @@ TESTS = t000 t001
 
 CLEANFILES += *.log
 
-EXTRA_DIST = $(TESTS) \
+EXTRA_DIST = common $(TESTS) \
 	prog-test.cfg test-suite.scm binary-test.scm server-test.scm \
 	guile-server-test.scm
 

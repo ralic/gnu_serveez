@@ -1,3 +1,11 @@
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v] Centralize some common Scheme code.
+
+	* common: New file.
+	* Makefile.am (EXTRA_DIST): Add common.
+	* t001: Rewrite to use common.
+
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[v int] Drop defunct "array index" tests.
