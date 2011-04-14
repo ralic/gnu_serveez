@@ -1,5 +1,12 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_udp_printf
+
+	* udp-socket.c (svz_udp_printf): Delete func.
+	* udp-socket.h (svz_udp_printf): Delete func decl.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib tcp] Fix bug: Inhibit "final write" on previous short write flush.
 
 	* socket.c (svz_sock_write): Work around TCP-specific bug:

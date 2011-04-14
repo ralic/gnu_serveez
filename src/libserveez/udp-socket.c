@@ -337,30 +337,6 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 }
 
 /*
- * Print a formatted string on the UDP socket @var{sock}.  @var{fmt} is
- * the @code{printf}-style format string, which describes how to format the
- * optional arguments.  See the printf(3) manual page for details.  The
- * destination address and port is saved for sending.  This you might
- * specify them in @code{sock->remote_addr} and @code{sock->remote_port}.
- */
-int
-svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
-{
-  va_list args;
-  static char buffer[VSNPRINTF_BUF_SIZE];
-  int len;
-
-  if (sock->flags & SVZ_SOFLG_KILLED)
-    return 0;
-
-  va_start (args, fmt);
-  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
-  va_end (args);
-
-  return svz_udp_write (sock, buffer, len);
-}
-
-/*
  * Create a UDP connection to @var{host} and set the socket descriptor in
  * structure @var{sock} to the resulting socket.  Return a @code{NULL} value
  * on errors.  This function can be used for port bouncing.  If you assign the

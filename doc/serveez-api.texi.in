@@ -391,7 +391,6 @@ generates and checks checksums to catch transmission errors.
 
 |F| svz_udp_connect
 |F| svz_udp_write
-|F| svz_udp_printf
 
 @node ICMP sockets
 @subsubsection ICMP sockets

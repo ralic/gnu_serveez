@@ -1,3 +1,9 @@
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop func: svz_udp_printf
+
+	* serveez-api.texi.in (UDP sockets): Delete ‘svz_udp_printf’.
+
 2011-04-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Require a C99 compiler.

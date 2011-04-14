@@ -40,7 +40,6 @@ SBO int svz_udp_write_socket (svz_socket_t *);
 SBO int svz_udp_check_request (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_udp_connect (in_addr_t, in_port_t);
 SERVEEZ_API int svz_udp_write (svz_socket_t *, char *, int);
-SERVEEZ_API int svz_udp_printf (svz_socket_t *, const char *, ...);
 
 __END_DECLS
 
