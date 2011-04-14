@@ -1,5 +1,13 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib tcp] Fix bug: Inhibit "final write" on previous short write flush.
+
+	* socket.c (svz_sock_write): Work around TCP-specific bug:
+	Keep track of the original ‘len’; inhibit ‘SVZ_SOFLG_FINAL_WRITE’ when
+	flushing a previous write, to avoid silently dropping current one.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘uint8_t’ more.
 
 	S(X) ≡ "Use ‘uint8_t’ or ‘uint8_t *’ for struct member(s) X".

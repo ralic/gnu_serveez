@@ -560,6 +560,7 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
 {
   int ret;
   int space;
+  int orig_len = len;
 
   if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
@@ -570,8 +571,22 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
       if (sock->write_socket && !sock->unavailable &&
           sock->flags & SVZ_SOFLG_CONNECTED && sock->send_buffer_fill)
         {
+          /* TCP-specific hack: If ‘SVZ_SOFLG_FINAL_WRITE’ is set, but
+             we are flushing from a previous write, temporarily inhibit
+             it around the next call to ‘sock->write_socket’ to prevent
+             it (specifically, ‘svz_tcp_write_socket’) from scheduling a
+             shutdown prematurely (with consequent early return from
+             this function, silently dropping the current write).  */
+          int inhibitp = (sock->flags & SVZ_SOFLG_FINAL_WRITE)
+            && svz_tcp_write_socket == sock->write_socket
+            && orig_len == len;
+
+          if (inhibitp)
+            sock->flags &= ~SVZ_SOFLG_FINAL_WRITE;
           if ((ret = sock->write_socket (sock)) != 0)
             return ret;
+          if (inhibitp)
+            sock->flags |= SVZ_SOFLG_FINAL_WRITE;
         }
 
       if (sock->send_buffer_fill >= sock->send_buffer_size)

@@ -1,5 +1,11 @@
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib tcp] Fix bug: Inhibit "final write" on previous short write flush.
+
+	* Makefile.am (XFAIL_TESTS): Remove t002.
+
+2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v] Add test for SNTP server; mark xfail.
 
 	* t002: New file.
