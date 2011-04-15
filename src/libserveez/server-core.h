@@ -31,7 +31,7 @@
 
 SBO svz_t_handle svz_child_died;
 SBO int svz_nuke_happened;
-SBO long svz_notify;
+SBO time_t svz_notify;
 SBO svz_socket_t *svz_sock_root;
 
 /* begin svzint */

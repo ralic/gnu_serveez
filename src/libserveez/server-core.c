@@ -116,7 +116,7 @@ static int svz_signal = -1;
  * This holds the time on which the next call to @code{svz_periodic_tasks}
  * should occur.
  */
-long svz_notify;
+time_t svz_notify;
 
 /*
  * Pointer to the head of the list of sockets,
