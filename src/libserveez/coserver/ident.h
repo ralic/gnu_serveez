@@ -25,9 +25,6 @@
 
 __BEGIN_DECLS
 
-/*
- * Opens a connection to ident server and receives / parses the response.
- */
 SBO char *ident_handle_request (char *);
 
 __END_DECLS

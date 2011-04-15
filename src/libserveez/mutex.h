@@ -29,13 +29,15 @@
 # include <windows.h>
 #endif
 
-#ifdef __MINGW32__ /* Windows native */
+#ifdef __MINGW32__
 
+/* Windows native */
 typedef svz_t_handle svz_mutex_t;
 # define SVZ_MUTEX_INITIALIZER NULL
 
-#else /* POSIX threads */
+#else
 
+/* POSIX threads */
 typedef pthread_mutex_t svz_mutex_t;
 # define SVZ_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
 

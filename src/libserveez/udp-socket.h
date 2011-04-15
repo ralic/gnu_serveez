@@ -34,7 +34,6 @@
 
 __BEGIN_DECLS
 
-/* exported UDP socket functions */
 SBO int svz_udp_lazy_read_socket (svz_socket_t *);
 SBO int svz_udp_write_socket (svz_socket_t *);
 SBO int svz_udp_check_request (svz_socket_t *);

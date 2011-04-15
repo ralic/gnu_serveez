@@ -31,7 +31,7 @@
 #define ICMP_BUF_SIZE    (4 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
 /* end svzint */
 
-/* serveez ICMP types and sub-codes */
+/* Serveez-ICMP types and sub-codes.  */
 #define SVZ_ICMP_SERVEEZ        42
 #define SVZ_ICMP_SERVEEZ_DATA    0
 #define SVZ_ICMP_SERVEEZ_REQ     1
@@ -41,7 +41,6 @@
 
 __BEGIN_DECLS
 
-/* Exported ICMP socket functions.  */
 SBO int svz_icmp_lazy_read_socket (svz_socket_t *);
 SBO int svz_icmp_write_socket (svz_socket_t *);
 SBO int svz_icmp_check_request (svz_socket_t *);

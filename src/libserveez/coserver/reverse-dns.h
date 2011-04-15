@@ -25,14 +25,7 @@
 
 __BEGIN_DECLS
 
-/*
- * Initialize the reserve DNS's cache.
- */
 SBO void reverse_dns_init (void);
-
-/*
- * Proceed a reverse DNS lookup.
- */
 SBO char *reverse_dns_handle_request (char *);
 
 __END_DECLS

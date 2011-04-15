@@ -25,7 +25,6 @@
 
 __BEGIN_DECLS
 
-/* Proceed a single DNS lookup.  */
 SBO char *dns_handle_request (char *);
 
 __END_DECLS
