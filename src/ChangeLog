@@ -1,5 +1,14 @@
 2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Make ‘const’ 2nd arg to guile_to_{hash,strarray,intarray}.
+
+	* guile.c (guile_to_hash): Make 2nd arg ‘const’; rename to ‘func’.
+	(guile_to_strarray, guile_to_intarray): Make 2nd arg ‘const’.
+	* guile.h (guile_to_intarray, guile_to_strarray)
+	(guile_to_hash): Update func decls.
+
+2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Add abstraction: SOCK_CALLBACK_BODY
 
 	* guile-server.c (SOCK_CALLBACK_BODY): New macro.

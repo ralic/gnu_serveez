@@ -468,7 +468,7 @@ guile_to_boolean (SCM cell, int *target)
  */
 #define FUNC_NAME "guile_to_hash"
 svz_hash_t *
-guile_to_hash (SCM list, char *prefix)
+guile_to_hash (SCM list, const char *func)
 {
   int err = 0, i;
   svz_hash_t *hash;
@@ -477,7 +477,7 @@ guile_to_hash (SCM list, char *prefix)
   if (!SCM_LISTP (list))
     {
       err = -1;
-      guile_error ("%s: Not a valid list for hash", prefix);
+      guile_error ("%s: Not a valid list for hash", func);
       return NULL;
     }
 
@@ -492,7 +492,7 @@ guile_to_hash (SCM list, char *prefix)
       if (!SCM_PAIRP (pair))
         {
           err = -1;
-          guile_error ("%s: Element #%d of hash is not a pair", prefix, i);
+          guile_error ("%s: Element #%d of hash is not a pair", func, i);
           continue;
         }
       k = SCM_CAR (pair);
@@ -503,7 +503,7 @@ guile_to_hash (SCM list, char *prefix)
         {
           err = -1;
           guile_error ("%s: Element #%d of hash has no valid key "
-                       "(string expected)", prefix, i);
+                       "(string expected)", func, i);
           keystr = NULL;
         }
       else
@@ -517,7 +517,7 @@ guile_to_hash (SCM list, char *prefix)
         {
           err = -1;
           guile_error ("%s: Element #%d of hash has no valid value "
-                       "(string expected)", prefix, i);
+                       "(string expected)", func, i);
           valstr = NULL;
         }
       else
@@ -552,7 +552,7 @@ guile_to_hash (SCM list, char *prefix)
  */
 #define FUNC_NAME "guile_to_strarray"
 svz_array_t *
-guile_to_strarray (SCM list, char *func)
+guile_to_strarray (SCM list, const char *func)
 {
   svz_array_t *array;
   int i;
@@ -597,7 +597,7 @@ guile_to_strarray (SCM list, char *func)
  */
 #define FUNC_NAME "guile_to_intarray"
 svz_array_t *
-guile_to_intarray (SCM list, char *func)
+guile_to_intarray (SCM list, const char *func)
 {
   svz_array_t *array;
   int i, n;

@@ -40,9 +40,9 @@ int guile_global_error;
 /* Export these functions.  */
 int guile_to_integer (SCM, int *);
 int guile_to_boolean (SCM, int *);
-svz_array_t *guile_to_intarray (SCM, char *);
-svz_array_t *guile_to_strarray (SCM, char *);
-svz_hash_t *guile_to_hash (SCM, char *);
+svz_array_t *guile_to_intarray (SCM, const char *);
+svz_array_t *guile_to_strarray (SCM, const char *);
+svz_hash_t *guile_to_hash (SCM, const char *);
 svz_hash_t *guile_to_optionhash (SCM, char *, int);
 SCM guile_strarray_to_guile (svz_array_t *);
 SCM guile_intarray_to_guile (svz_array_t *);
