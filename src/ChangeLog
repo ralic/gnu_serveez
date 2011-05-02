@@ -1,5 +1,16 @@
 2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Add abstractions: BIN_{REF,SET}_BODY
+
+	* guile-bin.c (BIN_REF_BODY, BIN_SET_BODY): New macros.
+	(MAKE_BIN_REF, MAKE_BIN_SET): Delete macros.
+	(guile_bin_long_ref, guile_bin_int_ref, guile_bin_short_ref)
+	(guile_bin_char_ref): Use ‘BIN_REF_BODY’.
+	(guile_bin_long_set, guile_bin_int_set, guile_bin_short_set)
+	(guile_bin_char_set): Use ‘BIN_SET_BODY’.
+
+2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Make ‘const’ 2nd arg to guile_to_{hash,strarray,intarray}.
 
 	* guile.c (guile_to_hash): Make 2nd arg ‘const’; rename to ‘func’.

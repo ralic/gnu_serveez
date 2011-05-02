@@ -572,20 +572,23 @@ guile_bin_to_data (SCM binary, int *size)
   return bin->data;
 }
 
-/* The following macro expands to a procedure definition which accesses a
+/* The following macro expands to a procedure body which accesses a
    binary smob's data for reading depending on the given @var{ctype}.  */
-#define MAKE_BIN_REF(ctype)                                                  \
-static SCM _CTYPE (ctype, ref) (SCM binary, SCM index) {                     \
-  guile_bin_t *bin; int idx; long val = 0; void *data;                       \
-  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
-  SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
-  idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
-  if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))                  \
-    SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
-  data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));       \
-  memcpy (&val, data, sizeof (ctype));                                       \
-  return gi_integer2scm (val);                                               \
-}
+#define BIN_REF_BODY(ctype)                                             \
+  guile_bin_t *bin;                                                     \
+  int idx;                                                              \
+  long val = 0;                                                         \
+  void *data;                                                           \
+                                                                        \
+  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                           \
+  SCM_ASSERT_TYPE (SCM_EXACTP (index), index,                           \
+                   SCM_ARG2, FUNC_NAME, "exact");                       \
+  idx = SCM_NUM2INT (SCM_ARG2, index);                                  \
+  if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))             \
+    SCM_OUT_OF_RANGE (SCM_ARG2, index);                                 \
+  data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));  \
+  memcpy (&val, data, sizeof (ctype));                                  \
+  return gi_integer2scm (val)
 
 /* Checks whether the scheme value @var{value} can be stored within a
    @var{ctype}. The macro stores valid values in @var{val} and throws an
@@ -606,73 +609,112 @@ static SCM _CTYPE (ctype, ref) (SCM binary, SCM index) {                     \
 
 /* The following macro expands to a procedure definition which accesses a
    binary smob's data for writing depending on the given @var{ctype}.  */
-#define MAKE_BIN_SET(ctype)                                                  \
-static SCM _CTYPE (ctype, set) (SCM binary, SCM index, SCM value) {          \
-  guile_bin_t *bin; int idx; unsigned long val; SCM old;                     \
-  unsigned long oldval = 0; void *data;                                      \
-  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
-  SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
-  idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
-  if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))                  \
-    SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
-  SCM_ASSERT_TYPE (SCM_EXACTP (value), value, SCM_ARG3, FUNC_NAME, "exact"); \
-  CTYPE_CHECK_RANGE (ctype, value, SCM_ARG3, val);                           \
-  data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));       \
-  memcpy (&oldval, data, sizeof (ctype));                                    \
-  old = gi_integer2scm (oldval); memcpy (data, &val, sizeof (ctype));        \
-  return old;                                                                \
-}
+#define BIN_SET_BODY(ctype)                                     \
+  guile_bin_t *bin;                                             \
+  int idx;                                                      \
+  unsigned long val;                                            \
+  SCM old;                                                      \
+  unsigned long oldval = 0;                                     \
+  void *data;                                                   \
+                                                                \
+  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                   \
+  SCM_ASSERT_TYPE (SCM_EXACTP (index), index,                   \
+                   SCM_ARG2, FUNC_NAME, "exact");               \
+  idx = SCM_NUM2INT (SCM_ARG2, index);                          \
+  if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))     \
+    SCM_OUT_OF_RANGE (SCM_ARG2, index);                         \
+  SCM_ASSERT_TYPE (SCM_EXACTP (value), value,                   \
+                   SCM_ARG3, FUNC_NAME, "exact");               \
+  CTYPE_CHECK_RANGE (ctype, value, SCM_ARG3, val);              \
+  data = SVZ_NUM2PTR                                            \
+    (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));           \
+  memcpy (&oldval, data, sizeof (ctype));                       \
+  old = gi_integer2scm (oldval);                                \
+  memcpy (data, &val, sizeof (ctype));                          \
+  return old
 
 /* Returns the @code{long} value of the binary smob @var{binary} at the
    array index @var{index}.  */
 #define FUNC_NAME "binary-long-ref"
-MAKE_BIN_REF (long)
+static SCM
+_CTYPE (long, ref) (SCM binary, SCM index)
+{
+  BIN_REF_BODY (long);
+}
 #undef FUNC_NAME
 
 /* Sets the @code{long} value of the binary smob @var{binary} at the array
    index @var{index} to the given value @var{value}.  The procedure returns
    the previous (overridden) value.  */
 #define FUNC_NAME "binary-long-set!"
-MAKE_BIN_SET (long)
+static SCM
+_CTYPE (long, set) (SCM binary, SCM index, SCM value)
+{
+  BIN_SET_BODY (long);
+}
 #undef FUNC_NAME
 
 /* Returns the @code{int} value of the binary smob @var{binary} at the
    array index @var{index}.  */
 #define FUNC_NAME "binary-int-ref"
-MAKE_BIN_REF (int)
+static SCM
+_CTYPE (int, ref) (SCM binary, SCM index)
+{
+  BIN_REF_BODY (int);
+}
 #undef FUNC_NAME
 
 /* Sets the @code{int} value of the binary smob @var{binary} at the array
    index @var{index} to the given value @var{value}.  The procedure returns
    the previous (overridden) value.  */
 #define FUNC_NAME "binary-int-set!"
-MAKE_BIN_SET (int)
+static SCM
+_CTYPE (int, set) (SCM binary, SCM index, SCM value)
+{
+  BIN_SET_BODY (int);
+}
 #undef FUNC_NAME
 
 /* Returns the @code{short} value of the binary smob @var{binary} at the
    array index @var{index}.  */
 #define FUNC_NAME "binary-short-ref"
-MAKE_BIN_REF (short)
+static SCM
+_CTYPE (short, ref) (SCM binary, SCM index)
+{
+  BIN_REF_BODY (short);
+}
 #undef FUNC_NAME
 
 /* Sets the @code{short} value of the binary smob @var{binary} at the array
    index @var{index} to the given value @var{value}.  The procedure returns
    the previous (overridden) value.  */
 #define FUNC_NAME "binary-short-set!"
-MAKE_BIN_SET (short)
+static SCM
+_CTYPE (short, set) (SCM binary, SCM index, SCM value)
+{
+  BIN_SET_BODY (short);
+}
 #undef FUNC_NAME
 
 /* Returns the @code{char} value of the binary smob @var{binary} at the
    array index @var{index}.  */
 #define FUNC_NAME "binary-char-ref"
-MAKE_BIN_REF (char)
+static SCM
+_CTYPE (char, ref) (SCM binary, SCM index)
+{
+  BIN_REF_BODY (char);
+}
 #undef FUNC_NAME
 
 /* Sets the @code{char} value of the binary smob @var{binary} at the array
    index @var{index} to the given value @var{value}.  The procedure returns
    the previous (overridden) value.  */
 #define FUNC_NAME "binary-char-set!"
-MAKE_BIN_SET (char)
+static SCM
+_CTYPE (char, set) (SCM binary, SCM index, SCM value)
+{
+  BIN_SET_BODY (char);
+}
 #undef FUNC_NAME
 
 /* Initialize the binary smob with all its features.  Call this function
