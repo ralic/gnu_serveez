@@ -35,8 +35,10 @@ EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 CLEANFILES += stamp-vti*
 DISTCLEANFILES = stamp-*
 
+srcsrcd = $(top_srcdir)/src
+
 libserveez_scanroot = .scan/libserveez
-libserveez_root = $(top_srcdir)/src/libserveez
+libserveez_root = $(srcsrcd)/libserveez
 libserveez_impl = \
   alloc.c alloc.h \
   array.c array.h \
@@ -65,7 +67,6 @@ libserveez_impl = \
   coserver/coserver.c coserver/coserver.h
 
 guile_scanroot = .scan/guile
-guile_root = $(top_srcdir)/src
 guile_impl = \
   guile-api.c \
   guile-bin.c \
@@ -121,7 +122,7 @@ serveez-api.sed: $(libserveez_from)
 guile-api.texi: guile-api.sed guile-api.texi.in
 	$(SED) -f $< $(srcdir)/guile-api.texi.in > $@
 
-snippets: $(top_srcdir)/src/guile-boot.scm
+snippets: $(srcsrcd)/guile-boot.scm
 	$(gx) tsar -v -l scheme -f $@ -c utf-8 update $?
 
 guile-boot.texi: snippets
@@ -132,7 +133,7 @@ EXTRA_DIST += $(BUILT_SOURCES) guile-boot.texh
 .texh.texi:
 	$(gx) tsin -f snippets -c utf-8 $<
 
-guile_from = $(guile_impl:%=$(guile_root)/%)
+guile_from = $(guile_impl:%=$(srcsrcd)/%)
 
 guile-api.sed: $(guile_from)
 	@if test -d $(guile_scanroot);			\
@@ -140,7 +141,7 @@ guile-api.sed: $(guile_from)
 	else list='$(guile_from)';			\
 	fi;						\
 	for f in $$list; do				\
-	  frag=$$(echo $$f | sed 's|$(guile_root)||');	\
+	  frag=$$(echo $$f | sed 's|$(srcsrcd)||');	\
 	  to=$(guile_scanroot)$$frag;			\
 	  $(MKDIR_P) $$(dirname $$to);			\
 	  echo updating: $$to;				\

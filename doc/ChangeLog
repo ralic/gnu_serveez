@@ -1,3 +1,12 @@
+2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Add doc/Makefile.am var: srcsrcd
+
+	* Makefile.am (srcsrcd): New var.
+	(libserveez_root): Use $(srcsrcd).
+	(guile_root): Delete var.
+	(snippets, guile_from, guile-api.sed): Use $(srcsrcd).
+
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop func: svz_udp_printf
