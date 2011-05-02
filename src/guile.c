@@ -1587,41 +1587,54 @@ guile_access_loadpath (SCM args)
 #undef FUNC_NAME
 
 /*
- * Create a checker procedure named @var{cfunc} which evaluates the boolean
- * expression @var{expression}.  The argument for this procedure is a character
- * string which can be uses as @var{str} within the expression.
+ * Create a checker procedure body which evaluates the boolean
+ * expression @var{expression}.  The argument for this procedure
+ * is a character string which can be uses as @var{str} within
+ * the expression.
  */
-#define MAKE_STRING_CHECKER(cfunc, expression) \
-SCM cfunc (SCM arg) {                          \
-  char *str;                                   \
-  GUILE_PRECALL ();                            \
-  if ((str = guile_to_string (arg)) == NULL)   \
-    return SCM_BOOL_F;                         \
-  if (!(expression)) {                         \
-    scm_c_free (str);                          \
-    return SCM_BOOL_F; }                       \
-  scm_c_free (str);                            \
-  return SCM_BOOL_T;                           \
-}
+#define STRING_CHECKER_BODY(expression)         \
+  char *str;                                    \
+  SCM rv;                                       \
+                                                \
+  GUILE_PRECALL ();                             \
+  rv = (! (str = guile_to_string (arg))         \
+        || !(expression))                       \
+    ? SCM_BOOL_F                                \
+    : SCM_BOOL_T;                               \
+  if (str)                                      \
+    scm_c_free (str);                           \
+  return rv
 
 /* Returns @code{#t} if the given string @var{name} corresponds with a
    registered port configuration, otherwise the procedure returns
    @code{#f}.  */
 #define FUNC_NAME "serveez-port?"
-MAKE_STRING_CHECKER (guile_check_port, svz_portcfg_get (str) != NULL)
+static SCM
+guile_check_port (SCM arg)
+{
+  STRING_CHECKER_BODY (svz_portcfg_get (str) != NULL);
+}
 #undef FUNC_NAME
 
 /* Checks whether the given string @var{name} corresponds with an
    instantiated server name and returns @code{#t} if so.  */
 #define FUNC_NAME "serveez-server?"
-MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
+static SCM
+guile_check_server (SCM arg)
+{
+  STRING_CHECKER_BODY (svz_server_get (str) != NULL);
+}
 #undef FUNC_NAME
 
 /* This procedure checks whether the given string @var{name} is a valid
    server type prefix known in Serveez and returns @code{#t} if so.
    Otherwise it returns @code{#f}.  */
 #define FUNC_NAME "serveez-servertype?"
-MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
+static SCM
+guile_check_stype (SCM arg)
+{
+  STRING_CHECKER_BODY (svz_servertype_get (str, 0) != NULL);
+}
 #undef FUNC_NAME
 
 static SCM

@@ -1,5 +1,14 @@
 2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Add abstraction: STRING_CHECKER_BODY
+
+	* guile.c (STRING_CHECKER_BODY): New macro.
+	(MAKE_STRING_CHECKER): Delete macro.
+	(guile_check_port, guile_check_server)
+	(guile_check_stype): Use ‘STRING_CHECKER_BODY’.
+
+2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Add abstractions: BIN_{REF,SET}_BODY
 
 	* guile-bin.c (BIN_REF_BODY, BIN_SET_BODY): New macros.
