@@ -157,19 +157,22 @@ MAKE_SMOB_DEFINITION (svz_socket, "svz-socket")
 MAKE_SMOB_DEFINITION (svz_server, "svz-server")
 MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
 
-/* This macro creates a socket callback getter/setter for use in Guile.
-   The procedure returns any previously set callback or an undefined value.  */
-#define MAKE_SOCK_CALLBACK(func, assoc)                                \
-static SCM guile_sock_ ## func (SCM sock, SCM proc) {                  \
-  svz_socket_t *xsock;                                                 \
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);    \
-  if (!SCM_UNBNDP (proc)) {                                            \
-    SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2, FUNC_NAME, \
-                     "procedure");                                     \
-    xsock->func = guile_func_ ## func;                                 \
-    return guile_sock_setfunction (xsock, assoc, proc); }              \
-  return guile_sock_getfunction (xsock, assoc);                        \
-}
+/* This macro creates a the body of socket callback getter/setter for
+   use from Scheme code.  The procedure returns any previously set
+   callback or an undefined value.  */
+#define SOCK_CALLBACK_BODY(func,assoc)                          \
+  svz_socket_t *xsock;                                          \
+                                                                \
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1,                   \
+                  "svz-socket", xsock);                         \
+  if (!SCM_UNBNDP (proc))                                       \
+    {                                                           \
+      SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2,   \
+                       FUNC_NAME, "procedure");                 \
+      xsock->func = guile_func_ ## func;                        \
+      return guile_sock_setfunction (xsock, assoc, proc);       \
+    }                                                           \
+  return guile_sock_getfunction (xsock, assoc)
 
 /* Provides a socket callback setter/getter.  */
 #define DEFINE_SOCK_CALLBACK(assoc, func) \
@@ -856,14 +859,22 @@ guile_func_check_request_oob (svz_socket_t *sock)
    to the Guile procedure @var{proc}.  The procedure returns the previously
    set handler if there is any.  */
 #define FUNC_NAME "svz:sock:handle-request"
-MAKE_SOCK_CALLBACK (handle_request, "handle-request")
+SCM
+guile_sock_handle_request (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (handle_request, "handle-request");
+}
 #undef FUNC_NAME
 
 /* Set the @code{check-request} member of the socket structure @var{sock}
    to the Guile procedure @var{proc}.  Returns the previously handler if
    there is any.  */
 #define FUNC_NAME "svz:sock:check-request"
-MAKE_SOCK_CALLBACK (check_request, "check-request")
+SCM
+guile_sock_check_request (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (check_request, "check-request");
+}
 #undef FUNC_NAME
 
 /* Setup the packet boundary of the socket @var{sock}.  The given string value

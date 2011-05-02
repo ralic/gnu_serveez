@@ -576,7 +576,11 @@ guile_server_p (SCM server)
    runs whenever the socket is lost for some external reason.  The procedure
    returns the previously set handler if there is one.  */
 #define FUNC_NAME "svz:sock:disconnected"
-MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
+SCM
+guile_sock_disconnected_socket (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (disconnected_socket, "disconnected");
+}
 #undef FUNC_NAME
 
 /* Sets the @code{kicked-socket} callback of the given socket structure
@@ -584,7 +588,11 @@ MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
    set procedure.  This callback gets called whenever the socket gets
    closed by Serveez intentionally.  */
 #define FUNC_NAME "svz:sock:kicked"
-MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
+SCM
+guile_sock_kicked_socket (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (kicked_socket, "kicked");
+}
 #undef FUNC_NAME
 
 /* This procedure sets the @code{trigger-condition} callback for the socket
@@ -593,7 +601,11 @@ MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
    server loop indicating whether the @code{trigger} callback should be
    run or not.  */
 #define FUNC_NAME "svz:sock:trigger-condition"
-MAKE_SOCK_CALLBACK (trigger_cond, "trigger-condition")
+SCM
+guile_sock_trigger_cond (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (trigger_cond, "trigger-condition");
+}
 #undef FUNC_NAME
 
 /* Sets the @code{trigger} callback of the socket structure @var{sock} to
@@ -601,7 +613,11 @@ MAKE_SOCK_CALLBACK (trigger_cond, "trigger-condition")
    The callback is run when the @code{trigger-condition} callback returned
    @code{#t}.  */
 #define FUNC_NAME "svz:sock:trigger"
-MAKE_SOCK_CALLBACK (trigger_func, "trigger")
+SCM
+guile_sock_trigger_func (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (trigger_func, "trigger");
+}
 #undef FUNC_NAME
 
 /* This procedure sets the @code{idle} callback of the socket structure
@@ -612,7 +628,11 @@ MAKE_SOCK_CALLBACK (trigger_func, "trigger")
    callback can reset @code{idle-counter} to some value and thus can
    re-schedule itself for a later task.  */
 #define FUNC_NAME "svz:sock:idle"
-MAKE_SOCK_CALLBACK (idle_func, "idle")
+SCM
+guile_sock_idle_func (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (idle_func, "idle");
+}
 #undef FUNC_NAME
 
 /* With this procedure you can setup the @code{check-oob-request} callback
@@ -621,7 +641,11 @@ MAKE_SOCK_CALLBACK (idle_func, "idle")
    set any before.  The callback is run whenever urgent data (out-of-band)
    has been detected on the socket.  */
 #define FUNC_NAME "svz:sock:check-oob-request"
-MAKE_SOCK_CALLBACK (check_request_oob, "check-oob-request")
+SCM
+guile_sock_check_request_oob (SCM sock, SCM proc)
+{
+  SOCK_CALLBACK_BODY (check_request_oob, "check-oob-request");
+}
 #undef FUNC_NAME
 
 /* This procedure returns the socket structure @var{sock}'s current

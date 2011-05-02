@@ -1,3 +1,16 @@
+2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Add abstraction: SOCK_CALLBACK_BODY
+
+	* guile-server.c (SOCK_CALLBACK_BODY): New macro.
+	(MAKE_SOCK_CALLBACK): Delete macro.
+	(guile_sock_handle_request): Use ‘SOCK_CALLBACK_BODY’.
+	(guile_sock_check_request): Likewise.
+	* guile-api.c (guile_sock_disconnected_socket)
+	(guile_sock_kicked_socket, guile_sock_trigger_cond)
+	(guile_sock_trigger_func, guile_sock_idle_func)
+	(guile_sock_check_request_oob): Likewise.
+
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[sntp int] Use svz_{sock,udp}_write directly.
