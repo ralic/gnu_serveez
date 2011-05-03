@@ -351,14 +351,15 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
   return hash;
 }
 
-/*
- * Return a list of symbols representing the features of the underlying
- * libserveez.  For details, @xref{Library features}.
- */
-#define FUNC_NAME "libserveez-features"
-static SCM
-libserveez_features (void)
+SCM_DEFINE
+(libserveez_features,
+ "libserveez-features", 0, 0, 0,
+ (void),
+ doc: /***********
+Return a list of symbols representing the features of the underlying
+libserveez.  For details, @xref{Library features}.  */)
 {
+#define FUNC_NAME s_libserveez_features
   SCM rv = SCM_EOL;
   size_t count;
   const char * const *ls = svz_library_features (&count);
@@ -367,18 +368,18 @@ libserveez_features (void)
     rv = scm_cons (gi_symbol2scm (ls[count]), rv);
 
   return rv;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Parse an integer value from a scheme cell.  Returns zero when successful.
  * Stores the integer value where @var{target} points to.  Does not emit
  * error messages.
  */
-#define FUNC_NAME "guile_to_integer"
 int
 guile_to_integer (SCM cell, int *target)
 {
+#define FUNC_NAME __func__
   int err = 0;
   char *str = NULL, *endp;
 
@@ -402,8 +403,8 @@ guile_to_integer (SCM cell, int *target)
       err = 2;
     }
   return err;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Parse a boolean value from a scheme cell.  We consider integers and #t/#f
@@ -411,10 +412,10 @@ guile_to_integer (SCM cell, int *target)
  * zero when successful.  Stores the boolean/integer where @var{target} points
  * to.  Does not emit error messages.
  */
-#define FUNC_NAME "guile_to_boolean"
 int
 guile_to_boolean (SCM cell, int *target)
 {
+#define FUNC_NAME __func__
   int i;
   int err = 0;
   char *str;
@@ -458,18 +459,18 @@ guile_to_boolean (SCM cell, int *target)
       err = 2;
     }
   return err;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Convert the given guile list @var{list} into a hash.  Return
  * @code{NULL} on failure.  Error messages will be emitted if
  * necessary.
  */
-#define FUNC_NAME "guile_to_hash"
 svz_hash_t *
 guile_to_hash (SCM list, const char *func)
 {
+#define FUNC_NAME func
   int err = 0, i;
   svz_hash_t *hash;
 
@@ -541,8 +542,8 @@ guile_to_hash (SCM list, const char *func)
       return NULL;
     }
   return hash;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Convert the given non-empty @var{list} into an array of duplicated strings.
@@ -550,10 +551,10 @@ guile_to_hash (SCM list, const char *func)
  * message if one of the list's elements is not a string.  The additional
  * argument @var{func} should be the name of the caller.
  */
-#define FUNC_NAME "guile_to_strarray"
 svz_array_t *
 guile_to_strarray (SCM list, const char *func)
 {
+#define FUNC_NAME func
   svz_array_t *array;
   int i;
   char *str;
@@ -587,18 +588,18 @@ guile_to_strarray (SCM list, const char *func)
       array = NULL;
     }
   return array;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Convert the given scheme cell @var{list} which needs to be a valid guile
  * list into an array of integers.  The additional argument @var{func} is the
  * name of the caller.  Return NULL on failure.
  */
-#define FUNC_NAME "guile_to_intarray"
 svz_array_t *
 guile_to_intarray (SCM list, const char *func)
 {
+#define FUNC_NAME func
   svz_array_t *array;
   int i, n;
 
@@ -629,8 +630,8 @@ guile_to_intarray (SCM list, const char *func)
       array = NULL;
     }
   return array;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Extract an integer value from an option hash.  Returns zero if it worked.
@@ -986,19 +987,19 @@ optionhash_extract_pipe (svz_hash_t *hash,
   return err;
 }
 
-/*
- * Instantiate a configurable type.  Takes four arguments: the name of
- * the configurable @var{type}, the second is the type @var{name} in
- * the configurable type's domain, the third is the @var{instance}
- * name the newly instantiated type should get and the last is the
- * configuration alist for the new instance.  Emits error messages (to
- * stderr).  Returns @code{#t} when the instance was successfully
- * created, @code{#f} in case of any error.
- */
-#define FUNC_NAME "instantiate-config-type!"
-SCM
-guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
+SCM_DEFINE
+(guile_config_instantiate,
+ "instantiate-config-type!", 3, 1, 0,
+ (SCM type, SCM name, SCM instance, SCM opts),
+ doc: /***********
+Instantiate a configurable type.  The four arguments are: the name of
+the configurable @var{type}, the type @var{name} in the configurable
+type's domain, the @var{instance} name the newly instantiated type
+should get, and the configuration alist for the new instance.
+Emit error messages (to stderr).  Return @code{#t} on success,
+@code{#f} in case of any error.  */)
 {
+#define FUNC_NAME s_guile_config_instantiate
   int err = 0;
   char *c_type = NULL, *c_name = NULL, *c_instance = NULL;
   svz_hash_t *options = NULL;
@@ -1062,21 +1063,21 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
 
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
-/*
- * Guile server definition.  Use two arguments:
- * First is a (unique) server name of the form "type-something" where
- * "type" is the shortname of a servertype.  Second is the optionhash that
- * is special for the server.  Uses library to configure the individual
- * options.  Emits error messages (to stderr).  Returns #t when server got
- * defined, #f in case of any error.
- */
-#define FUNC_NAME "define-server!"
-SCM
-guile_define_server (SCM name, SCM args)
+SCM_DEFINE
+(guile_define_server,
+ "define-server!", 1, 1, 0,
+ (SCM name, SCM args),
+ doc: /***********
+Define a server.  @var{name} is a (unique) server name of the form
+@code{@var{type}-@var{something}}, where @var{type} is the shortname of a
+servertype.  @var{args} is the optionhash that is special for the server.
+Emit error messages (to stderr).  Return @code{#t} on success, @code{#f}
+in case of any error.  */)
 {
+#define FUNC_NAME s_guile_define_server
   /* Note: This function could now as well be implemented in Scheme.
      [rotty] */
   int err = 0;
@@ -1088,7 +1089,7 @@ guile_define_server (SCM name, SCM args)
   /* Check if the given server name is valid.  */
   if (NULL == (servername = guile_to_string (name)))
     {
-      guile_error (FUNC_NAME ": Invalid server name (string expected)");
+      guile_error ("%s: Invalid server name (string expected)", FUNC_NAME);
       FAIL ();
     }
 
@@ -1102,7 +1103,7 @@ guile_define_server (SCM name, SCM args)
     *p = '\0';
   else
     {
-      guile_error (FUNC_NAME ": Not a valid server name: `%s'", servername);
+      guile_error ("%s: Not a valid server name: `%s'", FUNC_NAME, servername);
       FAIL ();
     }
 
@@ -1116,8 +1117,8 @@ guile_define_server (SCM name, SCM args)
     scm_c_free (servername);
 
   return retval;
-}
 #undef FUNC_NAME
+}
 
 /* Validate a network port value.  */
 #define GUILE_VALIDATE_PORT(port, name, proto) do {                       \
@@ -1125,16 +1126,17 @@ guile_define_server (SCM name, SCM args)
     guile_error ("%s: %s port requires a short (0..65535)", proto, name); \
     err = -1; } } while (0)
 
-/*
- * Port configuration definition.  Use two arguments:
- * First is a (unique) name for the port configuration.  Second is an
- * optionhash for various settings.  Returns #t when definition worked,
- * #f when it did not.  Emits error messages (to stderr).
- */
-#define FUNC_NAME "define-port!"
-static SCM
-guile_define_port (SCM name, SCM args)
+SCM_DEFINE
+(guile_define_port,
+ "define-port!", 2, 0, 0,
+ (SCM name, SCM args),
+ doc: /***********
+Define a port configuration.  @var{name} is a (unique) name for the
+port configuration.  @var{args} is optionhash for various settings.
+Return @code{#t} on success, otherwise @code{#f}.
+Emit error messages (to stderr).  */)
 {
+#define FUNC_NAME s_guile_define_port
   int err = 0;
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
@@ -1147,8 +1149,8 @@ guile_define_port (SCM name, SCM args)
   /* Check validity of first argument.  */
   if ((portname  = guile_to_string (name)) == NULL)
     {
-      guile_error (FUNC_NAME ": Invalid port configuration name "
-                   "(string expected)");
+      guile_error ("%s: Invalid port configuration name (string expected)",
+                   FUNC_NAME);
       FAIL ();
     }
 
@@ -1381,17 +1383,20 @@ guile_define_port (SCM name, SCM args)
   optionhash_destroy (options);
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
 
-/*
- * Generic port -> server(s) port binding ...
- */
-#define FUNC_NAME "bind-server!"
-SCM
-guile_bind_server (SCM port, SCM server)
+SCM_DEFINE
+(guile_bind_server,
+ "bind-server!", 2, 0, 0,
+ (SCM port, SCM server),
+ doc: /***********
+Do generic port to server(s) port binding.
+Both @var{port} and @var{server} must be either a string or symbol.
+See function @code{svz_server_bind}.  */)
 {
+#define FUNC_NAME s_guile_bind_server
   char *portname = guile_to_string (port);
   char *servername = guile_to_string (server);
   svz_server_t *s;
@@ -1440,8 +1445,8 @@ guile_bind_server (SCM port, SCM server)
     scm_c_free (servername);
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Converts the given array of strings @var{array} into a guile list.
@@ -1513,15 +1518,16 @@ access_interfaces_internal (const svz_interface_t *ifc, void *closure)
   return 0;
 }
 
-/*
- * Make the list of local interfaces accessible for Guile.  Returns the
- * local interfaces as a list of ip addresses in dotted decimal form.  If
- * @var{args} are specified, they are added as additional local interfaces.
- */
-#define FUNC_NAME "serveez-interfaces"
-SCM
-guile_access_interfaces (SCM args)
+SCM_DEFINE
+(guile_access_interfaces,
+ "serveez-interfaces", 0, 1, 0,
+ (SCM args),
+ doc: /***********
+Make the list of local interfaces accessible to Scheme.  Return the
+local interfaces as a list of ip addresses in dotted decimal form.  If
+@var{args} are specified, they are added as additional local interfaces.  */)
 {
+#define FUNC_NAME s_guile_access_interfaces
   size_t n;
   SCM list = SCM_EOL;
   char *str, description[64];
@@ -1554,19 +1560,21 @@ guile_access_interfaces (SCM args)
     }
 
   return scm_reverse_x (list, SCM_EOL);
-}
 #undef FUNC_NAME
+}
 
-/*
- * Make the search path for the Serveez core library accessible for Guile.
- * Returns a list a each path as previously defined.  Can override the current
- * definition of this load path.  The load path is used to tell Serveez where
- * it can find additional server modules.
- */
-#define FUNC_NAME "serveez-loadpath"
-SCM
-guile_access_loadpath (SCM args)
+SCM_DEFINE
+(guile_access_loadpath,
+ "serveez-loadpath", 0, 1, 0,
+ (SCM args),
+ doc: /***********
+Make the search path for the Serveez core library accessible to Scheme.
+Return a list a each path as previously defined.  If @var{args} is specified,
+override the current definition of this load path with it.
+The load path is used to tell Serveez where
+it can find additional server modules.  */)
 {
+#define FUNC_NAME s_guile_access_loadpath
   SCM list;
   svz_array_t *paths = svz_dynload_path_get ();
 
@@ -1583,8 +1591,8 @@ guile_access_loadpath (SCM args)
         svz_dynload_path_set (paths);
     }
   return list;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Create a checker procedure body which evaluates the boolean
@@ -1605,37 +1613,51 @@ guile_access_loadpath (SCM args)
     scm_c_free (str);                           \
   return rv
 
-/* Returns @code{#t} if the given string @var{name} corresponds with a
-   registered port configuration, otherwise the procedure returns
-   @code{#f}.  */
-#define FUNC_NAME "serveez-port?"
-static SCM
-guile_check_port (SCM arg)
+SCM_DEFINE
+(guile_check_port,
+ "serveez-port?", 1, 0, 0,
+ (SCM arg),
+ doc: /***********
+Return @code{#t} if the given string @var{name} corresponds with a
+registered port configuration, otherwise @code{#f}.
+
+-args: (name)  */)
 {
+#define FUNC_NAME s_guile_check_port
   STRING_CHECKER_BODY (svz_portcfg_get (str) != NULL);
-}
 #undef FUNC_NAME
+}
 
-/* Checks whether the given string @var{name} corresponds with an
-   instantiated server name and returns @code{#t} if so.  */
-#define FUNC_NAME "serveez-server?"
-static SCM
-guile_check_server (SCM arg)
+SCM_DEFINE
+(guile_check_server,
+ "serveez-server?", 1, 0, 0,
+ (SCM arg),
+ doc: /***********
+Check whether the given string @var{name} corresponds with an
+instantiated server name and return @code{#t} if so.
+
+-args: (name)  */)
 {
+#define FUNC_NAME s_guile_check_server
   STRING_CHECKER_BODY (svz_server_get (str) != NULL);
-}
 #undef FUNC_NAME
+}
 
-/* This procedure checks whether the given string @var{name} is a valid
-   server type prefix known in Serveez and returns @code{#t} if so.
-   Otherwise it returns @code{#f}.  */
-#define FUNC_NAME "serveez-servertype?"
-static SCM
-guile_check_stype (SCM arg)
+SCM_DEFINE
+(guile_check_stype,
+ "serveez-servertype?", 1, 0, 0,
+ (SCM arg),
+ doc: /***********
+Check whether the given string @var{name} is a valid
+server type prefix known in Serveez and return @code{#t} if so.
+Otherwise return @code{#f}.
+
+-args: (name)  */)
 {
+#define FUNC_NAME s_guile_check_stype
   STRING_CHECKER_BODY (svz_servertype_get (str, 0) != NULL);
-}
 #undef FUNC_NAME
+}
 
 static SCM
 parm_accessor (char const *who, int param, SCM arg)
@@ -1684,18 +1706,28 @@ string_accessor (char const *who, char **x, SCM arg)
   return value;
 }
 
-static SCM
-guile_access_verbosity (SCM level)
+SCM_DEFINE
+(guile_access_verbosity,
+ "serveez-verbosity", 0, 1, 0,
+ (SCM level),
+ doc: /***********
+Return the verbosity level (an integer).  Optional
+arg @var{level} means set it to that level, instead.  */)
 {
-  return parm_accessor ("serveez-verbosity",
+  return parm_accessor (s_guile_access_verbosity,
                         SVZ_RUNPARM_VERBOSITY,
                         level);
 }
 
-static SCM
-guile_access_maxsockets (SCM max)
+SCM_DEFINE
+(guile_access_maxsockets,
+ "serveez-maxsockets", 0, 1, 0,
+ (SCM max),
+ doc: /***********
+Return the maximum number of open sockets permitted (an integer).
+Optional arg @var{max} means set it to that number, instead.  */)
 {
-  return parm_accessor ("serveez-maxsockets",
+  return parm_accessor (s_guile_access_maxsockets,
                         SVZ_RUNPARM_MAX_SOCKETS,
                         max);
 }
@@ -1706,10 +1738,16 @@ extern char *control_protocol_password;
 static char *control_protocol_password;
 #endif
 
-static SCM
-guile_access_passwd (SCM pw)
+SCM_DEFINE
+(guile_access_passwd,
+ "serveez-passwd", 0, 1, 0,
+ (SCM pw),
+ doc: /***********
+Return the control password (a string).
+Optional arg @var{pw} sets it to that, instead.  */)
 {
-  return string_accessor ("serveez-passwd", &control_protocol_password, pw);
+  return string_accessor
+    (s_guile_access_passwd, &control_protocol_password, pw);
 }
 
 /*

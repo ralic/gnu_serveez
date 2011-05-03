@@ -37,8 +37,6 @@
 #include "guile-api.h"
 #include "guile-bin.h"
 
-#define _CTYPE(ctype,x)  __CTYPE (guile_bin, ctype, x)
-
 /*
  * Structure definition of the data the binary smob refers to.
  */
@@ -67,15 +65,17 @@ static scm_t_bits guile_bin_tag = 0;
   ((guile_bin_t *) ((void *)                               \
     scm_gc_malloc (sizeof (guile_bin_t), "svz-binary")))
 
-/* Smob predicate: Returns @code{#t} if the given cell @var{binary} is
-   an instance of the binary smob type.  */
-#define FUNC_NAME "binary?"
-static SCM
-guile_bin_p (SCM binary)
+SCM_DEFINE
+(guile_bin_p,
+ "binary?", 1, 0, 0,
+ (SCM obj),
+ doc: /***********
+Return @code{#t} if @var{obj} is an instance of the binary smob type.  */)
 {
-  return CHECK_BIN_SMOB (binary) ? SCM_BOOL_T : SCM_BOOL_F;
-}
+#define FUNC_NAME s_guile_bin_p
+  return CHECK_BIN_SMOB (obj) ? SCM_BOOL_T : SCM_BOOL_F;
 #undef FUNC_NAME
+}
 
 /* Smob print function: Displays a text representation of the given
    cell @var{binary} to the output port @var{port}.  */
@@ -131,13 +131,16 @@ guile_bin_equal (SCM a, SCM b)
   return SCM_BOOL_F;
 }
 
-/* Converts the given string cell @var{string} into a binary smob.  The data
-   pointer of the binary smob is marked as garbage which must be @code{free}'d
-   in the sweep phase of the garbage collector.  */
-#define FUNC_NAME "string->binary"
-SCM
-guile_string_to_bin (SCM string)
+SCM_DEFINE
+(guile_string_to_bin,
+ "string->binary", 1, 0, 0,
+ (SCM string),
+ doc: /***********
+Convert the given @var{string} into a binary smob.  The data pointer of
+the binary smob is marked as garbage which must be @code{free}'d in the
+sweep phase of the garbage collector.  */)
 {
+#define FUNC_NAME s_guile_string_to_bin
   guile_bin_t *bin;
 
   SCM_ASSERT_TYPE (SCM_STRINGP (string), string,
@@ -158,31 +161,37 @@ guile_string_to_bin (SCM string)
     }
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
-}
 #undef FUNC_NAME
+}
 
-/* Converts the given binary smob @var{binary} into a string.  Returns the
-   string cell itself.  */
-#define FUNC_NAME "binary->string"
-SCM
-guile_bin_to_string (SCM binary)
+SCM_DEFINE
+(guile_bin_to_string,
+ "binary->string", 1, 0, 0,
+ (SCM binary),
+ doc: /***********
+Convert the given binary smob @var{binary} into a string.
+Return the string itself.  */)
 {
+#define FUNC_NAME s_guile_bin_to_string
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   return gi_nstring2scm (bin->size, (char *) bin->data);
-}
 #undef FUNC_NAME
+}
 
-/* This routine searches through the binary smob @var{binary} for the cell
-   @var{needle}.  The latter argument can be either an exact number, character,
-   string or another binary smob.  It returns @code{#f} if the needle could
-   not be found and a positive number indicates the position of the first
-   occurrence of @var{needle} in the binary smob @var{binary}.  */
-#define FUNC_NAME "binary-search"
-SCM
-guile_bin_search (SCM binary, SCM needle)
+SCM_DEFINE
+(guile_bin_search,
+ "binary-search", 2, 0, 0,
+ (SCM binary, SCM needle),
+ doc: /***********
+Search through the binary smob @var{binary} for @var{needle},
+which can be an exact number, character,
+string or another binary smob.  Return @code{#f} if the needle could
+not be found, or a positive number indicating the position of the first
+occurrence of @var{needle} in the binary smob @var{binary}.  */)
 {
+#define FUNC_NAME s_guile_bin_search
   SCM ret = SCM_BOOL_F;
   guile_bin_t *bin;
 
@@ -245,15 +254,18 @@ guile_bin_search (SCM binary, SCM needle)
         }
     }
   return ret;
-}
 #undef FUNC_NAME
+}
 
-/* Performs an in place reversal of the given binary smob @var{binary}
-   and returns it.  */
-#define FUNC_NAME "binary-reverse!"
-SCM
-guile_bin_reverse_x (SCM binary)
+SCM_DEFINE
+(guile_bin_reverse_x,
+ "binary-reverse!", 1, 0, 0,
+ (SCM binary),
+ doc: /***********
+Perform an in-place reversal of the given binary smob @var{binary}
+and return it.  */)
 {
+#define FUNC_NAME s_guile_bin_reverse_x
   guile_bin_t *bin;
   int first, last;
   uint8_t b;
@@ -267,15 +279,18 @@ guile_bin_reverse_x (SCM binary)
       bin->data[last] = b;
     }
   return binary;
-}
 #undef FUNC_NAME
+}
 
-/* Returns a new binary smob with the reverse byte order of the given
-   binary smob @var{binary}.  */
-#define FUNC_NAME "binary-reverse"
-SCM
-guile_bin_reverse (SCM binary)
+SCM_DEFINE
+(guile_bin_reverse,
+ "binary-reverse", 1, 0, 0,
+ (SCM binary),
+ doc: /***********
+Return a new binary smob with the reverse byte order of the given
+binary smob @var{binary}.  */)
 {
+#define FUNC_NAME s_guile_bin_reverse
   guile_bin_t *bin, *reverse;
   int first, last;
 
@@ -300,16 +315,19 @@ guile_bin_reverse (SCM binary)
     reverse->data[first++] = bin->data[last--];
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, reverse);
-}
 #undef FUNC_NAME
+}
 
-/* Set the byte at position @var{index} of the binary smob @var{binary} to
-   the value given in @var{value} which can be either a character or an
-   exact number.  */
-#define FUNC_NAME "binary-set!"
-SCM
-guile_bin_set_x (SCM binary, SCM index, SCM value)
+SCM_DEFINE
+(guile_bin_set_x,
+ "binary-set!", 3, 0, 0,
+ (SCM binary, SCM index, SCM value),
+ doc: /***********
+Set the byte at position @var{index} of the binary smob @var{binary} to
+the value given in @var{value} which can be either a character or an
+exact number.  */)
 {
+#define FUNC_NAME s_guile_bin_set_x
   guile_bin_t *bin;
   int idx;
 
@@ -327,15 +345,18 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
     (SCM_CHARP (value) ? SCM_CHAR (value) :
      (uint8_t) SCM_NUM2INT (SCM_ARG3, value));
   return SCM_UNSPECIFIED;
-}
 #undef FUNC_NAME
+}
 
-/* Obtain the byte at position @var{index} of the binary smob
-   @var{binary}.  */
-#define FUNC_NAME "binary-ref"
-SCM
-guile_bin_ref (SCM binary, SCM index)
+SCM_DEFINE
+(guile_bin_ref,
+ "binary-ref", 2, 0, 0,
+ (SCM binary, SCM index),
+ doc: /***********
+Obtain the byte at position @var{index} of the binary smob
+@var{binary}.  */)
 {
+#define FUNC_NAME s_guile_bin_ref
   guile_bin_t *bin;
   int idx;
 
@@ -348,29 +369,35 @@ guile_bin_ref (SCM binary, SCM index)
     SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
   return SCM_MAKE_CHAR (bin->data[idx]);
-}
 #undef FUNC_NAME
+}
 
-/* Return the size in bytes of the binary smob @var{binary}.  */
-#define FUNC_NAME "binary-length"
-SCM
-guile_bin_length (SCM binary)
+SCM_DEFINE
+(guile_bin_length,
+ "binary-length", 1, 0, 0,
+ (SCM binary),
+ doc: /***********
+Return the size in bytes of the binary smob @var{binary}.  */)
 {
+#define FUNC_NAME s_guile_bin_length
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   return gi_integer2scm (bin->size);
-}
 #undef FUNC_NAME
+}
 
-/* Append either the binary smob or string @var{append} onto the binary
-   smob @var{binary}.  If @var{binary} has been a simple data pointer
-   reference it is then a standalone binary smob as returned by
-   @code{string->binary}.  */
-#define FUNC_NAME "binary-concat!"
-SCM
-guile_bin_concat_x (SCM binary, SCM append)
+SCM_DEFINE
+(guile_bin_concat_x,
+ "binary-concat!", 2, 0, 0,
+ (SCM binary, SCM append),
+ doc: /***********
+Append either the binary smob or string @var{append} onto the binary
+smob @var{binary}.  If @var{binary} has been a simple data pointer
+reference it is then a standalone binary smob as returned by
+@code{string->binary}.  */)
 {
+#define FUNC_NAME s_guile_bin_concat_x
   guile_bin_t *bin, *concat = NULL;
   int len, equal;
   uint8_t *p;
@@ -410,18 +437,21 @@ guile_bin_concat_x (SCM binary, SCM append)
   bin->size += len;
   bin->garbage = 1;
   return binary;
-}
 #undef FUNC_NAME
+}
 
-/* Create a subset binary smob from the given binary smob @var{binary}.  The
-   range of this subset is specified by @var{start} and @var{end} both
-   inclusive (thus the resulting size is = @var{end} - @var{start} + 1).
-   With a single exception: If @var{end} is not given or specified with -1
-   the routine returns all data until the end of @var{binary}.  */
-#define FUNC_NAME "binary-subset"
-SCM
-guile_bin_subset (SCM binary, SCM start, SCM end)
+SCM_DEFINE
+(guile_bin_subset,
+ "binary-subset", 2, 1, 0,
+ (SCM binary, SCM start, SCM end),
+ doc: /***********
+Create a subset binary smob from the given binary smob @var{binary}.  The
+range of this subset is specified by @var{start} and @var{end} both
+inclusive (thus the resulting size is @code{@var{end} - @var{start} + 1}).
+With a single exception: If @var{end} is not given or specified with -1,
+return all data until the end of @var{binary}.  */)
 {
+#define FUNC_NAME s_guile_bin_subset
   guile_bin_t *bin, *ret;
   int from, to;
 
@@ -447,15 +477,18 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
   ret->garbage = 0;
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, ret);
-}
 #undef FUNC_NAME
+}
 
-/* Convert the given binary smob @var{binary} into a scheme list.  The list
-   is empty if the size of @var{binary} is zero.  */
-#define FUNC_NAME "binary->list"
-SCM
-guile_bin_to_list (SCM binary)
+SCM_DEFINE
+(guile_bin_to_list,
+ "binary->list", 1, 0, 0,
+ (SCM binary),
+ doc: /***********
+Convert the given binary smob @var{binary} into a scheme list.  The list
+is empty if the size of @var{binary} is zero.  */)
 {
+#define FUNC_NAME s_guile_bin_to_list
   guile_bin_t *bin;
   uint8_t *p;
   SCM list;
@@ -464,16 +497,19 @@ guile_bin_to_list (SCM binary)
   for (list = SCM_EOL, p = bin->data + bin->size; p-- > bin->data; )
     list = scm_cons (gi_nnint2scm (*p), list);
   return list;
-}
 #undef FUNC_NAME
+}
 
-/* Convert the scheme list @var{list} into a binary smob.  Each of the
-   elements of @var{list} is checked for validity.  The elements can be
-   either exact numbers in a byte's range or characters.  */
-#define FUNC_NAME "list->binary"
-SCM
-guile_list_to_bin (SCM list)
+SCM_DEFINE
+(guile_list_to_bin,
+ "list->binary", 1, 0, 0,
+ (SCM list),
+ doc: /***********
+Convert the scheme list @var{list} into a binary smob.  Each of the
+elements of @var{list} is checked for validity.  The elements can be
+either exact numbers in a byte's range or characters.  */)
 {
+#define FUNC_NAME s_guile_list_to_bin
   guile_bin_t *bin;
   uint8_t *p;
   int value;
@@ -518,8 +554,8 @@ guile_list_to_bin (SCM list)
     }
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
-}
 #undef FUNC_NAME
+}
 
 /* Checks if the given scheme cell @var{binary} is a binary smob or not.
    Returns zero if not, otherwise non-zero.  */
@@ -572,6 +608,14 @@ guile_bin_to_data (SCM binary, int *size)
   return bin->data;
 }
 
+#define BIN_REF_HEAD(ctype)                             \
+SCM_DEFINE                                              \
+ (guile_bin_ ## ctype ## _ref,                          \
+  "binary-" #ctype "-ref", 2, 0, 0,                     \
+  (SCM binary, SCM index),                              \
+  "Return the @code{" #ctype "} value of the binary\n"  \
+  "smob @var{binary} at the array index @var{index}.")
+
 /* The following macro expands to a procedure body which accesses a
    binary smob's data for reading depending on the given @var{ctype}.  */
 #define BIN_REF_BODY(ctype)                                             \
@@ -607,6 +651,15 @@ guile_bin_to_data (SCM binary, int *size)
     }                                                                      \
   } while (0)
 
+#define BIN_SET_HEAD(ctype)                                             \
+SCM_DEFINE                                                              \
+ (guile_bin_ ## ctype ## _set,                                          \
+  "binary-" #ctype "-set!", 3, 0, 0,                                    \
+  (SCM binary, SCM index, SCM value),                                   \
+  "Set the @code{" #ctype "} value of the binary smob @var{binary}\n"   \
+  "at the array index @var{index} to the given value @var{value}.\n"    \
+  "Return the previous (overridden) value.")
+
 /* The following macro expands to a procedure definition which accesses a
    binary smob's data for writing depending on the given @var{ctype}.  */
 #define BIN_SET_BODY(ctype)                                     \
@@ -633,89 +686,61 @@ guile_bin_to_data (SCM binary, int *size)
   memcpy (data, &val, sizeof (ctype));                          \
   return old
 
-/* Returns the @code{long} value of the binary smob @var{binary} at the
-   array index @var{index}.  */
-#define FUNC_NAME "binary-long-ref"
-static SCM
-_CTYPE (long, ref) (SCM binary, SCM index)
+BIN_REF_HEAD (long)
 {
+#define FUNC_NAME s_guile_bin_long_ref
   BIN_REF_BODY (long);
-}
 #undef FUNC_NAME
+}
 
-/* Sets the @code{long} value of the binary smob @var{binary} at the array
-   index @var{index} to the given value @var{value}.  The procedure returns
-   the previous (overridden) value.  */
-#define FUNC_NAME "binary-long-set!"
-static SCM
-_CTYPE (long, set) (SCM binary, SCM index, SCM value)
+BIN_SET_HEAD (long)
 {
+#define FUNC_NAME s_guile_bin_long_set
   BIN_SET_BODY (long);
-}
 #undef FUNC_NAME
+}
 
-/* Returns the @code{int} value of the binary smob @var{binary} at the
-   array index @var{index}.  */
-#define FUNC_NAME "binary-int-ref"
-static SCM
-_CTYPE (int, ref) (SCM binary, SCM index)
+BIN_REF_HEAD (int)
 {
+#define FUNC_NAME s_guile_bin_int_ref
   BIN_REF_BODY (int);
-}
 #undef FUNC_NAME
+}
 
-/* Sets the @code{int} value of the binary smob @var{binary} at the array
-   index @var{index} to the given value @var{value}.  The procedure returns
-   the previous (overridden) value.  */
-#define FUNC_NAME "binary-int-set!"
-static SCM
-_CTYPE (int, set) (SCM binary, SCM index, SCM value)
+BIN_SET_HEAD (int)
 {
+#define FUNC_NAME s_guile_bin_int_ref
   BIN_SET_BODY (int);
-}
 #undef FUNC_NAME
+}
 
-/* Returns the @code{short} value of the binary smob @var{binary} at the
-   array index @var{index}.  */
-#define FUNC_NAME "binary-short-ref"
-static SCM
-_CTYPE (short, ref) (SCM binary, SCM index)
+BIN_REF_HEAD (short)
 {
+#define FUNC_NAME s_guile_bin_short_ref
   BIN_REF_BODY (short);
-}
 #undef FUNC_NAME
+}
 
-/* Sets the @code{short} value of the binary smob @var{binary} at the array
-   index @var{index} to the given value @var{value}.  The procedure returns
-   the previous (overridden) value.  */
-#define FUNC_NAME "binary-short-set!"
-static SCM
-_CTYPE (short, set) (SCM binary, SCM index, SCM value)
+BIN_SET_HEAD (short)
 {
+#define FUNC_NAME s_guile_bin_short_set
   BIN_SET_BODY (short);
-}
 #undef FUNC_NAME
+}
 
-/* Returns the @code{char} value of the binary smob @var{binary} at the
-   array index @var{index}.  */
-#define FUNC_NAME "binary-char-ref"
-static SCM
-_CTYPE (char, ref) (SCM binary, SCM index)
+BIN_REF_HEAD (char)
 {
+#define FUNC_NAME s_guile_bin_char_ref
   BIN_REF_BODY (char);
-}
 #undef FUNC_NAME
+}
 
-/* Sets the @code{char} value of the binary smob @var{binary} at the array
-   index @var{index} to the given value @var{value}.  The procedure returns
-   the previous (overridden) value.  */
-#define FUNC_NAME "binary-char-set!"
-static SCM
-_CTYPE (char, set) (SCM binary, SCM index, SCM value)
+BIN_SET_HEAD (char)
 {
+#define FUNC_NAME s_guile_bin_char_set
   BIN_SET_BODY (char);
-}
 #undef FUNC_NAME
+}
 
 /* Initialize the binary smob with all its features.  Call this function
    once at application startup and before running any scheme file

@@ -1,3 +1,20 @@
+2011-05-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use Guile-BAUX for "Scheme proc from C source" snarfing.
+
+	U ≡ "Use ‘SCM_DEFINE’; write/rewrite/rephrase docstrings, use
+	‘#define FUNC_NAME __func__’; avoid cpp-pasting ‘FUNC_NAME’".
+	* guile-api.c: U.
+	* guile-bin.c: U.
+	(_CTYPE): Delete macro.
+	(BIN_REF_HEAD, BIN_SET_HEAD): New macros.
+	(guile_bin_long_ref, guile_bin_int_ref, guile_bin_short_ref)
+	(guile_bin_char_ref): Use ‘BIN_REF_HEAD’.
+	(guile_bin_long_set, guile_bin_int_set, guile_bin_short_set)
+	(guile_bin_char_set): Use ‘BIN_SET_HEAD’.
+	* guile-server.c: U.
+	* guile.c: U.
+
 2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[int] Add abstraction: STRING_CHECKER_BODY

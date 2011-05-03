@@ -1,3 +1,9 @@
+2011-05-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use Guile-BAUX for "Scheme proc from C source" snarfing.
+
+	* autogen.sh: Use Guile-BAUX module ‘c-tsar’.
+
 2011-04-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Fix bug: #include <sys/time.h> when seeking ‘gettimeofday’.

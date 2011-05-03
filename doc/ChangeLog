@@ -1,3 +1,19 @@
+2011-05-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use Guile-BAUX for "Scheme proc from C source" snarfing.
+
+	* guile-api.texh: Rename from guile-api.texi.in,
+	replacing ‘|P|’ directives with ‘@tsin’ directives.
+	* Makefile.am (guile_scanroot): Delete var.
+	(guile_from): Move earlier in file.
+	(genstems): Remove guile-api.
+	(guile-api.texi): Delete target.
+	(scm-snippets): Rename target from ‘snippets’.
+	(c-snippets): New target.
+	(snippets): New target.
+	(guile-api.texi): New dependency decl.
+	(guile-api.sed): Delete target.
+
 2011-05-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Add doc/Makefile.am var: srcsrcd

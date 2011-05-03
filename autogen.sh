@@ -41,6 +41,7 @@ cd `dirname $0`
 guile-baux-tool import \
     as-C-byte-array \
     punify \
+    c-tsar \
     tsar \
     tsin \
     gbaux-do

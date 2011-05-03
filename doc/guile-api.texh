@@ -12,7 +12,7 @@ to a simple data processor.
 
 @subsubsection Underlying libserveez
 
-|P| libserveez-features
+@tsin i libserveez-features
 
 @subsubsection Special Data Types
 
@@ -35,28 +35,28 @@ kind of unstructured data.  It manages the data exchange between Guile
 and Serveez.  There are some conversion procedures for strings and lists
 which help to process this binary data in a more complex (guile'ish) way.
 
-|P| binary->string
-|P| string->binary
-|P| binary?
-|P| list->binary
-|P| binary->list
-|P| binary-search
-|P| binary-set!
-|P| binary-ref
-|P| binary-length
-|P| binary-concat!
-|P| binary-subset
-|P| binary-reverse
-|P| binary-reverse!
+@tsin i binary->string
+@tsin i string->binary
+@tsin i binary?
+@tsin i list->binary
+@tsin i binary->list
+@tsin i binary-search
+@tsin i binary-set!
+@tsin i binary-ref
+@tsin i binary-length
+@tsin i binary-concat!
+@tsin i binary-subset
+@tsin i binary-reverse
+@tsin i binary-reverse!
 
-|P| binary-long-ref
-|P| binary-long-set!
-|P| binary-int-ref
-|P| binary-int-set!
-|P| binary-short-ref
-|P| binary-short-set!
-|P| binary-char-ref
-|P| binary-char-set!
+@tsin i binary-long-ref
+@tsin i binary-long-set!
+@tsin i binary-int-ref
+@tsin i binary-int-set!
+@tsin i binary-short-ref
+@tsin i binary-short-set!
+@tsin i binary-char-ref
+@tsin i binary-char-set!
 
 @subsubsection Server Definition
 
@@ -126,7 +126,7 @@ The following example shows the overall syntax of this procedure:
   ))))
 @end lisp
 
-|P| define-servertype!
+@tsin i define-servertype!
 
 @subsubsection Predefined Procedures
 
@@ -137,70 +137,70 @@ passed the appropriate arguments needed to stuff into the following
 procedures.  Please have a look at the example Guile servers for the
 details.
 
-|P| svz:sock?
-|P| svz:sock:check-request
-|P| svz:sock:check-oob-request
-|P| svz:sock:send-oob
-|P| svz:sock:handle-request
-|P| svz:sock:boundary
-|P| svz:sock:floodprotect
-|P| svz:sock:print
-|P| svz:sock:final-print
-|P| svz:sock:no-delay
-|P| svz:sock:send-buffer
-|P| svz:sock:send-buffer-size
-|P| svz:sock:receive-buffer
-|P| svz:sock:receive-buffer-size
-|P| svz:sock:receive-buffer-reduce
-|P| svz:sock:connect
-|P| svz:sock:disconnected
-|P| svz:sock:kicked
-|P| svz:sock:trigger
-|P| svz:sock:trigger-condition
-|P| svz:sock:idle
-|P| svz:sock:idle-counter
-|P| svz:sock:data
-|P| svz:sock:parent
-|P| svz:sock:referrer
-|P| svz:sock:server
-|P| svz:sock:local-address
-|P| svz:sock:remote-address
-|P| svz:sock:find
-|P| svz:sock:ident
-|P| svz:sock:protocol
-|P| svz:read-file
+@tsin i svz:sock?
+@tsin i svz:sock:check-request
+@tsin i svz:sock:check-oob-request
+@tsin i svz:sock:send-oob
+@tsin i svz:sock:handle-request
+@tsin i svz:sock:boundary
+@tsin i svz:sock:floodprotect
+@tsin i svz:sock:print
+@tsin i svz:sock:final-print
+@tsin i svz:sock:no-delay
+@tsin i svz:sock:send-buffer
+@tsin i svz:sock:send-buffer-size
+@tsin i svz:sock:receive-buffer
+@tsin i svz:sock:receive-buffer-size
+@tsin i svz:sock:receive-buffer-reduce
+@tsin i svz:sock:connect
+@tsin i svz:sock:disconnected
+@tsin i svz:sock:kicked
+@tsin i svz:sock:trigger
+@tsin i svz:sock:trigger-condition
+@tsin i svz:sock:idle
+@tsin i svz:sock:idle-counter
+@tsin i svz:sock:data
+@tsin i svz:sock:parent
+@tsin i svz:sock:referrer
+@tsin i svz:sock:server
+@tsin i svz:sock:local-address
+@tsin i svz:sock:remote-address
+@tsin i svz:sock:find
+@tsin i svz:sock:ident
+@tsin i svz:sock:protocol
+@tsin i svz:read-file
 
-|P| svz:htons
-|P| svz:ntohs
-|P| svz:htonl
-|P| svz:ntohl
-|P| svz:inet-aton
-|P| svz:inet-ntoa
+@tsin i svz:htons
+@tsin i svz:ntohs
+@tsin i svz:htonl
+@tsin i svz:ntohl
+@tsin i svz:inet-aton
+@tsin i svz:inet-ntoa
 
-|P| svz:server?
-|P| svz:server:listeners
-|P| svz:server:clients
-|P| svz:server:config-ref
-|P| svz:server:state-set!
-|P| svz:server:state-ref
-|P| svz:server:state->hash
+@tsin i svz:server?
+@tsin i svz:server:listeners
+@tsin i svz:server:clients
+@tsin i svz:server:config-ref
+@tsin i svz:server:state-set!
+@tsin i svz:server:state-ref
+@tsin i svz:server:state->hash
 
-|P| serveez-port?
-|P| serveez-server?
-|P| serveez-servertype?
-|P| serveez-exceptions
-|P| serveez-nuke
-|P| serveez-loadpath
-|P| serveez-interfaces
+@tsin i serveez-port?
+@tsin i serveez-server?
+@tsin i serveez-servertype?
+@tsin i serveez-exceptions
+@tsin i serveez-nuke
+@tsin i serveez-loadpath
+@tsin i serveez-interfaces
 
-|P| getrpc
-|P| setrpc
-|P| portmap
-|P| portmap-list
+@tsin i getrpc
+@tsin i setrpc
+@tsin i portmap
+@tsin i portmap-list
 
-|P| svz:coserver:dns
-|P| svz:coserver:reverse-dns
-|P| svz:coserver:ident
+@tsin i svz:coserver:dns
+@tsin i svz:coserver:reverse-dns
+@tsin i svz:coserver:ident
 
 @subsubsection Callback Prototypes
 

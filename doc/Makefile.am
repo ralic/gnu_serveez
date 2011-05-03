@@ -66,12 +66,12 @@ libserveez_impl = \
   codec/codec.c \
   coserver/coserver.c coserver/coserver.h
 
-guile_scanroot = .scan/guile
 guile_impl = \
   guile-api.c \
   guile-bin.c \
   guile-server.c \
   guile.c
+guile_from = $(guile_impl:%=$(srcsrcd)/%)
 
 GUILE_TXT_FILE = serveez-procedures.txt
 SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
@@ -80,7 +80,7 @@ MANUAL_FILES = \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 pkgdata_DATA = $(GUILE_TXT_FILE)
 
-genstems = serveez-api guile-api
+genstems = serveez-api
 gen = $(genstems:%=%.sed) $(genstems:%=%.texi)
 
 MAINTAINERCLEANFILES += $(gen) $(GUILE_TXT_FILE)
@@ -95,7 +95,7 @@ clean-local:
 serveez.info: blurb.texi
 EXTRA_DIST += blurb.texi
 
-# For regenerating both serveez-api.sed and guile-api.sed, we do things
+# For regenerating serveez-api.sed, we do things
 # incrementally, but with some chance of fubar if careless, for those who
 # ‘configure --enable-maintainer-mode’.  Otherwise, we do things en masse
 # (inefficiently if few *_from files change), but w/ guaranteed safety.
@@ -119,35 +119,24 @@ serveez-api.sed: $(libserveez_from)
 	done;							\
 	cat $(libserveez_impl:%=$(libserveez_scanroot)/%) > $@
 
-guile-api.texi: guile-api.sed guile-api.texi.in
-	$(SED) -f $< $(srcdir)/guile-api.texi.in > $@
-
-snippets: $(srcsrcd)/guile-boot.scm
+scm-snippets: $(srcsrcd)/guile-boot.scm
 	$(gx) tsar -v -l scheme -f $@ -c utf-8 update $?
 
+c-snippets: $(guile_from)
+	$(gx) c-tsar -v -l scheme -f $@ -c utf-8 \
+	  update $^ -- -I$(srcsrcd) $(GUILE_CFLAGS)
+
+snippets: scm-snippets c-snippets
+	$(gx) tsar -f $@ -c utf-8 concat $^
+
 guile-boot.texi: snippets
+guile-api.texi: snippets
 
 BUILT_SOURCES = snippets guile-boot.texi
 EXTRA_DIST += $(BUILT_SOURCES) guile-boot.texh
 
 .texh.texi:
 	$(gx) tsin -f snippets -c utf-8 $<
-
-guile_from = $(guile_impl:%=$(srcsrcd)/%)
-
-guile-api.sed: $(guile_from)
-	@if test -d $(guile_scanroot);			\
-	then list='$?';					\
-	else list='$(guile_from)';			\
-	fi;						\
-	for f in $$list; do				\
-	  frag=$$(echo $$f | sed 's|$(srcsrcd)||');	\
-	  to=$(guile_scanroot)$$frag;			\
-	  $(MKDIR_P) $$(dirname $$to);			\
-	  echo updating: $$to;				\
-	  $(SNARFER) $$f > $$to;			\
-	done;						\
-	cat $(guile_impl:%=$(guile_scanroot)/%) > $@
 
 # FIXME: We should be able to do ‘$(SNARFER) -t $^ > $@’ directly.
 # We can't because serveez-doc-snarf.awk option parsing can't.

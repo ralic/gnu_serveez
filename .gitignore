@@ -47,8 +47,10 @@ Makefile.in
 /doc/*.info
 /doc/*.sed
 /doc/.scan
+/doc/c-snippets
 /doc/guile-api.texi
 /doc/guile-boot.texi
+/doc/scm-snippets
 /doc/serveez-api.html
 /doc/serveez-api.texi
 /doc/serveez-procedures.txt

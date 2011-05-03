@@ -333,31 +333,34 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
   return oldproc;
 }
 
-/*
- * This procedure can be used to schedule Serveez for shutdown within Guile.
- * Serveez will shutdown all network connections and terminate after the next
- * event loop.  You should use this instead of calling @code{quit}.
- */
-#define FUNC_NAME "serveez-nuke"
-SCM
-guile_nuke_happened (void)
+SCM_DEFINE
+(guile_nuke_happened,
+ "serveez-nuke", 0, 0, 0,
+ (void),
+ doc: /***********
+Shutdown all network connections and terminate after the next event
+loop.  You should use this instead of calling @code{quit}.  */)
 {
+#define FUNC_NAME s_guile_nuke_happened
   raise (SIGQUIT);
   return SCM_UNSPECIFIED;
-}
 #undef FUNC_NAME
+}
 
-/*
- * Controls the use of exceptions handlers for the Guile procedure calls
- * of Guile server callbacks.  If the optional argument @var{enable} set to
- * @code{#t} exception handling is enabled and if set to @code{#f}
- * exception handling is disabled.  The procedure always returns the
- * current value of this behaviour.
- */
-#define FUNC_NAME "serveez-exceptions"
-SCM
-guile_access_exceptions (SCM enable)
+SCM_REGISTER_PROC                       /* dummy, for c-tsar testing */
+(s_wowz, "wowz", 0, 0, 0, guile_nuke_happened);
+
+SCM_DEFINE
+(guile_access_exceptions,
+ "serveez-exceptions", 0, 1, 0,
+ (SCM enable),
+ doc: /***********
+Control the use of exception handlers for the Guile procedure calls of
+Guile server callbacks.  If the optional argument @var{enable} is
+@code{#t}, enable exception handling; if @code{#f}, disable it.
+Return the current (boolean) setting.  */)
 {
+#define FUNC_NAME s_guile_access_exceptions
   SCM value = SCM_BOOL (guile_use_exceptions);
   int n;
 
@@ -369,8 +372,8 @@ guile_access_exceptions (SCM enable)
         guile_use_exceptions = n;
     }
   return value;
-}
 #undef FUNC_NAME
+}
 
 /*
  * The @code{guile_call} function puts the procedure to call including
@@ -472,10 +475,10 @@ guile_call (SCM code, int args, ...)
 }
 
 /* Wrapper function for the global initialization of a server type.  */
-#define FUNC_NAME "guile_func_global_init"
 static int
 guile_func_global_init (svz_servertype_t *stype)
 {
+#define FUNC_NAME __func__
   SCM global_init = guile_servertype_getfunction (stype, "global-init");
   SCM ret;
 
@@ -485,14 +488,15 @@ guile_func_global_init (svz_servertype_t *stype)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
-}
 #undef FUNC_NAME
+}
+
 
 /* Wrapper function for the initialization of a server instance.  */
-#define FUNC_NAME "guile_func_init"
 static int
 guile_func_init (svz_server_t *server)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM init = guile_servertype_getfunction (stype, "init");
   SCM ret;
@@ -503,14 +507,14 @@ guile_func_init (svz_server_t *server)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper routine for protocol detection of a server instance.  */
-#define FUNC_NAME "guile_func_detect_proto"
 static int
 guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM detect_proto = guile_servertype_getfunction (stype, "detect-proto");
   SCM ret;
@@ -540,10 +544,10 @@ guile_sock_clear_boundary (svz_socket_t *sock)
 /* Wrapper for the socket disconnected callback.  Used here in order to
    delete the additional guile callbacks associated with the disconnected
    socket structure.  */
-#define FUNC_NAME "guile_func_disconnected_socket"
 static int
 guile_func_disconnected_socket (svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   SCM ret, disconnected = guile_sock_getfunction (sock, "disconnected");
   int retval = -1;
   svz_hash_t *gsock;
@@ -567,14 +571,14 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   guile_sock_clear_boundary (sock);
 
   return retval;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper for the kicked socket callback.  */
-#define FUNC_NAME "guile_func_kicked_socket"
 static int
 guile_func_kicked_socket (svz_socket_t *sock, int reason)
 {
+#define FUNC_NAME __func__
   SCM ret, kicked = guile_sock_getfunction (sock, "kicked");
 
   if (!SCM_UNBNDP (kicked))
@@ -588,10 +592,10 @@ guile_func_kicked_socket (svz_socket_t *sock, int reason)
 #undef FUNC_NAME
 
 /* Wrapper function for the socket connection after successful detection.  */
-#define FUNC_NAME "guile_func_connect_socket"
 static int
 guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM connect_socket = guile_servertype_getfunction (stype, "connect-socket");
   SCM ret;
@@ -606,14 +610,14 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
       return guile_integer (SCM_ARGn, ret, 0);
     }
   return 0;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper for the finalization of a server instance.  */
-#define FUNC_NAME "guile_func_finalize"
 static int
 guile_func_finalize (svz_server_t *server)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM ret, finalize = guile_servertype_getfunction (stype, "finalize");
   int retval = 0;
@@ -637,10 +641,10 @@ guile_func_finalize (svz_server_t *server)
 #undef FUNC_NAME
 
 /* Wrapper routine for the global finalization of a server type.  */
-#define FUNC_NAME "guile_func_global_finalize"
 static int
 guile_func_global_finalize (svz_servertype_t *stype)
 {
+#define FUNC_NAME __func__
   SCM ret, global_finalize;
   global_finalize = guile_servertype_getfunction (stype, "global-finalize");
 
@@ -650,18 +654,18 @@ guile_func_global_finalize (svz_servertype_t *stype)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
-}
 #undef FUNC_NAME
 
+}
 /* Min-Max definitions.  */
 #define GUILE_MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define GUILE_MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 /* Wrapper for the client info callback.  */
-#define FUNC_NAME "guile_func_info_client"
 static char *
 guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM info_client = guile_servertype_getfunction (stype, "info-client");
   SCM ret;
@@ -685,10 +689,10 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 #undef FUNC_NAME
 
 /* Wrapper for the server info callback.  */
-#define FUNC_NAME "guile_func_info_server"
 static char *
 guile_func_info_server (svz_server_t *server)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM info_server = guile_servertype_getfunction (stype, "info-server");
   SCM ret;
@@ -707,14 +711,14 @@ guile_func_info_server (svz_server_t *server)
         }
     }
   return NULL;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper for the server notifier callback.  */
-#define FUNC_NAME "guile_func_notify"
 static int
 guile_func_notify (svz_server_t *server)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM ret, notify = guile_servertype_getfunction (stype, "notify");
 
@@ -728,10 +732,10 @@ guile_func_notify (svz_server_t *server)
 #undef FUNC_NAME
 
 /* Wrapper for the server reset callback.  */
-#define FUNC_NAME "guile_func_reset"
 static int
 guile_func_reset (svz_server_t *server)
 {
+#define FUNC_NAME __func__
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM ret, reset = guile_servertype_getfunction (stype, "reset");
 
@@ -741,14 +745,14 @@ guile_func_reset (svz_server_t *server)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper for the socket check request callback.  */
-#define FUNC_NAME "guile_func_check_request"
 static int
 guile_func_check_request (svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   SCM ret, check_request;
   check_request = guile_sock_getfunction (sock, "check-request");
 
@@ -763,10 +767,10 @@ guile_func_check_request (svz_socket_t *sock)
 
 /* Wrapper for the socket handle request callback.  The function searches for
    both the servertype specific and socket specific procedure.  */
-#define FUNC_NAME "guile_func_handle_request"
 static int
 guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 {
+#define FUNC_NAME __func__
   svz_server_t *server;
   svz_servertype_t *stype;
   SCM ret, handle_request;
@@ -786,14 +790,14 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper for the socket idle func callback.  */
-#define FUNC_NAME "guile_func_idle_func"
 static int
 guile_func_idle_func (svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   SCM ret, idle_func = guile_sock_getfunction (sock, "idle");
 
   if (!SCM_UNBNDP (idle_func))
@@ -806,10 +810,10 @@ guile_func_idle_func (svz_socket_t *sock)
 #undef FUNC_NAME
 
 /* Wrapper for the socket trigger condition func callback.  */
-#define FUNC_NAME "guile_func_trigger_cond"
 static int
 guile_func_trigger_cond (svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   SCM ret, trigger_cond = guile_sock_getfunction (sock, "trigger-condition");
 
   if (!SCM_UNBNDP (trigger_cond))
@@ -818,14 +822,14 @@ guile_func_trigger_cond (svz_socket_t *sock)
       return SCM_NFALSEP (ret);
     }
   return 0;
-}
 #undef FUNC_NAME
 
+}
 /* Wrapper for the socket trigger func callback.  */
-#define FUNC_NAME "guile_func_trigger_func"
 static int
 guile_func_trigger_func (svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   SCM ret, trigger_func = guile_sock_getfunction (sock, "trigger");
 
   if (!SCM_UNBNDP (trigger_func))
@@ -838,10 +842,10 @@ guile_func_trigger_func (svz_socket_t *sock)
 #undef FUNC_NAME
 
 /* Wrapper for the socket check oob request callback.  */
-#define FUNC_NAME "guile_func_check_request_oob"
 static int
 guile_func_check_request_oob (svz_socket_t *sock)
 {
+#define FUNC_NAME __func__
   SCM ret, check_request_oob;
   check_request_oob = guile_sock_getfunction (sock, "check-oob-request");
 
@@ -852,44 +856,53 @@ guile_func_check_request_oob (svz_socket_t *sock)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
-}
 #undef FUNC_NAME
+}
 
-/* Set the @code{handle-request} member of the socket structure @var{sock}
-   to the Guile procedure @var{proc}.  The procedure returns the previously
-   set handler if there is any.  */
-#define FUNC_NAME "svz:sock:handle-request"
-SCM
-guile_sock_handle_request (SCM sock, SCM proc)
+SCM_DEFINE
+(guile_sock_handle_request,
+ "svz:sock:handle-request", 1, 1, 0,
+ (SCM sock, SCM proc),
+ doc: /***********
+Set the @code{handle-request} member of the socket structure @var{sock}
+to @var{proc}.  Return the previously set handler if there is any.  */)
 {
+#define FUNC_NAME s_guile_sock_handle_request
   SOCK_CALLBACK_BODY (handle_request, "handle-request");
-}
 #undef FUNC_NAME
+}
 
-/* Set the @code{check-request} member of the socket structure @var{sock}
-   to the Guile procedure @var{proc}.  Returns the previously handler if
-   there is any.  */
-#define FUNC_NAME "svz:sock:check-request"
-SCM
-guile_sock_check_request (SCM sock, SCM proc)
+SCM_DEFINE
+(guile_sock_check_request,
+ "svz:sock:check-request", 1, 1, 0,
+ (SCM sock, SCM proc),
+ doc: /***********
+Set the @code{check-request} member of the socket structure @var{sock}
+to @var{proc}.  Return the previously handler if there is any.  */)
 {
+#define FUNC_NAME s_guile_sock_check_request
   SOCK_CALLBACK_BODY (check_request, "check-request");
-}
 #undef FUNC_NAME
+}
 
-/* Setup the packet boundary of the socket @var{sock}.  The given string value
-   @var{boundary} can contain any kind of data.  If you pass an exact number
-   value the socket is setup to parse fixed sized packets.  In fact this
-   procedure sets the @code{check-request} callback of the given socket
-   structure @var{sock} to a predefined routine which runs the
-   @code{handle-request} callback of the same socket when it detected a
-   complete packet specified by @var{boundary}.  For instance you
-   can setup Serveez to pass your @code{handle-request} procedure text lines
-   by calling @code{(svz:sock:boundary sock "\\n")}.  */
-#define FUNC_NAME "svz:sock:boundary"
-static SCM
-guile_sock_boundary (SCM sock, SCM boundary)
+SCM_DEFINE
+(guile_sock_boundary,
+ "svz:sock:boundary", 2, 0, 0,
+ (SCM sock, SCM boundary),
+ doc: /***********
+Setup the packet boundary of the socket @var{sock}.  The given string
+value @var{boundary} can contain any kind of data.  If @var{boundary}
+is an exact number, set up the socket to parse fixed sized packets.
+More precisely, set the @code{check-request} callback of the given
+socket structure @var{sock} to an internal routine which runs the
+socket's @code{handle-request} callback when it detects a
+complete packet specified by @var{boundary}.
+
+For instance, you can arrange for Serveez to pass the
+@code{handle-request} procedure lines of text by calling
+@code{(svz:sock:boundary sock "\n")}.  */)
 {
+#define FUNC_NAME s_guile_sock_boundary
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
@@ -918,16 +931,20 @@ guile_sock_boundary (SCM sock, SCM boundary)
     xsock->check_request = svz_sock_check_request;
 
   return SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
-/* Set or unset the flood protection bit of the given socket @var{sock}.
-   Returns the previous value of this bit (#t or #f).  The @var{flag}
-   argument must be either boolean or an exact number and is optional.  */
-#define FUNC_NAME "svz:sock:floodprotect"
-static SCM
-guile_sock_floodprotect (SCM sock, SCM flag)
+SCM_DEFINE
+(guile_sock_floodprotect,
+ "svz:sock:floodprotect", 1, 1, 0,
+ (SCM sock, SCM flag),
+ doc: /***********
+Set or unset the flood protection bit of the given socket @var{sock}.
+Return the previous value of this bit (@code{#t} or @code{#f}).  The
+@var{flag} argument must be either boolean or an exact number and is
+optional.  */)
 {
+#define FUNC_NAME s_guile_sock_floodprotect
   svz_socket_t *xsock;
   int flags;
 
@@ -944,16 +961,18 @@ guile_sock_floodprotect (SCM sock, SCM flag)
         xsock->flags |= SVZ_SOFLG_NOFLOOD;
     }
   return (flags & SVZ_SOFLG_NOFLOOD) ? SCM_BOOL_F : SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
-/* Write the string buffer @var{buffer} to the socket @var{sock}.  The
-   procedure accepts binary smobs too.  Return @code{#t} on success and
-   @code{#f} on failure.  */
-#define FUNC_NAME "svz:sock:print"
-static SCM
-guile_sock_print (SCM sock, SCM buffer)
+SCM_DEFINE
+(guile_sock_print,
+ "svz:sock:print", 2, 0, 0,
+ (SCM sock, SCM buffer),
+ doc: /***********
+Write @var{buffer} (string or binary smob) to the socket @var{sock}.
+Return @code{#t} on success and @code{#f} on failure.  */)
 {
+#define FUNC_NAME s_guile_sock_print
   svz_socket_t *xsock;
   char *buf;
   int len, ret = -1;
@@ -986,17 +1005,20 @@ guile_sock_print (SCM sock, SCM buffer)
       return SCM_BOOL_F;
     }
   return SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
-/* Associate any kind of data (any Guile object) given in the argument
-   @var{data} with the socket @var{sock}.  The @var{data} argument is
-   optional.  The procedure always returns a previously stored value or an
-   empty list.  */
-#define FUNC_NAME "svz:sock:data"
-SCM
-guile_sock_data (SCM sock, SCM data)
+SCM_DEFINE
+(guile_sock_data,
+ "svz:sock:data", 1, 1, 0,
+ (SCM sock, SCM data),
+ doc: /***********
+Associate any kind of data (any object) given in the argument
+@var{data} with the socket @var{sock}.  The @var{data} argument is
+optional.  Return a previously stored value or an empty list.
+[Do not use; will be deleted; use object properties, instead.  --ttn]  */)
 {
+#define FUNC_NAME s_guile_sock_data
   svz_socket_t *xsock;
   SCM ret = SCM_EOL;
 
@@ -1016,8 +1038,8 @@ guile_sock_data (SCM sock, SCM data)
       gi_gc_protect (data);
     }
   return ret;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Convert the given value at @var{address} of the the type @var{type} into
@@ -1069,16 +1091,18 @@ guile_config_convert (void *address, int type)
       svz_server_find (((svz_socket_t *) GET_SMOB (svz_socket, smob))->cfg); \
   } while (0)
 
-/* This procedure returns the configuration item specified by @var{key} of
-   the given server instance @var{server}.  You can pass this procedure a
-   socket too.  In this case the procedure will lookup the appropriate server
-   instance itself.  If the given string @var{key} is invalid (not defined
-   in the configuration alist in @code{define-servertype!}) then it returns
-   an empty list.  */
-#define FUNC_NAME "svz:server:config-ref"
-SCM
-guile_server_config_ref (SCM server, SCM key)
+SCM_DEFINE
+(guile_server_config_ref,
+ "svz:server:config-ref", 2, 0, 0,
+ (SCM server, SCM key),
+ doc: /***********
+Return the configuration item specified by @var{key} of the given server
+instance @var{server}.  You can pass this procedure a socket, too, in
+which case the appropriate server instance is looked up.  If the given
+string @var{key} is invalid (not defined in the configuration alist in
+@code{define-servertype!}), then return an empty list.  */)
 {
+#define FUNC_NAME s_guile_server_config_ref
   SCM ret = SCM_EOL;
   svz_servertype_t *stype;
   svz_server_t *xserver;
@@ -1108,17 +1132,21 @@ guile_server_config_ref (SCM server, SCM key)
     }
   scm_c_free (str);
   return ret;
-}
 #undef FUNC_NAME
+}
 
-/* Returns the Guile object associated with the string value @var{key} which
-   needs to be set via @code{svz:server:state-set!} previously.  Otherwise
-   the return value is an empty list.  The given @var{server} argument must be
-   either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}.  */
-#define FUNC_NAME "svz:server:state-ref"
-SCM
-guile_server_state_ref (SCM server, SCM key)
+SCM_DEFINE
+(guile_server_state_ref,
+ "svz:server:state-ref", 2, 0, 0,
+ (SCM server, SCM key),
+ doc: /***********
+Return the Guile object associated with the string value @var{key} which
+needs to be have been set via @code{svz:server:state-set!} previously.
+Otherwise return an empty list.  The given @var{server} argument must be
+either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}.
+[NB: See comment in @code{svz:server:state-set!}. ---ttn]  */)
 {
+#define FUNC_NAME s_guile_server_state_ref
   SCM ret = SCM_EOL;
   svz_server_t *xserver;
   char *str;
@@ -1133,18 +1161,23 @@ guile_server_state_ref (SCM server, SCM key)
       ret = (SCM) SVZ_PTR2NUM (svz_hash_get (hash, str));
   scm_c_free (str);
   return ret;
-}
 #undef FUNC_NAME
+}
 
-/* Associates the Guile object @var{value} with the string @var{key}.  The
-   given @var{server} argument can be both, a @code{#<svz-server>} or a
-   @code{#<svz-socket>}.  Returns the previously associated object or an
-   empty list if there was no such association.  This procedure is useful
-   for server instance state savings.  */
-#define FUNC_NAME "svz:server:state-set!"
-SCM
-guile_server_state_set_x (SCM server, SCM key, SCM value)
+SCM_DEFINE
+(guile_server_state_set_x,
+ "svz:server:state-set!", 3, 0, 0,
+ (SCM server, SCM key, SCM value),
+ doc: /***********
+Associate the Guile object @var{value} with the string @var{key}.  The
+given @var{server} argument can be both, a @code{#<svz-server>} or a
+@code{#<svz-socket>}.  Return the previously associated object or an
+empty list if there was no such association.  This procedure is useful
+for server instance state savings.  [Actually, it is superfluous since
+Guile provides object properties and closures.  Probably this procedure
+will be deleted soon. ---ttn]  */)
 {
+#define FUNC_NAME s_guile_server_state_set_x
   SCM ret = SCM_EOL;
   svz_server_t *xserver;
   char *str;
@@ -1169,8 +1202,8 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
   gi_gc_protect (value);
   scm_c_free (str);
   return ret;
-}
 #undef FUNC_NAME
+}
 
 static void
 server_state_to_hash_internal (void *k, void *v, void *closure)
@@ -1180,12 +1213,15 @@ server_state_to_hash_internal (void *k, void *v, void *closure)
   scm_hash_set_x (*hash, gi_string2scm (k), (SCM) SVZ_PTR2NUM (v));
 }
 
-/* Converts the @var{server} instance's state into a Guile hash.
-   Returns an empty list if there is no such state yet.  */
-#define FUNC_NAME "svz:server:state->hash"
-SCM
-guile_server_state_to_hash (SCM server)
+SCM_DEFINE
+(guile_server_state_to_hash,
+ "svz:server:state->hash", 1, 0, 0,
+ (SCM server),
+ doc: /***********
+Convert the @var{server} instance's state into a Guile hash.
+Return an empty list if there is no such state yet.  */)
 {
+#define FUNC_NAME s_guile_server_state_to_hash
   SCM hash = SCM_EOL;
   svz_hash_t *data;
   svz_server_t *xserver;
@@ -1198,8 +1234,8 @@ guile_server_state_to_hash (SCM server)
       svz_hash_foreach (server_state_to_hash_internal, data, &hash);
     }
   return hash;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Returns the length of a configuration item type, updates the configuration
@@ -1595,10 +1631,10 @@ servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
  * Parse the configuration of the server type @var{server} stored in the
  * scheme cell @var{cfg}.
  */
-#define FUNC_NAME "guile_servertype_config"
 static int
 guile_servertype_config (svz_servertype_t *server, SCM cfg)
 {
+#define FUNC_NAME __func__
   unsigned int n;
   svz_key_value_pair_t item;
   char action[ACTIONBUFSIZE];
@@ -1665,19 +1701,19 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 
 #undef options
 #undef err
-}
 #undef FUNC_NAME
+}
 
-/*
- * Guile server definition: This procedure takes one argument containing
- * the information about a new server type.  If everything works fine you
- * have a freshly registered server type afterwards.  Return @code{#t} on
- * success.
- */
-#define FUNC_NAME "define-servertype!"
-SCM
-guile_define_servertype (SCM args)
+SCM_DEFINE
+(guile_define_servertype,
+ "define-servertype!", 1, 0, 0,
+ (SCM args),
+ doc: /***********
+Define a new server type based on @var{args}.  (If everything
+works fine you have a freshly registered server type afterwards.)
+Return @code{#t} on success.  */)
 {
+#define FUNC_NAME s_guile_define_servertype
   int n, err = 0;
   svz_hash_t *options;
   SCM proc;
@@ -1758,8 +1794,8 @@ guile_define_servertype (SCM args)
   optionhash_destroy (options);
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
-}
 #undef FUNC_NAME
+}
 
 /*
  * Destroys the servertype represented by the hash @var{callbacks}.  Removes
