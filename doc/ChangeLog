@@ -1,3 +1,12 @@
+2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Drop support for doc integration w/ Guile help system.
+
+	* guile-boot.texh (serveez-doc-add!): Delete @tsin.
+	* Makefile.am (GUILE_TXT_FILE, pkgdata_DATA): Delete vars.
+	(MAINTAINERCLEANFILES): Remove $(GUILE_TXT_FILE).
+	($(GUILE_TXT_FILE)): Delete target.
+
 2011-05-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use Guile-BAUX for "Scheme proc from C source" snarfing.

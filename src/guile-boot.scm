@@ -196,27 +196,3 @@
 ;;
 (define (endrpcent)
   (setrpc))
-
-;; Include Serveez documentation file into the Guile help system.
-;;
-(define (serveez-doc-add!)
-  (catch #t
-         (lambda ()
-           (use-modules (ice-9 session))
-           (use-modules (ice-9 documentation))
-           (for-each
-            (lambda (path)
-              (let ((file (string-append path "/serveez-procedures.txt"))
-                    (found #f))
-                (for-each
-                 (lambda (f) (if (equal? f file) (set! found #t)))
-                 documentation-files)
-                (if (not found)
-                    (set! documentation-files
-                          (cons file documentation-files)))))
-            (serveez-loadpath))
-           (display "Serveez documentation file successfully added.\n")
-           #t)
-         (lambda args
-           (display "Failed to add Serveez documentation file.\n")
-           #f)))

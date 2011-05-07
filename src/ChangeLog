@@ -1,5 +1,11 @@
 2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	Drop support for doc integration w/ Guile help system.
+
+	* guile-boot.scm (serveez-doc-add!): Delete proc.
+
+2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Use Guile-BAUX for init snarfing.
 
 	U ≡ "Delete all ‘scm_c_define_gsubr’

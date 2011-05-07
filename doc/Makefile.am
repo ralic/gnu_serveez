@@ -73,17 +73,15 @@ guile_impl = \
   guile.c
 guile_from = $(guile_impl:%=$(srcsrcd)/%)
 
-GUILE_TXT_FILE = serveez-procedures.txt
 SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
 MANUAL_FILES = \
   $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
-pkgdata_DATA = $(GUILE_TXT_FILE)
 
 genstems = serveez-api
 gen = $(genstems:%=%.sed) $(genstems:%=%.texi)
 
-MAINTAINERCLEANFILES += $(gen) $(GUILE_TXT_FILE)
+MAINTAINERCLEANFILES += $(gen)
 EXTRA_DIST += $(gen) $(genstems:%=%.texi.in)
 
 maintainer-clean-local:
@@ -137,12 +135,6 @@ EXTRA_DIST += $(BUILT_SOURCES) guile-boot.texh
 
 .texh.texi:
 	$(gx) tsin -f snippets -c utf-8 $<
-
-# FIXME: We should be able to do ‘$(SNARFER) -t $^ > $@’ directly.
-# We can't because serveez-doc-snarf.awk option parsing can't.
-$(GUILE_TXT_FILE): $(guile_from)
-	rm -f $@; for f in $(guile_from);	\
-	  do $(SNARFER) $$f -t >> $@; done
 
 genhtml = serveez.html
 
