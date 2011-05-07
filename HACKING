@@ -88,7 +88,7 @@ See the end for copying conditions.
 ******* TODO scm_str2symbol
 ******* DONE scm_ulong2num (f) => gi_nnint2scm (f)
 ******* DONE scm_unprotect_object (f) => gi_gc_unprotect (f)
-***** TODO snarf definitions
+***** DONE snarf definitions
 ***** DONE add proc ‘libserveez-features’
 ***** TODO refactor getter/setter support
 *** TODO Enable / augment the Guile tests.
