@@ -697,23 +697,6 @@ some of which are based upon those above.
 
 @include guile-boot.texi
 
-@deffn @PROC{} serveez-verbosity verbosity
-Set the core library's logging verbosity to the @var{verbosity} level.  Lesser
-values mean fewer logging messages.  This settings gets overridden by command
-line.
-@end deffn
-
-@deffn @PROC{} serveez-maxsockets max
-Set the number of maximum socket descriptors (number of concurrent
-connections).  When passing Serveez the -m command line argument this setting
-gets overridden, too.
-@end deffn
-
-@deffn @PROC{} serveez-passwd password
-Set the @var{password} for the control protocol.
-This effectively does nothing if the control protocol is not enabled.
-@end deffn
-
 We now have a closer look at the internals of Serveez.  If you
 are not interested in that have a look at the existing
 servers (@xref{Existing servers}.).

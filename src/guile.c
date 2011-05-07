@@ -1712,7 +1712,8 @@ SCM_DEFINE
  (SCM level),
  doc: /***********
 Return the verbosity level (an integer).  Optional
-arg @var{level} means set it to that level, instead.  */)
+arg @var{level} means set it to that level, instead.  This
+setting is overridden by the command-line @samp{-v} option.  */)
 {
   return parm_accessor (s_guile_access_verbosity,
                         SVZ_RUNPARM_VERBOSITY,
@@ -1725,7 +1726,8 @@ SCM_DEFINE
  (SCM max),
  doc: /***********
 Return the maximum number of open sockets permitted (an integer).
-Optional arg @var{max} means set it to that number, instead.  */)
+Optional arg @var{max} means set it to that number, instead.
+This setting is overridden by the command-line @samp{-m} option.  */)
 {
   return parm_accessor (s_guile_access_maxsockets,
                         SVZ_RUNPARM_MAX_SOCKETS,
@@ -1744,7 +1746,8 @@ SCM_DEFINE
  (SCM pw),
  doc: /***********
 Return the control password (a string).
-Optional arg @var{pw} sets it to that, instead.  */)
+Optional arg @var{pw} sets it to that, instead.  This effectively
+does nothing if the control protocol is not enabled.  */)
 {
   return string_accessor
     (s_guile_access_passwd, &control_protocol_password, pw);

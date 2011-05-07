@@ -1,5 +1,12 @@
 2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc int] Convert some "manual" @deffn to @tsin.
+
+	* guile.c (guile_access_verbosity): Update docstring.
+	(guile_access_maxsockets, guile_access_passwd): Likewise.
+
+2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Drop support for doc integration w/ Guile help system.
 
 	* guile-boot.scm (serveez-doc-add!): Delete proc.
