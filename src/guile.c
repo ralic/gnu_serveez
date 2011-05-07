@@ -1794,33 +1794,13 @@ guile_init (void)
   /* define some variables */
   scm_c_define ("serveez-version", gi_string2scm (PACKAGE_VERSION));
 
-  /* export accessors for global variables (read/write capable) */
-  scm_c_define_gsubr ("serveez-verbosity", 0, 1, 0, guile_access_verbosity);
-  scm_c_define_gsubr ("serveez-maxsockets", 0, 1, 0, guile_access_maxsockets);
-  scm_c_define_gsubr ("serveez-passwd", 0, 1, 0, guile_access_passwd);
-  scm_c_define_gsubr ("serveez-interfaces", 0, 1, 0, guile_access_interfaces);
-  scm_c_define_gsubr ("serveez-loadpath", 0, 1, 0, guile_access_loadpath);
-
-  /* export some new procedures */
-  scm_c_define_gsubr ("libserveez-features", 0, 0, 0, libserveez_features);
-  scm_c_define_gsubr ("define-port!", 2, 0, 0, guile_define_port);
-  scm_c_define_gsubr ("define-server!", 1, 1, 0, guile_define_server);
-  scm_c_define_gsubr ("bind-server!", 2, 0, 0, guile_bind_server);
-
-  /* export checker procedures */
-  scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
-  scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
-  scm_c_define_gsubr ("serveez-servertype?", 1, 0, 0, guile_check_stype);
-
-  /* configurable types */
-  scm_c_define_gsubr ("instantiate-config-type!", 3, 1, 0,
-                      guile_config_instantiate);
-
   {
 #include "guile-boot.c"
 
     gi_eval_string (high);
   }
+
+#include "guile.x"
 
 #if ENABLE_GUILE_SERVER
   guile_server_init ();

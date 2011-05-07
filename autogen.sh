@@ -39,6 +39,7 @@ cd `dirname $0`
 
 # Make some Guile-BAUX functionality available.
 guile-baux-tool import \
+    c2x \
     as-C-byte-array \
     punify \
     c-tsar \

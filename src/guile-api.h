@@ -130,10 +130,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define scm_c_free(p) scm_must_free (p)
 #endif
 #ifndef SCM_VERSION_15X
-#define scm_c_define_gsubr(name, req, opt, rst, fcn) \
-    gh_new_procedure (name, fcn, req, opt, rst)
-#endif
-#ifndef SCM_VERSION_15X
 #define scm_c_primitive_load(file) \
     scm_primitive_load (gi_string2scm (file))
 #endif

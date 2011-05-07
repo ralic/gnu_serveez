@@ -37,7 +37,11 @@ bin_SCRIPTS = serveez-config
 # Perplexingly, Automake does not automatically distribute these.
 EXTRA_DIST = $(aclocal_DATA) guile-boot.scm
 
-BUILT_SOURCES = guile-boot.c
+BUILT_SOURCES = \
+  guile-bin.x \
+  guile-server.x \
+  guile.x \
+  guile-boot.c
 
 #
 # Add your server subdirectory here
@@ -76,6 +80,9 @@ serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 AM_CPPFLAGS += $(GUILE_CFLAGS)
+
+.c.x:
+	$(gx) c2x -o $@ $< -- $(DEFAULT_INCLUDES) $(GUILE_CFLAGS)
 
 i = "$(DESTDIR)$(includedir)/libserveez"
 

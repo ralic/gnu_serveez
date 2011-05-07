@@ -1,3 +1,19 @@
+2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Use Guile-BAUX for init snarfing.
+
+	U ≡ "Delete all ‘scm_c_define_gsubr’
+	and ‘DEFINE_SOCK_CALLBACK’ calls".
+	* Makefile.am (BUILT_SOURCES):
+	Add guile-bin.x, guile-server.x, guile.x.
+	(.c.x): New old-style suffix rule.
+	* guile-api.c (guile_api_init): U.
+	* guile-bin.c (guile_bin_init): U; #include "guile-bin.x".
+	* guile-server.c (DEFINE_SOCK_CALLBACK): Delete macro.
+	(guile_server_init): U; #include "guile-server.x".
+	* guile.c (guile_init): U; #include "guile.x".
+	* guile-api.h (scm_c_define_gsubr): Delete macro.
+
 2011-05-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use Guile-BAUX for "Scheme proc from C source" snarfing.

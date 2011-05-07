@@ -61,6 +61,7 @@ Makefile.in
 /doc/version*.texi
 
 /src/*.log
+/src/*.x
 /src/config.h
 /src/config.h.in
 /src/guile-boot.c

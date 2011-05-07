@@ -761,28 +761,7 @@ guile_bin_init (void)
   scm_set_smob_equalp (guile_bin_tag, guile_bin_equal);
 #endif /* not HAVE_OLD_SMOBS */
 
-  scm_c_define_gsubr ("binary?", 1, 0, 0, guile_bin_p);
-  scm_c_define_gsubr ("string->binary", 1, 0, 0, guile_string_to_bin);
-  scm_c_define_gsubr ("binary->string", 1, 0, 0, guile_bin_to_string);
-  scm_c_define_gsubr ("list->binary", 1, 0, 0, guile_list_to_bin);
-  scm_c_define_gsubr ("binary->list", 1, 0, 0, guile_bin_to_list);
-  scm_c_define_gsubr ("binary-search", 2, 0, 0, guile_bin_search);
-  scm_c_define_gsubr ("binary-set!", 3, 0, 0, guile_bin_set_x);
-  scm_c_define_gsubr ("binary-ref", 2, 0, 0, guile_bin_ref);
-  scm_c_define_gsubr ("binary-length", 1, 0, 0, guile_bin_length);
-  scm_c_define_gsubr ("binary-concat!", 2, 0, 0, guile_bin_concat_x);
-  scm_c_define_gsubr ("binary-subset", 2, 1, 0, guile_bin_subset);
-  scm_c_define_gsubr ("binary-reverse", 1, 0, 0, guile_bin_reverse);
-  scm_c_define_gsubr ("binary-reverse!", 1, 0, 0, guile_bin_reverse_x);
-
-  scm_c_define_gsubr ("binary-long-ref", 2, 0, 0, guile_bin_long_ref);
-  scm_c_define_gsubr ("binary-int-ref", 2, 0, 0, guile_bin_int_ref);
-  scm_c_define_gsubr ("binary-short-ref", 2, 0, 0, guile_bin_short_ref);
-  scm_c_define_gsubr ("binary-char-ref", 2, 0, 0, guile_bin_char_ref);
-  scm_c_define_gsubr ("binary-long-set!", 3, 0, 0, guile_bin_long_set);
-  scm_c_define_gsubr ("binary-int-set!", 3, 0, 0, guile_bin_int_set);
-  scm_c_define_gsubr ("binary-short-set!", 3, 0, 0, guile_bin_short_set);
-  scm_c_define_gsubr ("binary-char-set!", 3, 0, 0, guile_bin_char_set);
+#include "guile-bin.x"
 }
 
 #else /* not ENABLE_GUILE_SERVER */

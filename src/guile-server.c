@@ -174,10 +174,6 @@ MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
     }                                                           \
   return guile_sock_getfunction (xsock, assoc)
 
-/* Provides a socket callback setter/getter.  */
-#define DEFINE_SOCK_CALLBACK(assoc, func) \
-  scm_c_define_gsubr (assoc, 1, 1, 0, guile_sock_ ## func)
-
 /*
  * Extract a guile procedure from an option hash.  Return zero on success.
  */
@@ -1840,36 +1836,13 @@ guile_server_init (void)
   guile_sock =
     svz_hash_create (4, (svz_free_func_t) guile_sock_destroy);
 
-  scm_c_define_gsubr ("define-servertype!",
-                      1, 0, 0, guile_define_servertype);
-  scm_c_define_gsubr ("svz:sock:boundary",
-                      2, 0, 0, guile_sock_boundary);
-  scm_c_define_gsubr ("svz:sock:floodprotect",
-                      1, 1, 0, guile_sock_floodprotect);
-  scm_c_define_gsubr ("svz:sock:print",
-                      2, 0, 0, guile_sock_print);
-  scm_c_define_gsubr ("svz:sock:data",
-                      1, 1, 0, guile_sock_data);
-  scm_c_define_gsubr ("svz:server:config-ref",
-                      2, 0, 0, guile_server_config_ref);
-  scm_c_define_gsubr ("svz:server:state-ref",
-                      2, 0, 0, guile_server_state_ref);
-  scm_c_define_gsubr ("svz:server:state-set!",
-                      3, 0, 0, guile_server_state_set_x);
-  scm_c_define_gsubr ("svz:server:state->hash",
-                      1, 0, 0, guile_server_state_to_hash);
-  scm_c_define_gsubr ("serveez-exceptions",
-                      0, 1, 0, guile_access_exceptions);
-  scm_c_define_gsubr ("serveez-nuke",
-                      0, 0, 0, guile_nuke_happened);
-  DEFINE_SOCK_CALLBACK ("svz:sock:handle-request",handle_request);
-  DEFINE_SOCK_CALLBACK ("svz:sock:check-request",check_request);
-
   /* Initialize the guile SMOB things.  Previously defined via
      MAKE_SMOB_DEFINITION ().  */
   INIT_SMOB (svz_socket);
   INIT_SMOB (svz_server);
   INIT_SMOB (svz_servertype);
+
+#include "guile-server.x"
 
   guile_bin_init ();
   guile_api_init ();

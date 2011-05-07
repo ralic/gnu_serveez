@@ -1289,19 +1289,9 @@ socket) @code{#f}.  */)
 void
 guile_api_init (void)
 {
-#if HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER
-  scm_c_define_gsubr ("getrpc", 0, 1, 0, scm_getrpc);
-#endif
-#if HAVE_SETRPCENT && HAVE_ENDRPCENT
-  scm_c_define_gsubr ("setrpc", 0, 1, 0, scm_setrpc);
-#endif
 #if HAVE_PMAP_SET && HAVE_PMAP_UNSET
-  scm_c_define_gsubr ("portmap", 2, 2, 0, scm_portmap);
   scm_c_define ("IPPROTO_UDP", gi_integer2scm (IPPROTO_UDP));
   scm_c_define ("IPPROTO_TCP", gi_integer2scm (IPPROTO_TCP));
-#endif
-#if HAVE_PMAP_GETMAPS
-  scm_c_define_gsubr ("portmap-list", 0, 1, 0, scm_portmap_list);
 #endif
 
   scm_c_define ("PROTO_TCP", gi_integer2scm (SVZ_PROTO_TCP));
@@ -1311,55 +1301,6 @@ guile_api_init (void)
   scm_c_define ("PROTO_PIPE", gi_integer2scm (SVZ_PROTO_PIPE));
   scm_c_define ("KICK_FLOOD", gi_integer2scm (0));
   scm_c_define ("KICK_QUEUE", gi_integer2scm (1));
-  scm_c_define_gsubr ("svz:sock:connect", 2, 1, 0, guile_sock_connect);
-  scm_c_define_gsubr ("svz:htons", 1, 0, 0, guile_svz_htons);
-  scm_c_define_gsubr ("svz:ntohs", 1, 0, 0, guile_svz_ntohs);
-  scm_c_define_gsubr ("svz:htonl", 1, 0, 0, guile_svz_htonl);
-  scm_c_define_gsubr ("svz:ntohl", 1, 0, 0, guile_svz_ntohl);
-  scm_c_define_gsubr ("svz:inet-aton", 1, 0, 0, guile_svz_inet_aton);
-  scm_c_define_gsubr ("svz:inet-ntoa", 1, 0, 0, guile_svz_inet_ntoa);
-  scm_c_define_gsubr ("svz:sock:parent", 1, 1, 0, guile_sock_parent);
-  scm_c_define_gsubr ("svz:sock:referrer", 1, 1, 0, guile_sock_referrer);
-  scm_c_define_gsubr ("svz:sock:server", 1, 1, 0, guile_sock_server);
-  scm_c_define_gsubr ("svz:sock:protocol", 1, 0, 0, guile_sock_protocol);
-  scm_c_define_gsubr ("svz:sock:final-print", 1, 0, 0, guile_sock_final_print);
-  scm_c_define_gsubr ("svz:sock:no-delay", 1, 1, 0, guile_sock_no_delay);
-  scm_c_define_gsubr ("svz:sock:ident", 1, 0, 0, guile_sock_ident);
-  scm_c_define_gsubr ("svz:sock:find", 1, 0, 0, guile_sock_find);
-  scm_c_define_gsubr ("svz:sock?", 1, 0, 0, guile_sock_p);
-  scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
-  scm_c_define_gsubr ("svz:server:listeners", 1, 0, 0, guile_server_listeners);
-  scm_c_define_gsubr ("svz:server:clients", 1, 0, 0, guile_server_clients);
-  scm_c_define_gsubr ("svz:sock:send-buffer", 1, 0, 0, guile_sock_send_buffer);
-  scm_c_define_gsubr ("svz:sock:send-buffer-size",
-                      1, 1, 0, guile_sock_send_buffer_size);
-  scm_c_define_gsubr ("svz:sock:receive-buffer",
-                      1, 0, 0, guile_sock_receive_buffer);
-  scm_c_define_gsubr ("svz:sock:receive-buffer-size",
-                      1, 1, 0, guile_sock_receive_buffer_size);
-  scm_c_define_gsubr ("svz:sock:receive-buffer-reduce",
-                      1, 1, 0, guile_sock_receive_buffer_reduce);
-  scm_c_define_gsubr ("svz:sock:remote-address",
-                      1, 1, 0, guile_sock_remote_address);
-  scm_c_define_gsubr ("svz:sock:local-address",
-                      1, 1, 0, guile_sock_local_address);
-  scm_c_define_gsubr ("svz:sock:idle-counter",
-                      1, 1, 0, guile_sock_idle_counter);
-  scm_c_define_gsubr ("svz:coserver:dns",
-                      2, 0, 0, guile_coserver_dns);
-  scm_c_define_gsubr ("svz:coserver:reverse-dns",
-                      2, 0, 0, guile_coserver_rdns);
-  scm_c_define_gsubr ("svz:coserver:ident",
-                      2, 0, 0, guile_coserver_ident);
-  scm_c_define_gsubr ("svz:read-file", 2, 0, 0, guile_read_file);
-  scm_c_define_gsubr ("svz:sock:send-oob", 2, 0, 0, guile_sock_send_oob);
-
-  DEFINE_SOCK_CALLBACK ("svz:sock:trigger-condition",trigger_cond);
-  DEFINE_SOCK_CALLBACK ("svz:sock:trigger",trigger_func);
-  DEFINE_SOCK_CALLBACK ("svz:sock:disconnected",disconnected_socket);
-  DEFINE_SOCK_CALLBACK ("svz:sock:kicked",kicked_socket);
-  DEFINE_SOCK_CALLBACK ("svz:sock:idle",idle_func);
-  DEFINE_SOCK_CALLBACK ("svz:sock:check-oob-request",check_request_oob);
 }
 
 /* Finalize the API procedures.  */
