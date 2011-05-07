@@ -347,9 +347,6 @@ loop.  You should use this instead of calling @code{quit}.  */)
 #undef FUNC_NAME
 }
 
-SCM_REGISTER_PROC                       /* dummy, for c-tsar testing */
-(s_wowz, "wowz", 0, 0, 0, guile_nuke_happened);
-
 SCM_DEFINE
 (guile_access_exceptions,
  "serveez-exceptions", 0, 1, 0,
