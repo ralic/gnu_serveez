@@ -37,6 +37,8 @@ extern SCM gi_eval_string (char const *);
 
 extern SCM gi_lookup (char const *);
 
+extern unsigned long gi_scm2ulong (SCM number);
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */

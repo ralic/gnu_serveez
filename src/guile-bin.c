@@ -517,7 +517,7 @@ either exact numbers in a byte's range or characters.  */)
 
   SCM_ASSERT_TYPE (SCM_LISTP (list), list, SCM_ARG1, FUNC_NAME, "list");
   bin = MAKE_BIN_SMOB ();
-  bin->size = SCM_NUM2ULONG (SCM_ARG1, scm_length (list));
+  bin->size = gi_scm2ulong (scm_length (list));
 
   if (bin->size > 0)
     {
@@ -639,7 +639,7 @@ SCM_DEFINE                                              \
    exception if it is out of range.  */
 #define CTYPE_CHECK_RANGE(ctype, value, pos, val) do {                     \
     if (SCM_POSITIVEP (value)) {                                           \
-      unsigned long uval = SCM_NUM2ULONG (pos, value);                     \
+      unsigned long uval = gi_scm2ulong (value);                           \
       unsigned ctype cval = (unsigned ctype) uval;                         \
       if (uval != (unsigned long) cval) SCM_OUT_OF_RANGE (pos, value);     \
       val = (unsigned long) uval;                                          \

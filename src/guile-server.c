@@ -1551,7 +1551,6 @@ struct servertype_config_closure
 static void
 servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
 {
-  static char FUNC_NAME[] = "guile_servertype_config";
   struct servertype_config_closure *x = closure;
   char *key = k;
   SCM list = optionhash_get (x->options, key);
@@ -1562,7 +1561,7 @@ servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
 
   /* Each configuration item must be a scheme list with three elements.  */
   if (!SCM_LISTP (list) ||
-      SCM_NUM2ULONG (SCM_ARG1, scm_length (list)) != 3)
+      gi_scm2ulong (scm_length (list)) != 3)
     {
       guile_error ("Invalid definition for `%s' %s", key, x->action);
       x->error = -1;

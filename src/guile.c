@@ -483,7 +483,7 @@ guile_to_hash (SCM list, const char *func)
     }
 
   /* Iterate the alist.  */
-  hash = svz_hash_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)),
+  hash = svz_hash_create (gi_scm2ulong (scm_length (list)),
                           svz_free);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
@@ -567,7 +567,7 @@ guile_to_strarray (SCM list, const char *func)
     }
 
   /* Iterate over the list and build up the array of strings.  */
-  array = svz_array_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)),
+  array = svz_array_create (gi_scm2ulong (scm_length (list)),
                             svz_free);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
@@ -611,7 +611,7 @@ guile_to_intarray (SCM list, const char *func)
     }
 
   /* Iterate over the list and build up the array of strings.  */
-  array = svz_array_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)), NULL);
+  array = svz_array_create (gi_scm2ulong (scm_length (list)), NULL);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
       if (guile_to_integer (SCM_CAR (list), &n) != 0)

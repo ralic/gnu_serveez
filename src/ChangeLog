@@ -1,5 +1,20 @@
 2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_scm2ulong
+
+	* gi.c (gi_scm2ulong): New func.
+	* gi.h (gi_scm2ulong): New func decl.
+	* guile-api.c (guile_svz_inet_ntoa, guile_svz_ntohl)
+	(guile_svz_htonl, guile_sock_remote_address)
+	(guile_sock_local_address, guile_coserver_rdns): Use ‘gi_scm2ulong’.
+	* guile-bin.c (guile_list_to_bin, CTYPE_CHECK_RANGE): Likewise.
+	* guile-server.c (servertype_config_internal): Likewise.
+	* guile.c (guile_to_hash, guile_to_strarray)
+	(guile_to_intarray): Likewise.
+	* guile-api.h (SCM_NUM2ULONG): Delete macro.
+
+2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use local var in ‘guile_error’.
 
 	* guile.c (guile_error): Use local var for "valid load-port".

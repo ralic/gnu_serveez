@@ -187,7 +187,7 @@ numbers-and-dots notation.  */)
   char *str;
   SCM_ASSERT_TYPE (SCM_EXACTP (address),
                    address, SCM_ARG1, FUNC_NAME, "exact");
-  str = svz_inet_ntoa (SCM_NUM2ULONG (SCM_ARG1, address));
+  str = svz_inet_ntoa (gi_scm2ulong (address));
   return gi_string2scm (str);
 #undef FUNC_NAME
 }
@@ -230,7 +230,7 @@ Convert the 32 bit long integer
 #define FUNC_NAME s_guile_svz_ntohl
   SCM_ASSERT_TYPE (SCM_EXACTP (netlong),
                    netlong, SCM_ARG1, FUNC_NAME, "exact");
-  return gi_nnint2scm (ntohl (SCM_NUM2ULONG (SCM_ARG1, netlong)));
+  return gi_nnint2scm (ntohl (gi_scm2ulong (netlong)));
 #undef FUNC_NAME
 }
 
@@ -245,7 +245,7 @@ Convert the 32 bit long integer
 #define FUNC_NAME s_guile_svz_htonl
   SCM_ASSERT_TYPE (SCM_EXACTP (hostlong),
                    hostlong, SCM_ARG1, FUNC_NAME, "exact");
-  return gi_nnint2scm (htonl (SCM_NUM2ULONG (SCM_ARG1, hostlong)));
+  return gi_nnint2scm (htonl (gi_scm2ulong (hostlong)));
 #undef FUNC_NAME
 }
 
@@ -422,7 +422,7 @@ the socket @var{sock}.  */)
                        && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2,
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
-      xsock->remote_addr = SCM_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
+      xsock->remote_addr = gi_scm2ulong (SCM_CAR (address));
       xsock->remote_port = port;
     }
   return pair;
@@ -453,7 +453,7 @@ the socket @var{sock}.  */)
                        && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2,
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
-      xsock->local_addr = SCM_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
+      xsock->local_addr = gi_scm2ulong (SCM_CAR (address));
       xsock->local_port = port;
     }
   return pair;
@@ -1123,7 +1123,7 @@ requested IP address @var{addr}.  */)
   VALIDATE_CALLBACK (callback);
 
   /* Convert IP address into C long value.  */
-  ip = SCM_NUM2ULONG (SCM_ARG1, addr);
+  ip = gi_scm2ulong (addr);
 
   ENQ_COSERVER_REQUEST (ip, rdns);
   return SCM_UNSPECIFIED;

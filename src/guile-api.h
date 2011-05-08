@@ -111,9 +111,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_NUM2LONG
 #define SCM_NUM2LONG(pos, obj) scm_num2long (obj, (char *) (pos), FUNC_NAME)
 #endif
-#ifndef SCM_NUM2ULONG
-#define SCM_NUM2ULONG(pos, obj) scm_num2ulong (obj, (char *) (pos), FUNC_NAME)
-#endif
 #ifndef SCM_WRITABLE_VELTS
 #define SCM_WRITABLE_VELTS(x) SCM_VELTS(x)
 #endif
