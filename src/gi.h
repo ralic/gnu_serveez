@@ -35,6 +35,8 @@ extern SCM gi_n_vector (size_t len, SCM fill);
 
 extern SCM gi_eval_string (char const *);
 
+extern SCM gi_lookup (char const *);
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */

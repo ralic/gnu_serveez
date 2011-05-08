@@ -210,7 +210,7 @@ optionhash_extract_proc (svz_hash_t *hash,
     }
   else if ((str = guile_to_string (hvalue)) != NULL)
     {
-      guile_lookup (proc, str);
+      proc = gi_lookup (str);
       if (!SCM_UNBNDP (proc) && SCM_PROCEDUREP (proc))
         *target = proc;
       else

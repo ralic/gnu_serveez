@@ -134,15 +134,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
     scm_primitive_load (gi_string2scm (file))
 #endif
 #ifndef SCM_VERSION_15X
-#define guile_lookup(var, name) (var) = gh_lookup (name)
-#else
-#define guile_lookup(var, name) do {                                        \
-    (var) = scm_sym2var (scm_str2symbol (name),                             \
-                         scm_current_module_lookup_closure (), SCM_BOOL_F); \
-    if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED;                            \
-    else (var) = scm_variable_ref (var); } while (0)
-#endif
-#ifndef SCM_VERSION_15X
 #define scm_gc_protect_object(obj) scm_protect_object (obj)
 #endif
 #ifndef SCM_VERSION_15X

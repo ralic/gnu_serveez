@@ -159,4 +159,23 @@ gi_eval_string (char const *string)
   return eval_string (string);
 }
 
+SCM
+gi_lookup (char const *string)
+{
+  SCM rv;
+
+#if V15
+  rv = scm_sym2var (symbol2scm (string),
+                    scm_current_module_lookup_closure (),
+                    SCM_BOOL_F);
+  rv = SCM_FALSEP (rv)
+    ? SCM_UNDEFINED
+    : scm_variable_ref (rv);
+#else
+  rv = gh_lookup (string);
+#endif
+
+  return rv;
+}
+
 /* gi.c ends here */

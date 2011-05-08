@@ -1,3 +1,12 @@
+2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[gi] Add func: gi_lookup
+
+	* gi.c (gi_lookup): New func.
+	* gi.h (gi_lookup): New func decl.
+	* guile-server.c (optionhash_extract_proc): Use ‘gi_lookup’.
+	* guile-api.h (guile_lookup): Delete macro.
+
 2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc int] Convert some "manual" @deffn to @tsin.
