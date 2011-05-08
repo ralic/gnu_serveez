@@ -188,15 +188,15 @@ guile_error (char *format, ...)
   va_list args;
   /* FIXME: Why is this port undefined in guile exceptions?  */
   SCM lp = guile_get_current_load_port ();
-  char *file = (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ?
-    scm_c_string2str (SCM_FILENAME (lp), NULL, NULL) : NULL;
+  int lp_valid_p = !SCM_UNBNDP (lp) && SCM_PORTP (lp);
+  char *file = lp_valid_p
+    ? scm_c_string2str (SCM_FILENAME (lp), NULL, NULL)
+    : NULL;
 
   /* guile counts lines from 0, we have to add one */
-  fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined",
-           (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ?
-           (int) SCM_LINUM (lp) + 1 : 0,
-           (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ?
-           (int) SCM_COL (lp) : 0);
+  fprintf (stderr, "%s:%ld:%ld: ", file ? file : "undefined",
+           lp_valid_p ? (long) SCM_LINUM (lp) + 1 : 0,
+           lp_valid_p ? (long) SCM_COL (lp) : 0);
   if (file)
     scm_c_free (file);
 

@@ -1,5 +1,11 @@
 2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use local var in ‘guile_error’.
+
+	* guile.c (guile_error): Use local var for "valid load-port".
+
+2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_lookup
 
 	* gi.c (gi_lookup): New func.
