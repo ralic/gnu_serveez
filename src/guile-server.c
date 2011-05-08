@@ -915,8 +915,7 @@ For instance, you can arrange for Serveez to pass the
   else
     {
       xsock->boundary = scm_c_scm2chars (boundary, NULL);
-      xsock->boundary_size = SCM_NUM2INT (SCM_ARG2,
-                                          scm_string_length (boundary));
+      xsock->boundary_size = (int) gi_string_length (boundary);
     }
 
   /* Only assign this callback for connection oriented protocols.  */
@@ -977,7 +976,7 @@ Return @code{#t} on success and @code{#f} on failure.  */)
   if (SCM_STRINGP (buffer))
     {
       buf = SCM_STRING_CHARS (buffer);
-      len = SCM_NUM2INT (SCM_ARG2, scm_string_length (buffer));
+      len = (int) gi_string_length (buffer);
     }
   else
     {

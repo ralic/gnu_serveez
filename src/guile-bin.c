@@ -147,7 +147,7 @@ sweep phase of the garbage collector.  */)
                    SCM_ARG1, FUNC_NAME, "string");
 
   bin = MAKE_BIN_SMOB ();
-  bin->size = SCM_NUM2INT (SCM_ARG1, scm_string_length (string));
+  bin->size = (int) gi_string_length (string);
   if (bin->size > 0)
     {
       bin->data = scm_gc_malloc (bin->size, "svz-binary-data");
@@ -209,8 +209,7 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
 
       if (CHECK_BIN_SMOB (needle))
         search = GET_BIN_SMOB (needle);
-      len = search ? search->size : SCM_NUM2INT (SCM_ARG2,
-                                                 scm_string_length (needle));
+      len = search ? search->size : (int) gi_string_length (needle);
       p = search ? search->data : SCM_STRING_UCHARS (needle);
       start = bin->data;
       end = start + bin->size - len;
@@ -409,8 +408,7 @@ reference it is then a standalone binary smob as returned by
 
   if (CHECK_BIN_SMOB (append))
     concat = GET_BIN_SMOB (append);
-  len = concat ?
-    concat->size : SCM_NUM2INT (SCM_ARG2, scm_string_length (append));
+  len = concat ? concat->size : (int) gi_string_length (append);
   p = concat ? concat->data : SCM_STRING_UCHARS (append);
   equal = (p == bin->data) ? 1 : 0;
 

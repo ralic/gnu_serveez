@@ -1,5 +1,16 @@
 2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_string_length
+
+	* gi.c (gi_string_length): New func.
+	* gi.h (gi_string_length): New func decl.
+	* guile-bin.c (guile_string_to_bin): Use ‘gi_string_length’.
+	(guile_bin_search, guile_bin_concat_x): Likewise.
+	* guile-server.c (guile_sock_boundary)
+	(guile_sock_print): Likewise.
+
+2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_scm2ulong
 
 	* gi.c (gi_scm2ulong): New func.

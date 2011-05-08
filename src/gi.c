@@ -188,4 +188,10 @@ gi_scm2ulong (SCM number)
 #endif
 }
 
+size_t
+gi_string_length (SCM string)
+{
+  return gi_scm2ulong (scm_string_length (string));
+}
+
 /* gi.c ends here */
