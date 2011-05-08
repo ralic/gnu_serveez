@@ -85,7 +85,7 @@ See the end for copying conditions.
 ******* TODO scm_must_realloc
 ******* TODO scm_num2long
 ******* DONE scm_protect_object (f) => gi_gc_protect (f)
-******* TODO scm_str2symbol
+******* DONE scm_str2symbol (f) => gi_symbol2scm (f)
 ******* DONE scm_ulong2num (f) => gi_nnint2scm (f)
 ******* DONE scm_unprotect_object (f) => gi_gc_unprotect (f)
 ***** DONE snarf definitions
