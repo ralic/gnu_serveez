@@ -143,12 +143,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
     scm_must_realloc (mem, olen, nlen, name)
 #endif
 #ifndef SCM_VERSION_17X
-#define scm_c_scm2chars(obj, data) gh_scm2chars (obj, data)
-#endif
-#ifndef SCM_VERSION_17X
-#define scm_c_string2str(obj, str, lenp) gh_scm2newstr (obj, lenp)
-#endif
-#ifndef SCM_VERSION_17X
 #define scm_c_symbol2str(obj, str, lenp) gh_symbol2newstr (obj, lenp)
 #endif
 #ifndef SCM_OUT_OF_RANGE
@@ -180,7 +174,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 #ifndef SCM_SMOB_DATA
 #define SCM_SMOB_DATA(data) SCM_CDR (data)
-#define gh_scm2chars(obj, lenp) guile_to_string (obj)
 #define HAVE_OLD_SMOBS 1
 #endif
 #ifndef SCM_FPORT_FDES

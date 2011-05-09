@@ -107,7 +107,6 @@ or @code{#f} on failure.  */)
   in_port_t xport = 0;
   long p;
   int xproto;
-  char *str;
   struct sockaddr_in addr;
   SCM ret = SCM_BOOL_F;
 
@@ -121,7 +120,9 @@ or @code{#f} on failure.  */)
     xhost = htonl (SCM_NUM2INT (SCM_ARG1, host));
   else
     {
-      str = guile_to_string (host);
+      char str[128];
+
+      GI_GET_XREP (str, host);
       if (svz_inet_aton (str, &addr) == -1)
         {
           if (guile_resolve (str, &xhost) == -1)
@@ -134,7 +135,6 @@ or @code{#f} on failure.  */)
         }
       else
         xhost = addr.sin_addr.s_addr;
-      scm_c_free (str);
     }
 
   /* Extract protocol to use.  */
@@ -203,18 +203,16 @@ Return @code{#f} if the address is invalid.  */)
 {
 #define FUNC_NAME s_guile_svz_inet_aton
   struct sockaddr_in addr;
-  char *str;
+  char str[48];
 
   SCM_ASSERT_TYPE (SCM_STRINGP (address),
                    address, SCM_ARG1, FUNC_NAME, "string");
-  str = guile_to_string (address);
+  GI_GET_XREP (str, address);
   if (svz_inet_aton (str, &addr) == -1)
     {
       guile_error ("%s: IP address in dotted decimals expected", FUNC_NAME);
-      scm_c_free (str);
       return SCM_BOOL_F;
     }
-  scm_c_free (str);
   return gi_nnint2scm (addr.sin_addr.s_addr);
 #undef FUNC_NAME
 }
@@ -761,17 +759,15 @@ given, the set the @code{idle-counter}.  Please have a look at the
 static svz_server_t *
 named_instance_or_smob (SCM server, const char *FUNC_NAME)
 {
-  char *name;
+  char name[64];
   svz_server_t *rv = NULL;
 
-  if (NULL != (name = guile_to_string (server)))
+  if (GI_GET_XREP_MAYBE (name, server))
     rv = svz_server_get (name);
   if (! rv)
     CHECK_SMOB_ARG (svz_server, server,
                     SCM_ARG1, "svz-server or string",
                     rv);
-  if (name)
-    scm_c_free (name);
   return rv;
 }
 
@@ -931,7 +927,7 @@ available or an error occurred while fetching the list.  */)
 #define FUNC_NAME s_scm_portmap_list
   struct sockaddr_in addr, raddr;
   struct pmaplist *map;
-  char *str;
+  char str[48];
   SCM list = SCM_EOL, mapping, *ve;
 
   memset (&addr, 0, sizeof (struct sockaddr_in));
@@ -946,7 +942,7 @@ available or an error occurred while fetching the list.  */)
     {
       SCM_ASSERT_TYPE (SCM_STRINGP (address), address, SCM_ARG1,
                        FUNC_NAME, "string");
-      str = guile_to_string (address);
+      GI_GET_XREP (str, address);
       if (svz_inet_aton (str, &raddr) == -1)
         {
           guile_error ("%s: IP in dotted decimals expected", FUNC_NAME);
@@ -954,7 +950,6 @@ available or an error occurred while fetching the list.  */)
           return SCM_EOL;
         }
       addr.sin_addr.s_addr = raddr.sin_addr.s_addr;
-      scm_c_free (str);
     }
 
   if ((map = pmap_getmaps (&addr)) == NULL)
@@ -1077,7 +1072,7 @@ argument passed to the callback is a string representing the appropriate
 IP address for the given hostname @var{host}.  */)
 {
 #define FUNC_NAME s_guile_coserver_dns
-  char *request;
+  char request[128];
 
   /* Check argument list first.  */
   SCM_ASSERT_TYPE (SCM_STRINGP (host), host, SCM_ARG1, FUNC_NAME,
@@ -1085,10 +1080,9 @@ IP address for the given hostname @var{host}.  */)
   VALIDATE_CALLBACK (callback);
 
   /* Convert hostname into C string.  */
-  request = guile_to_string (host);
+  GI_GET_XREP (request, host);
 
   ENQ_COSERVER_REQUEST (request, dns);
-  scm_c_free (request);
   return SCM_UNSPECIFIED;
 #undef FUNC_NAME
 }

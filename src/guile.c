@@ -189,16 +189,16 @@ guile_error (char *format, ...)
   /* FIXME: Why is this port undefined in guile exceptions?  */
   SCM lp = guile_get_current_load_port ();
   int lp_valid_p = !SCM_UNBNDP (lp) && SCM_PORTP (lp);
-  char *file = lp_valid_p
-    ? scm_c_string2str (SCM_FILENAME (lp), NULL, NULL)
-    : NULL;
+  SCM filename = lp_valid_p ? SCM_FILENAME (lp) : SCM_BOOL_F;
+  char file[1024];
 
   /* guile counts lines from 0, we have to add one */
-  fprintf (stderr, "%s:%ld:%ld: ", file ? file : "undefined",
+  fprintf (stderr, "%s:%ld:%ld: ",
+           (lp_valid_p && GI_GET_XREP_MAYBE (file, filename)
+            ? file
+            : "undefined"),
            lp_valid_p ? (long) SCM_LINUM (lp) + 1 : 0,
            lp_valid_p ? (long) SCM_COL (lp) : 0);
-  if (file)
-    scm_c_free (file);
 
   va_start (args, format);
   vfprintf (stderr, format, args);
@@ -303,7 +303,7 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
     {
       SCM pair = SCM_CAR (pairlist);
       SCM key, val;
-      char *str = NULL;
+      char str[64];
 
       /* The car must be another pair which contains key and value.  */
       if (!SCM_PAIRP (pair))
@@ -315,7 +315,7 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
       key = SCM_CAR (pair);
       val = SCM_CDR (pair);
 
-      if (NULL == (str = guile_to_string (key)))
+      if (! GI_GET_XREP_MAYBE (str, key))
         {
           /* Unknown key type, must be string or symbol.  */
           guile_error ("Invalid key type (string expected) %s", suffix);
@@ -323,7 +323,7 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
           break;
         }
 
-      /* Remember key and free it.  */
+      /* Remember key and value.  */
       new_value = guile_value_create (val);
       if (NULL != (old_value = svz_hash_get (hash, str)))
         {
@@ -332,7 +332,6 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
           svz_free_and_zero (old_value);
         }
       svz_hash_put (hash, str, (void *) new_value);
-      scm_c_free (str);
     }
 
   /* Pairlist must be ‘SCM_NULLP’ now or that was not a good pairlist.  */
@@ -381,7 +380,7 @@ guile_to_integer (SCM cell, int *target)
 {
 #define FUNC_NAME __func__
   int err = 0;
-  char *str = NULL, *endp;
+  char str[64], *endp;
 
   /* Usual guile exact number.  */
   if (SCM_EXACTP (cell))
@@ -389,13 +388,12 @@ guile_to_integer (SCM cell, int *target)
       *target = SCM_NUM2INT (SCM_ARG1, cell);
     }
   /* Try string (or even symbol) to integer conversion.  */
-  else if (NULL != (str = guile_to_string (cell)))
+  else if (GI_GET_XREP_MAYBE (str, cell))
     {
       errno = 0;
       *target = strtol (str, &endp, 10);
       if (*endp != '\0' || errno == ERANGE)
         err = 1;
-      scm_c_free (str);
     }
   /* No chance.  */
   else
@@ -418,7 +416,7 @@ guile_to_boolean (SCM cell, int *target)
 #define FUNC_NAME __func__
   int i;
   int err = 0;
-  char *str;
+  char str[8];
 
   /* Usual guile boolean.  */
   if (SCM_BOOLP (cell))
@@ -433,7 +431,7 @@ guile_to_boolean (SCM cell, int *target)
     }
   /* Neither integer nor boolean, try text conversion.  */
   /* FIXME: Use symbols and ‘memq’.  */
-  else if ((str = guile_to_string (cell)) != NULL)
+  else if (GI_GET_XREP_MAYBE (str, cell))
     {
 #define STR_IS_CI(k)  (! strncasecmp (k, str, sizeof (k)))
       /* Note: We use ‘sizeof (k)’ instead of ‘sizeof (k) - 1’
@@ -450,8 +448,6 @@ guile_to_boolean (SCM cell, int *target)
         *target = 0;
       else
         err = 1;
-      scm_c_free (str);
-
 #undef STR_IS_CI
     }
   else
@@ -488,7 +484,7 @@ guile_to_hash (SCM list, const char *func)
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
       SCM k, v, pair = SCM_CAR (list);
-      char *str, *keystr, *valstr;
+      char str[2048], *keystr, *valstr;
 
       if (!SCM_PAIRP (pair))
         {
@@ -500,7 +496,7 @@ guile_to_hash (SCM list, const char *func)
       v = SCM_CDR (pair);
 
       /* Obtain key character string.  */
-      if (NULL == (str = guile_to_string (k)))
+      if (! GI_GET_XREP_MAYBE (str, k))
         {
           err = -1;
           guile_error ("%s: Element #%d of hash has no valid key "
@@ -510,11 +506,10 @@ guile_to_hash (SCM list, const char *func)
       else
         {
           keystr = svz_strdup (str);
-          scm_c_free (str);
         }
 
       /* Obtain value character string.  */
-      if (NULL == (str = guile_to_string (v)))
+      if (! GI_GET_XREP_MAYBE (str, v))
         {
           err = -1;
           guile_error ("%s: Element #%d of hash has no valid value "
@@ -524,7 +519,6 @@ guile_to_hash (SCM list, const char *func)
       else
         {
           valstr = svz_strdup (str);
-          scm_c_free (str);
         }
 
       /* Add to hash if key and value look good.  */
@@ -557,7 +551,7 @@ guile_to_strarray (SCM list, const char *func)
 #define FUNC_NAME func
   svz_array_t *array;
   int i;
-  char *str;
+  char str[2048];
 
   /* Check if the given scheme cell is a valid list.  */
   if (!SCM_LISTP (list))
@@ -571,14 +565,16 @@ guile_to_strarray (SCM list, const char *func)
                             svz_free);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
-      if ((str = guile_to_string (SCM_CAR (list))) == NULL)
+      SCM head = SCM_CAR (list);
+
+      if (! SCM_STRINGP (head)
+          || 0 > GI_GET_XREP (str, head))
         {
           guile_error ("%s: String expected in position %d", func, i);
           guile_global_error = -1;
           continue;
         }
       svz_array_add (array, svz_strdup (str));
-      scm_c_free (str);
     }
 
   /* Reject the empty array.  */
@@ -683,7 +679,7 @@ optionhash_extract_string (svz_hash_t *hash,
 {
   SCM hvalue = optionhash_get (hash, key);
   int err = 0;
-  char *str = NULL;
+  char str[2048];
 
   /* Is there such a string in the option-hash?  */
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
@@ -700,7 +696,7 @@ optionhash_extract_string (svz_hash_t *hash,
   else
     {
       /* Try getting the character string.  */
-      if (NULL == (str = guile_to_string (hvalue)))
+      if (! GI_GET_XREP_MAYBE (str, hvalue))
         {
           guile_error ("Invalid string value for `%s' %s", key, txt);
           err = 1;
@@ -708,7 +704,6 @@ optionhash_extract_string (svz_hash_t *hash,
       else
         {
           *target = svz_strdup (str);
-          scm_c_free (str);
         }
     }
   return err;
@@ -819,7 +814,7 @@ optionhash_cb_string (char *server, void *arg, char *key,
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
-  char *str;
+  char str[2048];
 
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
@@ -831,14 +826,13 @@ optionhash_cb_string (char *server, void *arg, char *key,
       return SVZ_ITEM_FAILED;
     }
 
-  if (NULL == (str = guile_to_string (hvalue)))
+  if (! GI_GET_XREP_MAYBE (str, hvalue))
     {
       guile_error ("%s: Invalid string value for `%s'", server, key);
       return SVZ_ITEM_FAILED;
     }
 
   *target = svz_strdup (str);
-  scm_c_free (str);
   return SVZ_ITEM_OK;
 }
 
@@ -915,7 +909,7 @@ optionhash_cb_portcfg (char *server, void *arg, char *key,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
   svz_portcfg_t *port;
-  char *str;
+  char str[2048];
 
   /* Is the requested port configuration defined?  */
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
@@ -928,7 +922,7 @@ optionhash_cb_portcfg (char *server, void *arg, char *key,
     }
 
   /* Convert Scheme cell into string.  */
-  if ((str = guile_to_string (hvalue)) == NULL)
+  if (! GI_GET_XREP_MAYBE (str, hvalue))
     {
       guile_error ("%s: Invalid string value for port configuration `%s' "
                    "(string expected)", server, key);
@@ -939,12 +933,10 @@ optionhash_cb_portcfg (char *server, void *arg, char *key,
   if ((port = svz_portcfg_get (str)) == NULL)
     {
       guile_error ("%s: No such port configuration: `%s'", server, str);
-      scm_c_free (str);
       return SVZ_ITEM_FAILED;
     }
 
   /* Duplicate this port configuration.  */
-  scm_c_free (str);
   *target = svz_portcfg_dup (port);
   return SVZ_ITEM_OK;
 }
@@ -1001,7 +993,7 @@ Emit error messages (to stderr).  Return @code{#t} on success,
 {
 #define FUNC_NAME s_guile_config_instantiate
   int err = 0;
-  char *c_type = NULL, *c_name = NULL, *c_instance = NULL;
+  char c_type[24], c_name[64], c_instance[64];
   svz_hash_t *options = NULL;
   char action[ACTIONBUFSIZE];
   char ebuf[ACTIONBUFSIZE];
@@ -1019,17 +1011,17 @@ Emit error messages (to stderr).  Return @code{#t} on success,
     optionhash_cb_after     /* after */
   };
 
-  if (NULL == (c_type = guile_to_string (type)))
+  if (! GI_GET_XREP_MAYBE (c_type, type))
     {
       guile_error ("Invalid configurable type (string expected)");
       FAIL ();
     }
-  if (NULL == (c_name = guile_to_string (name)))
+  if (! GI_GET_XREP_MAYBE (c_name, name))
     {
       guile_error ("Invalid type identifier (string expected)");
       FAIL ();
     }
-  if (NULL == (c_instance = guile_to_string (instance)))
+  if (! GI_GET_XREP_MAYBE (c_instance, instance))
     {
       guile_error ("Invalid instance identifier (string expected)");
       FAIL ();
@@ -1053,12 +1045,6 @@ Emit error messages (to stderr).  Return @code{#t} on success,
     }
 
  out:
-  if (c_type)
-    scm_c_free (c_type);
-  if (c_name)
-    scm_c_free (c_name);
-  if (c_instance)
-    scm_c_free (c_instance);
   optionhash_destroy (options);
 
   guile_global_error |= err;
@@ -1081,13 +1067,13 @@ in case of any error.  */)
   /* Note: This function could now as well be implemented in Scheme.
      [rotty] */
   int err = 0;
-  char *servername = NULL, *servertype = NULL, *p = NULL;
+  char servername[64], *servertype = NULL, *p = NULL;
   SCM retval = SCM_BOOL_F;
 
   GUILE_PRECALL ();
 
   /* Check if the given server name is valid.  */
-  if (NULL == (servername = guile_to_string (name)))
+  if (! GI_GET_XREP_MAYBE (servername, name))
     {
       guile_error ("%s: Invalid server name (string expected)", FUNC_NAME);
       FAIL ();
@@ -1113,8 +1099,6 @@ in case of any error.  */)
                                      name, args);
  out:
   svz_free (servertype);
-  if (servername)
-    scm_c_free (servername);
 
   return retval;
 #undef FUNC_NAME
@@ -1141,13 +1125,14 @@ Emit error messages (to stderr).  */)
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
   svz_hash_t *options = NULL;
-  char *portname, *proto = NULL;
+  char portname[64], proto[16];
+  SCM protoname;
   char action[ACTIONBUFSIZE];
 
   GUILE_PRECALL ();
 
   /* Check validity of first argument.  */
-  if ((portname  = guile_to_string (name)) == NULL)
+  if (! GI_GET_XREP_MAYBE (portname, name))
     {
       guile_error ("%s: Invalid port configuration name (string expected)",
                    FUNC_NAME);
@@ -1164,8 +1149,8 @@ Emit error messages (to stderr).  */)
     err = -1;
 
   /* Find out what protocol this portcfg will be about.  */
-  if (NULL == (proto = guile_to_string (optionhash_get (options,
-                                                        PORTCFG_PROTO))))
+  protoname = optionhash_get (options, PORTCFG_PROTO);
+  if (! GI_GET_XREP_MAYBE (proto, protoname))
     {
       guile_error ("Port `%s' requires a `" PORTCFG_PROTO "' string field",
                    portname);
@@ -1239,7 +1224,7 @@ Emit error messages (to stderr).  */)
     {
       svz_hash_t *poptions;
       SCM p;
-      char *str;
+      char str[1024];
       cfg->proto = SVZ_PROTO_PIPE;
 
       /* Handle receiving pipe.  */
@@ -1247,7 +1232,7 @@ Emit error messages (to stderr).  */)
 
       /* Check if it is a plain string.  */
       p = optionhash_get (options, PORTCFG_RECV);
-      if ((str = guile_to_string (p)) != NULL)
+      if (GI_GET_XREP_MAYBE (str, p))
         {
           svz_pipe_t *r = &SVZ_CFG_PIPE (cfg, recv);
 
@@ -1255,7 +1240,6 @@ Emit error messages (to stderr).  */)
           r->gid = (gid_t) -1;
           r->uid = (uid_t) -1;
           r->perm = (mode_t) -1;
-          scm_c_free (str);
         }
       /* Create local optionhash for receiving pipe direction.  */
       else if (SCM_EQ_P (p, SCM_UNSPECIFIED))
@@ -1280,7 +1264,7 @@ Emit error messages (to stderr).  */)
 
       /* Check plain string.  */
       p = optionhash_get (options, PORTCFG_SEND);
-      if ((str = guile_to_string (p)) != NULL)
+      if (GI_GET_XREP_MAYBE (str, p))
         {
           svz_pipe_t *s = &SVZ_CFG_PIPE (cfg, send);
 
@@ -1288,7 +1272,6 @@ Emit error messages (to stderr).  */)
           s->gid = (gid_t) -1;
           s->uid = (uid_t) -1;
           s->perm = (mode_t) -1;
-          scm_c_free (str);
         }
       else if (SCM_EQ_P (p, SCM_UNSPECIFIED))
         {
@@ -1313,7 +1296,6 @@ Emit error messages (to stderr).  */)
                    proto, portname);
       FAIL ();
     }
-  scm_c_free (proto);
 
   /* Access the send and receive buffer sizes.  */
   err |= optionhash_extract_int (options, PORTCFG_SEND_BUFSIZE, 1, 0,
@@ -1378,8 +1360,6 @@ Emit error messages (to stderr).  */)
  out:
   if (err)
     svz_portcfg_destroy (cfg);
-  if (portname)
-    scm_c_free (portname);
   optionhash_destroy (options);
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
@@ -1397,8 +1377,8 @@ Both @var{port} and @var{server} must be either a string or symbol.
 See function @code{svz_server_bind}.  */)
 {
 #define FUNC_NAME s_guile_bind_server
-  char *portname = guile_to_string (port);
-  char *servername = guile_to_string (server);
+  char portname[64];
+  char servername[64];
   svz_server_t *s;
   svz_portcfg_t *p;
   int err = 0;
@@ -1406,16 +1386,19 @@ See function @code{svz_server_bind}.  */)
   GUILE_PRECALL ();
 
   /* Check arguments.  */
-  if (portname == NULL)
+  if (! STRING_OR_SYMBOL_P (port))
     {
       guile_error ("%s: Port name must be string or symbol", FUNC_NAME);
       FAIL ();
     }
-  if (servername == NULL)
+  if (! STRING_OR_SYMBOL_P (server))
     {
       guile_error ("%s: Server name must be string or symbol", FUNC_NAME);
       FAIL ();
     }
+
+  GI_GET_XREP (portname, port);
+  GI_GET_XREP (servername, server);
 
   /* Check id there is such a port configuration.  */
   if ((p = svz_portcfg_get (portname)) == NULL)
@@ -1439,10 +1422,6 @@ See function @code{svz_server_bind}.  */)
     }
 
  out:
-  if (portname)
-    scm_c_free (portname);
-  if (servername)
-    scm_c_free (servername);
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
 #undef FUNC_NAME
@@ -1601,17 +1580,13 @@ it can find additional server modules.  */)
  * the expression.
  */
 #define STRING_CHECKER_BODY(expression)         \
-  char *str;                                    \
-  SCM rv;                                       \
+  char str[64];                                 \
                                                 \
   GUILE_PRECALL ();                             \
-  rv = (! (str = guile_to_string (arg))         \
-        || !(expression))                       \
-    ? SCM_BOOL_F                                \
-    : SCM_BOOL_T;                               \
-  if (str)                                      \
-    scm_c_free (str);                           \
-  return rv
+  return (GI_GET_XREP_MAYBE (str, arg)          \
+          && (expression))                      \
+    ? SCM_BOOL_T                                \
+    : SCM_BOOL_F
 
 SCM_DEFINE
 (guile_check_port,
@@ -1685,13 +1660,13 @@ static SCM
 string_accessor (char const *who, char **x, SCM arg)
 {
   SCM value = gi_string2scm (*x);
-  char *str;
+  char str[2048];
 
   GUILE_PRECALL ();
 
   if (!SCM_UNBNDP (arg))
     {
-      if (NULL == (str = guile_to_string (arg)))
+      if (! GI_GET_XREP_MAYBE (str, arg))
         {
           guile_error ("%s: Invalid string value", who);
           guile_global_error = -1;
@@ -1700,7 +1675,6 @@ string_accessor (char const *who, char **x, SCM arg)
         {
           svz_free (*x);
           *x = svz_strdup (str);
-          scm_c_free (str);
         }
     }
   return value;
@@ -1761,9 +1735,10 @@ static SCM
 guile_exception (SVZ_UNUSED void *data, SCM tag, SCM args)
 {
   /* FIXME: current-load-port is not defined in this state.  Why?  */
-  char *str = guile_to_string (tag);
+  char str[64];
+
+  GI_GET_XREP (str, tag);
   guile_error ("Exception due to `%s'", str);
-  scm_c_free (str);
 
   /* `tag' contains internal exception name */
   scm_puts ("guile-error: ", scm_current_error_port ());

@@ -187,7 +187,6 @@ optionhash_extract_proc (svz_hash_t *hash,
 {
   SCM proc, hvalue = optionhash_get (hash, key);
   int err = 0;
-  char *str = NULL;
 
   /* Is there such a string in the option-hash?  */
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
@@ -208,8 +207,11 @@ optionhash_extract_proc (svz_hash_t *hash,
     {
       *target = hvalue;
     }
-  else if ((str = guile_to_string (hvalue)) != NULL)
+  else if (STRING_OR_SYMBOL_P (hvalue))
     {
+      char str[128];
+
+      GI_GET_XREP (str, hvalue);
       proc = gi_lookup (str);
       if (!SCM_UNBNDP (proc) && SCM_PROCEDUREP (proc))
         *target = proc;
@@ -218,7 +220,6 @@ optionhash_extract_proc (svz_hash_t *hash,
           guile_error ("No such procedure `%s' for `%s' %s", str, key, txt);
           err = 1;
         }
-      scm_c_free (str);
     }
   else
     {
@@ -662,19 +663,13 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
   SCM info_client = guile_servertype_getfunction (stype, "info-client");
   SCM ret;
   static char text[1024];
-  char *str;
 
   if (!SCM_UNBNDP (info_client))
     {
       ret = guile_call (info_client, 2, MAKE_SMOB (svz_server, server),
                         MAKE_SMOB (svz_socket, sock));
-      if ((str = guile_to_string (ret)) != NULL)
-        {
-          memset (text, 0, sizeof (text));
-          memcpy (text, str, GUILE_MIN (strlen (str) + 1, sizeof (text) - 1));
-          scm_c_free (str);
-          return text;
-        }
+      if (GI_GET_XREP_MAYBE (text, ret))
+        return text;
     }
   return NULL;
 }
@@ -689,18 +684,12 @@ guile_func_info_server (svz_server_t *server)
   SCM info_server = guile_servertype_getfunction (stype, "info-server");
   SCM ret;
   static char text[1024];
-  char *str;
 
   if (!SCM_UNBNDP (info_server))
     {
       ret = guile_call (info_server, 1, MAKE_SMOB (svz_server, server));
-      if ((str = guile_to_string (ret)) != NULL)
-        {
-          memset (text, 0, sizeof (text));
-          memcpy (text, str, GUILE_MIN (strlen (str) + 1, sizeof (text) - 1));
-          scm_c_free (str);
-          return text;
-        }
+      if (GI_GET_XREP_MAYBE (text, ret))
+        return text;
     }
   return NULL;
 #undef FUNC_NAME
@@ -913,8 +902,10 @@ For instance, you can arrange for Serveez to pass the
   /* Handle packet delimiters.  */
   else
     {
-      xsock->boundary = scm_c_scm2chars (boundary, NULL);
-      xsock->boundary_size = (int) gi_string_length (boundary);
+      char buf[512];
+
+      xsock->boundary_size = GI_GET_XREP (buf, boundary);
+      xsock->boundary = svz_strdup (buf);
     }
 
   /* Only assign this callback for connection oriented protocols.  */
@@ -1099,13 +1090,13 @@ string @var{key} is invalid (not defined in the configuration alist in
   svz_server_t *xserver;
   int i;
   void *cfg, *address;
-  char *str;
+  char str[64];
   svz_config_prototype_t *prototype;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
 
-  str = guile_to_string (key);
+  GI_GET_XREP (str, key);
   stype = svz_servertype_find (xserver);
   cfg = xserver->cfg;
   prototype = &stype->config_prototype;
@@ -1121,7 +1112,6 @@ string @var{key} is invalid (not defined in the configuration alist in
           break;
         }
     }
-  scm_c_free (str);
   return ret;
 #undef FUNC_NAME
 }
@@ -1140,17 +1130,16 @@ either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}.
 #define FUNC_NAME s_guile_server_state_ref
   SCM ret = SCM_EOL;
   svz_server_t *xserver;
-  char *str;
+  char str[64];
   svz_hash_t *hash;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
-  str = guile_to_string (key);
+  GI_GET_XREP (str, key);
 
   if ((hash = xserver->data) != NULL)
     if (svz_hash_exists (hash, str))
       ret = (SCM) SVZ_PTR2NUM (svz_hash_get (hash, str));
-  scm_c_free (str);
   return ret;
 #undef FUNC_NAME
 }
@@ -1171,12 +1160,12 @@ will be deleted soon. ---ttn]  */)
 #define FUNC_NAME s_guile_server_state_set_x
   SCM ret = SCM_EOL;
   svz_server_t *xserver;
-  char *str;
+  char str[64];
   svz_hash_t *hash;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
-  str = guile_to_string (key);
+  GI_GET_XREP (str, key);
 
   if ((hash = xserver->data) == NULL)
     {
@@ -1191,7 +1180,6 @@ will be deleted soon. ---ttn]  */)
   else
     svz_hash_put (hash, str, SVZ_NUM2PTR (value));
   gi_gc_protect (value);
-  scm_c_free (str);
   return ret;
 #undef FUNC_NAME
 }
@@ -1424,7 +1412,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
                                  void *address, int len, int type, char *key)
 {
   int err = 0, n;
-  char *str, *txt;
+  char str[2048], *txt;
   svz_array_t *array;
   svz_hash_t *hash;
   svz_portcfg_t *port, *dup;
@@ -1453,7 +1441,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
 
       /* Character string.  */
     case SVZ_ITEM_STR:
-      if ((str = guile_to_string (value)) == NULL)
+      if (! GI_GET_XREP_MAYBE (str, value))
         {
           guile_error ("%s: Invalid string value for `%s'",
                        server->prefix, key);
@@ -1463,7 +1451,6 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
         {
           txt = svz_strdup (str);
           memcpy (address, &txt, len);
-          scm_c_free (str);
         }
       break;
 
@@ -1485,7 +1472,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
 
       /* Port configuration.  */
     case SVZ_ITEM_PORTCFG:
-      if ((str = guile_to_string (value)) == NULL)
+      if (! GI_GET_XREP_MAYBE (str, value))
         {
           guile_error ("%s: Invalid string value for `%s'",
                        server->prefix, key);
@@ -1495,12 +1482,10 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
         {
           guile_error ("%s: No such port configuration: `%s'",
                        server->prefix, str);
-          scm_c_free (str);
           err = -1;
         }
       else
         {
-          scm_c_free (str);
           dup = svz_portcfg_dup (port);
           memcpy (address, &dup, len);
         }
@@ -1554,7 +1539,7 @@ servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
   SCM list = optionhash_get (x->options, key);
   svz_key_value_pair_t item;
   SCM value;
-  char *str;
+  char str[64];
   int len, def;
 
   /* Each configuration item must be a scheme list with three elements.  */
@@ -1571,14 +1556,13 @@ servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
 
   /* First appears the type of item.  */
   value = SCM_CAR (list);
-  if ((str = guile_to_string (value)) == NULL)
+  if (! GI_GET_XREP_MAYBE (str, value))
     {
       guile_error ("Invalid type definition for `%s' %s", key, x->action);
       x->error = -1;
       return;
     }
   len = guile_servertype_config_type (str, &item, &x->size);
-  scm_c_free (str);
   if (len == 0)
     {
       guile_error ("Invalid type for `%s' %s", key, x->action);

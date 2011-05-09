@@ -22,6 +22,7 @@
 #ifdef HAVE_GUILE_GH_H
 # include <guile/gh.h>
 #endif
+#include "timidity.h"
 
 #if defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION
 #if 1 == SCM_MAJOR_VERSION
@@ -192,6 +193,46 @@ size_t
 gi_string_length (SCM string)
 {
   return gi_scm2ulong (scm_string_length (string));
+}
+
+int
+gi_get_xrep (char *buf, size_t len, SCM symbol_or_string)
+{
+  SCM obj;
+  size_t actual;
+
+  /* You're joking, right?  */
+  if (! len)
+    return -1;
+
+  obj = SCM_SYMBOLP (symbol_or_string)
+    ? scm_symbol_to_string (symbol_or_string)
+    : symbol_or_string;
+  actual = gi_string_length (obj);
+  if (len < actual + 1)
+    return -1;
+
+#if V17
+  {
+    size_t sanity;
+
+    scm_c_string2str (obj, buf, &sanity);
+    assert (sanity == actual);
+  }
+#else
+  {
+    int sanity;
+    char *stage = gh_scm2newstr (obj, &sanity);
+
+    assert (sanity == (int) actual);
+    memcpy (buf, stage, actual);
+    scm_must_free (stage);
+  }
+#endif
+
+  /* Murphy was an optimist.  */
+  buf[actual] = '\0';
+  return actual;
 }
 
 /* gi.c ends here */

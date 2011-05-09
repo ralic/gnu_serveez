@@ -1,5 +1,36 @@
 2011-05-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] For Scheme->C symbol/string conversion, alloc on stack.
+
+	This unfortunately goes against GNU ideals by introducing
+	a slew of undocumented internal arbitrary limits.
+
+	U ≡ "Use ‘GI_GET_XREP’ or ‘GI_GET_XREP_MAYBE’; convert
+	‘char *’ var to ‘char[]’; don't ‘scm_c_free’ afterwards".
+	* gi.c: #include "timidity.h".
+	(gi_get_xrep): New func.
+	* gi.h (STRING_OR_SYMBOL_P): New macro.
+	(gi_get_xrep): New func decl.
+	(GI_GET_XREP, GI_GET_XREP_MAYBE): New macros.
+	* guile-api.c (guile_sock_connect, guile_svz_inet_aton)
+	(named_instance_or_smob, scm_portmap_list, guile_coserver_dns): U.
+	* guile-server.c (optionhash_extract_proc)
+	(guile_func_info_client, guile_func_info_server)
+	(guile_sock_boundary, guile_server_config_ref)
+	(guile_server_state_ref, guile_server_state_set_x)
+	(guile_servertype_config_default, servertype_config_internal): U.
+	* guile.c (guile_error, guile_to_optionhash, guile_to_integer)
+	(guile_to_boolean, guile_to_hash, guile_to_strarray)
+	(optionhash_extract_string, optionhash_cb_string)
+	(optionhash_cb_portcfg, guile_config_instantiate)
+	(guile_define_server, guile_define_port, guile_bind_server)
+	(STRING_CHECKER_BODY, string_accessor, guile_exception): U.
+	* guile-api.h (scm_c_scm2chars)
+	(scm_c_string2str, gh_scm2chars): Delete macros.
+	* guile.h (guile_to_string): Delete macro.
+
+2011-05-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Add abstraction: named_instance_or_smob
 
 	* guile-api.c (named_instance_or_smob): New static func.
