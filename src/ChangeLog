@@ -1,5 +1,12 @@
 2011-05-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Add abstraction: named_instance_or_smob
+
+	* guile-api.c (named_instance_or_smob): New static func.
+	(guile_server_listeners, guile_server_clients): Use it.
+
+2011-05-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Refine ‘guile_call_handler’ a bit.
 
 	* guile-server.c (guile_call_handler): Use local

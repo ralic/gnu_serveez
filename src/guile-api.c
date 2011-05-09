@@ -758,6 +758,23 @@ given, the set the @code{idle-counter}.  Please have a look at the
 #undef FUNC_NAME
 }
 
+static svz_server_t *
+named_instance_or_smob (SCM server, const char *FUNC_NAME)
+{
+  char *name;
+  svz_server_t *rv = NULL;
+
+  if (NULL != (name = guile_to_string (server)))
+    rv = svz_server_get (name);
+  if (! rv)
+    CHECK_SMOB_ARG (svz_server, server,
+                    SCM_ARG1, "svz-server or string",
+                    rv);
+  if (name)
+    scm_c_free (name);
+  return rv;
+}
+
 SCM_DEFINE
 (guile_server_listeners,
  "svz:server:listeners", 1, 0, 0,
@@ -768,24 +785,10 @@ given server instance @var{server} is currently bound, or an empty list
 if there is no such binding yet.  */)
 {
 #define FUNC_NAME s_guile_server_listeners
-  svz_server_t *xserver = NULL;
+  svz_server_t *xserver = named_instance_or_smob (server, FUNC_NAME);
   svz_array_t *listeners;
-  char *str;
   size_t i;
   SCM list = SCM_EOL;
-
-  /* Server instance name given?  */
-  if ((str = guile_to_string (server)) != NULL)
-    {
-      xserver = svz_server_get (str);
-      scm_c_free (str);
-    }
-  /* Maybe server smob given.  */
-  if (xserver == NULL)
-    {
-      CHECK_SMOB_ARG (svz_server, server, SCM_ARG1, "svz-server or string",
-                      xserver);
-    }
 
   /* Create a list of socket smobs for the server.  */
   if ((listeners = svz_server_listeners (xserver)) != NULL)
@@ -810,25 +813,11 @@ the given server instance @var{server} in arbitrary order, or an
 empty list if there is no such client.  */)
 {
 #define FUNC_NAME s_guile_server_clients
-  svz_server_t *xserver = NULL;
+  svz_server_t *xserver = named_instance_or_smob (server, FUNC_NAME);
   svz_array_t *clients;
   svz_socket_t *sock;
-  char *str;
   size_t i;
   SCM list = SCM_EOL;
-
-  /* If the server instance name is given, try to translate it.  */
-  if ((str = guile_to_string (server)) != NULL)
-    {
-      xserver = svz_server_get (str);
-      scm_c_free (str);
-    }
-  /* If the above failed it is possibly a real server smob.  */
-  if (xserver == NULL)
-    {
-      CHECK_SMOB_ARG (svz_server, server, SCM_ARG1, "svz-server or string",
-                      xserver);
-    }
 
   /* Create a list of socket smobs for the server.  */
   if ((clients = svz_server_clients (xserver)) != NULL)
