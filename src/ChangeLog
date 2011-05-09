@@ -1,3 +1,11 @@
+2011-05-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Refine ‘guile_call_handler’ a bit.
+
+	* guile-server.c (guile_call_handler): Use local
+	var for "current error port"; use ‘scm_display’ more;
+	don't bother converting ‘tag’ to a C string.
+
 2011-05-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi] Add func: gi_string_length

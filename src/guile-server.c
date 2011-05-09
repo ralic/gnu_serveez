@@ -391,32 +391,31 @@ guile_call_body (SCM data)
 static SCM
 guile_call_handler (SCM data, SCM tag, SCM args)
 {
-  char *str = guile_to_string (tag);
+  SCM ep = scm_current_error_port ();
 
-  scm_puts ("exception in ", scm_current_error_port ());
-  scm_display (data, scm_current_error_port ());
-  scm_puts (" due to `", scm_current_error_port ());
-  scm_puts (str, scm_current_error_port ());
-  scm_puts ("'\n", scm_current_error_port ());
-  scm_puts ("guile-error: ", scm_current_error_port ());
-  scm_c_free (str);
+  scm_puts ("exception in ", ep);
+  scm_display (data, ep);
+  scm_puts (" due to `", ep);
+  scm_display (tag, ep);
+  scm_puts ("'\n", ep);
+  scm_puts ("guile-error: ", ep);
 
   /* on quit/exit */
   if (SCM_NULLP (args))
     {
-      scm_display (tag, scm_current_error_port ());
-      scm_puts ("\n", scm_current_error_port ());
+      scm_display (tag, ep);
+      scm_puts ("\n", ep);
       return SCM_BOOL_F;
     }
 
   if (!SCM_FALSEP (SCM_CAR (args)))
     {
-      scm_display (SCM_CAR (args), scm_current_error_port ());
-      scm_puts (": ", scm_current_error_port ());
+      scm_display (SCM_CAR (args), ep);
+      scm_puts (": ", ep);
     }
   scm_display_error_message (SCM_CAR (SCM_CDR (args)),
                              SCM_CAR (SCM_CDR (SCM_CDR (args))),
-                             scm_current_error_port ());
+                             ep);
   return SCM_BOOL_F;
 }
 
