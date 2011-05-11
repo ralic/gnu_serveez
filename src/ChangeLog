@@ -1,5 +1,12 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Incorporate ‘__CTYPE’ into unique caller.
+
+	* guile-server.c (_CTYPE): Do token-pasting directly.
+	* guile-api.h (__CTYPE): Delete macro.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Decruft: Delete some unused macros.
 
 	* guile-api.h (scm_mem2string, scm_c_symbol2str): Delete macros.

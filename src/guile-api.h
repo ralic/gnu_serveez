@@ -138,10 +138,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
     scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
 #endif
 
-/* This macro creates a new concatenated symbol for the C type ‘ctype’,
-   useful for generating smob-related function/variable names.  */
-#define __CTYPE(pre,ctype,post)    pre ## _ ## ctype ## _ ## post
-
 /* Compatibility macros for Guile 1.3 version.  Also defines the macro
    HAVE_OLD_SMOBS which indicates a different smob implementation.  */
 #ifndef SCM_NEWSMOB

@@ -46,7 +46,7 @@
 #include "guile-bin.h"
 #include "guile-server.h"
 
-#define _CTYPE(ctype,x)     __CTYPE (guile, ctype, x)
+#define _CTYPE(ctype,x)     guile_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
 #define NAME_PRED(ctype)    _CTYPE (ctype, p)
 #define NAME_CREATE(ctype)  _CTYPE (ctype, create)
