@@ -1,3 +1,14 @@
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Fix bug: Make guile-boot.c first.
+
+	Since guile.c does #include "guile-boot.c", init
+	snarfing to make guile.x fails on guile-boot.c absence.
+	Regression introduced 2011-05-07,
+	"[build int] Use Guile-BAUX for init snarfing".
+
+	* Makefile.am (BUILT_SOURCES): Move guile-boot.c first.
+
 2011-05-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[int] For Scheme->C symbol/string conversion, alloc on stack.

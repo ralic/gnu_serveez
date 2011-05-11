@@ -37,11 +37,11 @@ bin_SCRIPTS = serveez-config
 # Perplexingly, Automake does not automatically distribute these.
 EXTRA_DIST = $(aclocal_DATA) guile-boot.scm
 
-BUILT_SOURCES = \
+BUILT_SOURCES = guile-boot.c
+BUILT_SOURCES += \
   guile-bin.x \
   guile-server.x \
-  guile.x \
-  guile-boot.c
+  guile.x
 
 #
 # Add your server subdirectory here
