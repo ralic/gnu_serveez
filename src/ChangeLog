@@ -1,5 +1,12 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use ‘scm_fileno’.
+
+	* guile-api.c (guile_read_file): Use ‘scm_fileno’.
+	* guile-api.h (SCM_FPORT_FDES): Delete macro.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Replace macro ‘guile_integer’ with macro ‘integer_else’.
 
 	* guile-server.c (integer_else): New macro.

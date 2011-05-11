@@ -1203,7 +1203,7 @@ reading from the port.  */)
   SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
 
   /* Get underlying file descriptor.  */
-  fdes = SCM_FPORT_FDES (port);
+  fdes = gi_scm2int (scm_fileno (port));
 
   if ((len = gi_scm2int (size)) <= 0)
     SCM_OUT_OF_RANGE (SCM_ARG2, size);

@@ -165,8 +165,5 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define SCM_SMOB_DATA(data) SCM_CDR (data)
 #define HAVE_OLD_SMOBS 1
 #endif
-#ifndef SCM_FPORT_FDES
-#define SCM_FPORT_FDES(port) fileno ((FILE *) SCM_STREAM (port))
-#endif
 
 #endif /* not __GUILE_API_H__ */
