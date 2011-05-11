@@ -1,5 +1,16 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Decruft: Only #include <guile/gh.h> where it's needed.
+
+	* guile-api.c: #include <libguile.h> unconditionally;
+	never #include <guile/gh.h>.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* serveez.c: Likewise.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_define
 
 	* gi.c (gi_define): New func.

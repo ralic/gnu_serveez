@@ -36,12 +36,7 @@
 # include <io.h>
 #endif
 
-#if !defined HAVE_GUILE_GH_H
-# include <libguile.h>
-#else
-# include <guile/gh.h>
-#endif
-
+#include <libguile.h>
 #include "networking-headers.h"
 #include "action.h"
 #include "libserveez.h"

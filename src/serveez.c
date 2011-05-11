@@ -27,11 +27,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#if !defined HAVE_GUILE_GH_H
-# include <libguile.h>
-#else
-# include <guile/gh.h>
-#endif
+#include <libguile.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
