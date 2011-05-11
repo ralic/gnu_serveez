@@ -1,5 +1,11 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Decruft: Remove unused macro.
+
+	* guile-api.h (scm_c_free): Delete macro.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int guile] Fix bug: Don't free auto vars.
 
 	These buffers are now auto (stack) allocated,
