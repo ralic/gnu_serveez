@@ -1,5 +1,13 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Avoid ‘SCM_INUM’, ‘SCM_INUMP’, ‘SCM_MAKINUM’.
+
+	* guile-api.h (SCM_OUT_OF_RANGE): Use ‘gi_integer2scm’.
+	* guile-api.c (scm_getrpc): Use ‘SCM_EXACTP’, ‘gi_scm2int’.
+	(scm_portmap, guile_coserver_rdns, guile_sock_find): Likewise.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Decruft: Only #include <guile/gh.h> where it's needed.
 
 	* guile-api.c: #include <libguile.h> unconditionally;

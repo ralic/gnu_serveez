@@ -123,7 +123,7 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \
-    scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
+    scm_out_of_range_pos (FUNC_NAME, arg, gi_integer2scm (pos))
 #endif
 
 /* Compatibility macros for Guile 1.3 version.  Also defines the macro

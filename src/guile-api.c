@@ -867,8 +867,8 @@ If given no arguments, it behave like @code{getrpcent}.  */)
 #endif /* HAVE_GETRPCBYNAME */
 #if HAVE_GETRPCBYNUMBER
     {
-      SCM_ASSERT_TYPE (SCM_INUMP (arg), arg, SCM_ARG1, FUNC_NAME, "INUMP");
-      entry = getrpcbynumber (SCM_INUM (arg));
+      SCM_ASSERT_TYPE (SCM_EXACTP (arg), arg, SCM_ARG1, FUNC_NAME, "exact");
+      entry = getrpcbynumber (gi_scm2int (arg));
     }
 #endif /* #if HAVE_GETRPCBYNUMBER */
 
@@ -987,27 +987,27 @@ all mapping between the triple [@var{prognum},@var{versnum},*] and ports
 on the machine's portmap service.  */)
 {
 #define FUNC_NAME s_scm_portmap
-  SCM_ASSERT_TYPE (SCM_INUMP (prognum), prognum, SCM_ARG1,
-                   FUNC_NAME, "INUMP");
-  SCM_ASSERT_TYPE (SCM_INUMP (versnum), prognum, SCM_ARG2,
-                   FUNC_NAME, "INUMP");
+  SCM_ASSERT_TYPE (SCM_EXACTP (prognum), prognum, SCM_ARG1,
+                   FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (SCM_EXACTP (versnum), prognum, SCM_ARG2,
+                   FUNC_NAME, "exact");
 
   if (SCM_UNBNDP (protocol) && SCM_UNBNDP (port))
     {
-      if (!pmap_unset (SCM_INUM (prognum), SCM_INUM (versnum)))
+      if (!pmap_unset (gi_scm2int (prognum), gi_scm2int (versnum)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_unset ~A ~A",
                           gi_list_3 (errnostring (), prognum, versnum),
                           errno);
     }
   else
     {
-      SCM_ASSERT_TYPE (SCM_INUMP (protocol), protocol, SCM_ARG3,
-                       FUNC_NAME, "INUMP");
-      SCM_ASSERT_TYPE (SCM_INUMP (port), port, SCM_ARG4,
-                       FUNC_NAME, "INUMP");
+      SCM_ASSERT_TYPE (SCM_EXACTP (protocol), protocol, SCM_ARG3,
+                       FUNC_NAME, "exact");
+      SCM_ASSERT_TYPE (SCM_EXACTP (port), port, SCM_ARG4,
+                       FUNC_NAME, "exact");
 
-      if (!pmap_set (SCM_INUM (prognum), SCM_INUM (versnum),
-                     SCM_INUM (protocol), SCM_INUM (port)))
+      if (!pmap_set (gi_scm2int (prognum), gi_scm2int (versnum),
+                     gi_scm2int (protocol), gi_scm2int (port)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_set ~A ~A ~A ~A",
                           gi_list_5 (errnostring (), prognum,
                                      versnum, protocol, port),
@@ -1098,7 +1098,7 @@ requested IP address @var{addr}.  */)
   in_addr_t ip;
 
   /* Check argument list first.  */
-  SCM_ASSERT_TYPE (SCM_INUMP (addr), addr, SCM_ARG1, FUNC_NAME, "INUMP");
+  SCM_ASSERT_TYPE (SCM_EXACTP (addr), addr, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_CALLBACK (callback);
 
   /* Convert IP address into C long value.  */
@@ -1145,9 +1145,9 @@ If that socket no longer exists, return @code{#f}.  */)
   int version, id;
   svz_socket_t *sock;
 
-  SCM_ASSERT_TYPE (SCM_PAIRP (ident) && SCM_INUMP (SCM_CAR (ident)) &&
-                   SCM_INUMP (SCM_CDR (ident)), ident, SCM_ARG1,
-                   FUNC_NAME, "pair of INUMP");
+  SCM_ASSERT_TYPE (SCM_PAIRP (ident) && SCM_EXACTP (SCM_CAR (ident)) &&
+                   SCM_EXACTP (SCM_CDR (ident)), ident, SCM_ARG1,
+                   FUNC_NAME, "pair of exact");
   id = gi_scm2int (SCM_CAR (ident));
   version = gi_scm2int (SCM_CDR (ident));
   if ((sock = svz_sock_find (id, version)) != NULL)
