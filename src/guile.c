@@ -1770,7 +1770,7 @@ static void
 guile_init (void)
 {
   /* define some variables */
-  scm_c_define ("serveez-version", gi_string2scm (PACKAGE_VERSION));
+  gi_define ("serveez-version", gi_string2scm (PACKAGE_VERSION));
 
   {
 #include "guile-boot.c"

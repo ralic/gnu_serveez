@@ -1274,17 +1274,17 @@ void
 guile_api_init (void)
 {
 #if HAVE_PMAP_SET && HAVE_PMAP_UNSET
-  scm_c_define ("IPPROTO_UDP", gi_integer2scm (IPPROTO_UDP));
-  scm_c_define ("IPPROTO_TCP", gi_integer2scm (IPPROTO_TCP));
+  gi_define ("IPPROTO_UDP", gi_integer2scm (IPPROTO_UDP));
+  gi_define ("IPPROTO_TCP", gi_integer2scm (IPPROTO_TCP));
 #endif
 
-  scm_c_define ("PROTO_TCP", gi_integer2scm (SVZ_PROTO_TCP));
-  scm_c_define ("PROTO_UDP", gi_integer2scm (SVZ_PROTO_UDP));
-  scm_c_define ("PROTO_ICMP", gi_integer2scm (SVZ_PROTO_ICMP));
-  scm_c_define ("PROTO_RAW", gi_integer2scm (SVZ_PROTO_RAW));
-  scm_c_define ("PROTO_PIPE", gi_integer2scm (SVZ_PROTO_PIPE));
-  scm_c_define ("KICK_FLOOD", gi_integer2scm (0));
-  scm_c_define ("KICK_QUEUE", gi_integer2scm (1));
+  gi_define ("PROTO_TCP", gi_integer2scm (SVZ_PROTO_TCP));
+  gi_define ("PROTO_UDP", gi_integer2scm (SVZ_PROTO_UDP));
+  gi_define ("PROTO_ICMP", gi_integer2scm (SVZ_PROTO_ICMP));
+  gi_define ("PROTO_RAW", gi_integer2scm (SVZ_PROTO_RAW));
+  gi_define ("PROTO_PIPE", gi_integer2scm (SVZ_PROTO_PIPE));
+  gi_define ("KICK_FLOOD", gi_integer2scm (0));
+  gi_define ("KICK_QUEUE", gi_integer2scm (1));
 }
 
 /* Finalize the API procedures.  */

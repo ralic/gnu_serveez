@@ -1,5 +1,15 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_define
+
+	* gi.c (gi_define): New func.
+	* gi.h (gi_define): New func decl.
+	* guile-api.c (guile_api_init): Use ‘gi_define’.
+	* guile.c (guile_init): Likewise.
+	* guile-api.h (scm_c_define): Delete macro.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Decruft: Remove unused macro.
 
 	* guile-api.h (scm_c_free): Delete macro.

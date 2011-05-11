@@ -106,9 +106,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define scm_primitive_eval_x(expr) scm_eval_x (expr)
 #endif
 #ifndef SCM_VERSION_15X
-#define scm_c_define(name, val) gh_define (name, val)
-#endif
-#ifndef SCM_VERSION_15X
 #define scm_c_primitive_load(file) \
     scm_primitive_load (gi_string2scm (file))
 #endif

@@ -55,6 +55,8 @@ extern int gi_get_xrep (char *buf, size_t len, SCM symbol_or_string);
   (STRING_OR_SYMBOL_P (obj)                     \
    && 0 < GI_GET_XREP (buf, obj))
 
+extern void gi_define (const char *name, SCM value);
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */

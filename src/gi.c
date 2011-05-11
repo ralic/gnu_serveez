@@ -255,4 +255,14 @@ gi_get_xrep (char *buf, size_t len, SCM symbol_or_string)
   return actual;
 }
 
+void
+gi_define (const char *name, SCM value)
+{
+#if V15
+  scm_c_define (name, value);
+#else
+  gh_define (name, value);
+#endif
+}
+
 /* gi.c ends here */
