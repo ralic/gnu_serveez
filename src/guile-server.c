@@ -532,10 +532,7 @@ static void
 guile_sock_clear_boundary (svz_socket_t *sock)
 {
   if (sock->boundary)
-    {
-      scm_c_free (sock->boundary);
-      sock->boundary = NULL;
-    }
+    svz_free_and_zero (sock->boundary);
   sock->boundary_size = 0;
 }
 

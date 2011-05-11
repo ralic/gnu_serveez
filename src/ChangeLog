@@ -1,5 +1,17 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int guile] Fix bug: Use libserveez for freeing ‘sock->boundary’.
+
+	The string saved into ‘sock->boundary’ is now allocated by
+	libserveez so it makes sense to use libserveez to free it.
+	Omission from 2011-05-09, "[int] For Scheme->C
+	symbol/string conversion, alloc on stack".
+
+	* guile-server.c (guile_sock_clear_boundary):
+	Use ‘svz_free_and_zero’ for ‘sock->boundary’.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘GI_GET_XREP’ more.
 
 	* guile-api.c (scm_getrpc) [HAVE_GETRPCBYNAME]: Use ‘GI_GET_XREP’.
