@@ -1,5 +1,11 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Decruft: Delete some unused macros.
+
+	* guile-api.h (scm_mem2string, scm_c_symbol2str): Delete macros.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘scm_fileno’.
 
 	* guile-api.c (guile_read_file): Use ‘scm_fileno’.

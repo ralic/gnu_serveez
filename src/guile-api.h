@@ -109,9 +109,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define SCM_WRITABLE_VELTS(x) SCM_VELTS(x)
 #endif
 #ifndef SCM_VERSION_15X
-#define scm_mem2string(str, len) gh_str2scm (str, len)
-#endif
-#ifndef SCM_VERSION_15X
 #define scm_primitive_eval_x(expr) scm_eval_x (expr)
 #endif
 #ifndef SCM_VERSION_15X
@@ -135,9 +132,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define scm_gc_free(mem, len, name) scm_must_free (mem)
 #define scm_gc_realloc(mem, olen, nlen, name) \
     scm_must_realloc (mem, olen, nlen, name)
-#endif
-#ifndef SCM_VERSION_17X
-#define scm_c_symbol2str(obj, str, lenp) gh_symbol2newstr (obj, lenp)
 #endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \
