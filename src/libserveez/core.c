@@ -115,7 +115,7 @@ svz_fd_block (int fd)
   return 0;
 }
 
-/*
+/**
  * Set the close-on-exec flag of the given file descriptor @var{fd} and
  * return zero on success.  Otherwise return non-zero.
  */
@@ -151,7 +151,7 @@ svz_fd_cloexec (int fd)
   return 0;
 }
 
-/*
+/**
  * Close the socket @var{sock}.
  * Return 0 if successful, -1 otherwise.
  */
@@ -329,10 +329,10 @@ svz_socket_connect (svz_t_socket sockfd, in_addr_t host, in_port_t port)
   return 0;
 }
 
-/*
- * Converts the given ip address @var{ip} to the dotted decimal
- * representation.  The string is a statically allocated buffer, please
- * copy the result.  The given ip address MUST be in network byte order.
+/**
+ * Convert @var{ip}, an address in network byte order, to its dotted
+ * decimal representation, returning a pointer to a statically
+ * allocated buffer.  (You should copy the result.)
  */
 char *
 svz_inet_ntoa (in_addr_t ip)
@@ -343,13 +343,13 @@ svz_inet_ntoa (in_addr_t ip)
   return inet_ntoa (addr);
 }
 
-/*
- * Converts the Internet host address @var{str} from the standard
- * numbers-and-dots notation into binary data and stores it in the
- * structure that @var{addr} points to.  @code{svz_inet_aton} returns
- * zero if the address is valid, nonzero if not.
- * This function handles an ip address of "*" special and sets
- * @code{INADDR_ANY} for it.
+/**
+ * Convert the Internet host address @var{str} from the standard
+ * numbers-and-dots notation into binary data and store it in the
+ * structure that @var{addr} points to.
+ * Return zero if the address is valid, nonzero otherwise.
+ * As a special case, if @var{str} is @samp{*} (asterisk),
+ * store @code{INADDR_ANY} in @var{addr}.
  */
 int
 svz_inet_aton (char *str, struct sockaddr_in *addr)
@@ -365,11 +365,11 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
   return svz_pton (str, &addr->sin_addr);
 }
 
-/*
- * Enable or disable the @code{TCP_CORK} socket option of the given socket
- * descriptor @var{fd}.  This is useful for performance reasons when using
+/**
+ * Enable or disable the @code{TCP_CORK} socket option of the socket
+ * @var{fd}.  This is useful for performance reasons when using
  * @code{sendfile} with any prepending or trailing data not inside the
- * file to transmit.  The function return zero on success, otherwise non-zero.
+ * file to transmit.  Return zero on success, otherwise non-zero.
  */
 int
 svz_tcp_cork (svz_t_socket fd, int set)
@@ -403,13 +403,14 @@ svz_tcp_cork (svz_t_socket fd, int set)
 #define SOL_TCP IPPROTO_TCP
 #endif
 
-/*
- * Enable or disable the @code{TCP_NODELAY} setting for the given socket
- * descriptor @var{fd} depending on the flag @var{set}.  In fact its turns
- * the Nagle algorithm on or off.  This means that packets are always sent
- * as soon as possible and no unnecessary delays are introduced.  The
- * function saves the old setting if @var{old} is not @code{NULL}.  Returns
- * zero on success, otherwise non-zero.
+/**
+ * Enable or disable the @code{TCP_NODELAY} setting for the socket
+ * @var{fd} depending on the flag @var{set}, effectively enabling
+ * or disabling the Nagle algorithm.
+ * This means that packets are always sent
+ * as soon as possible and no unnecessary delays are introduced.
+ * If @var{old} is not @code{NULL}, save the old setting there.
+ * Return zero on success, otherwise non-zero.
  */
 int
 svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
@@ -447,15 +448,15 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
   return 0;
 }
 
-/*
- * This function transmits data between one file descriptor and another
- * where @var{in_fd} is the source and @var{out_fd} the destination.  The
- * @var{offset} argument is a pointer to a variable holding the input file
- * pointer position from which reading starts.  When this routine returns,
- * the @var{offset} variable will be set to the offset of the byte following
- * the last byte that was read.  @var{count} is the number of bytes to copy
- * between file descriptors.  Returns the number of bytes actually
- * read/written or -1 on errors.
+/**
+ * Transmit data between one file descriptor and another where
+ * @var{in_fd} is the source and @var{out_fd} the destination.
+ * The @var{offset} argument is a pointer to a variable holding
+ * the input file pointer position from which reading starts.
+ * On return, the @var{offset} variable will be set to the offset
+ * of the byte following the last byte that was read.
+ * @var{count} is the number of bytes to copy.
+ * Return the number of bytes actually read/written or -1 on errors.
  */
 int
 svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
@@ -618,7 +619,7 @@ svz_file_closeall (void)
 }
 #endif /* not __MINGW32__ */
 
-/*
+/**
  * Open the filename @var{file} and convert it into a file handle.  The
  * given @var{flags} specify the access mode and the @var{mode} argument
  * the permissions if the @code{O_CREAT} flag is set.
@@ -685,7 +686,7 @@ svz_open (const char *file, int flags, mode_t mode)
 #endif /* not __MINGW32__ */
 }
 
-/*
+/**
  * Close the given file handle @var{fd}.  Return -1 on errors.
  */
 int
@@ -720,9 +721,9 @@ svz_close (int fd)
   ((time_t) (((ft.dwLowDateTime | (__int64) ft.dwHighDateTime << 32) \
                - DIFF_FT_LT) / 10000000L))
 
-/*
+/**
  * Return information about the specified file associated with the file
- * descriptor @var{fd} returned by @code{svz_open}.  Stores available
+ * descriptor @var{fd} returned by @code{svz_open}.  Store available
  * information in the stat buffer @var{buf}.
  */
 int
@@ -767,9 +768,9 @@ svz_fstat (int fd, struct stat *buf)
   return 0;
 }
 
-/*
+/**
  * Open the file whose name is the string pointed to by @var{file} and
- * associates a stream with it.
+ * associate a stream with it.
  */
 FILE *
 svz_fopen (const char *file, const char *mode)
@@ -792,8 +793,8 @@ svz_fopen (const char *file, const char *mode)
   return f;
 }
 
-/*
- * Dissociates the named stream @var{f} from its underlying file.
+/**
+ * Dissociate the named stream @var{f} from its underlying file.
  */
 int
 svz_fclose (FILE *f)

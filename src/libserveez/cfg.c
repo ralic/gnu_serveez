@@ -86,10 +86,9 @@ svz_config_hash_dup (svz_hash_t *strhash)
   return hash;
 }
 
-/*
+/**
  * Release the configuration @var{cfg} of the given configuration
- * prototype @var{prototype}.  If the configuration equals @code{NULL}
- * no operation is performed.
+ * prototype @var{prototype}.  If @var{cfg} is @code{NULL}, do nothing.
  */
 void
 svz_config_free (svz_config_prototype_t *prototype, void *cfg)
@@ -414,11 +413,11 @@ svz_config_type_add (svz_config_type_t *type)
   svz_hash_put (svz_config_types, type->name, type);
 }
 
-/*
+/**
  * Instantiate a configurable type.  The @var{type} argument specifies
  * the configurable type name, @var{name} the name of the type (in the
  * domain of the configurable type) and @var{instance} the instance
- * name of the type.  Returns zero on success, otherwise -1.
+ * name of the type.  Return zero on success, otherwise -1.
  */
 int
 svz_config_type_instantiate (char *type, char *name, char *instance,
@@ -458,7 +457,7 @@ svz_config_type_finalize (void)
   svz_hash_destroy (svz_config_types);
 }
 
-/*
+/**
  * Create a collection of @var{type}, given the @var{count}
  * items of @var{data}.  Valid values of @var{type} are one of:
  * @code{SVZ_INTARRAY}, @code{SVZ_STRARRAY}, @code{SVZ_STRHASH}.
@@ -467,7 +466,7 @@ svz_config_type_finalize (void)
  * The C type of @var{data} for an int array should be @code{int[]},
  * and for string array or hash it should be @code{char*[]}.
  * On error (either bad @var{type} or odd @var{count} for string hash),
- * return NULL.
+ * return @code{NULL}.
  */
 void *
 svz_collect (int type, size_t count, void *data)

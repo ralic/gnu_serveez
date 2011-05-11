@@ -51,7 +51,7 @@ static svz_array_t *svz_servertypes = NULL;
  */
 static svz_hash_t *svz_servers = NULL;
 
-/*
+/**
  * Call @var{func} for each servertype, passing additionally the second arg
  * @var{closure}.  If @var{func} returns a negative value, return immediately
  * with that value (breaking out of the loop), otherwise, return 0.
@@ -85,7 +85,7 @@ foreach_server_internal (SVZ_UNUSED void *k, void *v, void *closure)
   x->func (v, x->closure);
 }
 
-/*
+/**
  * Call @var{func} for each server, passing additionally the second arg
  * @var{closure}.
  */
@@ -100,7 +100,7 @@ svz_foreach_server (svz_server_do_t *func, void *closure)
     }
 }
 
-/*
+/**
  * Add the server type @var{server} to the currently registered servers.
  */
 void
@@ -213,10 +213,10 @@ svz_server_unbind (svz_server_t *server)
     }
 }
 
-/*
- * Find a servertype definition by its short name.  If @var{dynamic} is set
- * to non-zero an attempt is made to load a shared library that provides
- * that servertype.  Returns @code{NULL} if no server with the given variable
+/**
+ * Find a servertype definition by its short name.  If @var{dynamic} is
+ * set to non-zero, try to load a shared library that provides that
+ * servertype.  Return @code{NULL} if no server with the given variable
  * prefix @var{name} has been found.
  */
 svz_servertype_t *
@@ -270,10 +270,10 @@ svz_servertype_finalize (void)
     }
 }
 
-/*
- * Find a given server instances @var{server} server type.  Return @code{NULL}
- * if there is no such server type (which should never occur since a server is
- * a child of an server type.
+/**
+ * Find a given server instances @var{server} server type.  Return
+ * @code{NULL} if there is no such server type (which should never occur
+ * since a server is a child of a server type).
  */
 svz_servertype_t *
 svz_servertype_find (svz_server_t *server)
@@ -296,7 +296,7 @@ find_internal (svz_server_t *server, void *closure)
     x->match = server;
 }
 
-/*
+/**
  * Find a server instance by the given configuration structure @var{cfg}.
  * Return @code{NULL} if there is no such configuration in any server
  * instance.
@@ -310,11 +310,11 @@ svz_server_find (void *cfg)
   return x.match;
 }
 
-/*
- * Returns a list of clients (socket structures) which are associated
+/**
+ * Return a list of clients (socket structures) which are associated
  * with the given server instance @var{server}.  If there is no such
- * socket @code{NULL} is returned.  The calling routine is responsible
- * to @code{svz_array_destroy} the returned array.
+ * socket, return @code{NULL}.  Caller should @code{svz_array_destroy}
+ * the returned array.
  */
 svz_array_t *
 svz_server_clients (svz_server_t *server)
@@ -333,7 +333,7 @@ svz_server_clients (svz_server_t *server)
   return svz_array_destroy_zero (clients);
 }
 
-/*
+/**
  * Get the server instance with the given instance name @var{name}.
  * Return @code{NULL} if there is no such server yet.
  */
@@ -468,7 +468,7 @@ svz_server_finalize_all (void)
   return 0;
 }
 
-/*
+/**
  * If @var{direction} is non-zero, run the initializers of all
  * servers, returning -1 if some server did not think it is a good
  * idea to run.  Otherwise, run the local finalizers for all

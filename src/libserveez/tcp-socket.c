@@ -104,11 +104,12 @@ svz_tcp_write_socket (svz_socket_t *sock)
   return (num_written < 0) ? -1 : 0;
 }
 
-/*
- * Default function for reading from the socket @var{sock}.  This function
- * only reads all data from the socket and calls the @code{check_request}
- * function for the socket, if set.  Returns -1 if the socket has died,
- * returns zero otherwise.
+/**
+ * Read all data from @var{sock} and call the @code{check_request}
+ * function for the socket, if set.  Return -1 if the socket has died,
+ * zero otherwise.
+ *
+ * This is the default function for reading from @var{sock}.
  */
 int
 svz_tcp_read_socket (svz_socket_t *sock)
@@ -240,12 +241,11 @@ svz_tcp_recv_oob (svz_socket_t *sock)
 #endif /* not MSG_OOB */
 }
 
-/*
+/**
  * If the underlying operating system supports urgent data (out-of-band) in
- * TCP streams this function tries to send the byte in @code{sock->oob}
- * through the socket structure @var{sock} as out-of-band data.  The function
- * returns zero on success and -1 otherwise (also if urgent data is not
- * supported).
+ * TCP streams, try to send the byte in @code{sock->oob} through the socket
+ * structure @var{sock} as out-of-band data.  Return zero on success and -1
+ * otherwise (also if urgent data is not supported).
  */
 int
 svz_tcp_send_oob (svz_socket_t *sock)
@@ -320,9 +320,9 @@ svz_tcp_default_connect (svz_socket_t *sock)
   return 0;
 }
 
-/*
+/**
  * Create a TCP connection to host @var{host} and set the socket descriptor
- * in structure @var{sock} to the resulting socket.  Return a zero value on
+ * in structure @var{sock} to the resulting socket.  Return @code{NULL} on
  * errors.
  */
 svz_socket_t *

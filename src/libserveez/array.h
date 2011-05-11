@@ -44,11 +44,10 @@ SBO svz_array_t *svz_array_destroy_zero (svz_array_t *);
 
 __END_DECLS
 
-/*
- * This is the iteration macro for the array implementation of the core
- * library.  @var{array} specifies the array to iterate, @var{value} the
- * pointer each element of the array gets assigned and @var{i} is the
- * iteration variable.
+/**
+ * Expand into a @code{for}-statement header, for iterating over
+ * @var{array}.  On each cycle, @var{value} is assigned to successive
+ * elements of @var{array}, and @var{i} the element's position.
  */
 #define svz_array_foreach(array, value, i)                      \
   for ((i) = 0, (value) = svz_array_get ((array), 0);           \

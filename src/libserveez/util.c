@@ -135,7 +135,7 @@ svz__log_updn (SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED int direction)
 #endif
 }
 
-/*
+/**
  * Print a message to the log system.  @var{level} specifies the prefix.
  */
 void
@@ -176,9 +176,9 @@ svz_log (int level, const char *format, ...)
   UNLOCK_LOG_MUTEX ();
 }
 
-/*
- * Set the file stream @var{file} to the log file all messages are printed
- * to.  Could also be @code{stdout} or @code{stderr}.
+/**
+ * Set the file stream @var{file} to the log file all messages
+ * are printed to.  Can also be @code{stdout} or @code{stderr}.
  */
 void
 svz_log_setfile (FILE * file)
@@ -236,19 +236,16 @@ svz_pton (const char *str, void *dst)
 
 #define MAX_DUMP_LINE 16   /* bytes per line */
 
-/*
- * Dump a @var{buffer} with the length @var{len} to the file stream @var{out}.
- * You can specify a description in @var{action}.  The hexadecimal text
- * representation of the given buffer will be either cut at @var{len} or
- * @var{max}.  @var{from} is a numerical identifier of the buffers creator.
+/**
+ * Dump @var{buffer} with the length @var{len} to the file stream @var{out}.
+ * Display description @var{action} along with origin and size info first,
+ * followed by the hexadecimal text representation.
+ * Stop output at either @var{max} or @var{len} (if @var{max} is zero) bytes.
+ * @var{from} is a numerical identifier of the buffers creator.
  */
 int
-svz_hexdump (FILE *out,    /* output FILE stream */
-             char *action, /* hex dump description */
-             int from,     /* who created the dumped data */
-             char *buffer, /* the buffer to dump */
-             int len,      /* length of that buffer */
-             int max)      /* maximum amount of bytes to dump (0 = all) */
+svz_hexdump (FILE *out, char *action, int from,
+             char *buffer, int len, int max)
 {
   int row, col, x, max_col;
 
@@ -287,7 +284,7 @@ svz_hexdump (FILE *out,    /* output FILE stream */
   return 0;
 }
 
-/*
+/**
  * Transform the given binary data @var{t} (UTC time) to an ASCII time text
  * representation without any trailing characters.
  */
@@ -306,7 +303,7 @@ svz_time (long t)
   return asc;
 }
 
-/*
+/**
  * Convert the given string @var{str} to lower case text representation.
  */
 char *
@@ -493,7 +490,7 @@ static int svz_os_version;
 
 #endif /* __MINGW32__ */
 
-/*
+/**
  * Return a string describing the most recent system error.
  */
 const char *
@@ -519,7 +516,7 @@ svz_net_strerror (void)
 #endif
 }
 
-/*
+/**
  * Return 1 if there was a "socket unavailable" error recently, 0
  * otherwise.  This checks @code{svz_errno} against @code{WSAEWOULDBLOCK}
  * (woe32) or @code{EAGAIN} (Unix).
@@ -534,7 +531,7 @@ svz_socket_unavailable_error_p (void)
 #endif
 }
 
-/*
+/**
  * Return a statically-allocated string describing some operating system
  * version details.
  */
@@ -609,7 +606,7 @@ svz_sys_version (void)
   return os;
 }
 
-/*
+/**
  * Return 1 if running MinGW (Windows) NT4x or later,
  * otherwise 0.
  */
@@ -623,9 +620,9 @@ svz_mingw_at_least_nt4_p (void)
 #endif
 }
 
-/*
- * Converts an unsigned integer to its decimal string representation
- * returning a pointer to an internal buffer, so copy the result.
+/**
+ * Convert an unsigned integer to its decimal string representation,
+ * returning a pointer to an internal buffer.  (You should copy the result.)
  */
 char *
 svz_itoa (unsigned int i)
@@ -643,9 +640,9 @@ svz_itoa (unsigned int i)
   return p;
 }
 
-/*
- * Converts a given string @var{str} in decimal format to an unsigned integer.
- * Stops conversion on any invalid characters.
+/**
+ * Convert string @var{str} in decimal format to an unsigned integer.
+ * Stop conversion on any invalid characters.
  */
 unsigned int
 svz_atoi (char *str)
@@ -665,9 +662,9 @@ svz_atoi (char *str)
 # define getcwd(buf, size)  (GetCurrentDirectory (size, buf) ? buf : NULL)
 #endif
 
-/*
- * Returns the current working directory.  The returned pointer needs to be
- * @code{svz_free}'ed after usage.
+/**
+ * Return the current working directory in a newly allocated string.
+ * (You should @code{svz_free} it when done.)
  */
 char *
 svz_getcwd (void)
@@ -687,11 +684,9 @@ svz_getcwd (void)
   return dir;
 }
 
-/*
- * This routine checks for the current and maximum limit of open files
- * of the current process.  The function heavily depends on the underlying
- * platform.  It tries to set the limit to the given @var{max_sockets}
- * amount.
+/**
+ * Check for the current and maximum limit of open files of the
+ * current process and try to set the limit to @var{max_sockets}.
  */
 int
 svz_openfiles (int max_sockets)
@@ -814,7 +809,7 @@ log_error (char const *prefix, char const *errmsg)
     }                                                   \
   while (0)
 
-/*
+/**
  * Log the current @dfn{system error}.
  */
 void
@@ -823,7 +818,7 @@ svz_log_sys_error (char const *fmt, ...)
   LOG_ERROR_FROM (svz_sys_strerror ());
 }
 
-/*
+/**
  * Log the current @dfn{network error}.
  */
 void

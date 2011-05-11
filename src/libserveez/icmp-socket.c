@@ -603,9 +603,10 @@ svz_icmp_write_socket (svz_socket_t *sock)
   return num_written < 0 ? -1 : 0;
 }
 
-/*
- * If you are calling this function we will send an empty ICMP packet
- * signaling that this connection is going down soon.
+/**
+ * ``If you are calling this function we will send an empty ICMP packet
+ * signaling that this connection is going down soon.''
+ * [ttn sez: huh?]
  */
 int
 svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
@@ -638,10 +639,10 @@ svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
   return ret;
 }
 
-/*
- * Send a given buffer @var{buf} with length @var{length} via this ICMP
- * socket.  If the length argument supersedes the maximum ICMP message
- * size the buffer is split into smaller packets.
+/**
+ * Send @var{buf} with length @var{length} via this ICMP socket @var{sock}.
+ * If @var{length} supersedes the maximum ICMP message size the buffer is
+ * split into smaller packets.
  */
 int
 svz_icmp_write (svz_socket_t *sock, char *buf, int length)
@@ -761,8 +762,8 @@ svz_icmp_check_request (svz_socket_t *sock)
   return 0;
 }
 
-/*
- * This function creates an ICMP socket for receiving and sending.
+/**
+ * Create an ICMP socket for receiving and sending.
  * Return @code{NULL} on errors, otherwise an enqueued socket structure.
  */
 svz_socket_t *

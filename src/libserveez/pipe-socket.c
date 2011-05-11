@@ -195,7 +195,7 @@ svz_pipe_check_group (svz_pipe_t *pipe)
   return 0;
 }
 
-/*
+/**
  * Invalidate the handle pointed at by @var{href}.
  */
 void
@@ -208,7 +208,7 @@ svz_invalidate_handle (svz_t_handle *href)
 #endif
 }
 
-/*
+/**
  * Return 1 if @var{handle} is invalid, otherwise 0.
  */
 int
@@ -245,7 +245,7 @@ svz_pipe_valid (svz_socket_t *sock)
   return 0;
 }
 
-/*
+/**
  * Close @var{handle}.
  * Return 0 if successful, -1 otherwise.
  */
@@ -629,7 +629,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
   return (num_written < 0) ? -1 : 0;
 }
 
-/*
+/**
  * Create a socket structure containing both the pipe descriptors
  * @var{recv_fd} and @var{send_fd}.  Return @code{NULL} on errors.
  */
@@ -663,7 +663,7 @@ svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
   return sock;
 }
 
-/*
+/**
  * Create a (non blocking) pair of pipes.  This differs in Win32 and
  * Unices.  Return a non-zero value on errors.
  */
@@ -834,9 +834,9 @@ svz_pipe_set_files (svz_socket_t *sock, char *recv, char *send)
 #endif /* __MINGW32__ */
 }
 
-/*
- * This routine creates a pipe connection socket structure to a pair of
- * named pipes.  Return @code{NULL} on errors.
+/**
+ * Create a pipe connection socket structure to the pair of named
+ * pipes @var{recv} and @var{send}.  Return @code{NULL} on errors.
  */
 svz_socket_t *
 svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)

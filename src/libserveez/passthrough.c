@@ -95,9 +95,11 @@ extern char **environ;
  */
 static char **svz_environ = NULL;
 
-/*
+/**
+ * Set up internal tables for environment block wrangling.
+ *
  * This function must be called once after @code{svz_boot}
- * to set up internal tables so that subsequent functions
+ * so that subsequent functions
  * (like @code{svz_envblock_default}) can work correctly.
  */
 void
@@ -475,7 +477,7 @@ svz_process_check_request (svz_socket_t *sock)
 }
 
 #ifdef __MINGW32__
-/*
+/**
  * Check child pointed at by @var{pid} by waiting a bit.
  * If it is dead, close and invalidate its handle, and return 1.
  * Otherwise, return 0.
@@ -504,7 +506,7 @@ svz_mingw_child_dead_p (char *prefix, svz_t_handle *pid)
 }
 #endif  /* __MINGW32__ */
 
-/*
+/**
  * Return 1 if a child process @var{pid} died recently, updating
  * other internal state by side effect.  Otherwise, return 0.
  */
@@ -711,20 +713,17 @@ svz_process_fork (svz_process_t *proc)
   return pid;
 }
 
-/*
- * This routine starts a new program specified by @var{bin} passing the
- * socket or pipe descriptor(s) in the socket structure @var{sock} to its
- * stdin and stdout.
+/**
+ * Start a new program @var{bin}, a fully qualified executable filename,
+ * passing the socket or pipe descriptor(s) in the socket structure
+ * @var{sock} to its stdin and stdout.
  *
- * The @var{bin} argument has to contain a fully qualified executable file
- * name and the @var{dir} argument contains the working directory of the
- * new process.  The directory is not changed when this argument is
- * @code{NULL}.
+ * If @var{dir} is non-@code{NULL}, it specifies the working directory of
+ * the new process.
  *
- * The program arguments and the environment of the new process can be
- * passed in @var{argv} and @var{envp}.  Please note that @code{argv[0]} has
- * to be set to the program's name, otherwise it defaults to @var{bin} if
- * it contains @code{NULL}.
+ * The program arguments and the environment of the new process are taken
+ * from @var{argv} and @var{envp}.  Normally @code{argv[0]} should be set to
+ * the program's name.  If @code{NULL}, it defaults to @var{bin}.
  *
  * The @var{forkp} argument is a flag that controls the passthrough method.
  * If non-zero, pipe descriptors or the socket descriptor are passed to the
@@ -733,13 +732,13 @@ svz_process_fork (svz_process_t *proc)
  * on whether or not the system provides @code{socketpair}).
  *
  * You can pass the user and group identifications in the format
- * @samp{user[.group]} (group is optional), as @code{SVZ_PROCESS_NONE}
- * or @code{SVZ_PROCESS_OWNER} in the @var{user} argument.  This specifies the
+ * @samp{user[.group]} (group is optional), as @code{SVZ_PROCESS_NONE} or
+ * @code{SVZ_PROCESS_OWNER} in the @var{user} argument.  This specifies the
  * permissions of the new child process.  If @code{SVZ_PROCESS_OWNER} is
  * passed the permissions are set to the executable file @var{bin} owner;
  * @code{SVZ_PROCESS_NONE} does not change user or group.
  *
- * The function returns -1 on failure and otherwise the new process's pid.
+ * Return the new process id on success, -1 on failure.
  */
 int
 svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
@@ -1163,9 +1162,9 @@ svz_process_create_child (svz_process_t *proc)
 #endif /* __MINGW32__ */
 }
 
-/*
- * Create a fresh environment block.  The returned pointer can be used to pass
- * it to @code{svz_envblock_default} and @code{svz_envblock_add}.  Its
+/**
+ * Create and return a fresh environment block, useful for passing
+ * to @code{svz_envblock_default} and @code{svz_envblock_add}.  Its
  * size is initially set to zero.
  */
 svz_envblock_t *
@@ -1198,10 +1197,9 @@ svz_envblock_free (svz_envblock_t *env)
   return 0;
 }
 
-/*
- * Fill the given environment block @var{env} with the current process's
- * environment variables.  If the environment @var{env} contained any
- * information before these will be overridden.
+/**
+ * Fill environment block @var{env} with the environment variables from
+ * the current process, replacing its current contents (if any).
  */
 int
 svz_envblock_default (svz_envblock_t *env)
@@ -1225,15 +1223,16 @@ svz_envblock_default (svz_envblock_t *env)
   return 0;
 }
 
-/*
- * Insert a new environment variable into the given environment block
- * @var{env}.  The @var{format} argument is a @code{printf}-style format string
- * describing how to format the optional arguments.  You specify environment
- * variables in the @samp{VAR=VALUE} format.
+/**
+ * Insert a new environment variable into environment block
+ * @var{env}.  The @var{format} argument is a @code{printf}-style format
+ * string describing how to format the optional arguments.  You specify
+ * environment variables in the @samp{VAR=VALUE} format.
  */
 int
 svz_envblock_add (svz_envblock_t *env, char *format, ...)
 {
+  /* FIXME: Add parm ‘var’; do formatting only for value.  */
   static char buffer[VSNPRINTF_BUF_SIZE];
   int n, len;
   va_list args;
@@ -1274,17 +1273,17 @@ svz_envblock_sort (const void *data1, const void *data2)
 }
 #endif /* __MINGW32__ */
 
-/*
- * Unfortunately the layout of environment blocks in Unices and Windows
+/**
+ * Convert environment block @var{env} into something which can be passed to
+ * @code{execve} (Unix) or @code{CreateProcess} (Windows).  Additionally,
+ * under Windows, sort the environment block.
+ *
+ * (Unfortunately the layout of environment blocks in Unices and Windows
  * differ.  On Unices you have a NULL terminated array of character strings
  * (i.e., @code{char **}) and on Windows systems you have a simple character
- * string containing the environment variables in the format VAR=VALUE each
- * separated by a zero byte (i.e., @code{char *}).  The end of the list is
- * indicated by a further zero byte.  The following routine converts the
- * given environment block @var{env} into something which can be passed to
- * @code{execve} (Unix) or @code{CreateProcess} (Windows).  The routine
- * additionally sorts the environment block on Windows systems since it is
- * using sorted environments.
+ * string containing the environment variables in the format @samp{VAR=VALUE}
+ * each separated by a zero byte (i.e., @code{char *}).  The end of the list
+ * is indicated by a further zero byte.)
  */
 void *
 svz_envblock_get (svz_envblock_t *env)
@@ -1320,9 +1319,9 @@ svz_envblock_get (svz_envblock_t *env)
 #endif /* !__MINGW32__ */
 }
 
-/*
- * Destroys the given environment block @var{env} completely.  The @var{env}
- * argument is invalid afterwards and should therefore not be referenced then.
+/**
+ * Destroy environment block @var{env} completely.  Afterwards,
+ * @var{env} is invalid and should therefore not be further referenced.
  */
 void
 svz_envblock_destroy (svz_envblock_t *env)

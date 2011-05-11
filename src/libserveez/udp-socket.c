@@ -281,9 +281,9 @@ svz_udp_check_request (svz_socket_t *sock)
   return 0;
 }
 
-/*
- * Write the given @var{buf} into the send queue of the UDP socket.  If the
- * length argument supersedes the maximum length for UDP messages it
+/**
+ * Write @var{buf} into the send queue of the UDP socket @var{sock}.  If
+ * @var{length} argument supersedes the maximum length for UDP messages it
  * is split into smaller packets.
  */
 int
@@ -336,13 +336,15 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
   return ret;
 }
 
-/*
- * Create a UDP connection to @var{host} and set the socket descriptor in
- * structure @var{sock} to the resulting socket.  Return a @code{NULL} value
- * on errors.  This function can be used for port bouncing.  If you assign the
+/**
+ * Create a UDP connection to @var{host} at @var{port} and set the socket
+ * descriptor in structure @var{sock} to the resulting socket.  Return a
+ * @code{NULL} value on errors.
+ *
+ * This function can be used for port bouncing.  If you assign the
  * @code{handle_request} callback to something server specific and the
- * @var{cfg} field to the server's configuration to the returned socket
- * structure this socket is able to handle a dedicated UDP connection to
+ * @var{cfg} field of the server's configuration to the returned socket
+ * structure, this socket is able to handle a dedicated UDP connection to
  * some other UDP server.
  */
 svz_socket_t *

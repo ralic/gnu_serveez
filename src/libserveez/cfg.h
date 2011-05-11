@@ -118,10 +118,11 @@ svz_config_prototype_t;
 #define SVZ_ITEM_PORTCFG  6
 #define SVZ_ITEM_BOOL     7
 
-/*
- * Macro for defining the example configuration @var{config} (with the
- * name @var{description} and its configuration items @var{prototypes}
- * within a server type definition.
+/**
+ * Expand to a data structure that properly associates the example
+ * configuration @var{config} with the name @var{description} and its
+ * configuration items @var{prototypes}, for use within a server type
+ * definition.
  */
 #define SVZ_CONFIG_DEFINE(description, config, prototypes) \
   { description, &(config), sizeof (config), (prototypes) }
@@ -139,7 +140,7 @@ svz_config_prototype_t;
   ((item) == SVZ_ITEM_BOOL) ? "boolean" :                    \
   ((item) == SVZ_ITEM_PORTCFG) ? "port configuration" : NULL
 
-/*
+/**
  * Register a simple integer.  C-type: @code{int}.  The given @var{name}
  * specifies the symbolic name of the integer and @var{item} the integer
  * itself (not its address).  The @var{defaultable} argument can be either
@@ -148,45 +149,45 @@ svz_config_prototype_t;
 #define SVZ_REGISTER_INT(name, item, defaultable) \
   { SVZ_ITEM_INT, (name), (defaultable), &(item) }
 
-/*
+/**
  * Register an array of integers.  C-type: @code{svz_array_t *}.
  */
 #define SVZ_REGISTER_INTARRAY(name, item, defaultable) \
   { SVZ_ITEM_INTARRAY, (name), (defaultable), &(item) }
 
-/*
+/**
  * Register a boolean value.  C-type: @code{int}.
  */
 #define SVZ_REGISTER_BOOL(name, item, defaultable) \
   { SVZ_ITEM_BOOL, (name), (defaultable), &(item) }
 
-/*
+/**
  * Register a simple character string.  C-type: @code{char *}.
  */
 #define SVZ_REGISTER_STR(name, item, defaultable) \
   { SVZ_ITEM_STR, (name), (defaultable), &(item) }
 
-/*
+/**
  * Register a string array.  C-type: @code{svz_array_t *}.
  */
 #define SVZ_REGISTER_STRARRAY(name, item, defaultable) \
   { SVZ_ITEM_STRARRAY, (name), (defaultable), &(item) }
 
-/*
+/**
  * Register a hash table associating strings with strings only.  C-type:
  * @code{svz_hash_t *}.
  */
 #define SVZ_REGISTER_HASH(name, item, defaultable) \
   { SVZ_ITEM_HASH, (name), (defaultable), &(item) }
 
-/*
+/**
  * Register a port configuration.  C-type: @code{svz_portcfg_t *}.
  */
 #define SVZ_REGISTER_PORTCFG(name, item, defaultable) \
   { SVZ_ITEM_PORTCFG, (name), (defaultable), &(item) }
 
-/*
- * This macro indicates the end of the list of configuration items.  It is
+/**
+ * Indicate the end of the list of configuration items.  It is
  * the only mandatory item you need to specify in an example server type
  * configuration.
  */
@@ -214,19 +215,19 @@ __END_DECLS
 #define __SVZ_COLLECT(nick,ctype,cvar)                                  \
   svz_collect (SVZ_ ## nick, sizeof (cvar) / sizeof (ctype), cvar)
 
-/*
+/**
  * Return an integer array @code{svz_array_t *}
  * created from @code{int @var{cvar}[]}.
  */
 #define SVZ_COLLECT_INTARRAY(cvar)  __SVZ_COLLECT (INTARRAY, int, cvar)
 
-/*
+/**
  * Return a string array @code{svz_array_t *}
  * created from @code{char *@var{cvar}[]}.
  */
 #define SVZ_COLLECT_STRARRAY(cvar)  __SVZ_COLLECT (STRARRAY, char *, cvar)
 
-/*
+/**
  * Return a string hash @code{svz_hash_t *}
  * created from @code{char *@var{cvar}[]}.
  */

@@ -64,7 +64,7 @@
  */
 static svz_array_t *svz_interfaces;
 
-/*
+/**
  * Call @var{func} for each interface, passing additionally the second arg
  * @var{closure}.  If @var{func} returns a negative value, return immediately
  * with that value (breaking out of the loop), otherwise, return 0.
@@ -571,7 +571,7 @@ destroy_ifc (void *p)
   svz_free (ifc);
 }
 
-/*
+/**
  * Add a network interface to the current list of known interfaces.  Drop
  * duplicate entries.  The given arguments @var{index} specifies the network
  * interface index number, @var{desc} an interface desription, @var{addr}

@@ -46,7 +46,7 @@ static int log_verbosity;
  */
 svz_private_t *svz_private;
 
-/*
+/**
  * Return a list (length saved to @var{count}) of strings
  * representing the features compiled into libserveez.
  */
@@ -162,8 +162,8 @@ UPDN (config_type);
 
 SBO void svz_portcfg_finalize (void);
 
-/*
- * Initialization of the core library.
+/**
+ * Initialize the core library.
  * @var{client} is typically a program's @code{argv[0]}.
  * If @code{NULL}, take it to be @samp{anonymous}.
  */
@@ -192,7 +192,7 @@ svz_boot (char const *client)
 #undef UP
 }
 
-/*
+/**
  * Return the number of seconds since @code{svz_boot} was called,
  * or -1 if @code{svz_boot} has not yet been called.
  */
@@ -212,7 +212,7 @@ bad_runparm (int parm)
   return -1;
 }
 
-/*
+/**
  * Set or get a runtime parameter.
  * If @var{a} is -1, return the value of runtime parameter
  * @var{b}.  If @var{a} specifies a runtime parameter,
@@ -245,7 +245,7 @@ svz_runparm (int a, int b)
   return 0;
 }
 
-/*
+/**
  * Finalization of the core library.
  */
 void

@@ -47,7 +47,7 @@ svz_malloc_func_t svz_malloc_func = malloc;
 svz_realloc_func_t svz_realloc_func = realloc;
 svz_free_func_t svz_free_func = free;
 
-/*
+/**
  * Set the internal memory management functions to @var{cus_malloc},
  * @var{cus_realloc} and @var{cus_free}, respectively.
  * The default internal values are @code{malloc}, @code{realloc}
@@ -141,7 +141,7 @@ heap_add (heap_block_t *block)
     }                                                           \
   while (0)
 
-/*
+/**
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  */
 void *
@@ -191,7 +191,7 @@ svz_malloc (size_t size)
     oom ("malloc");
 }
 
-/*
+/**
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  * The memory is cleared (filled with zeros).
  */
@@ -203,11 +203,10 @@ svz_calloc (size_t size)
   return ptr;
 }
 
-/*
- * Change the size of a @code{svz_malloc}'ed block of memory.  The @var{size}
- * argument is the new size of the block in bytes, The given variable
- * @var{ptr} must be a pointer previously returned by @code{svz_malloc} or
- * @code{NULL} if you want to allocate a new block.
+/**
+ * Change the size of a block of memory at @var{ptr}, previously
+ * returned by @code{svz_malloc}, to @var{size} bytes.  If @var{ptr}
+ * is @code{NULL}, allocate a new block.
  */
 void *
 svz_realloc (void *ptr, size_t size)
@@ -283,9 +282,10 @@ svz_realloc (void *ptr, size_t size)
     }
 }
 
-/*
- * Free a block of @code{svz_malloc}'ed or @code{svz_realloc}'ed memory
- * block.  If @var{ptr} is a @code{NULL} pointer, no operation is performed.
+/**
+ * Free a block of memory at @var{ptr}, previously returned by
+ * @code{svz_malloc} or @code{svz_realloc}.  If @var{ptr} is
+ * @code{NULL}, do nothing.
  */
 void
 svz_free (void *ptr)
@@ -371,10 +371,9 @@ svz_heap (void)
 }
 #endif /* DEBUG_MEMORY_LEAKS */
 
-/*
+/**
  * Duplicate the given string @var{src} if it is not @code{NULL} and has
- * got a valid length (greater than zero).  Return the pointer to the
- * copied character string.
+ * non-zero length.  Return the new string.
  */
 char *
 svz_strdup (const char *src)
@@ -390,10 +389,9 @@ svz_strdup (const char *src)
   return dst;
 }
 
-/*
- * Allocate a block of memory with the size @var{size} permanently.  Memory
- * allocated this way does not get into account of the libraries memory
- * tracking.
+/**
+ * Allocate a block of memory of @var{size} bytes permanently.
+ * This block is not tracked internally.
  */
 void *
 svz_pmalloc (size_t size)
@@ -404,9 +402,9 @@ svz_pmalloc (size_t size)
   return ptr;
 }
 
-/*
- * Resize the memory block pointed to by @var{ptr} to @var{size} bytes.  This
- * routine also allocates memory permanently.
+/**
+ * Resize the memory block pointed to by @var{ptr} to @var{size} bytes.
+ * This routine also allocates memory permanently.
  */
 void *
 svz_prealloc (void *ptr, size_t size)
@@ -417,7 +415,7 @@ svz_prealloc (void *ptr, size_t size)
   return dst;
 }
 
-/*
+/**
  * Duplicate the given character string @var{src} permanently.
  */
 char *
@@ -432,7 +430,7 @@ svz_pstrdup (const char *src)
   return dst;
 }
 
-/*
+/**
  * Write values to @code{to[0]} and @code{to[1]} representing the
  * number of currently allocated bytes and blocks, respectively.
  * If Serveez was not configured with @samp{--enable-debug},

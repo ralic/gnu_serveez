@@ -1,3 +1,9 @@
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc int] Use "/**" for lib API docs, s3as + tsin to wrangle them.
+
+	* build-aux/guile-baux/s3as: New file.
+
 2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Use Guile-BAUX for init snarfing.

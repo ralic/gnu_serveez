@@ -39,13 +39,13 @@ SERVEEZ_API void svz_halt (void);
 
 __END_DECLS
 
-/*
+/**
  * Return the value of runtime parameter @var{nick}.
  */
 #define SVZ_RUNPARM(nick)                       \
   svz_runparm (-1, SVZ_RUNPARM_ ## nick)
 
-/*
+/**
  * Set the runtime paramater @var{nick}
  * to have value @var{val}, an integer.
  */

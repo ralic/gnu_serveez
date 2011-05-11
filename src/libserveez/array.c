@@ -38,16 +38,15 @@ struct svz_array
   void **data;             /* Data pointer.  */
 };
 
-/*
+/**
  * Create a new array with the initial capacity @var{capacity} and return
  * a pointer to it.  If @var{capacity} is zero it defaults to some value.
- * The @var{destroy} argument allows you to release dynamic
- * allocated memory when @code{svz_array_destroy}.  If the
- * array contains data allocated by @code{svz_malloc} you need to set
- * @var{destroy} to @code{svz_free}.  For structured data you can pass a
- * user defined routine which recurses into the structure.  If the array
- * contains data which should not be released you must set @var{destroy}
- * to @code{NULL}.
+ * If @var{destroy} is non-@code{NULL}, @code{svz_array_destroy} calls
+ * that function (typically used to free dynamically allocated memory).
+ * For example, if the array contains data allocated by @code{svz_malloc},
+ * @var{destroy} should be specified as @code{svz_free}.  If the array
+ * contains data which should not be released, @var{destroy} should
+ * be @code{NULL}.
  */
 svz_array_t *
 svz_array_create (size_t capacity, svz_free_func_t destroy)
@@ -64,7 +63,7 @@ svz_array_create (size_t capacity, svz_free_func_t destroy)
   return array;
 }
 
-/*
+/**
  * Completely destroy the array @var{array}.  The @var{array} handle is
  * invalid afterwards.  The routine runs the @var{destroy} callback for each
  * element of the array.
@@ -107,7 +106,7 @@ svz_array_ensure_capacity (svz_array_t *array, size_t size)
     }
 }
 
-/*
+/**
  * Return the array element at the position @var{index} of the array
  * @var{array} if the index is within the array range.  Return @code{NULL}
  * if not.
@@ -120,10 +119,10 @@ svz_array_get (svz_array_t *array, size_t index)
   return array->data[index];
 }
 
-/*
+/**
  * Replace the array element at the position @var{index} of the array
  * @var{array} with the value @var{value} and return the previous value
- * at this index.  Returns @code{NULL} and does not perform any operation
+ * at this index.  Return @code{NULL} and do nothing
  * if @var{array} is @code{NULL} or the @var{index} is out of the array
  * range.
  */
@@ -139,9 +138,9 @@ svz_array_set (svz_array_t *array, size_t index, void *value)
   return prev;
 }
 
-/*
- * Append the value @var{value} at the end of the array @var{array}.  Does
- * not perform any operation if @var{array} is @code{NULL}.
+/**
+ * Append the value @var{value} at the end of the array @var{array}.
+ * Do nothing if @var{array} is @code{NULL}.
  */
 void
 svz_array_add (svz_array_t *array, void *value)
@@ -153,10 +152,10 @@ svz_array_add (svz_array_t *array, void *value)
     }
 }
 
-/*
+/**
  * Remove the array element at the position @var{index} of the array
  * @var{array}.  Return its previous value or @code{NULL} if the index
- * is out of the arrays range.
+ * is out of the array's range.
  */
 void *
 svz_array_del (svz_array_t *array, size_t index)
@@ -173,8 +172,8 @@ svz_array_del (svz_array_t *array, size_t index)
   return value;
 }
 
-/*
- * Return the given arrays @var{array} current size.
+/**
+ * Return the current size of @var{array}.
  */
 size_t
 svz_array_size (svz_array_t *array)

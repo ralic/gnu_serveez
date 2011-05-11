@@ -48,7 +48,7 @@
    archive or by external (shared) libraries.  */
 static svz_array_t *svz_codecs = NULL;
 
-/*
+/**
  * Call @var{func} for each codec, passing additionally the second arg
  * @var{closure}.  If @var{func} returns a negative value, return immediately
  * with that value (breaking out of the loop), otherwise, return 0.
@@ -68,9 +68,11 @@ svz_foreach_codec (svz_codec_do_t *func, void *closure)
   return 0;
 }
 
-/* Find an appropriate codec for the given @var{description} and @var{type}
-   which can be either @code{SVZ_CODEC_ENCODER} or @code{SVZ_CODEC_DECODER}.
-   The function returns @code{NULL} if there is no such codec registered.  */
+/**
+ * Find an appropriate codec for the given @var{description} and @var{type}
+ * (one of either @code{SVZ_CODEC_ENCODER} or @code{SVZ_CODEC_DECODER}).
+ * Return @code{NULL} if there is no such codec registered.
+ */
 svz_codec_t *
 svz_codec_get (char *description, int type)
 {
@@ -126,8 +128,10 @@ svz_codec_check (svz_codec_t *codec)
   return 0;
 }
 
-/* Register the given codec @var{codec}.  Does not register invalid or
-   duplicate codecs.  Returns zero on success, non-zero otherwise.  */
+/**
+ * Register @var{codec}.  Does not register invalid or
+ * duplicate codecs.  Return zero on success, non-zero otherwise.
+ */
 int
 svz_codec_register (svz_codec_t *codec)
 {
@@ -162,8 +166,10 @@ svz_codec_register (svz_codec_t *codec)
   return 0;
 }
 
-/* Removes the given codec @var{codec} from the list of known codecs.  Returns
-   zero if the codec could be successfully removed, non-zero otherwise.  */
+/**
+ * Remove @var{codec} from the list of known codecs.  Return
+ * zero if the codec could be successfully removed, non-zero otherwise.
+ */
 int
 svz_codec_unregister (svz_codec_t *codec)
 {
@@ -195,8 +201,10 @@ svz_codec_unregister (svz_codec_t *codec)
   return -1;
 }
 
-/* Print a text representation of a codec's current ratio in percent
-   if possible.  */
+/**
+ * Print a text representation of a codec's current ratio in percent
+ * if possible.
+ */
 void
 svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
 {
@@ -262,10 +270,13 @@ svz_codec_sock_recv_revert (svz_socket_t *sock)
   sock->recv_codec = NULL;
 }
 
-/* Setup the given socket structure @var{sock} to decode or encode its
-   receive data via the codec @var{codec}.  Therefore you must have setup
-   the @code{check_request} method previously.  The function returns zero
-   on success, non-zero otherwise.  */
+/**
+ * Arrange for @var{sock} to decode or encode its receive data via
+ * @var{codec}.  Return zero on success, non-zero otherwise.
+ *
+ * (You need to have set the @code{check_request} method previously
+ * for this to work.)
+ */
 int
 svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
 {
@@ -312,14 +323,17 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
   return 0;
 }
 
-/* This routine is the new @code{check_request} callback for reading codecs.
-   It is applied in the above @code{svz_codec_sock_receive_setup} function.
-   Usually it gets called whenever there is data in the receive buffer.  It
-   lets the current receive buffer be the input of the codec.  The output
-   buffer of the codec gets the new receive buffer buffer of the socket
-   structure @var{sock}.  The old @code{check_request} callback of @var{sock}
-   gets called afterwards.  When leaving this functions the receive buffer
-   gets restored again with the bytes snipped consumed by the codec itself.  */
+/**
+ * ``This routine is the new @code{check_request} callback for reading
+ * codecs.  It is applied in @code{svz_codec_sock_receive_setup}.
+ * Usually it gets called whenever there is data in the receive buffer.
+ * It lets the current receive buffer be the input of the codec.  The
+ * output buffer of the codec gets the new receive buffer of @var{sock}.
+ * The old @code{check_request} callback of @var{sock} gets called
+ * afterwards.  When leaving this function, the receive buffer gets
+ * restored again with the bytes snipped consumed by the codec itself.''
+ * [ttn sez: huh?]
+ */
 int
 svz_codec_sock_receive (svz_socket_t *sock)
 {
@@ -442,10 +456,13 @@ svz_codec_sock_send_revert (svz_socket_t *sock)
   sock->send_codec = NULL;
 }
 
-/* Setup the socket structure @var{sock} for encoding or decoding its send
-   buffer via the given codec @var{codec}.  Therefore you previously need to
-   assign the @code{write_socket} member of @var{sock} properly.  The function
-   returns zero on success, non-zero otherwise.  */
+/**
+ * Arrange for @var{sock} to encode or decode its send
+ * buffer via @var{codec}.  Return zero on success, non-zero otherwise.
+ *
+ * (You need to have properly set the @code{write_socket} member of
+ * @var{sock} previously for this to work.)
+ */
 int
 svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
 {
@@ -493,13 +510,16 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
   return 0;
 }
 
-/* This is a codec socket structures @var{sock} new @code{write_socket}
-   callback which is called whenever there is data within the send buffer
-   available and @var{sock} is scheduled for writing.  It uses the current
-   send buffer as input buffer for the codec.  The output buffer of the codec
-   is used to invoke the @code{write_socket} callback saved within
-   @code{svz_codec_sock_send_setup}.  After this the send buffer is
-   restored again without the bytes consumed by the codec.  */
+/**
+ * ``This is the new @code{write_socket} callback for @var{sock} which is
+ * called whenever there is data within the send buffer available and
+ * @var{sock} is scheduled for writing.  It uses the current send buffer
+ * as input buffer for the codec.  The output buffer of the codec is
+ * used to invoke the @code{write_socket} callback saved within
+ * @code{svz_codec_sock_send_setup}.  After this the send buffer is
+ * restored again without the bytes consumed by the codec.''
+ * [ttn sez: huh?]
+ */
 int
 svz_codec_sock_send (svz_socket_t *sock)
 {
@@ -577,11 +597,15 @@ svz_codec_sock_send (svz_socket_t *sock)
   return 0;
 }
 
-/* This callback is used as the @code{disconnected_socket} callback of the
-   socket structure @var{sock}.  It tries to release the resources of both
-   the receiving and sending codec of @var{sock}.  The routine is called by
-   default if the codec socket structure @var{sock} gets disconnected for
-   some external reason.  */
+/**
+ * Try to release the resources of both
+ * the receiving and sending codec of @var{sock}.
+ *
+ * This callback is used as the @code{disconnected_socket} callback of
+ * the socket structure @var{sock}.  It is called by default if the
+ * codec socket structure @var{sock} gets disconnected for some external
+ * reason.
+ */
 int
 svz_codec_sock_disconnect (svz_socket_t *sock)
 {
@@ -613,9 +637,10 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
   return 0;
 }
 
-/* This routine can be used to detect a codec on the receive buffer of the
-   given socket structure @var{sock}.  It returns a valid codec or @code{NULL}
-   if no codec could be detected.  */
+/**
+ * Return a valid codec detected by scanning the receive buffer
+ * of @var{sock}, or @code{NULL} if no codec could be detected.
+ */
 svz_codec_t *
 svz_codec_sock_detect (svz_socket_t *sock)
 {

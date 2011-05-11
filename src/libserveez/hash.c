@@ -172,11 +172,11 @@ svz_hash_analyse (svz_hash_t *hash)
 }
 #endif  /* ENABLE_HASH_ANALYSE */
 
-/*
+/**
  * Create a new hash table with an initial capacity @var{size}.  Return a
  * non-zero pointer to the newly created hash.  The size is calculated down
- * to a binary value.  The @var{destroy} callback allows you to pass a
- * element destruction callback called within @code{svz_hash_clear} and
+ * to a binary value.  The @var{destroy} callback specifies an
+ * element destruction callback for use by @code{svz_hash_clear} and
  * @code{svz_hash_destroy} for each value.  If no such operation should be
  * performed the argument must be @code{NULL}.
  */
@@ -213,12 +213,11 @@ svz_hash_create (size_t size, svz_free_func_t destroy)
   return hash;
 }
 
-/*
- * Destroy the existing hash table @var{hash}.  Therefore we @code{svz_free}
- * all keys within the hash, the hash table and the hash itself.  The values
- * in the hash keep untouched if the element destruction callback passed to
- * @code{svz_hash_create} was @code{NULL}, otherwise it is called for each
- * value.  If @var{hash} is @code{NULL} no operation is performed.
+/**
+ * Destroy the existing hash table @var{hash}, @code{svz_free}ing
+ * all keys within the hash, the hash table and the hash itself.
+ * If a non-@code{NULL} element destruction callback was specified to
+ * @code{svz_hash_create}, that function is called on each value.
  */
 void
 svz_hash_destroy (svz_hash_t *hash)
@@ -354,12 +353,10 @@ svz_hash_rehash (svz_hash_t *hash, int type)
 #endif
 }
 
-/*
- * This function adds a new element consisting of @var{key} and @var{value}
- * to an existing hash @var{hash}.  If the hash is 75% filled it gets rehashed
- * (size will be doubled).  When the key already exists then the value just
- * gets replaced dropping and returning the old value.  Note: This is
- * sometimes the source of memory leaks.
+/**
+ * Add a new element consisting of @var{key} and @var{value} to @var{hash}.
+ * When @var{key} already exists, replace and return the old value.
+ * @strong{Note}: This is sometimes the source of memory leaks.
  */
 void *
 svz_hash_put (svz_hash_t *hash, char *key, void *value)
@@ -411,10 +408,10 @@ svz_hash_put (svz_hash_t *hash, char *key, void *value)
   return NULL;
 }
 
-/*
- * Delete an existing hash entry accessed via a given key @var{key} form the
- * hash table @var{hash}.  Return NULL if the key has not been found within
- * the hash, otherwise the previous value.
+/**
+ * Delete an existing entry accessed via a @var{key} from the
+ * hash table @var{hash}.  Return @code{NULL} if there is no
+ * such key, otherwise the previous value.
  */
 void *
 svz_hash_delete (svz_hash_t *hash, char *key)
@@ -460,10 +457,9 @@ svz_hash_delete (svz_hash_t *hash, char *key)
   return NULL;
 }
 
-/*
- * Hash table lookup.  Find a value for a given @var{key} in the hash table
- * @var{hash}.  Return NULL if the key has not been found within the hash
- * table.
+/**
+ * Return the value associated with @var{key} in the hash table
+ * @var{hash}, or @code{NULL} if there is no such key.
  */
 void *
 svz_hash_get (const svz_hash_t *hash, char *key)
@@ -487,9 +483,9 @@ svz_hash_get (const svz_hash_t *hash, char *key)
   return NULL;
 }
 
-/*
- * Returns a non-zero value if the given @code{key} is stored within
- * the hash table @code{hash}.  Otherwise the function returns zero.
+/**
+ * Return non-zero if @code{key} is stored within
+ * the hash table @code{hash}, otherwise zero.
  * This function is useful when you cannot tell whether the return
  * value of @code{svz_hash_get} (@code{== NULL}) indicates a real
  * value in the hash or a non-existing hash key.
@@ -511,7 +507,7 @@ svz_hash_exists (const svz_hash_t *hash, char *key)
   return 0;
 }
 
-/*
+/**
  * Iterate @var{func} over each key/value pair in @var{hash}.
  * @var{func} is called with three @code{void *} args: the key,
  * the value and the opaque (to @code{svz_hash_foreach}) @var{closure}.
@@ -539,9 +535,9 @@ svz_hash_foreach (svz_hash_do_t *func, svz_hash_t *hash, void *closure)
     }
 }
 
-/*
- * This routine delivers the number of keys in the hash table @var{hash}.  If
- * the given @var{hash} is @code{NULL} it returns zero.
+/**
+ * Return the number of keys in the hash table @var{hash}.
+ * If @var{hash} is @code{NULL}, return zero.
  */
 size_t
 svz_hash_size (const svz_hash_t *hash)
@@ -551,9 +547,9 @@ svz_hash_size (const svz_hash_t *hash)
   return hash->keys;
 }
 
-/*
- * This function can be used to determine if some key points to the @var{value}
- * argument in the hash table @var{hash}.  Returns the appropriate key or NULL.
+/**
+ * Return the key associated with @var{value} in the hash table
+ * @var{hash}, or @code{NULL} if there is no such value.
  */
 char *
 svz_hash_contains (const svz_hash_t *hash, void *value)

@@ -30,8 +30,7 @@ info_TEXINFOS = serveez.texi
 serveez_TEXINFOS = serveez-api.texi guile-api.texi guile-boot.texi fdl.texi
 man_MANS = serveez.1 serveez-config.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
-	logo.jpg logosmall.jpg mandel.jpg \
-	serveez-doc-snarf.awk
+	logo.jpg logosmall.jpg mandel.jpg
 CLEANFILES += stamp-vti*
 DISTCLEANFILES = stamp-*
 
@@ -73,16 +72,14 @@ guile_impl = \
   guile.c
 guile_from = $(guile_impl:%=$(srcsrcd)/%)
 
-SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
 MANUAL_FILES = \
   $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 
-genstems = serveez-api
-gen = $(genstems:%=%.sed) $(genstems:%=%.texi)
+gen = serveez-api.texi
 
 MAINTAINERCLEANFILES += $(gen)
-EXTRA_DIST += $(gen) $(genstems:%=%.texi.in)
+EXTRA_DIST += $(gen)
 
 maintainer-clean-local:
 	rm -rf .scan
@@ -93,29 +90,7 @@ clean-local:
 serveez.info: blurb.texi
 EXTRA_DIST += blurb.texi
 
-# For regenerating serveez-api.sed, we do things
-# incrementally, but with some chance of fubar if careless, for those who
-# ‘configure --enable-maintainer-mode’.  Otherwise, we do things en masse
-# (inefficiently if few *_from files change), but w/ guaranteed safety.
-
-serveez-api.texi: serveez-api.sed serveez-api.texi.in
-	$(SED) -f $< $(srcdir)/serveez-api.texi.in > $@
-
 libserveez_from = $(libserveez_impl:%=$(libserveez_root)/%)
-
-serveez-api.sed: $(libserveez_from)
-	@if test -d $(libserveez_scanroot);			\
-	then list='$?';						\
-	else list='$(libserveez_from)';				\
-	fi;							\
-	for f in $$list; do					\
-	  frag=$$(echo $$f | sed 's|$(libserveez_root)||');	\
-	  to=$(libserveez_scanroot)$$frag;			\
-	  $(MKDIR_P) $$(dirname $$to);				\
-	  echo updating: $$to;					\
-	  $(SNARFER) $$f > $$to;				\
-	done;							\
-	cat $(libserveez_impl:%=$(libserveez_scanroot)/%) > $@
 
 scm-snippets: $(srcsrcd)/guile-boot.scm
 	$(gx) tsar -v -l scheme -f $@ -c utf-8 update $?
@@ -124,11 +99,15 @@ c-snippets: $(guile_from)
 	$(gx) c-tsar -v -l scheme -f $@ -c utf-8 \
 	  update $^ -- -I$(srcsrcd) $(GUILE_CFLAGS)
 
-snippets: scm-snippets c-snippets
+c-c-snippets: $(libserveez_from)
+	$(gx) s3as -o $@ $(libserveez_from)
+
+snippets: scm-snippets c-snippets c-c-snippets
 	$(gx) tsar -f $@ -c utf-8 concat $^
 
 guile-boot.texi: snippets
 guile-api.texi: snippets
+serveez-api.texi: snippets
 
 BUILT_SOURCES = snippets guile-boot.texi
 EXTRA_DIST += $(BUILT_SOURCES) guile-boot.texh

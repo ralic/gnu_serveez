@@ -1,3 +1,37 @@
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc int] Use "/**" for lib API docs, s3as + tsin to wrangle them.
+
+	* alloc.c <∀ documented libserveez API>:
+	Change pre-item docstring comment to "/**" style;
+	rephrase docstring to use consistent pov; nfc.
+	* alloc.h: Likewise.
+	* array.c: Likewise.
+	* array.h: Likewise.
+	* binding.c: Likewise.
+	* boot.c: Likewise.
+	* boot.h: Likewise.
+	* cfg.c: Likewise.
+	* cfg.h: Likewise.
+	* codec/codec.c: Likewise.
+	* core.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* dynload.c: Likewise.
+	* hash.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* interface.c: Likewise.
+	* passthrough.c: Likewise.
+	* pipe-socket.c: Likewise.
+	* portcfg.c: Likewise.
+	* server-core.c: Likewise.
+	* server.c: Likewise.
+	* socket.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+	* util.c: Likewise.
+	* util.h: Likewise.
+	* windoze.c: Likewise.
+
 2011-04-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib int] Use ‘time_t’ for ‘svz_notify’.

@@ -170,8 +170,11 @@ svz_make_sock_iv (svz_socket_t *sock)
 /* coserver-TODO:
    place an appropiate wrapper function here */
 
-/*
- * This is a wrapper function for the reverse DNS lookup coserver.
+/**
+ * Enqueue a request for the reverse DNS coserver
+ * to resolve @var{ip} address (in network byte order),
+ * arranging for callback @var{cb} to be called with two args:
+ * the hostname (a string) and the opaque data @var{closure}.
  */
 void
 svz_coserver_rdns_invoke (in_addr_t ip,
@@ -182,8 +185,11 @@ svz_coserver_rdns_invoke (in_addr_t ip,
                              svz_inet_ntoa (ip), cb, closure);
 }
 
-/*
- * Wrapper for the DNS coserver.
+/**
+ * Enqueue a request for the DNS coserver to resolve @var{host},
+ * arranging for callback @var{cb} to be called with two args:
+ * the ip address in dots-and-numbers notation and the opaque
+ * data @var{closure}.
  */
 void
 svz_coserver_dns_invoke (char *host,
@@ -193,8 +199,10 @@ svz_coserver_dns_invoke (char *host,
   svz_coserver_send_request (SVZ_COSERVER_DNS, host, cb, closure);
 }
 
-/*
- * Wrapper for the ident coserver.
+/**
+ * Enqueue a request for the ident coserver to resolve the client
+ * identity at @var{sock}, arranging for callback @var{cb} to be called
+ * with two args: the identity (string) and the opaque data @var{closure}.
  */
 void
 svz_coserver_ident_invoke (svz_socket_t *sock,
@@ -227,7 +235,7 @@ static svz_coservertype_t svz_coservertypes[] =
     dns_handle_request, 1, NULL, 0 }
 };
 
-/*
+/**
  * Call @var{func} for each coserver, passing additionally the second arg
  * @var{closure}.  If @var{func} returns a negative value, return immediately
  * with that value (breaking out of the loop), otherwise, return 0.
@@ -781,9 +789,9 @@ svz_coserver_signals (void)
 
 #endif /* not __MINGW32__ */
 
-/*
- * Destroy specific coservers with the type @var{type}.  This works for
- * Win32 and Unices.  All instances of this coserver type will be stopped.
+/**
+ * Destroy specific coservers with the type @var{type}.
+ * All instances of this coserver type will be stopped.
  */
 void
 svz_coserver_destroy (int type)
@@ -830,7 +838,7 @@ svz_coserver_destroy (int type)
 #endif /* ENABLE_DEBUG */
 }
 
-/*
+/**
  * Return the type name of @var{coserver}.
  */
 const char *
@@ -1028,13 +1036,14 @@ svz_coserver_start (int type)
   return sock;
 }
 
-/*
- * Call this routine whenever there is time, e.g. within the timeout of
- * the @code{select} statement.  Indeed I built it in the
- * @code{svz_periodic_tasks} statement.  Under Wind32 the routine checks
- * if there was any response from an active coserver.  Moreover it keeps
- * the coserver threads/processes alive.  If one of the coservers dies due
- * to buffer overrun or might be overloaded this function starts a new one.
+/**
+ * Under woe32 check if there was any response from an active coserver.
+ * Moreover keep the coserver threads/processes alive.  If one of the
+ * coservers dies due to buffer overrun or might be overloaded,
+ * start a new one.
+ *
+ * Call this function whenever there is time, e.g., within the timeout of the
+ * @code{select} system call.
  */
 void
 svz_coserver_check (void)
@@ -1088,7 +1097,7 @@ svz_coserver_check (void)
     }
 }
 
-/*
+/**
  * Create and return a single coserver with the given type @var{type}.
  */
 svz_coserver_t *
@@ -1158,7 +1167,7 @@ svz_coserver_finalize (void)
   return 0;
 }
 
-/*
+/**
  * If @var{direction} is non-zero, init coserver internals.
  * Otherwise, finalize them.  Return 0 if successful.
  */

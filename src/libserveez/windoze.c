@@ -306,7 +306,7 @@ svz_windoze_stop_daemon (void)
   return 0;
 }
 
-/*
+/**
  * If @var{prog} is non-NULL, start the daemon thread with it.
  * Otherwise (if @var{prog} is NULL), stop the daemon thread.
  * Return 0 on success, -1 on failure.
@@ -444,7 +444,7 @@ svz_windoze_set_reg_string (HKEY key, char *subkey,
     }
 }
 
-/*
+/**
  * Convert an ASCII string into a UNICODE string.
  */
 WCHAR *
@@ -455,7 +455,7 @@ svz_windoze_asc2uni (CHAR *asc)
   return unicode;
 }
 
-/*
+/**
  * Convert a UNICODE string into an ASCII string.
  */
 CHAR *

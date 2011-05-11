@@ -73,11 +73,11 @@ svz_binding_find_server (svz_socket_t *sock, svz_server_t *server)
   return svz_array_destroy_zero (bindings);
 }
 
-/*
- * Return an array of port configurations to which the given server instance
- * @var{server} is currently bound to or @code{NULL} if there is no such
- * binding.  The caller is responsible for freeing the returned array by
- * running @code{svz_array_destroy}.
+/**
+ * Return an array of port configurations to which the server instance
+ * @var{server} is currently bound to, or @code{NULL} if there is no such
+ * binding.  Caller should @code{svz_array_destroy} the returned array
+ * when done.
  */
 svz_array_t *
 svz_server_portcfgs (svz_server_t *server)
@@ -98,11 +98,11 @@ svz_server_portcfgs (svz_server_t *server)
   return svz_array_destroy_zero (ports);
 }
 
-/*
- * Return an array of listening socket structures to which the given server
- * instance @var{server} is currently bound to or @code{NULL} if there is
- * no such binding.  The calling function is reponsible for destroying the
- * returned array via @code{svz_array_destroy}.
+/**
+ * Return an array of listening socket structures to which the server
+ * instance @var{server} is currently bound to, or @code{NULL} if there
+ * is no such binding.  Caller should @code{svz_array_destroy} the
+ * returned array when done.
  */
 svz_array_t *
 svz_server_listeners (svz_server_t *server)
@@ -329,12 +329,12 @@ svz_binding_join (svz_array_t *bindings, svz_socket_t *sock)
   return bindings;
 }
 
-/*
+/**
  * Bind the server instance @var{server} to the port configuration
- * @var{port} if possible.  Return non-zero on errors otherwise zero.  It
- * might occur that a single server is bound to more than one network port
- * if e.g. the TCP/IP address is specified by "*" since this gets expanded
- * to the known list of interfaces.
+ * @var{port} if possible.  Return non-zero on errors, otherwise zero.
+ * It might occur that a single server is bound to more than one network
+ * port if, e.g., the TCP/IP address is specified by @samp{*} (asterisk)
+ * since this gets expanded to the known list of interfaces.
  */
 int
 svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
@@ -403,10 +403,10 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
   return 0;
 }
 
-/*
- * This function checks whether the given server instance @var{server} is
- * bound to the server socket structure @var{sock}.  Returns zero if not and
- * non-zero otherwise.
+/**
+ * Checks whether the server instance @var{server} is
+ * bound to the server socket structure @var{sock}.
+ * Return one if so, otherwise zero.
  */
 int
 svz_binding_contains_server (svz_socket_t *sock, svz_server_t *server)
@@ -420,11 +420,10 @@ svz_binding_contains_server (svz_socket_t *sock, svz_server_t *server)
   return 0;
 }
 
-/*
- * Returns the array of server instances bound to the listening socket
- * structure @var{sock} or @code{NULL} if there are no bindings.  The caller
- * is responsible for freeing the returned array by running
- * @code{svz_array_destroy}.
+/**
+ * Return the array of server instances bound to the listening
+ * @var{sock}, or @code{NULL} if there are no bindings.  Caller
+ * should @code{svz_array_destroy} the returned array when done.
  */
 svz_array_t *
 svz_sock_servers (svz_socket_t *sock)
@@ -544,7 +543,7 @@ svz_binding_filter (svz_socket_t *sock)
   return svz_binding_filter_net (sock, addr, port);
 }
 
-/*
+/**
  * Format a space-separated list of current port configuration
  * bindings for @var{server} into @var{buf}, which has @var{size}
  * bytes.  The string is guaranteed to be nul-terminated.  Return the

@@ -63,7 +63,7 @@ no_ip_p (const char *addr)
  */
 static svz_hash_t *svz_portcfgs = NULL;
 
-/*
+/**
  * Return the pointer of the @code{sockaddr_in} structure of the given
  * port configuration @var{port} if it is a network port configuration.
  * Otherwise return @code{NULL}.
@@ -85,7 +85,7 @@ svz_portcfg_addr (svz_portcfg_t *port)
 #undef SIMPLE
 }
 
-/*
+/**
  * Return the pointer to the ip address @code{ipaddr} of the given
  * port configuration @var{port} if it is a network port configuration.
  * Otherwise return @code{NULL}.
@@ -107,10 +107,10 @@ svz_portcfg_ipaddr (svz_portcfg_t *port)
 #undef SIMPLE
 }
 
-/*
+/**
  * Return the network device name stored in the given port
- * configuration @var{port} if it is a network port configuration.  The
- * returned pointer can be @code{NULL} if there is no such device set
+ * configuration @var{port} if it is a network port configuration.
+ * Return @code{NULL} if there is no such device set
  * or if the port configuration is not a network port configuration.
  */
 char *
@@ -130,7 +130,7 @@ svz_portcfg_device (svz_portcfg_t *port)
 #undef SIMPLE
 }
 
-/*
+/**
  * Return the UDP or TCP port of the given port configuration or zero
  * if it neither TCP nor UDP.
  */
@@ -149,7 +149,7 @@ svz_portcfg_port (svz_portcfg_t *port)
 #undef SIMPLE
 }
 
-/*
+/**
  * Create a new blank port configuration.
  */
 svz_portcfg_t *
@@ -174,12 +174,12 @@ same_devices (svz_portcfg_t *a, svz_portcfg_t *b)
                   sb ? sb : "");
 }
 
-/*
- * Check if two given port configurations structures are equal i.e.
- * specifying the same network port or pipe files.  Returns
+/**
+ * Check if two given port configurations structures are equal, i.e.
+ * specifying the same network port or pipe files.  Return
  * @code{SVZ_PORTCFG_EQUAL} if @var{a} and @var{b} are identical,
  * @code{SVZ_PORTCFG_MATCH} if the network address of either port
- * configurations contains the other (INADDR_ANY match) and otherwise
+ * configuration contains the other (INADDR_ANY match), and otherwise
  * @code{SVZ_PORTCFG_NOMATCH} or possibly @code{SVZ_PORTCFG_CONFLICT}.
  */
 int
@@ -271,11 +271,11 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
   return SVZ_PORTCFG_NOMATCH;
 }
 
-/*
+/**
  * Add the given port configuration @var{port} associated with the name
  * @var{name} to the list of known port configurations.  Return @code{NULL}
  * on errors.  If the return port configuration equals the given port
- * configuration  the given one has been successfully added.
+ * configuration the given one has been successfully added.
  */
 svz_portcfg_t *
 svz_portcfg_add (char *name, svz_portcfg_t *port)
@@ -383,9 +383,8 @@ svz_portcfg_expand (svz_portcfg_t *this)
   return x.ports;
 }
 
-/*
- * Make a copy of the given port configuration @var{port}.  This function
- * is used in @code{svz_portcfg_expand}.
+/**
+ * Make a copy of the given port configuration @var{port}.
  */
 svz_portcfg_t *
 svz_portcfg_dup (svz_portcfg_t *port)
@@ -507,11 +506,10 @@ svz_portcfg_free (svz_portcfg_t *port)
   svz_free (port);
 }
 
-/*
- * This function makes the given port configuration @var{port} completely
- * unusable.  No operation is performed if @var{port} is @code{NULL}.  If the
- * port configuration is part of the list of known port configurations it
- * it thrown out of them.
+/**
+ * Make the given port configuration @var{port} completely unusable,
+ * removing it from the list of known port configurations.
+ * Do nothing if @var{port} is @code{NULL}.
  */
 void
 svz_portcfg_destroy (svz_portcfg_t *port)
@@ -530,9 +528,9 @@ svz_portcfg_destroy (svz_portcfg_t *port)
   svz_portcfg_free (port);
 }
 
-/*
+/**
  * Return the port configuration associated with the given name @var{name}.
- * This function returns @code{NULL} on errors.
+ * Return @code{NULL} on errors.
  */
 svz_portcfg_t *
 svz_portcfg_get (char *name)
@@ -580,9 +578,9 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
   return svz_inet_aton (str, addr);
 }
 
-/*
+/**
  * Construct the @code{sockaddr_in} fields from the @code{ipaddr} field.
- * Returns zero if it worked.  If it does not work the @code{ipaddr} field
+ * Return zero if it worked.  If it does not work, the @code{ipaddr} field
  * did not consist of an ip address in dotted decimal form.
  */
 int

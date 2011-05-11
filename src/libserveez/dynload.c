@@ -157,9 +157,9 @@ dyn_get_library (char *path, char *file)
   return handle;
 }
 
-/*
- * Set the additional search paths for the serveez library.  The given array of
- * strings gets @code{svz_free}d.
+/**
+ * Set the additional search paths for the serveez library.  The given array
+ * of strings gets @code{svz_free}d.
  */
 void
 svz_dynload_path_set (svz_array_t *paths)
@@ -198,7 +198,7 @@ svz_dynload_path_set (svz_array_t *paths)
   svz_free (env);
 }
 
-/*
+/**
  * Create an array of strings containing each an additional search path.
  * The loadpath is hold in the environment variable @samp{SERVEEZ_LOAD_PATH}
  * which can be set from outside the library or modified using

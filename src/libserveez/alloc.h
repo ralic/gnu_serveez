@@ -27,7 +27,7 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/*
+/**
  * Free the memory block pointed to by @var{var} and set it to @code{NULL}
  * afterwards.  The argument @var{var} is passed to @code{svz_free}.
  */

@@ -1,3 +1,20 @@
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc int] Use "/**" for lib API docs, s3as + tsin to wrangle them.
+
+	* serveez-api.texh: New file.
+	* serveez-api.texi.in: Delete file.
+	* Makefile.am (EXTRA_DIST): Remove serveez-doc-snarf.awk.
+	(SNARFER, genstems): Delete vars.
+	(gen): Remove $(genstems:%=%.sed), $(genstems:%=%.texi);
+	add serveez-api.texi.
+	(EXTRA_DIST): Remove $(genstems:%=%.texi.in).
+	(serveez-api.texi, serveez-api.sed): Delete targets.
+	(c-c-snippets): New target.
+	(snippets): Add c-c-snippets to dependency list.
+	(serveez-api.texi): Declare dependency on snippets.
+	* serveez-doc-snarf.awk: Delete file.
+
 2011-05-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc int] Convert some "manual" @deffn to @tsin.

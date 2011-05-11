@@ -94,7 +94,7 @@ static int svz_reset_happened;
  */
 static int svz_pipe_broke;
 
-/*
+/**
  * Set to a non-zero value whenever the server
  * receives a SIGCHLD signal.
  */
@@ -139,7 +139,7 @@ static int svz_sock_id = 0;
 static int svz_sock_version = 0;
 static int svz_sock_limit = 1024;       /* Must be binary size!  */
 
-/*
+/**
  * Return non-zero if the core is in the process of shutting down
  * (typically as a result of a signal).
  */
@@ -351,7 +351,7 @@ svz_abort (char *msg)
   return 0;
 }
 
-/*
+/**
  * Call @var{func} for each socket, passing additionally the second arg
  * @var{closure}.  If @var{func} returns a negative value, return immediately
  * with that value (breaking out of the loop), otherwise, return 0.
@@ -511,7 +511,7 @@ svz_sock_rechain_list (void)
     }
 }
 
-/*
+/**
  * Enqueue the socket @var{sock} into the list of sockets handled by
  * the server loop.
  */
@@ -675,8 +675,8 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
   return 0;
 }
 
-/*
- * Return the parents port configuration of the socket structure @var{sock}
+/**
+ * Return the parent's port configuration of @var{sock},
  * or @code{NULL} if the given socket has no parent, i.e. is a listener.
  */
 svz_portcfg_t *
@@ -690,9 +690,10 @@ svz_sock_portcfg (svz_socket_t *sock)
   return port;
 }
 
-/*
- * Set the sockets @var{child} parent to the given socket structure
- * @var{parent}.  This should be called whenever a listener accepts a
+/**
+ * Set the @var{child} socket's parent to @var{parent}.
+ *
+ * This should be called whenever a listener accepts a
  * connection and creates a new child socket.
  */
 void
@@ -705,8 +706,8 @@ svz_sock_setparent (svz_socket_t *child, svz_socket_t *parent)
     }
 }
 
-/*
- * Return the sockets @var{child} parent socket structure or @code{NULL}
+/**
+ * Return the @var{child} socket's parent socket structure, or @code{NULL}
  * if this socket does not exist anymore.  This might happen if a listener
  * dies for some reason.
  */
@@ -718,11 +719,12 @@ svz_sock_getparent (svz_socket_t *child)
   return svz_sock_find (child->parent_id, child->parent_version);
 }
 
-/*
- * Set the referring socket structure of @var{sock} to the given socket
- * @var{referrer}.  This can be used to create some relationship between
- * two socket structures.  If @var{referrer} is @code{NULL} the reference
- * will be invalidated.
+/**
+ * Set the referring socket structure of @var{sock} to @var{referrer}.
+ * If @var{referrer} is @code{NULL} the reference will be invalidated.
+ *
+ * This can be used to create some relationship
+ * between two socket structures.
  */
 void
 svz_sock_setreferrer (svz_socket_t *sock, svz_socket_t *referrer)
@@ -738,9 +740,9 @@ svz_sock_setreferrer (svz_socket_t *sock, svz_socket_t *referrer)
     }
 }
 
-/*
- * Get the referrer of the socket structure @var{sock}.  Return @code{NULL}
- * if there is no such socket.
+/**
+ * Get the referrer of the socket structure @var{sock}.
+ * Return @code{NULL} if there is no such socket.
  */
 svz_socket_t *
 svz_sock_getreferrer (svz_socket_t *sock)
@@ -750,9 +752,9 @@ svz_sock_getreferrer (svz_socket_t *sock)
   return svz_sock_find (sock->referrer_id, sock->referrer_version);
 }
 
-/*
+/**
  * Return the socket structure for the socket id @var{id} and the version
- * @var{version} or @code{NULL} if no such socket exists.  If @var{version}
+ * @var{version}, or @code{NULL} if no such socket exists.  If @var{version}
  * is -1 it is not checked.
  */
 svz_socket_t *
@@ -881,10 +883,10 @@ svz_sock_shutdown (svz_socket_t *sock)
   return 0;
 }
 
-/*
- * Mark socket @var{sock} as killed.  That means that no operations except
- * disconnecting and freeing are allowed anymore.  All marked sockets
- * will be deleted once the server loop is through.
+/**
+ * Mark socket @var{sock} as killed.  That means that no further operations
+ * except disconnecting and freeing are allowed.  All marked sockets will be
+ * deleted once the server loop is through.
  */
 int
 svz_sock_schedule_for_shutdown (svz_socket_t *sock)
@@ -1154,9 +1156,10 @@ svz_sock_check_children (void)
 /* This is defined in server-loop.c, and used only in this file.  */
 SBO int svz_check_sockets (void);
 
-/*
- * This routine handles all things once and is called regularly in the
- * below @code{svz_loop} routine.
+/**
+ * Handle all things once.
+ *
+ * This function is called regularly by @code{svz_loop}.
  */
 void
 svz_loop_one (void)
@@ -1236,7 +1239,9 @@ svz_loop_one (void)
     }
 }
 
-/*
+/**
+ * Initialize top-of-cycle state.
+ *
  * Call this function once before using @code{svz_loop_one}.
  */
 void
@@ -1255,7 +1260,9 @@ svz_loop_pre (void)
   svz_log (SVZ_LOG_NOTICE, "entering server loop\n");
 }
 
-/*
+/**
+ * Clean up bottom-of-cycle state.
+ *
  * Call this function once after using @code{svz_loop_one}.
  */
 void
@@ -1269,9 +1276,9 @@ svz_loop_post (void)
   svz_sock_last = NULL;
 }
 
-/*
- * Main server loop.  Handle all signals, incoming and outgoing connections
- * and listening server sockets.
+/**
+ * Loop, serving.  In other words, handle all signals, incoming and outgoing
+ * connections and listening server sockets.
  */
 void
 svz_loop (void)

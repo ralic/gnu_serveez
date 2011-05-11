@@ -62,7 +62,7 @@
  */
 int svz_sock_connections = 0;
 
-/*
+/**
  * Return the number of currently connected sockets.
  */
 int
@@ -309,11 +309,12 @@ svz_sock_check_request_size (svz_socket_t *sock)
   return 0;
 }
 
-/*
- * This function simply checks for the kind of packet delimiter within the
- * given socket structure and and assigns one of the default
- * @code{check_request} routines (one or more byte delimiters or a fixed
- * size).  Afterwards this routine will never ever be called again because
+/**
+ * Check for the kind of packet delimiter within @var{sock} and
+ * and assign one of the default @code{check_request} routines
+ * (one or more byte delimiters or a fixed size).
+ *
+ * Afterwards this function will never ever be called again because
  * the callback gets overwritten here.
  */
 int
@@ -380,7 +381,7 @@ svz_sock_alloc (void)
   return sock;
 }
 
-/*
+/**
  * Resize the send and receive buffers for the socket @var{sock}.
  * @var{send_buf_size} is the new size for the send buffer,
  * @var{recv_buf_size} for the receive buffer.  Note that data may be lost
@@ -549,7 +550,7 @@ svz_sock_disconnect (svz_socket_t *sock)
   return 0;
 }
 
-/*
+/**
  * Write @var{len} bytes from the memory location pointed to by @var{buf}
  * to the output buffer of the socket @var{sock}.  Also try to flush the
  * buffer to the socket of @var{sock} if possible.  Return a non-zero value
@@ -628,10 +629,10 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
   return 0;
 }
 
-/*
+/**
  * Print a formatted string on the socket @var{sock}.  @var{fmt} is the
- * @code{printf}-style format string, which describes how to format the optional
- * arguments.  See the printf(3) manual page for details.
+ * @code{printf}-style format string, which describes how to format the
+ * optional arguments.
  */
 int
 svz_sock_printf (svz_socket_t *sock, const char *fmt, ...)
@@ -670,7 +671,7 @@ svz_wait_if_unavailable (svz_socket_t *sock, unsigned int relax)
   return 0;
 }
 
-/*
+/**
  * Shorten the receive buffer of @var{sock} by @var{len} bytes.
  */
 void
@@ -683,7 +684,7 @@ svz_sock_reduce_recv (svz_socket_t *sock, int len)
   sock->recv_buffer_fill -= len;
 }
 
-/*
+/**
  * Reduce the send buffer of @var{sock} by @var{len} bytes.
  */
 void
