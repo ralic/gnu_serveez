@@ -105,9 +105,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_MAKE_CHAR
 #define SCM_MAKE_CHAR(x) SCM_MAKICHR (x)
 #endif
-#ifndef SCM_NUM2INT
-#define SCM_NUM2INT(pos, obj) gh_scm2int (obj)
-#endif
 #ifndef SCM_WRITABLE_VELTS
 #define SCM_WRITABLE_VELTS(x) SCM_VELTS(x)
 #endif
@@ -150,7 +147,7 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 /* Return an integer.  If the given Guile cell @var{obj} is not an
    integer, the routine returns the default value @var{def}.  */
 #define guile_integer(pos, obj, def) \
-    ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
+    ((SCM_EXACTP (obj)) ? (gi_scm2int (obj)) : (def))
 
 /* This macro creates a new concatenated symbol for the C type ‘ctype’,
    useful for generating smob-related function/variable names.  */

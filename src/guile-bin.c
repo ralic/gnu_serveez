@@ -238,7 +238,7 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
 
       c = (uint8_t)
         (SCM_CHARP (needle) ? SCM_CHAR (needle) :
-         (uint8_t) SCM_NUM2INT (SCM_ARG2, needle));
+         (uint8_t) gi_scm2int (needle));
       p = bin->data;
       end = p + bin->size;
 
@@ -336,13 +336,13 @@ exact number.  */)
                    value, SCM_ARG3, FUNC_NAME, "char or exact");
 
   /* Check the range of the index argument.  */
-  idx = SCM_NUM2INT (SCM_ARG2, index);
+  idx = gi_scm2int (index);
   if (idx < 0 || idx >= bin->size)
     SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
   bin->data[idx] = (uint8_t)
     (SCM_CHARP (value) ? SCM_CHAR (value) :
-     (uint8_t) SCM_NUM2INT (SCM_ARG3, value));
+     (uint8_t) gi_scm2int (value));
   return SCM_UNSPECIFIED;
 #undef FUNC_NAME
 }
@@ -363,7 +363,7 @@ Obtain the byte at position @var{index} of the binary smob
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact");
 
   /* Check the range of the index argument.  */
-  idx = SCM_NUM2INT (SCM_ARG2, index);
+  idx = gi_scm2int (index);
   if (idx < 0 || idx >= bin->size)
     SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
@@ -458,8 +458,8 @@ return all data until the end of @var{binary}.  */)
   SCM_ASSERT_TYPE (SCM_EXACTP (end) || SCM_UNBNDP (end),
                    end, SCM_ARG3, FUNC_NAME, "exact");
 
-  from = SCM_NUM2INT (SCM_ARG2, start);
-  to = SCM_UNBNDP (end) ? -1 : SCM_NUM2INT (SCM_ARG3, end);
+  from = gi_scm2int (start);
+  to = SCM_UNBNDP (end) ? -1 : gi_scm2int (end);
   if (to == -1)
     to = bin->size - 1;
 
@@ -540,7 +540,7 @@ either exact numbers in a byte's range or characters.  */)
           scm_wrong_type_arg_msg (FUNC_NAME, SCM_ARGn, val, "char or exact");
         }
       value = SCM_CHARP (val) ?
-        ((int) SCM_CHAR (val)) : SCM_NUM2INT (SCM_ARGn, val);
+        ((int) SCM_CHAR (val)) : gi_scm2int (val);
       if (value < -128 || value > 255)
         {
           scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
@@ -625,7 +625,7 @@ SCM_DEFINE                                              \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                           \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index,                           \
                    SCM_ARG2, FUNC_NAME, "exact");                       \
-  idx = SCM_NUM2INT (SCM_ARG2, index);                                  \
+  idx = gi_scm2int (index);                                             \
   if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))             \
     SCM_OUT_OF_RANGE (SCM_ARG2, index);                                 \
   data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));  \
@@ -671,7 +671,7 @@ SCM_DEFINE                                                              \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                   \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index,                   \
                    SCM_ARG2, FUNC_NAME, "exact");               \
-  idx = SCM_NUM2INT (SCM_ARG2, index);                          \
+  idx = gi_scm2int (index);                                     \
   if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))     \
     SCM_OUT_OF_RANGE (SCM_ARG2, index);                         \
   SCM_ASSERT_TYPE (SCM_EXACTP (value), value,                   \

@@ -385,7 +385,7 @@ guile_to_integer (SCM cell, int *target)
   /* Usual guile exact number.  */
   if (SCM_EXACTP (cell))
     {
-      *target = SCM_NUM2INT (SCM_ARG1, cell);
+      *target = gi_scm2int (cell);
     }
   /* Try string (or even symbol) to integer conversion.  */
   else if (GI_GET_XREP_MAYBE (str, cell))

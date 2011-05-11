@@ -117,7 +117,7 @@ or @code{#f} on failure.  */)
 
   /* Extract host to connect to.  */
   if (SCM_EXACTP (host))
-    xhost = htonl (SCM_NUM2INT (SCM_ARG1, host));
+    xhost = htonl (gi_scm2int (host));
   else
     {
       char str[128];
@@ -138,7 +138,7 @@ or @code{#f} on failure.  */)
     }
 
   /* Extract protocol to use.  */
-  xproto = SCM_NUM2INT (SCM_ARG2, proto);
+  xproto = gi_scm2int (proto);
 
   /* Find out about given port.  */
   if (!SCM_UNBNDP (port))
@@ -314,7 +314,7 @@ specified size in bytes.  */)
   if (!SCM_UNBNDP (size))
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
-      len = SCM_NUM2INT (SCM_ARG2, size);
+      len = gi_scm2int (size);
       svz_sock_resize_buffers (xsock, xsock->send_buffer_size, len);
     }
   return scm_cons (gi_integer2scm (xsock->recv_buffer_size),
@@ -355,7 +355,7 @@ the specified size in bytes.  */)
   if (!SCM_UNBNDP (size))
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
-      len = SCM_NUM2INT (SCM_ARG2, size);
+      len = gi_scm2int (size);
       svz_sock_resize_buffers (xsock, len, xsock->recv_buffer_size);
     }
   return scm_cons (gi_integer2scm (xsock->send_buffer_size),
@@ -383,7 +383,7 @@ Return the number of bytes actually shuffled away.  */)
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (length),
                        length, SCM_ARG2, FUNC_NAME, "exact");
-      len = SCM_NUM2INT (SCM_ARG2, length);
+      len = gi_scm2int (length);
       if (len < 0 || len > xsock->recv_buffer_fill)
         SCM_OUT_OF_RANGE (SCM_ARG2, length);
     }
@@ -597,7 +597,7 @@ packet transfer in order to disable unnecessary delays.  */)
           SCM_ASSERT_TYPE (SCM_BOOLP (enable) || SCM_EXACTP (enable),
                            enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
           if ((SCM_BOOLP (enable) && SCM_NFALSEP (enable) != 0) ||
-              (SCM_EXACTP (enable) && SCM_NUM2INT (SCM_ARG2, enable) != 0))
+              (SCM_EXACTP (enable) && gi_scm2int (enable) != 0))
             set = 1;
         }
       if (svz_tcp_nodelay (xsock->sock_desc, set, &old) < 0)
@@ -750,7 +750,7 @@ given, the set the @code{idle-counter}.  Please have a look at the
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (counter),
                        counter, SCM_ARG2, FUNC_NAME, "exact");
-      xsock->idle_counter = SCM_NUM2INT (SCM_ARG2, counter);
+      xsock->idle_counter = gi_scm2int (counter);
     }
   return gi_integer2scm (ocounter);
 #undef FUNC_NAME
@@ -1152,8 +1152,8 @@ If that socket no longer exists, return @code{#f}.  */)
   SCM_ASSERT_TYPE (SCM_PAIRP (ident) && SCM_INUMP (SCM_CAR (ident)) &&
                    SCM_INUMP (SCM_CDR (ident)), ident, SCM_ARG1,
                    FUNC_NAME, "pair of INUMP");
-  id = SCM_NUM2INT (SCM_ARG1, SCM_CAR (ident));
-  version = SCM_NUM2INT (SCM_ARG1, SCM_CDR (ident));
+  id = gi_scm2int (SCM_CAR (ident));
+  version = gi_scm2int (SCM_CDR (ident));
   if ((sock = svz_sock_find (id, version)) != NULL)
     return MAKE_SMOB (svz_socket, sock);
   return SCM_BOOL_F;
@@ -1205,7 +1205,7 @@ reading from the port.  */)
   /* Get underlying file descriptor.  */
   fdes = SCM_FPORT_FDES (port);
 
-  if ((len = SCM_NUM2INT (SCM_ARG1, size)) <= 0)
+  if ((len = gi_scm2int (size)) <= 0)
     SCM_OUT_OF_RANGE (SCM_ARG2, size);
 
   /* Allocate necessary data.  */
@@ -1261,7 +1261,7 @@ socket) @code{#f}.  */)
     {
       xsock->oob = (uint8_t)
         (SCM_CHARP (oob) ? SCM_CHAR (oob) :
-         (uint8_t) SCM_NUM2INT (SCM_ARG2, oob));
+         (uint8_t) gi_scm2int (oob));
       ret = svz_tcp_send_oob (xsock);
     }
   return ((ret < 0) ? SCM_BOOL_F : SCM_BOOL_T);

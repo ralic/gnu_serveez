@@ -1,5 +1,25 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_scm2int
+
+	* gi.c (gi_scm2int): New func.
+	* gi.h (gi_scm2int): New func decl.
+	* guile-api.c (guile_sock_connect)
+	(guile_sock_receive_buffer_size, guile_sock_send_buffer_size)
+	(guile_sock_receive_buffer_reduce, guile_sock_no_delay)
+	(guile_sock_idle_counter, guile_sock_find, guile_read_file)
+	(guile_sock_send_oob): Use ‘gi_scm2int’.
+	* guile-bin.c (guile_bin_search, guile_bin_set_x)
+	(guile_bin_ref, guile_bin_subset, guile_list_to_bin)
+	(BIN_REF_BODY, BIN_SET_BODY): Likewise.
+	* guile-server.c (guile_sock_boundary)
+	(guile_sock_floodprotect): Likewise.
+	* guile.c (guile_to_integer): Likewise.
+	* guile-api.h (guile_integer): Likewise.
+	(SCM_NUM2INT): Delete macro.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_scm2long
 
 	* gi.c (gi_scm2long): New func.

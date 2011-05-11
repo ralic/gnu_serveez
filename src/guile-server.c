@@ -897,7 +897,7 @@ For instance, you can arrange for Serveez to pass the
   if (SCM_EXACTP (boundary))
     {
       xsock->boundary = NULL;
-      xsock->boundary_size = SCM_NUM2INT (SCM_ARG2, boundary);
+      xsock->boundary_size = gi_scm2int (boundary);
     }
   /* Handle packet delimiters.  */
   else
@@ -937,7 +937,7 @@ optional.  */)
       SCM_ASSERT_TYPE (SCM_BOOLP (flag) || SCM_EXACTP (flag),
                        flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
       if ((SCM_BOOLP (flag) && SCM_NFALSEP (flag) != 0) ||
-          (SCM_EXACTP (flag) && SCM_NUM2INT (SCM_ARG2, flag) != 0))
+          (SCM_EXACTP (flag) && gi_scm2int (flag) != 0))
         xsock->flags &= ~SVZ_SOFLG_NOFLOOD;
       else
         xsock->flags |= SVZ_SOFLG_NOFLOOD;
