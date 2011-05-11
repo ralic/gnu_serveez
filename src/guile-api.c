@@ -129,7 +129,6 @@ or @code{#f} on failure.  */)
             {
               guile_error ("%s: IP in dotted decimals or hostname expected",
                            FUNC_NAME);
-              scm_c_free (str);
               return ret;
             }
         }
@@ -949,7 +948,6 @@ available or an error occurred while fetching the list.  */)
       if (svz_inet_aton (str, &raddr) == -1)
         {
           guile_error ("%s: IP in dotted decimals expected", FUNC_NAME);
-          scm_c_free (str);
           return SCM_EOL;
         }
       addr.sin_addr.s_addr = raddr.sin_addr.s_addr;

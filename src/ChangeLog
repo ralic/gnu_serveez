@@ -1,5 +1,17 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int guile] Fix bug: Don't free auto vars.
+
+	These buffers are now auto (stack) allocated,
+	so there is no need to free them.
+	Omission from 2011-05-09, "[int] For Scheme->C
+	symbol/string conversion, alloc on stack".
+
+	* guile-api.c (guile_sock_connect): Don't free ‘str’.
+	[HAVE_PMAP_GETMAPS] (scm_portmap_list): Likewise.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int guile] Fix bug: Use libserveez for freeing ‘sock->boundary’.
 
 	The string saved into ‘sock->boundary’ is now allocated by
