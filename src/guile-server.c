@@ -55,6 +55,11 @@
 #define NAME_GET(ctype)     _CTYPE (ctype, get)
 #define NAME_INIT(ctype)    _CTYPE (ctype, init)
 
+#define integer_else(obj, def)                  \
+  (SCM_EXACTP (obj)                             \
+   ? gi_scm2int (obj)                           \
+   : def)
+
 /* The guile server type hash.  */
 static svz_hash_t *guile_server = NULL;
 
@@ -478,7 +483,7 @@ guile_func_global_init (svz_servertype_t *stype)
   if (!SCM_UNBNDP (global_init))
     {
       ret = guile_call (global_init, 1, MAKE_SMOB (svz_servertype, stype));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return 0;
 #undef FUNC_NAME
@@ -497,7 +502,7 @@ guile_func_init (svz_server_t *server)
   if (!SCM_UNBNDP (init))
     {
       ret = guile_call (init, 1, MAKE_SMOB (svz_server, server));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return 0;
 #undef FUNC_NAME
@@ -516,7 +521,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
     {
       ret = guile_call (detect_proto, 2, MAKE_SMOB (svz_server, server),
                         MAKE_SMOB (svz_socket, sock));
-      return guile_integer (SCM_ARGn, ret, 0);
+      return integer_else (ret, 0);
     }
   return 0;
 }
@@ -549,7 +554,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   if (!SCM_UNBNDP (disconnected))
     {
       ret = guile_call (disconnected, 1, MAKE_SMOB (svz_socket, sock));
-      retval = guile_integer (SCM_ARGn, ret, -1);
+      retval = integer_else (ret, -1);
     }
 
   /* Delete all the associated guile callbacks and unprotect these.  */
@@ -578,7 +583,7 @@ guile_func_kicked_socket (svz_socket_t *sock, int reason)
     {
       ret = guile_call (kicked, 2, MAKE_SMOB (svz_socket, sock),
                         gi_integer2scm (reason));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return 0;
 }
@@ -600,7 +605,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
     {
       ret = guile_call (connect_socket, 2, MAKE_SMOB (svz_server, server),
                         MAKE_SMOB (svz_socket, sock));
-      return guile_integer (SCM_ARGn, ret, 0);
+      return integer_else (ret, 0);
     }
   return 0;
 #undef FUNC_NAME
@@ -619,7 +624,7 @@ guile_func_finalize (svz_server_t *server)
   if (!SCM_UNBNDP (finalize))
     {
       ret = guile_call (finalize, 1, MAKE_SMOB (svz_server, server));
-      retval = guile_integer (SCM_ARGn, ret, -1);
+      retval = integer_else (ret, -1);
     }
 
   /* Release associated guile server state objects is necessary.  */
@@ -644,7 +649,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
   if (!SCM_UNBNDP (global_finalize))
     {
       ret = guile_call (global_finalize, 1, MAKE_SMOB (svz_servertype, stype));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return 0;
 #undef FUNC_NAME
@@ -706,7 +711,7 @@ guile_func_notify (svz_server_t *server)
   if (!SCM_UNBNDP (notify))
     {
       ret = guile_call (notify, 1, MAKE_SMOB (svz_server, server));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return -1;
 }
@@ -723,7 +728,7 @@ guile_func_reset (svz_server_t *server)
   if (!SCM_UNBNDP (reset))
     {
       ret = guile_call (reset, 1, MAKE_SMOB (svz_server, server));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return -1;
 #undef FUNC_NAME
@@ -740,7 +745,7 @@ guile_func_check_request (svz_socket_t *sock)
   if (!SCM_UNBNDP (check_request))
     {
       ret = guile_call (check_request, 1, MAKE_SMOB (svz_socket, sock));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return -1;
 }
@@ -768,7 +773,7 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
     {
       ret = guile_call (handle_request, 3, MAKE_SMOB (svz_socket, sock),
                         guile_data_to_bin (request, len), gi_integer2scm (len));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return -1;
 #undef FUNC_NAME
@@ -784,7 +789,7 @@ guile_func_idle_func (svz_socket_t *sock)
   if (!SCM_UNBNDP (idle_func))
     {
       ret = guile_call (idle_func, 1, MAKE_SMOB (svz_socket, sock));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return 0;
 }
@@ -816,7 +821,7 @@ guile_func_trigger_func (svz_socket_t *sock)
   if (!SCM_UNBNDP (trigger_func))
     {
       ret = guile_call (trigger_func, 1, MAKE_SMOB (svz_socket, sock));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return 0;
 }
@@ -834,7 +839,7 @@ guile_func_check_request_oob (svz_socket_t *sock)
     {
       ret = guile_call (check_request_oob, 2, MAKE_SMOB (svz_socket, sock),
                         gi_integer2scm (sock->oob));
-      return guile_integer (SCM_ARGn, ret, -1);
+      return integer_else (ret, -1);
     }
   return -1;
 #undef FUNC_NAME

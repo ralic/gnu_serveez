@@ -144,11 +144,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
     scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
 #endif
 
-/* Return an integer.  If the given Guile cell @var{obj} is not an
-   integer, the routine returns the default value @var{def}.  */
-#define guile_integer(pos, obj, def) \
-    ((SCM_EXACTP (obj)) ? (gi_scm2int (obj)) : (def))
-
 /* This macro creates a new concatenated symbol for the C type ‘ctype’,
    useful for generating smob-related function/variable names.  */
 #define __CTYPE(pre,ctype,post)    pre ## _ ## ctype ## _ ## post
