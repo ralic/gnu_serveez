@@ -864,7 +864,10 @@ If given no arguments, it behave like @code{getrpcent}.  */)
 #if HAVE_GETRPCBYNAME
   if (SCM_STRINGP (arg))
     {
-      entry = getrpcbyname (SCM_STRING_CHARS (arg));
+      char name[64];
+
+      GI_GET_XREP (name, arg);
+      entry = getrpcbyname (name);
     }
   else
 #endif /* HAVE_GETRPCBYNAME */

@@ -961,6 +961,7 @@ Return @code{#t} on success and @code{#f} on failure.  */)
 {
 #define FUNC_NAME s_guile_sock_print
   svz_socket_t *xsock;
+  char tem[8192];
   char *buf;
   int len, ret = -1;
 
@@ -970,8 +971,8 @@ Return @code{#t} on success and @code{#f} on failure.  */)
 
   if (SCM_STRINGP (buffer))
     {
-      buf = SCM_STRING_CHARS (buffer);
-      len = (int) gi_string_length (buffer);
+      len = GI_GET_XREP (tem, buffer);
+      buf = tem;
     }
   else
     {

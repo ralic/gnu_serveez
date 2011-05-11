@@ -63,12 +63,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 /* Compatibility definitions for various Guile versions.  These definitions
    are mainly due to the fact that the gh interface is deprecated in newer
    versions.  */
-#ifndef SCM_STRING_UCHARS
-#define SCM_STRING_UCHARS(obj) ((unsigned char *) SCM_VELTS (obj))
-#endif
-#ifndef SCM_STRING_CHARS
-#define SCM_STRING_CHARS(obj) ((char *) SCM_VELTS (obj))
-#endif
 #ifndef SCM_PROCEDUREP
 #define SCM_PROCEDUREP(obj) SCM_NFALSEP (scm_procedure_p (obj))
 #endif

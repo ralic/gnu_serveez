@@ -150,8 +150,8 @@ sweep phase of the garbage collector.  */)
   bin->size = (int) gi_string_length (string);
   if (bin->size > 0)
     {
-      bin->data = scm_gc_malloc (bin->size, "svz-binary-data");
-      memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
+      bin->data = scm_gc_malloc (1 + bin->size, "svz-binary-data");
+      gi_get_xrep ((char *) bin->data, 1 + bin->size, string);
       bin->garbage = 1;
     }
   else
@@ -203,14 +203,22 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
   /* Search for a pattern.  */
   if (SCM_STRINGP (needle) || CHECK_BIN_SMOB (needle))
     {
+      char buf[128];
       guile_bin_t *search = NULL;
       int len;
       uint8_t *p, *end, *start;
 
       if (CHECK_BIN_SMOB (needle))
-        search = GET_BIN_SMOB (needle);
-      len = search ? search->size : (int) gi_string_length (needle);
-      p = search ? search->data : SCM_STRING_UCHARS (needle);
+        {
+          search = GET_BIN_SMOB (needle);
+          len = search->size;
+          p = search->data;
+        }
+      else
+        {
+          len = GI_GET_XREP (buf, needle);
+          p = (uint8_t *) buf;
+        }
       start = bin->data;
       end = start + bin->size - len;
 
@@ -397,6 +405,7 @@ reference it is then a standalone binary smob as returned by
 @code{string->binary}.  */)
 {
 #define FUNC_NAME s_guile_bin_concat_x
+  char buf[8192];
   guile_bin_t *bin, *concat = NULL;
   int len, equal;
   uint8_t *p;
@@ -407,9 +416,16 @@ reference it is then a standalone binary smob as returned by
               append, SCM_ARG2, FUNC_NAME);
 
   if (CHECK_BIN_SMOB (append))
-    concat = GET_BIN_SMOB (append);
-  len = concat ? concat->size : (int) gi_string_length (append);
-  p = concat ? concat->data : SCM_STRING_UCHARS (append);
+    {
+      concat = GET_BIN_SMOB (append);
+      len = concat->size;
+      p = concat->data;
+    }
+  else
+    {
+      len = GI_GET_XREP (buf, append);
+      p = (uint8_t *) buf;
+    }
   equal = (p == bin->data) ? 1 : 0;
 
   /* Return here if there is nothing to concatenate.  */

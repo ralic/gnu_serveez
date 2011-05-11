@@ -1,5 +1,15 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use ‘GI_GET_XREP’ more.
+
+	* guile-api.c (scm_getrpc) [HAVE_GETRPCBYNAME]: Use ‘GI_GET_XREP’.
+	* guile-bin.c (guile_string_to_bin)
+	(guile_bin_search, guile_bin_concat_x): Likewise.
+	* guile-server.c (guile_sock_print): Likewise.
+	* guile-api.h (SCM_STRING_UCHARS, SCM_STRING_CHARS): Delete macros.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Incorporate ‘__CTYPE’ into unique caller.
 
 	* guile-server.c (_CTYPE): Do token-pasting directly.
