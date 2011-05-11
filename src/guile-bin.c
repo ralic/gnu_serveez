@@ -642,7 +642,7 @@ SCM_DEFINE                                              \
       if (uval != (unsigned long) cval) SCM_OUT_OF_RANGE (pos, value);     \
       val = (unsigned long) uval;                                          \
     } else {                                                               \
-      signed long ival = SCM_NUM2LONG (pos, value);                        \
+      signed long ival = gi_scm2long (value);                              \
       signed ctype cval = (signed ctype) ival;                             \
       if (ival != (signed long) cval) SCM_OUT_OF_RANGE (pos, value);       \
       val = (unsigned long) ival;                                          \

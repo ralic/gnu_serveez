@@ -37,6 +37,7 @@ extern SCM gi_eval_string (char const *);
 
 extern SCM gi_lookup (char const *);
 
+extern long gi_scm2long (SCM number);
 extern unsigned long gi_scm2ulong (SCM number);
 
 size_t gi_string_length (SCM string);

@@ -1,5 +1,15 @@
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_scm2long
+
+	* gi.c (gi_scm2long): New func.
+	* gi.h (gi_scm2long): New func decl.
+	* guile-api.c (VALIDATE_NETPORT): Use ‘gi_scm2long’.
+	* guile-bin.c (CTYPE_CHECK_RANGE): Likewise.
+	* guile-api.h (SCM_NUM2LONG): Delete macro.
+
+2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Fix bug: Make guile-boot.c first.
 
 	Since guile.c does #include "guile-boot.c", init

@@ -179,6 +179,16 @@ gi_lookup (char const *string)
   return rv;
 }
 
+long
+gi_scm2long (SCM number)
+{
+#if V15
+  return scm_to_long (number);
+#else
+  return gh_scm2long (number);
+#endif
+}
+
 unsigned long
 gi_scm2ulong (SCM number)
 {

@@ -63,7 +63,7 @@
 
 /* Validate network port range.  */
 #define VALIDATE_NETPORT(port, cell, arg) do {                       \
-    (port) = SCM_NUM2LONG (arg, cell);                               \
+    (port) = gi_scm2long (cell);                                     \
     if ((port) < 0 || (port) >= 65536) SCM_OUT_OF_RANGE (arg, cell); \
   } while (0)
 
