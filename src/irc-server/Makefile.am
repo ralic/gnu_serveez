@@ -42,5 +42,5 @@ libircserver_a_SOURCES = \
 
 BUILT_SOURCES = timestamp.c
 
-timestamp.c: $(top_srcdir)/config.status
+timestamp.c: $(top_builddir)/config.status
 	date -r $< -u +'static char created[] = "%Y-%m-%d %R UTC";' > $@

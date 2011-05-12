@@ -57,7 +57,7 @@ libserveez_HEADERS = alloc.h util.h hash.h socket.h                        \
 uninstall-hook:
 	rmdir "$(DESTDIR)$(libserveezdir)"
 
-svzpath.h: $(top_srcdir)/config.status
+svzpath.h: $(top_builddir)/config.status
 	@echo "Generating svzpath.h..."
 	@echo '#define SVZ_PKGDATADIR "$(pkgdatadir)"' > $@
 	@echo '#define SVZ_PKGLIBDIR "$(pkglibdir)"' >> $@

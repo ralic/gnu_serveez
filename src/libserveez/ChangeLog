@@ -1,5 +1,11 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Look in $(top_builddir) for config.status.
+
+	* Makefile.am (svzpath.h): Use $(top_builddir)/config.status.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc int] Build .tsar files under src/, only if MAINTAINER_MODE.
 
 	* Makefile.am [MAINTAINER_MODE] (noinst_DATA): New var.

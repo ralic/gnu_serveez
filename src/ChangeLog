@@ -1,5 +1,12 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Look in $(top_builddir) for config.status.
+
+	* irc-server/Makefile.am (timestamp.c):
+	Use $(top_builddir)/config.status.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc int] Build .tsar files under src/, only if MAINTAINER_MODE.
 
 	* Makefile.am (snarfcppopts): New var.
