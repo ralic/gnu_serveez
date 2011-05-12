@@ -66,24 +66,24 @@ See the end for copying conditions.
 *** DONE Remove svz_c_{const,signed}.
 *** TODO Clean up libserveez API ([[file:src/libserveez/API-HACKING][API-HACKING]]).
 *** TODO Update Guile support.
-***** TODO update internal interfaces
-******* TODO SCM_INUM (m)
-******* TODO SCM_INUMP (m)
-******* TODO SCM_MAKINUM (m)
-******* TODO SCM_VELTS (m)
-******* TODO SCM_WRITABLE_VELTS (m)
-******* TODO scm_c_string2str
-******* TODO scm_c_symbol2str
+***** DONE update internal interfaces
+******* DONE SCM_INUM (m) => gi_scm2int (f)
+******* DONE SCM_INUMP (m) => SCM_EXACTP (m)
+******* DONE SCM_MAKINUM (m) => gi_integer2scm (f)
+******* DONE SCM_VELTS (m) => ∅
+******* DONE SCM_WRITABLE_VELTS (m) => ∅
+******* DONE scm_c_string2str (f) => incorporated into gi_get_xrep
+******* DONE scm_c_symbol2str (f) => ∅
 ******* DONE scm_cur_inp (v) => scm_current_input_port (f)
 ******* DONE scm_int2num (f) => gi_integer2scm (f)
 ******* DONE scm_listify (m) => gi_list_3 (f), gi_list_5 (f)
 ******* DONE scm_long2num (f) => gi_integer2scm (f)
 ******* DONE scm_makfrom0str (f) => gi_string2scm (f)
 ******* DONE scm_mem2string (f) => gi_nstring2scm (f)
-******* TODO scm_must_free
-******* TODO scm_must_malloc
-******* TODO scm_must_realloc
-******* TODO scm_num2long
+******* DONE scm_must_free (f) => gi_free (f)
+******* DONE scm_must_malloc (f) => gi_malloc (f)
+******* DONE scm_must_realloc (f) => gi_reallc (f)
+******* DONE scm_num2long (f) => gi_scm2long (f)
 ******* DONE scm_protect_object (f) => gi_gc_protect (f)
 ******* DONE scm_str2symbol (f) => gi_symbol2scm (f)
 ******* DONE scm_ulong2num (f) => gi_nnint2scm (f)
