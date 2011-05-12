@@ -93,6 +93,7 @@ See the end for copying conditions.
 ***** TODO refactor getter/setter support
 *** TODO Enable / augment the Guile tests.
 ***** TODO add driver
+***** DONE add test for Guile server
 *** TODO Spiff documentation
 ***** TODO grammar and misc style fixes
 ***** DONE move to GFDL 1.3
