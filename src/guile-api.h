@@ -82,13 +82,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_MAKE_CHAR
 #define SCM_MAKE_CHAR(x) SCM_MAKICHR (x)
 #endif
-#ifndef SCM_VERSION_15X
-#define scm_primitive_eval_x(expr) scm_eval_x (expr)
-#endif
-#ifndef SCM_VERSION_15X
-#define scm_c_primitive_load(file) \
-    scm_primitive_load (gi_string2scm (file))
-#endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \
     scm_out_of_range_pos (FUNC_NAME, arg, gi_integer2scm (pos))

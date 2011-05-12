@@ -1806,12 +1806,12 @@ guile_eval_file (void *data)
       SCM form, inp = scm_current_input_port ();
 
       while (!SCM_EOF_OBJECT_P (form = scm_read (inp)))
-        scm_primitive_eval_x (form);
+        gi_primitive_eval (form);
       return SCM_BOOL_T;
     }
 
   /* Load configuration from file.  */
-  return scm_c_primitive_load (file);
+  return gi_primitive_load (file);
 }
 
 /*

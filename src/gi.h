@@ -65,6 +65,9 @@ extern int gi_get_xrep (char *buf, size_t len, SCM symbol_or_string);
 
 extern void gi_define (const char *name, SCM value);
 
+extern SCM gi_primitive_eval (SCM form);
+extern SCM gi_primitive_load (const char *filename);
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */

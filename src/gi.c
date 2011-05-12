@@ -329,4 +329,24 @@ gi_define (const char *name, SCM value)
 #endif
 }
 
+SCM
+gi_primitive_eval (SCM form)
+{
+#if V15
+  return scm_primitive_eval_x (form);
+#else
+  return scm_eval_x (form);
+#endif
+}
+
+SCM
+gi_primitive_load (const char *filename)
+{
+#if V15
+  return scm_c_primitive_load (filename);
+#else
+  return scm_primitive_load (gi_string2scm (filename));
+#endif
+}
+
 /* gi.c ends here */

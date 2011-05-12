@@ -1,5 +1,15 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add funcs: gi_primitive_{eval,load}
+
+	* gi.c (gi_primitive_eval, gi_primitive_load): New funcs.
+	* gi.h (gi_primitive_eval, gi_primitive_load): New func decls.
+	* guile.c (guile_eval_file): Use new funcs.
+	* guile-api.h (scm_primitive_eval_x)
+	(scm_c_primitive_load): Delete macros.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int guile] Refine some guile.c funcs.
 
 	* guile.c (guile_exception): Use local var for
