@@ -29,8 +29,6 @@
 
 #ifndef SCM_VERSION_15X
 #define scm_t_bits long
-typedef scm_catch_body_t scm_t_catch_body;
-typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 
 /* Some definitions for backward compatibility with Guile 1.3.4.  */

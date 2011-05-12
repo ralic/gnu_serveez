@@ -1,5 +1,20 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int guile] Eliminate casts in args to ‘scm_internal_catch’.
+
+	U(X) ≡ "Change type of X to ‘void *’; cast internally".
+	* guile-server.c (guile_call_body): U (data).
+	(guile_call_handler): U (data).
+	(guile_call): U (body_data); U (handler_data);
+	eliminate casts in args to ‘scm_internal_catch’.
+	* guile.c (guile_eval_file): Delete cast to ‘char *’.
+	(guile_load_config): Eliminate casts in args to
+	‘scm_internal_catch’; pass NULL as "handler data".
+	* guile-api.h (scm_t_catch_body)
+	(scm_t_catch_handler): Delete typedefs.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add funcs: gi_primitive_{eval,load}
 
 	* gi.c (gi_primitive_eval, gi_primitive_load): New funcs.

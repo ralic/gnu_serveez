@@ -1790,7 +1790,7 @@ guile_init (void)
 static SCM
 guile_eval_file (void *data)
 {
-  char *file = (char *) data;
+  char *file = data;
   struct stat buf;
   int error;
 
@@ -1826,10 +1826,8 @@ guile_load_config (char *cfgfile)
   guile_init ();
 
   ret = scm_internal_catch (SCM_BOOL_T,
-                            (scm_t_catch_body) guile_eval_file,
-                            (void *) cfgfile,
-                            (scm_t_catch_handler) guile_exception,
-                            (void *) cfgfile);
+                            guile_eval_file, cfgfile,
+                            guile_exception, NULL);
 
   if (SCM_FALSEP (ret))
     guile_global_error = -1;

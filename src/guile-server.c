@@ -380,10 +380,11 @@ Return the current (boolean) setting.  */)
  * like this: @code{(procedure first-argument (remaining-argument-list))}
  */
 static SCM
-guile_call_body (SCM data)
+guile_call_body (void *data)
 {
-  return scm_apply (SCM_CAR (data),
-                    SCM_CAR (SCM_CDR (data)), SCM_CDR (SCM_CDR (data)));
+  SCM ls = (SCM) SVZ_PTR2NUM (data);
+
+  return scm_apply (SCM_CAR (ls), SCM_CADR (ls), SCM_CDDR (ls));
 }
 
 /*
@@ -392,12 +393,13 @@ guile_call_body (SCM data)
  * error message if possible.
  */
 static SCM
-guile_call_handler (SCM data, SCM tag, SCM args)
+guile_call_handler (void *data, SCM tag, SCM args)
 {
+  SCM procname = (SCM) SVZ_PTR2NUM (data);
   SCM ep = scm_current_error_port ();
 
   scm_puts ("exception in ", ep);
-  scm_display (data, ep);
+  scm_display (procname, ep);
   scm_puts (" due to `", ep);
   scm_display (tag, ep);
   scm_puts ("'\n", ep);
@@ -433,7 +435,7 @@ static SCM
 guile_call (SCM code, int args, ...)
 {
   va_list list;
-  SCM body_data, handler_data;
+  void *body_data, *handler_data;
   SCM arg = SCM_EOL, arglist = SCM_EOL, ret;
 
   /* Setup arg and arglist correctly for use with ‘scm_apply’.  */
@@ -449,17 +451,15 @@ guile_call (SCM code, int args, ...)
 
   /* Put both arguments and the procedure together into a single argument
      for the catch body.  */
-  body_data = scm_cons (code, scm_cons (arg, arglist));
-  handler_data = code;
+  body_data = SVZ_NUM2PTR (scm_cons (code, scm_cons (arg, arglist)));
+  handler_data = SVZ_NUM2PTR (code);
 
   /* Use exception handling if requested.  */
   if (guile_use_exceptions)
     {
       ret = scm_internal_catch (SCM_BOOL_T,
-                                (scm_t_catch_body) guile_call_body,
-                                (void *) body_data,
-                                (scm_t_catch_handler) guile_call_handler,
-                                (void *) handler_data);
+                                guile_call_body, body_data,
+                                guile_call_handler, handler_data);
     }
   else
     {
