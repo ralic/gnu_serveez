@@ -748,8 +748,12 @@ main (int argc, char **argv)
   if (1 > argc)
     return EXIT_FAILURE;
 
-  if (getenv ("VERBOSE"))
-    verbosep = 1;
+  {
+    char *v = getenv ("VERBOSE");
+
+    if (v && !strcmp ("1", v))
+      verbosep = 1;
+  }
 
   for (a = avail; a->name; a++)
     if (!strcmp (argv[1], a->name))

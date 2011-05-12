@@ -1,5 +1,12 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[v btdt] Check value of env var ‘VERBOSE’ as well.
+
+	* btdt.c (main): Enable verbose mode only if
+	env var ‘VERBOSE’ is set and its value is "1".
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v] Add test for Guile server.
 
 	* t003: New file.
