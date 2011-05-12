@@ -1764,6 +1764,11 @@ guile_exception (SVZ_UNUSED void *data, SCM tag, SCM args)
 static void
 guile_init (void)
 {
+  /* The default module changed after Guile 1.3.4 from (guile) to
+     (guile-user).  Set it back explicitly, until the time when we
+     can arrange to define the primitives in (serveez) proper.  */
+  gi_eval_string ("(define-module (guile))");
+
   /* define some variables */
   gi_define ("serveez-version", gi_string2scm (PACKAGE_VERSION));
 

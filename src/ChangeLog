@@ -1,5 +1,15 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	Fix bug: Ensure current module for initialization is ‘(guile)’.
+
+	This is a skew bug: the default module changed from ‘(guile)’ to
+	‘(guile-user)’ starting with Guile 1.4, but ‘SCM_DEFINE’ may or may
+	not track that change.  Best to be explicit.
+
+	* guile.c (guile_init): Do ‘(define-module (guile))’ first.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Add abstractions: ASSERT_{EXACT,STRING}
 
 	* guile-api.h (ASSERT_EXACT, ASSERT_STRING): New macros.
