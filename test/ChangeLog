@@ -1,5 +1,13 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[v] Use ‘primitive-load’ for but-of-course.
+
+	* t001: Say ‘(primitive-load "but-of-course")’.
+	* t002: Likewise.
+	* t003: Likewise.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_free_and_zero’, SVZ_{NUM2PTR,PTR2NUM}.
 
 	* btdt.c: #include "misc-macros.h".

@@ -19,7 +19,7 @@
 ;;; Code:
 
 ;; Skip this test if the Guile server is not enabled.
-(load "./but-of-course")
+(primitive-load "but-of-course")
 (or (boc? 'ENABLE_GUILE_SERVER)
     (exit 77))
 

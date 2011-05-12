@@ -18,7 +18,7 @@
 ;;; Code:
 
 ;; Skip this test if the passthrough server is not enabled.
-(load "./but-of-course")
+(primitive-load "but-of-course")
 (or (boc? 'ENABLE_PROG_SERVER)
     (exit 77))
 
