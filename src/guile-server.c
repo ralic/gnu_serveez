@@ -886,7 +886,7 @@ For instance, you can arrange for Serveez to pass the
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (SCM_EXACTP (boundary) || SCM_STRINGP (boundary),
+  SCM_ASSERT_TYPE (SCM_EXACTP (boundary) || gi_stringp (boundary),
                    boundary, SCM_ARG2, FUNC_NAME, "string or exact");
 
   /* Release previously set boundaries.  */
@@ -960,10 +960,10 @@ Return @code{#t} on success and @code{#f} on failure.  */)
   int len, ret = -1;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (SCM_STRINGP (buffer) || guile_bin_check (buffer),
+  SCM_ASSERT_TYPE (gi_stringp (buffer) || guile_bin_check (buffer),
                    buffer, SCM_ARG2, FUNC_NAME, "string or binary");
 
-  if (SCM_STRINGP (buffer))
+  if (gi_stringp (buffer))
     {
       len = GI_GET_XREP (tem, buffer);
       buf = tem;

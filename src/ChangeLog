@@ -1,5 +1,19 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add funcs: gi_{string,symbol}p
+
+	* gi.c (gi_stringp, gi_symbolp): New funcs.
+	(gi_get_xrep): Use ‘gi_symbolp’.
+	* gi.h (gi_stringp, gi_symbolp): New func decls.
+	(STRING_OR_SYMBOL_P): Use ‘gi_stringp’, ‘gi_symbolp’.
+	* guile-api.c: Throughout, use new funcs.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* guile-api.h (SCM_STRINGP, SCM_SYMBOLP): Delete macros.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Look in $(top_builddir) for config.status.
 
 	* irc-server/Makefile.am (timestamp.c):

@@ -563,7 +563,7 @@ guile_to_strarray (SCM list, const char *func)
     {
       SCM head = SCM_CAR (list);
 
-      if (! SCM_STRINGP (head)
+      if (! gi_stringp (head)
           || 0 > GI_GET_XREP (str, head))
         {
           guile_error ("%s: String expected in position %d", func, i);

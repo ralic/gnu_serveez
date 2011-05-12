@@ -260,6 +260,26 @@ gi_string_length (SCM string)
 }
 
 int
+gi_stringp (SCM obj)
+{
+#if V17
+  return scm_is_string (obj);
+#else
+  return SCM_NFALSEP (scm_string_p (obj));
+#endif
+}
+
+int
+gi_symbolp (SCM obj)
+{
+#if V17
+  return scm_is_symbol (obj);
+#else
+  return SCM_NFALSEP (scm_symbol_p (obj));
+#endif
+}
+
+int
 gi_get_xrep (char *buf, size_t len, SCM symbol_or_string)
 {
   SCM obj;
@@ -269,7 +289,7 @@ gi_get_xrep (char *buf, size_t len, SCM symbol_or_string)
   if (! len)
     return -1;
 
-  obj = SCM_SYMBOLP (symbol_or_string)
+  obj = gi_symbolp (symbol_or_string)
     ? scm_symbol_to_string (symbol_or_string)
     : symbol_or_string;
   actual = gi_string_length (obj);

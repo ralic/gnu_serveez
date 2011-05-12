@@ -190,12 +190,12 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT (SCM_STRINGP (needle) || SCM_CHARP (needle) ||
+  SCM_ASSERT (gi_stringp (needle) || SCM_CHARP (needle) ||
               SCM_EXACTP (needle) || CHECK_BIN_SMOB (needle),
               needle, SCM_ARG2, FUNC_NAME);
 
   /* Search for a pattern.  */
-  if (SCM_STRINGP (needle) || CHECK_BIN_SMOB (needle))
+  if (gi_stringp (needle) || CHECK_BIN_SMOB (needle))
     {
       char buf[128];
       guile_bin_t *search = NULL;
@@ -406,7 +406,7 @@ reference it is then a standalone binary smob as returned by
 
   /* Check arguments first.  */
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT (SCM_STRINGP (append) || CHECK_BIN_SMOB (append),
+  SCM_ASSERT (gi_stringp (append) || CHECK_BIN_SMOB (append),
               append, SCM_ARG2, FUNC_NAME);
 
   if (CHECK_BIN_SMOB (append))

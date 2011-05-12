@@ -105,7 +105,7 @@ or @code{#f} on failure.  */)
   struct sockaddr_in addr;
   SCM ret = SCM_BOOL_F;
 
-  SCM_ASSERT_TYPE (SCM_EXACTP (host) || SCM_STRINGP (host),
+  SCM_ASSERT_TYPE (SCM_EXACTP (host) || gi_stringp (host),
                    host, SCM_ARG1, FUNC_NAME, "string or exact");
   ASSERT_EXACT (2, proto);
 
@@ -841,7 +841,7 @@ If given no arguments, it behave like @code{getrpcent}.  */)
     }
 #endif /* HAVE_GETRPCENT */
 #if HAVE_GETRPCBYNAME
-  if (SCM_STRINGP (arg))
+  if (gi_stringp (arg))
     {
       char name[64];
 

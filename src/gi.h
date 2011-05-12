@@ -48,8 +48,11 @@ extern unsigned long gi_scm2ulong (SCM number);
 
 size_t gi_string_length (SCM string);
 
+extern int gi_stringp (SCM obj);
+extern int gi_symbolp (SCM obj);
+
 #define STRING_OR_SYMBOL_P(obj)                 \
-  (SCM_STRINGP (obj) || SCM_SYMBOLP (obj))
+  (gi_stringp (obj) || gi_symbolp (obj))
 
 extern int gi_get_xrep (char *buf, size_t len, SCM symbol_or_string);
 
