@@ -1,3 +1,10 @@
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build guile] Determine smob tag type at configure time.
+
+	* configure.ac (svz_smob_tag_t): New AC_DEFINE_UNQUOTED,
+	based on check for ‘scm_t_bits’ or ‘scm_bits_t’ in libguile.h.
+
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc int] Use "/**" for lib API docs, s3as + tsin to wrangle them.

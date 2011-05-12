@@ -21,16 +21,6 @@
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
 
-/* Define this macro if Guile 1.5.x or better is in use.  */
-#if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 5) && \
-    defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
-#define SCM_VERSION_15X 1
-#endif
-
-#ifndef SCM_VERSION_15X
-#define scm_t_bits long
-#endif
-
 /* Some definitions for backward compatibility with Guile 1.3.4.  */
 #ifndef SCM_ASSERT_TYPE
 #define SCM_ASSERT_TYPE(_cond, _arg, _pos, _subr, _msg) \

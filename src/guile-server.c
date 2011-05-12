@@ -107,7 +107,7 @@ static int guile_use_exceptions = 1;
  * g) free    - Run if the SMOB gets destroyed.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
-static scm_t_bits NAME_TAG (ctype) = 0;                                      \
+static svz_smob_tag_t NAME_TAG (ctype);                                      \
 static SCM NAME_CREATE (ctype) (void *data) {                                \
   SCM_RETURN_NEWSMOB (NAME_TAG (ctype), data);                               \
 }                                                                            \

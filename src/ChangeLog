@@ -1,5 +1,13 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build guile] Determine smob tag type at configure time.
+
+	* guile-bin.c (guile_bin_tag): Use ‘svz_smob_tag_t’.
+	* guile-server.c (MAKE_SMOB_DEFINITION): Likewise.
+	* guile-api.h (SCM_VERSION_15X, scm_t_bits): Delete #define:s.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int guile] Eliminate casts in args to ‘scm_internal_catch’.
 
 	U(X) ≡ "Change type of X to ‘void *’; cast internally".

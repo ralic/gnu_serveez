@@ -402,6 +402,20 @@ AC_TYPE_MODE_T
 AC_TYPE_UID_T
 
 dnl
+dnl Check for ‘scm_t_bits’ or ‘scm_bits_t’ (sigh).
+dnl
+AC_CHECK_TYPE([scm_t_bits],[smobtag=scm_t_bits],[],[[
+#include <libguile.h>
+]])
+AS_IF([SVZ_NOT_Y([ac_cv_type_scm_t_bits])],
+[AC_CHECK_TYPE([scm_bits_t],[smobtag=scm_bits_t],[smobtag=long],[[
+#include <libguile.h>
+]])])
+AC_DEFINE_UNQUOTED([svz_smob_tag_t],[$smobtag],
+  [Define to the type of a smob tag.])
+AS_UNSET([smobtag])
+
+dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.
 dnl
 AC_CHECK_TYPE([socklen_t], [],

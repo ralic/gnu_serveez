@@ -45,7 +45,7 @@ typedef struct guile_bin
 guile_bin_t;
 
 /* The smob tag.  */
-static scm_t_bits guile_bin_tag = 0;
+static svz_smob_tag_t guile_bin_tag;
 
 /* Useful defines for accessing the binary smob.  */
 #define GET_BIN_SMOB(binary) \
