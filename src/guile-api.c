@@ -1200,12 +1200,12 @@ reading from the port.  */)
     SCM_OUT_OF_RANGE (SCM_ARG2, size);
 
   /* Allocate necessary data.  */
-  data = scm_gc_malloc (len, "svz-binary-data");
+  data = gi_malloc (len, "svz-binary-data");
 
   /* Read from file descriptor and evaluate return value.  */
   if ((ret = read (fdes, data, len)) < 0)
     {
-      scm_gc_free (data, len, "svz-binary-data");
+      gi_free (data, len, "svz-binary-data");
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
                         gi_list_3 (errnostring (),
                                    gi_integer2scm (fdes),
@@ -1214,12 +1214,12 @@ reading from the port.  */)
     }
   else if (ret == 0)
     {
-      scm_gc_free (data, len, "svz-binary-data");
+      gi_free (data, len, "svz-binary-data");
       return SCM_EOF_VAL;
     }
   else if (ret != len)
     {
-      data = scm_gc_realloc (data, len, ret, "svz-binary-data");
+      data = gi_realloc (data, len, ret, "svz-binary-data");
     }
 
   /* Finally return binary smob.  */

@@ -57,7 +57,7 @@ static scm_t_bits guile_bin_tag = 0;
   var = GET_BIN_SMOB (binary)
 #define MAKE_BIN_SMOB()                                    \
   ((guile_bin_t *) ((void *)                               \
-    scm_gc_malloc (sizeof (guile_bin_t), "svz-binary")))
+    gi_malloc (sizeof (guile_bin_t), "svz-binary")))
 
 SCM_DEFINE
 (guile_bin_p,
@@ -99,9 +99,9 @@ guile_bin_free (SCM binary)
   if (bin->garbage)
     {
       size += bin->size;
-      scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
+      gi_free ((void *) bin->data, bin->size, "svz-binary-data");
     }
-  scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
+  gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
   return size;
 }
 
@@ -144,7 +144,7 @@ sweep phase of the garbage collector.  */)
   bin->size = (int) gi_string_length (string);
   if (bin->size > 0)
     {
-      bin->data = scm_gc_malloc (1 + bin->size, "svz-binary-data");
+      bin->data = gi_malloc (1 + bin->size, "svz-binary-data");
       gi_get_xrep ((char *) bin->data, 1 + bin->size, string);
       bin->garbage = 1;
     }
@@ -308,7 +308,7 @@ binary smob @var{binary}.  */)
     }
 
   /* Reserve some memory for the new smob.  */
-  reverse->data = scm_gc_malloc (reverse->size, "svz-binary-data");
+  reverse->data = gi_malloc (reverse->size, "svz-binary-data");
   reverse->garbage = 1;
 
   /* Apply reverse byte order to the new smob.  */
@@ -428,13 +428,13 @@ reference it is then a standalone binary smob as returned by
 
   if (bin->garbage)
     {
-      bin->data = scm_gc_realloc (bin->data, bin->size, bin->size + len,
-                                  "svz-binary-data");
+      bin->data = gi_realloc (bin->data, bin->size, bin->size + len,
+                              "svz-binary-data");
     }
   else
     {
       uint8_t *odata = bin->data;
-      bin->data = scm_gc_malloc (bin->size + len, "svz-binary-data");
+      bin->data = gi_malloc (bin->size + len, "svz-binary-data");
       memcpy (bin->data, odata, bin->size);
     }
 
@@ -529,7 +529,7 @@ either exact numbers in a byte's range or characters.  */)
 
   if (bin->size > 0)
     {
-      p = bin->data = scm_gc_malloc (bin->size, "svz-binary-data");
+      p = bin->data = gi_malloc (bin->size, "svz-binary-data");
       bin->garbage = 1;
     }
   else
@@ -545,16 +545,16 @@ either exact numbers in a byte's range or characters.  */)
       val = SCM_CAR (list);
       if (!SCM_EXACTP (val) && !SCM_CHARP (val))
         {
-          scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
-          scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
+          gi_free ((void *) bin->data, bin->size, "svz-binary-data");
+          gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
           scm_wrong_type_arg_msg (FUNC_NAME, SCM_ARGn, val, "char or exact");
         }
       value = SCM_CHARP (val) ?
         ((int) SCM_CHAR (val)) : gi_scm2int (val);
       if (value < -128 || value > 255)
         {
-          scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
-          scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
+          gi_free ((void *) bin->data, bin->size, "svz-binary-data");
+          gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
           SCM_OUT_OF_RANGE (SCM_ARGn, val);
         }
       *p++ = (uint8_t) value;
@@ -590,8 +590,7 @@ guile_data_to_bin (void *data, int size)
 
 /* Converts the data pointer @var{data} with a size of @var{size} bytes
    into a binary smob which is marked as garbage.  This means the data
-   pointer must be allocated by @code{scm_gc_malloc} or
-   @code{scm_gc_realloc}.  */
+   pointer must be allocated by @code{gi_malloc} or @code{gi_realloc}.  */
 SCM
 guile_garbage_to_bin (void *data, int size)
 {

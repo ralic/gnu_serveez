@@ -112,12 +112,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_VERSION_15X
 #define scm_gc_unprotect_object(obj) scm_unprotect_object (obj)
 #endif
-#ifndef SCM_VERSION_17X
-#define scm_gc_malloc(len, name) scm_must_malloc (len, name)
-#define scm_gc_free(mem, len, name) scm_must_free (mem)
-#define scm_gc_realloc(mem, olen, nlen, name) \
-    scm_must_realloc (mem, olen, nlen, name)
-#endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \
     scm_out_of_range_pos (FUNC_NAME, arg, gi_integer2scm (pos))

@@ -32,6 +32,50 @@
 #endif  /* 1 == SCM_MAJOR_VERSION */
 #endif  /* defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION */
 
+#ifdef __GNUC__
+#define UNUSED  __attribute__ ((__unused__))
+#else
+#define UNUSED
+#endif
+
+void *
+gi_malloc (size_t len, const char *name)
+{
+#if V17
+  return scm_gc_malloc (len, name);
+#else
+  return scm_must_malloc (len, name);
+#endif
+}
+
+void *
+gi_realloc (void *mem, size_t olen, size_t nlen, const char *name)
+{
+#if V17
+  return scm_gc_realloc (mem, olen, nlen, name);
+#else
+  return scm_must_realloc (mem, olen, nlen, name);
+#endif
+}
+
+#if V17
+#define POSSIBLY_UNUSED_GI_FREE_PARAM
+#else
+#define POSSIBLY_UNUSED_GI_FREE_PARAM  UNUSED
+#endif
+
+void
+gi_free (void *mem,
+         POSSIBLY_UNUSED_GI_FREE_PARAM size_t len,
+         POSSIBLY_UNUSED_GI_FREE_PARAM const char *name)
+{
+#if V17
+  scm_gc_free (mem, len, name);
+#else
+  scm_must_free (mem);
+#endif
+}
+
 #if V15
 #define gc_protect    scm_gc_protect_object
 #define gc_unprotect  scm_gc_unprotect_object

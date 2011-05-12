@@ -1,5 +1,24 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add funcs: gi_{malloc,realloc,free}
+
+	* gi.c (UNUSED): New macro.
+	(gi_malloc, gi_realloc): New funcs.
+	(POSSIBLY_UNUSED_GI_FREE_PARAM): New macro.
+	(gi_free): New func.
+	* gi.h (gi_malloc, gi_realloc, gi_free): New func decls.
+	* guile-api.c (guile_read_file):
+	Use ‘gi_malloc’, ‘gi_realloc’, ‘gi_free’.
+	* guile-bin.c (MAKE_BIN_SMOB): Use ‘gi_malloc’.
+	(guile_bin_free): Use ‘gi_free’.
+	(guile_string_to_bin, guile_bin_reverse): Use ‘gi_malloc’.
+	(guile_bin_concat_x): Use ‘gi_realloc’, ‘gi_malloc’.
+	(guile_list_to_bin): Use ‘gi_malloc’, ‘gi_free’.
+	* guile-api.h (scm_gc_malloc, scm_gc_free)
+	(scm_gc_realloc): Delete macros.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Avoid ‘SCM_WRITABLE_VELTS’.
 
 	* guile-api.c (scm_return_rpcentry, scm_portmap_list):
