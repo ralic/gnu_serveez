@@ -82,8 +82,31 @@ serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 AM_CPPFLAGS += $(GUILE_CFLAGS)
 
+snarfcppopts = $(DEFAULT_INCLUDES) $(GUILE_CFLAGS)
+
 .c.x:
-	$(gx) c2x -o $@ $< -- $(DEFAULT_INCLUDES) $(GUILE_CFLAGS)
+	$(gx) c2x -o $@ $< -- $(snarfcppopts)
+
+if MAINTAINER_MODE
+noinst_DATA = scm.tsar c.tsar
+endif
+
+foo_ar_opts = -v -l scheme -c utf-8 -m '(guile)'
+foo_ar_update = $(foo_ar_opts) -f $@ update $^
+
+scm_docable = guile-boot.scm
+
+scm.tsar: $(scm_docable)
+	$(gx) tsar $(foo_ar_update)
+
+c_docable = \
+  guile-api.c \
+  guile-bin.c \
+  guile-server.c \
+  guile.c
+
+c.tsar: $(c_docable)
+	$(gx) c-tsar $(foo_ar_update) -- $(snarfcppopts)
 
 i = "$(DESTDIR)$(includedir)/libserveez"
 

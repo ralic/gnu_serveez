@@ -66,6 +66,19 @@ noinst_HEADERS = ipdata.h iphlpapi.h raw-socket.h server-socket.h
 
 CLEANFILES += svzpath.h
 
+if MAINTAINER_MODE
+noinst_DATA = libserveez.tsar
+endif
+
+docable = \
+  array.h boot.h cfg.h \
+  codec/codec.c \
+  coserver/coserver.c \
+  $(libserveez_la_SOURCES)
+
+libserveez.tsar: $(docable)
+	$(gx) s3as -o $@ $^
+
 # woe
 
 EXTRA_DIST += libserveez.dsp libserveez.ap svzpath.h.serveez

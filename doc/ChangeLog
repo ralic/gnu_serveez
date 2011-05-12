@@ -1,5 +1,24 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc int] Build .tsar files under src/, only if MAINTAINER_MODE.
+
+	* Makefile.am (gen): Move earlier;
+	add guile-api.texi, guile-boot.texi.
+	(serveez_TEXINFOS): Add serveez.texi, $(gen);
+	remove serveez-api.texi, guile-api.texi, guile-boot.texi.
+	(srcsrcd, libserveez_scanroot, libserveez_root, libserveez_impl)
+	(libserveez_from, guile_impl, guile_from, BUILT_SOURCES): Delete vars.
+	(EXTRA_DIST): Add $(gen:%.texi=%.texh).
+	(maintainer-clean-local): Delete target.
+	(scm-snippets, c-snippets, c-c-snippets): Likewise.
+	(snippets): Rewrite dependency list.
+	(guile-boot.texi, guile-api.texi, serveez-api.texi):
+	Delete dependency decls.
+	[MAINTAINER_MODE] ($(gen)): New dependency decl.
+	(.texh.texi): Move inside ‘if MAINTAINER_MODE’.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_free_and_zero’, SVZ_{NUM2PTR,PTR2NUM}.
 
 	* serveez-api.texh

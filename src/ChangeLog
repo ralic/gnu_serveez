@@ -1,5 +1,18 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc int] Build .tsar files under src/, only if MAINTAINER_MODE.
+
+	* Makefile.am (snarfcppopts): New var.
+	(.c.x): Use $(snarfcppopts).
+	[MAINTAINER_MODE] (noinst_DATA): New var.
+	(foo_ar_opts, foo_ar_update): New vars.
+	(scm_docable): New var.
+	(scm.tsar): New target.
+	(c_docable): New var.
+	(c.tsar): New target.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_free_and_zero’, SVZ_{NUM2PTR,PTR2NUM}.
 
 	* misc-macros.h: New file.

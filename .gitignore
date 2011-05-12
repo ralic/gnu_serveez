@@ -45,11 +45,8 @@ Makefile.in
 /m4/lt~obsolete.m4
 
 /doc/*.info
-/doc/c-c-snippets
-/doc/c-snippets
 /doc/guile-api.texi
 /doc/guile-boot.texi
-/doc/scm-snippets
 /doc/serveez-api.html
 /doc/serveez-api.texi
 /doc/serveez.html
@@ -60,9 +57,11 @@ Makefile.in
 
 /src/*.log
 /src/*.x
+/src/c.tsar
 /src/config.h
 /src/config.h.in
 /src/guile-boot.c
+/src/scm.tsar
 /src/serveez
 /src/serveez-config
 /src/stamp-h*
@@ -70,6 +69,7 @@ Makefile.in
 
 /src/irc-server/timestamp.c
 
+/src/libserveez/libserveez.tsar
 /src/libserveez/svzpath.h
 
 /test/*.log

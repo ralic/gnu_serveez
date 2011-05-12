@@ -27,62 +27,20 @@ include $(top_srcdir)/build-aux/common.mk
 AM_MAKEINFOFLAGS = --split-size=999999
 
 info_TEXINFOS = serveez.texi
-serveez_TEXINFOS = serveez-api.texi guile-api.texi guile-boot.texi fdl.texi
+gen = guile-boot.texi guile-api.texi serveez-api.texi
+serveez_TEXINFOS = serveez.texi $(gen) fdl.texi
 man_MANS = serveez.1 serveez-config.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 	logo.jpg logosmall.jpg mandel.jpg
 CLEANFILES += stamp-vti*
 DISTCLEANFILES = stamp-*
 
-srcsrcd = $(top_srcdir)/src
-
-libserveez_scanroot = .scan/libserveez
-libserveez_root = $(srcsrcd)/libserveez
-libserveez_impl = \
-  alloc.c alloc.h \
-  array.c array.h \
-  binding.c \
-  boot.c boot.h \
-  cfg.c cfg.h \
-  core.c \
-  dynload.c \
-  hash.c hash.h \
-  icmp-socket.c \
-  interface.c interface.h \
-  passthrough.c passthrough.h \
-  pipe-socket.c \
-  portcfg.c portcfg.h \
-  raw-socket.c \
-  server-core.c server-core.h \
-  server-loop.c \
-  server-socket.c \
-  server.c server.h \
-  socket.c socket.h \
-  tcp-socket.c \
-  udp-socket.c \
-  util.c util.h \
-  windoze.c \
-  codec/codec.c \
-  coserver/coserver.c coserver/coserver.h
-
-guile_impl = \
-  guile-api.c \
-  guile-bin.c \
-  guile-server.c \
-  guile.c
-guile_from = $(guile_impl:%=$(srcsrcd)/%)
-
 MANUAL_FILES = \
   $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 
-gen = serveez-api.texi
-
 MAINTAINERCLEANFILES += $(gen)
-EXTRA_DIST += $(gen)
-
-maintainer-clean-local:
-	rm -rf .scan
+EXTRA_DIST += $(gen) $(gen:%.texi=%.texh)
 
 clean-local:
 	rm -rf stage
@@ -90,30 +48,15 @@ clean-local:
 serveez.info: blurb.texi
 EXTRA_DIST += blurb.texi
 
-libserveez_from = $(libserveez_impl:%=$(libserveez_root)/%)
-
-scm-snippets: $(srcsrcd)/guile-boot.scm
-	$(gx) tsar -v -l scheme -f $@ -c utf-8 update $?
-
-c-snippets: $(guile_from)
-	$(gx) c-tsar -v -l scheme -f $@ -c utf-8 \
-	  update $^ -- -I$(srcsrcd) $(GUILE_CFLAGS)
-
-c-c-snippets: $(libserveez_from)
-	$(gx) s3as -o $@ $(libserveez_from)
-
-snippets: scm-snippets c-snippets c-c-snippets
+snippets: ../src/scm.tsar ../src/c.tsar ../src/libserveez/libserveez.tsar
 	$(gx) tsar -f $@ -c utf-8 concat $^
 
-guile-boot.texi: snippets
-guile-api.texi: snippets
-serveez-api.texi: snippets
-
-BUILT_SOURCES = snippets guile-boot.texi
-EXTRA_DIST += $(BUILT_SOURCES) guile-boot.texh
+if MAINTAINER_MODE
+$(gen) : snippets
 
 .texh.texi:
 	$(gx) tsin -f snippets -c utf-8 $<
+endif
 
 genhtml = serveez.html
 
