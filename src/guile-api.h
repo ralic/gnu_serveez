@@ -21,12 +21,6 @@
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
 
-/* Define this macro if Guile 1.7.x or better is in use.  */
-#if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 7) && \
-    defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
-#define SCM_VERSION_17X 1
-#endif
-
 /* Define this macro if Guile 1.5.x or better is in use.  */
 #if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 5) && \
     defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
@@ -94,12 +88,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_VERSION_15X
 #define scm_c_primitive_load(file) \
     scm_primitive_load (gi_string2scm (file))
-#endif
-#ifndef SCM_VERSION_15X
-#define scm_gc_protect_object(obj) scm_protect_object (obj)
-#endif
-#ifndef SCM_VERSION_15X
-#define scm_gc_unprotect_object(obj) scm_unprotect_object (obj)
 #endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \

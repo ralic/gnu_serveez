@@ -1,5 +1,12 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Decruft: Delete some obsoleted macros.
+
+	* guile-api.h (SCM_VERSION_17X): Delete #define.
+	(scm_gc_protect_object, scm_gc_unprotect_object): Delete macros.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add funcs: gi_{string,symbol}p
 
 	* gi.c (gi_stringp, gi_symbolp): New funcs.
