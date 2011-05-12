@@ -27,6 +27,7 @@
 #include <libguile.h>
 #include "networking-headers.h"
 #include "libserveez.h"
+#include "misc-macros.h"
 #include "gi.h"
 #include "guile-api.h"
 #include "guile-bin.h"

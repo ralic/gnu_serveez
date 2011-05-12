@@ -35,6 +35,7 @@
 #include "libserveez/boot.h"
 #include "libserveez/server-core.h"
 #include "libserveez/codec/codec.h"
+#include "misc-macros.h"
 
 /*
  * The one and only...

@@ -28,6 +28,7 @@
 #include "libserveez/cfg.h"
 #include "libserveez/util.h"
 #include "libserveez/server.h"
+#include "misc-macros.h"
 
 /*
  * Make a plain copy of the given integer array @var{intarray}.  If this

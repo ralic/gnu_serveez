@@ -36,6 +36,7 @@
 #include "networking-headers.h"
 #include "action.h"
 #include "libserveez.h"
+#include "misc-macros.h"
 #include "gi.h"
 #include "guile-api.h"
 #include "guile.h"

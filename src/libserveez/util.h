@@ -71,20 +71,6 @@ SBO const char *svz_net_strerror (void);
 SERVEEZ_API void svz_log_sys_error (char const *, ...);
 SERVEEZ_API void svz_log_net_error (char const *, ...);
 
-/**
- * Convert the integer value @var{n} into a pointer platform independently.
- * Both @code{SVZ_NUM2PTR} and @code{SVZ_PTR2NUM} macros rely on
- * @code{unsigned long} having the same size as @code{void *}.
- */
-#define SVZ_NUM2PTR(n) \
-  ((void *) ((unsigned long) (n)))
-
-/**
- * Convert the pointer @var{p} into a integer value platform independently.
- */
-#define SVZ_PTR2NUM(p) \
-  ((unsigned long) ((void *) (p)))
-
 /* begin svzint */
 #ifndef __MINGW32__
 #define INVALID_SOCKET  ((svz_t_socket) -1)

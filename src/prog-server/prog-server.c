@@ -34,6 +34,7 @@
 
 #include "networking-headers.h"
 #include "libserveez.h"
+#include "misc-macros.h"
 #include "prog-server.h"
 
 /*

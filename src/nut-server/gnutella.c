@@ -53,6 +53,7 @@
 
 #include "networking-headers.h"
 #include "libserveez.h"
+#include "misc-macros.h"
 #include "gnutella.h"
 #include "nut-transfer.h"
 #include "nut-route.h"

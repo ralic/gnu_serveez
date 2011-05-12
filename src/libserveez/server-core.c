@@ -74,6 +74,7 @@
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/server.h"
 #include "libserveez/server-core.h"
+#include "misc-macros.h"
 
 /*
  * When set to a non-zero value, the server

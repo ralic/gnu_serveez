@@ -43,6 +43,7 @@
 #include "networking-headers.h"
 #include "o-binary.h"
 #include <libserveez.h>
+#include "misc-macros.h"
 
 int verbosep;
 

@@ -39,6 +39,7 @@
 #include "libserveez/icmp-socket.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/interface.h"
+#include "misc-macros.h"
 
 /* How much data is accepted before valid detection.  */
 #define SOCK_MAX_DETECTION_FILL 16

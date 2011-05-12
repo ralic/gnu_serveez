@@ -215,7 +215,6 @@ with shared memory arenas or any other underlying memory API.
 @tsin i "F svz_calloc"
 @tsin i "F svz_realloc"
 @tsin i "F svz_free"
-@tsin i "M svz_free_and_zero"
 @tsin i "F svz_strdup"
 
 @tsin i "F svz_pmalloc"
@@ -283,9 +282,6 @@ left overs of the C API.
 
 @tsin i "F svz_log"
 @tsin i "F svz_log_setfile"
-
-@tsin i "M SVZ_NUM2PTR"
-@tsin i "M SVZ_PTR2NUM"
 
 @tsin i "F svz_hexdump"
 @tsin i "F svz_itoa"

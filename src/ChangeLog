@@ -1,5 +1,20 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_free_and_zero’, SVZ_{NUM2PTR,PTR2NUM}.
+
+	* misc-macros.h: New file.
+	* Makefile.am (noinst_HEADERS): Add misc-macros.h.
+	* guile-bin.c: #include "misc-macros.h".
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* serveez.c: Likewise.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Fix bug: Ensure current module for initialization is ‘(guile)’.
 
 	This is a skew bug: the default module changed from ‘(guile)’ to

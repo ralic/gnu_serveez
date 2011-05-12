@@ -1,3 +1,18 @@
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_free_and_zero’, SVZ_{NUM2PTR,PTR2NUM}.
+
+	* boot.c: #include "misc-macros.h".
+	* cfg.c: Likewise.
+	* core.c: Likewise.
+	* dynload.c: Likewise.
+	* passthrough.c: Likewise.
+	* portcfg.c: Likewise.
+	* server-core.c: Likewise.
+	* server-socket.c: Likewise.
+	* alloc.h (svz_free_and_zero): Delete macro.
+	* util.h (SVZ_NUM2PTR, SVZ_PTR2NUM): Delete macros.
+
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc int] Use "/**" for lib API docs, s3as + tsin to wrangle them.

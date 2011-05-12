@@ -54,6 +54,7 @@
 
 #include "libserveez/util.h"
 #include "libserveez/core.h"
+#include "misc-macros.h"
 
 /*
  * Set the given file descriptor to nonblocking I/O.  This heavily differs

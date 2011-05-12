@@ -62,6 +62,7 @@
 #include "libserveez/server-core.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/passthrough.h"
+#include "misc-macros.h"
 
 /* Passthrough methods.  */
 #define SVZ_PROCESS_FORK         1

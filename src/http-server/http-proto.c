@@ -55,6 +55,7 @@
 #endif
 
 #include "libserveez.h"
+#include "misc-macros.h"
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cgi.h"

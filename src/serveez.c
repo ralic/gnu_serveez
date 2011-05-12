@@ -34,6 +34,7 @@
 
 #include "networking-headers.h"
 #include "libserveez.h"
+#include "misc-macros.h"
 #include "cfgfile.h"
 #include "option.h"
 #include "guile-api.h"

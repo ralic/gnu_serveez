@@ -54,6 +54,7 @@
 #include "libserveez/server.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/server-socket.h"
+#include "misc-macros.h"
 
 /*
  * Default idle function.  This routine simply checks for "dead"

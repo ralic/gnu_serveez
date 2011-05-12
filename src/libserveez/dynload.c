@@ -53,6 +53,7 @@
 #include "libserveez/server.h"
 #include "libserveez/core.h"
 #include "libserveez/dynload.h"
+#include "misc-macros.h"
 
 /* Structure holding a shared libraries info.  */
 typedef struct

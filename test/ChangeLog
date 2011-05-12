@@ -1,5 +1,11 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_free_and_zero’, SVZ_{NUM2PTR,PTR2NUM}.
+
+	* btdt.c: #include "misc-macros.h".
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v btdt] Check value of env var ‘VERBOSE’ as well.
 
 	* btdt.c (main): Enable verbose mode only if
