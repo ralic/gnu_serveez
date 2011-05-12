@@ -1,5 +1,14 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int guile] Refine some guile.c funcs.
+
+	* guile.c (guile_exception): Use local var for
+	current error port; pop ‘args’; use ‘SCM_CADR’.
+	(guile_init): #include "guile.x" right after ‘define-module’.
+	(guile_eval_file): Don't bother saving ‘primitive-eval’ rv.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Decruft: Delete some obsoleted macros.
 
 	* guile-api.h (SCM_VERSION_17X): Delete #define.

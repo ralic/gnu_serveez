@@ -1732,29 +1732,29 @@ guile_exception (SVZ_UNUSED void *data, SCM tag, SCM args)
 {
   /* FIXME: current-load-port is not defined in this state.  Why?  */
   char str[64];
+  SCM ep = scm_current_error_port ();
 
   GI_GET_XREP (str, tag);
   guile_error ("Exception due to `%s'", str);
 
   /* `tag' contains internal exception name */
-  scm_puts ("guile-error: ", scm_current_error_port ());
+  scm_puts ("guile-error: ", ep);
 
   /* on quit/exit */
   if (SCM_NULLP (args))
     {
-      scm_display (tag, scm_current_error_port ());
-      scm_puts ("\n", scm_current_error_port ());
+      scm_display (tag, ep);
+      scm_puts ("\n", ep);
       return SCM_BOOL_F;
     }
 
   if (!SCM_FALSEP (SCM_CAR (args)))
     {
-      scm_display (SCM_CAR (args), scm_current_error_port ());
-      scm_puts (": ", scm_current_error_port ());
+      scm_display (SCM_CAR (args), ep);
+      scm_puts (": ", ep);
     }
-  scm_display_error_message (SCM_CAR (SCM_CDR (args)),
-                             SCM_CAR (SCM_CDR (SCM_CDR (args))),
-                             scm_current_error_port ());
+  args = SCM_CDR (args);
+  scm_display_error_message (SCM_CAR (args), SCM_CADR (args), ep);
   return SCM_BOOL_F;
 }
 
@@ -1770,6 +1770,8 @@ guile_init (void)
      can arrange to define the primitives in (serveez) proper.  */
   gi_eval_string ("(define-module (guile))");
 
+#include "guile.x"
+
   /* define some variables */
   gi_define ("serveez-version", gi_string2scm (PACKAGE_VERSION));
 
@@ -1778,8 +1780,6 @@ guile_init (void)
 
     gi_eval_string (high);
   }
-
-#include "guile.x"
 
 #if ENABLE_GUILE_SERVER
   guile_server_init ();
@@ -1803,11 +1803,10 @@ guile_eval_file (void *data)
   if (file == NULL || (error != -1 && !isatty (fileno (stdin)) &&
                        !S_ISCHR (buf.st_mode) && !S_ISBLK (buf.st_mode)))
     {
-      SCM inp = scm_current_input_port ();
-      SCM ret = SCM_BOOL_F, line;
+      SCM form, inp = scm_current_input_port ();
 
-      while (!SCM_EOF_OBJECT_P (line = scm_read (inp)))
-        ret = scm_primitive_eval_x (line);
+      while (!SCM_EOF_OBJECT_P (form = scm_read (inp)))
+        scm_primitive_eval_x (form);
       return SCM_BOOL_T;
     }
 
