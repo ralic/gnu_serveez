@@ -135,4 +135,16 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define HAVE_OLD_SMOBS 1
 #endif
 
+/* Idioms.  */
+
+#define ASSERT_EXACT(n,obj)                     \
+  SCM_ASSERT_TYPE                               \
+  (SCM_EXACTP (obj), obj,                       \
+   SCM_ARG ## n, FUNC_NAME, "exact")
+
+#define ASSERT_STRING(n,obj)                    \
+  SCM_ASSERT_TYPE                               \
+  (SCM_STRINGP (obj), obj,                      \
+   SCM_ARG ## n, FUNC_NAME, "string")
+
 #endif /* not __GUILE_API_H__ */

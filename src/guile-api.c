@@ -107,8 +107,7 @@ or @code{#f} on failure.  */)
 
   SCM_ASSERT_TYPE (SCM_EXACTP (host) || SCM_STRINGP (host),
                    host, SCM_ARG1, FUNC_NAME, "string or exact");
-  SCM_ASSERT_TYPE (SCM_EXACTP (proto),
-                   proto, SCM_ARG2, FUNC_NAME, "exact");
+  ASSERT_EXACT (2, proto);
 
   /* Extract host to connect to.  */
   if (SCM_EXACTP (host))
@@ -137,8 +136,7 @@ or @code{#f} on failure.  */)
   /* Find out about given port.  */
   if (!SCM_UNBNDP (port))
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (port),
-                       port, SCM_ARG3, FUNC_NAME, "exact");
+      ASSERT_EXACT (3, port);
       VALIDATE_NETPORT (p, port, SCM_ARG3);
       xport = htons (p);
     }
@@ -179,8 +177,7 @@ numbers-and-dots notation.  */)
 {
 #define FUNC_NAME s_guile_svz_inet_ntoa
   char *str;
-  SCM_ASSERT_TYPE (SCM_EXACTP (address),
-                   address, SCM_ARG1, FUNC_NAME, "exact");
+  ASSERT_EXACT (1, address);
   str = svz_inet_ntoa (gi_scm2ulong (address));
   return gi_string2scm (str);
 #undef FUNC_NAME
@@ -199,8 +196,7 @@ Return @code{#f} if the address is invalid.  */)
   struct sockaddr_in addr;
   char str[48];
 
-  SCM_ASSERT_TYPE (SCM_STRINGP (address),
-                   address, SCM_ARG1, FUNC_NAME, "string");
+  ASSERT_STRING (1, address);
   GI_GET_XREP (str, address);
   if (svz_inet_aton (str, &addr) == -1)
     {
@@ -220,8 +216,7 @@ Convert the 32 bit long integer
 @var{netlong} from network byte order to host byte order.  */)
 {
 #define FUNC_NAME s_guile_svz_ntohl
-  SCM_ASSERT_TYPE (SCM_EXACTP (netlong),
-                   netlong, SCM_ARG1, FUNC_NAME, "exact");
+  ASSERT_EXACT (1, netlong);
   return gi_nnint2scm (ntohl (gi_scm2ulong (netlong)));
 #undef FUNC_NAME
 }
@@ -235,8 +230,7 @@ Convert the 32 bit long integer
 @var{hostlong} from host byte order to network byte order.  */)
 {
 #define FUNC_NAME s_guile_svz_htonl
-  SCM_ASSERT_TYPE (SCM_EXACTP (hostlong),
-                   hostlong, SCM_ARG1, FUNC_NAME, "exact");
+  ASSERT_EXACT (1, hostlong);
   return gi_nnint2scm (htonl (gi_scm2ulong (hostlong)));
 #undef FUNC_NAME
 }
@@ -251,8 +245,7 @@ Converts the 16 bit short integer
 {
 #define FUNC_NAME s_guile_svz_ntohs
   long i;
-  SCM_ASSERT_TYPE (SCM_EXACTP (netshort),
-                   netshort, SCM_ARG1, FUNC_NAME, "exact");
+  ASSERT_EXACT (1, netshort);
   VALIDATE_NETPORT (i, netshort, SCM_ARG1);
   return gi_integer2scm (ntohs (i));
 #undef FUNC_NAME
@@ -268,8 +261,7 @@ Converts the 16 bit short integer
 {
 #define FUNC_NAME s_guile_svz_htons
   long i;
-  SCM_ASSERT_TYPE (SCM_EXACTP (hostshort),
-                   hostshort, SCM_ARG1, FUNC_NAME, "exact");
+  ASSERT_EXACT (1, hostshort);
   VALIDATE_NETPORT (i, hostshort, SCM_ARG1);
   return gi_integer2scm (htons (i));
 #undef FUNC_NAME
@@ -307,7 +299,7 @@ specified size in bytes.  */)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (!SCM_UNBNDP (size))
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
+      ASSERT_EXACT (2, size);
       len = gi_scm2int (size);
       svz_sock_resize_buffers (xsock, xsock->send_buffer_size, len);
     }
@@ -348,7 +340,7 @@ the specified size in bytes.  */)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (!SCM_UNBNDP (size))
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
+      ASSERT_EXACT (2, size);
       len = gi_scm2int (size);
       svz_sock_resize_buffers (xsock, len, xsock->recv_buffer_size);
     }
@@ -375,8 +367,7 @@ Return the number of bytes actually shuffled away.  */)
   /* Check if second length argument is given.  */
   if (!SCM_UNBNDP (length))
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (length),
-                       length, SCM_ARG2, FUNC_NAME, "exact");
+      ASSERT_EXACT (2, length);
       len = gi_scm2int (length);
       if (len < 0 || len > xsock->recv_buffer_fill)
         SCM_OUT_OF_RANGE (SCM_ARG2, length);
@@ -742,8 +733,7 @@ given, the set the @code{idle-counter}.  Please have a look at the
   ocounter = xsock->idle_counter;
   if (!SCM_UNBNDP (counter))
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (counter),
-                       counter, SCM_ARG2, FUNC_NAME, "exact");
+      ASSERT_EXACT (2, counter);
       xsock->idle_counter = gi_scm2int (counter);
     }
   return gi_integer2scm (ocounter);
@@ -862,7 +852,7 @@ If given no arguments, it behave like @code{getrpcent}.  */)
 #endif /* HAVE_GETRPCBYNAME */
 #if HAVE_GETRPCBYNUMBER
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (arg), arg, SCM_ARG1, FUNC_NAME, "exact");
+      ASSERT_EXACT (1, arg);
       entry = getrpcbynumber (gi_scm2int (arg));
     }
 #endif /* #if HAVE_GETRPCBYNUMBER */
@@ -932,8 +922,7 @@ available or an error occurred while fetching the list.  */)
 #endif
   if (!SCM_UNBNDP (address))
     {
-      SCM_ASSERT_TYPE (SCM_STRINGP (address), address, SCM_ARG1,
-                       FUNC_NAME, "string");
+      ASSERT_STRING (1, address);
       GI_GET_XREP (str, address);
       if (svz_inet_aton (str, &raddr) == -1)
         {
@@ -982,10 +971,8 @@ all mapping between the triple [@var{prognum},@var{versnum},*] and ports
 on the machine's portmap service.  */)
 {
 #define FUNC_NAME s_scm_portmap
-  SCM_ASSERT_TYPE (SCM_EXACTP (prognum), prognum, SCM_ARG1,
-                   FUNC_NAME, "exact");
-  SCM_ASSERT_TYPE (SCM_EXACTP (versnum), prognum, SCM_ARG2,
-                   FUNC_NAME, "exact");
+  ASSERT_EXACT (1, prognum);
+  ASSERT_EXACT (2, prognum);
 
   if (SCM_UNBNDP (protocol) && SCM_UNBNDP (port))
     {
@@ -996,10 +983,8 @@ on the machine's portmap service.  */)
     }
   else
     {
-      SCM_ASSERT_TYPE (SCM_EXACTP (protocol), protocol, SCM_ARG3,
-                       FUNC_NAME, "exact");
-      SCM_ASSERT_TYPE (SCM_EXACTP (port), port, SCM_ARG4,
-                       FUNC_NAME, "exact");
+      ASSERT_EXACT (3, protocol);
+      ASSERT_EXACT (4, port);
 
       if (!pmap_set (gi_scm2int (prognum), gi_scm2int (versnum),
                      gi_scm2int (protocol), gi_scm2int (port)))
@@ -1066,8 +1051,7 @@ IP address for the given hostname @var{host}.  */)
   char request[128];
 
   /* Check argument list first.  */
-  SCM_ASSERT_TYPE (SCM_STRINGP (host), host, SCM_ARG1, FUNC_NAME,
-                   "string");
+  ASSERT_STRING (1, host);
   VALIDATE_CALLBACK (callback);
 
   /* Convert hostname into C string.  */
@@ -1093,7 +1077,7 @@ requested IP address @var{addr}.  */)
   in_addr_t ip;
 
   /* Check argument list first.  */
-  SCM_ASSERT_TYPE (SCM_EXACTP (addr), addr, SCM_ARG1, FUNC_NAME, "exact");
+  ASSERT_EXACT (1, addr);
   VALIDATE_CALLBACK (callback);
 
   /* Convert IP address into C long value.  */
@@ -1191,7 +1175,7 @@ reading from the port.  */)
   SCM_ASSERT_TYPE (SCM_NIMP (port) && SCM_FPORTP (port) &&
                    SCM_OPINFPORTP (port),
                    port, SCM_ARG1, FUNC_NAME, "open input port");
-  SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
+  ASSERT_EXACT (2, size);
 
   /* Get underlying file descriptor.  */
   fdes = gi_scm2int (scm_fileno (port));

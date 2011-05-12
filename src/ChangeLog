@@ -1,5 +1,14 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Add abstractions: ASSERT_{EXACT,STRING}
+
+	* guile-api.h (ASSERT_EXACT, ASSERT_STRING): New macros.
+	* guile-api.c: Use them, throughout.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add funcs: gi_{malloc,realloc,free}
 
 	* gi.c (UNUSED): New macro.

@@ -1093,7 +1093,7 @@ string @var{key} is invalid (not defined in the configuration alist in
   svz_config_prototype_t *prototype;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
-  SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
+  ASSERT_STRING (2, key);
 
   GI_GET_XREP (str, key);
   stype = svz_servertype_find (xserver);
@@ -1133,7 +1133,7 @@ either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}.
   svz_hash_t *hash;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
-  SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
+  ASSERT_STRING (2, key);
   GI_GET_XREP (str, key);
 
   if ((hash = xserver->data) != NULL)
@@ -1163,7 +1163,7 @@ will be deleted soon. ---ttn]  */)
   svz_hash_t *hash;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
-  SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
+  ASSERT_STRING (2, key);
   GI_GET_XREP (str, key);
 
   if ((hash = xserver->data) == NULL)
