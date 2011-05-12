@@ -91,7 +91,7 @@ See the end for copying conditions.
 ******* DONE scm_unprotect_object (f) => gi_gc_unprotect (f)
 ***** DONE snarf definitions
 ***** DONE add proc ‘libserveez-features’
-***** TODO refactor getter/setter support
+***** TODO make buildable under Guile 2 (hint: see [[Mike Gran's fork]])
 *** TODO Enable / augment the Guile tests.
 ***** TODO add driver
 ***** DONE add test for Guile server
@@ -121,7 +121,7 @@ See the end for copying conditions.
 ******* use ‘fs’, ‘fso’, etc.
 ******* use (widely available) SRFI and ice-9 modules
 *** Support IPv6.
-*** Assimilate Mike Gran's fork ([[shell:cd%20..%20&&%20git%20clone%20git://github.com/spk121/serveez-mg.git][clone]] [[file:~/build/GNU/serveez-mg][visit]]).
+*** Assimilate <<Mike Gran's fork>> ([[shell:cd%20..%20&&%20git%20clone%20git://github.com/spk121/serveez-mg.git][clone]] [[file:~/build/GNU/serveez-mg][visit]]).
 *** Expose relax/throttle time (formerly ‘RELAX_FD_TIME’) to cfg machinery.
 *** Minimize memory consumption of coservers.
 *** Find out how to unload a shared library on MacOS.
