@@ -1,3 +1,11 @@
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Avoid ‘SCM_WRITABLE_VELTS’.
+
+	* guile-api.c (scm_return_rpcentry, scm_portmap_list):
+	Build list first, then convert it to a vector.
+	* guile-api.h (SCM_WRITABLE_VELTS): Delete macro.
+
 2011-05-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[int] Avoid ‘SCM_INUM’, ‘SCM_INUMP’, ‘SCM_MAKINUM’.

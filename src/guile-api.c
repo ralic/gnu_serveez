@@ -824,15 +824,10 @@ empty list if there is no such client.  */)
 static SCM
 scm_return_rpcentry (struct rpcent *entry)
 {
-  SCM ans;
-  SCM *ve;
-
-  ans = gi_n_vector (3, SCM_UNSPECIFIED);
-  ve = SCM_WRITABLE_VELTS (ans);
-  ve[0] = gi_string2scm (entry->r_name);
-  ve[1] = scm_makfromstrs (-1, entry->r_aliases);
-  ve[2] = gi_integer2scm (entry->r_number);
-  return ans;
+  return scm_vector
+    (gi_list_3 (gi_string2scm (entry->r_name),
+                scm_makfromstrs (-1, entry->r_aliases),
+                gi_integer2scm (entry->r_number)));
 }
 
 SCM_DEFINE
@@ -925,7 +920,7 @@ available or an error occurred while fetching the list.  */)
   struct sockaddr_in addr, raddr;
   struct pmaplist *map;
   char str[48];
-  SCM list = SCM_EOL, mapping, *ve;
+  SCM list = SCM_EOL, mapping;
 
   memset (&addr, 0, sizeof (struct sockaddr_in));
 #if HAVE_GET_MYADDRESS
@@ -952,12 +947,12 @@ available or an error occurred while fetching the list.  */)
     return SCM_EOL;
   do
     {
-      mapping = gi_n_vector (4, SCM_UNSPECIFIED);
-      ve = SCM_WRITABLE_VELTS (mapping);
-      ve[0] = gi_integer2scm (map->pml_map.pm_prog);
-      ve[1] = gi_integer2scm (map->pml_map.pm_vers);
-      ve[2] = gi_integer2scm (map->pml_map.pm_prot);
-      ve[3] = gi_integer2scm (map->pml_map.pm_port);
+      mapping = gi_list_3 (gi_integer2scm (map->pml_map.pm_vers),
+                           gi_integer2scm (map->pml_map.pm_prot),
+                           gi_integer2scm (map->pml_map.pm_port));
+      mapping = scm_cons (gi_integer2scm (map->pml_map.pm_prog),
+                          mapping);
+      mapping = scm_vector (mapping);
       list = scm_cons (mapping ,list);
     }
   while ((map = map->pml_next) != NULL);

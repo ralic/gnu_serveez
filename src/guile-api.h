@@ -99,9 +99,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_MAKE_CHAR
 #define SCM_MAKE_CHAR(x) SCM_MAKICHR (x)
 #endif
-#ifndef SCM_WRITABLE_VELTS
-#define SCM_WRITABLE_VELTS(x) SCM_VELTS(x)
-#endif
 #ifndef SCM_VERSION_15X
 #define scm_primitive_eval_x(expr) scm_eval_x (expr)
 #endif
