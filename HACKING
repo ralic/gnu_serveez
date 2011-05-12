@@ -25,6 +25,7 @@ See the end for copying conditions.
 ***** DONE use ‘in_addr_t’ instead of ‘unsigned long’
 ***** DONE detect ‘gettimeofday’ with #include <sys/time.h>
 ***** DONE don't drop subsequent "TCP final write" on previous write flush
+***** DONE ensure current module for initialization is ‘(guile)’
 *** DONE Drop mkpassword.
 *** TODO Modernize bootstrap / build.
 ***** DONE mv configure.in configure.ac
