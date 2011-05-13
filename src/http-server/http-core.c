@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_HTTP_PROTO
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -1097,9 +1095,3 @@ http_absolute_file (char *file)
   svz_free (savedir);
   return dir;
 }
-
-#else /* ENABLE_HTTP_PROTO */
-
-int http_core_dummy;            /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_HTTP_PROTO */

@@ -1,3 +1,59 @@
+2011-05-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use automake conditionals to gate sub-proto libs.
+
+	* Makefile.am (SUBDIRS): Remove $(SERVERDIRS).
+	(PROTOLIBS): Remove $(SERVERLIBS).
+	[SNTP] (SUBDIRS): Add foo-server.
+	[SNTP] (PROTOLIBS): Add foo-server/libfoo.a.
+	[GNUTELLA] (SUBDIRS): Add nut-server.
+	[GNUTELLA] (PROTOLIBS): Add nut-server/libnut.a.
+	[TUNNEL] (SUBDIRS): Add tunnel-server.
+	[TUNNEL] (PROTOLIBS): Add tunnel-server/libtunnel.a.
+	[CONTROL] (SUBDIRS): Add ctrl-server.
+	[CONTROL] (PROTOLIBS): Add ctrl-server/libctrl.a.
+	[IRC] (SUBDIRS): Add irc-server, irc-core.
+	[IRC] (PROTOLIBS): Add irc-server/libircserver.a,
+	irc-core/libirccore.a.
+	[AWCS] (SUBDIRS): Add awcs-server.
+	[AWCS] (PROTOLIBS): Add awcs-server/libawcs.a.
+	[HTTP] (SUBDIRS): Add http-server.
+	[HTTP] (PROTOLIBS): Add http-server/libhttp.a.
+	[FAKEIDENT] (SUBDIRS): Add fakeident-server.
+	[FAKEIDENT] (PROTOLIBS): Add fakeident-server/libfakeident.a.
+	[PROG] (SUBDIRS): Add prog-server.
+	[PROG] (PROTOLIBS): Add prog-server/libprog.a.
+	* awcs-server/awcs-proto.c: Remove ‘#if ENABLE_...’, peer
+	‘#else ... #endif’ block, and obsolete ‘have_...’ dummy var.
+	* ctrl-server/control-proto.c: Likewise.
+	* fakeident-server/ident-proto.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-core.c: Likewise.
+	* http-server/http-dirlist.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-config.c: Likewise.
+	* irc-server/irc-crypt.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-event-2.c: Likewise.
+	* irc-server/irc-event-3.c: Likewise.
+	* irc-server/irc-event-4.c: Likewise.
+	* irc-server/irc-event-5.c: Likewise.
+	* irc-server/irc-event-6.c: Likewise.
+	* irc-server/irc-event-7.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* irc-server/irc-server.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-core.c: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-route.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* sntp-server/sntp-proto.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi] Add func: gi_nfalsep

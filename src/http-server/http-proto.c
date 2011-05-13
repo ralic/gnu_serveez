@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_HTTP_PROTO
-
 #include "timidity.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -1366,11 +1364,3 @@ http_default_response (svz_socket_t *sock,
   sock->userflags |= HTTP_FLAG_DONE;
   return 0;
 }
-
-int have_http = 1;
-
-#else /* ENABLE_HTTP_PROTO */
-
-int have_http = 0;      /* Shut compiler warnings up, remember for runtime */
-
-#endif /* not ENABLE_HTTP_PROTO */

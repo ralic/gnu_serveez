@@ -37,14 +37,10 @@ CODECLIBS=""
 EXTRALIBS=""
 LIBSERVEEZLIBS=""
 SERVEEZ_LIBS=""
-SERVERDIRS=""
-SERVERLIBS=""
 
 AC_SUBST([CODECLIBS])        dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([LIBSERVEEZLIBS])   dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([SERVEEZ_LIBS])     dnl FIXME: Use ‘LIBS’ et al directly.
-AC_SUBST([SERVERDIRS])
-AC_SUBST([SERVERLIBS])       dnl TODO: Consider automake conditionals.
 
 dnl ----------------------------------------------------------------------
 dnl information on the package
@@ -114,8 +110,8 @@ SVZ_FLAG([whether to enable the SNTP server],
          [yes],[sntp-proto],[Include the SNTP server],[
 AC_DEFINE([ENABLE_SNTP_PROTO], 1,
   [Define if the SNTP server should be included.])
-SERVERLIBS="$SERVERLIBS sntp-server/libsntp.a"
 ])
+AM_CONDITIONAL([SNTP],[SVZ_Y([enable_sntp_proto])])
 
 dnl
 dnl Check whether the Gnutella server should be included.
@@ -124,8 +120,8 @@ SVZ_FLAG([whether to enable the Gnutella spider],
          [yes],[gnutella],[Include the Gnutella spider],[
 AC_DEFINE([ENABLE_GNUTELLA], 1,
   [Define if the Gnutella spider should be included.])
-SERVERLIBS="$SERVERLIBS nut-server/libnut.a"
 ])
+AM_CONDITIONAL([GNUTELLA],[SVZ_Y([enable_gnutella])])
 
 dnl
 dnl Check whether the Tunnel server should be included.
@@ -134,8 +130,8 @@ SVZ_FLAG([whether to enable the port forwarder],
          [yes],[tunnel],[Include port forwarder],[
 AC_DEFINE([ENABLE_TUNNEL], 1,
   [Define if the port forwarder should be included.])
-SERVERLIBS="$SERVERLIBS tunnel-server/libtunnel.a"
 ])
+AM_CONDITIONAL([TUNNEL],[SVZ_Y([enable_tunnel])])
 
 dnl
 dnl Check whether the control protocol should be included.
@@ -144,8 +140,8 @@ SVZ_FLAG([whether to enable support for the control protocol],
          [yes],[control-proto],[Include the control protocol],[
 AC_DEFINE([ENABLE_CONTROL_PROTO], 1,
   [Define if the control protocol should be supported.])
-SERVERLIBS="$SERVERLIBS ctrl-server/libctrl.a"
 ])
+AM_CONDITIONAL([CONTROL],[SVZ_Y([enable_control_proto])])
 
 dnl
 dnl Check whether the IRC protocol should be included.
@@ -154,8 +150,8 @@ SVZ_FLAG([whether to enable support for the IRC protocol],
          [yes],[irc-proto],[Include the IRC protocol],[
 AC_DEFINE([ENABLE_IRC_PROTO], 1,
   [Define if the IRC protocol should be supported.])
-SERVERLIBS="$SERVERLIBS irc-server/libircserver.a irc-core/libirccore.a"
 ])
+AM_CONDITIONAL([IRC],[SVZ_Y([enable_irc_proto])])
 
 dnl
 dnl Check whether the IRC protocol "TimeStamp" extension should be included.
@@ -179,8 +175,8 @@ SVZ_FLAG([whether to enable support for the aWCS protocol],
          [yes],[awcs-proto],[Include the aWCS protocol],[
 AC_DEFINE([ENABLE_AWCS_PROTO], 1,
   [Define if the aWCS protocol should be supported.])
-SERVERLIBS="$SERVERLIBS awcs-server/libawcs.a"
 ])
+AM_CONDITIONAL([AWCS],[SVZ_Y([enable_awcs_proto])])
 
 dnl
 dnl Check whether the HTTP protocol should be included.
@@ -189,8 +185,8 @@ SVZ_FLAG([whether to enable support for the HTTP protocol],
          [yes],[http-proto],[Include the HTTP protocol],[
 AC_DEFINE([ENABLE_HTTP_PROTO], 1,
   [Define if the HTTP protocol should be supported.])
-SERVERLIBS="$SERVERLIBS http-server/libhttp.a"
 ])
+AM_CONDITIONAL([HTTP],[SVZ_Y([enable_http_proto])])
 
 dnl
 dnl Check whether the Fake Ident Server should be included.
@@ -199,8 +195,8 @@ SVZ_FLAG([whether to enable the fake ident server],
          [yes],[fakeident],[Include the fake ident server],[
 AC_DEFINE([ENABLE_FAKEIDENT], 1,
   [Define if the Fake Ident Server should be included.])
-SERVERLIBS="$SERVERLIBS fakeident-server/libfakeident.a"
 ])
+AM_CONDITIONAL([FAKEIDENT],[SVZ_Y([enable_fakeident])])
 
 dnl
 dnl Check whether the passthrough server should be included.
@@ -209,8 +205,8 @@ SVZ_FLAG([whether to enable the passthrough server],
          [yes],[passthrough],[Include the passthrough server],[
 AC_DEFINE([ENABLE_PROG_SERVER], 1,
   [Define if the program passthrough server should be included.])
-SERVERLIBS="$SERVERLIBS prog-server/libprog.a"
 ])
+AM_CONDITIONAL([PROG],[SVZ_Y([enable_passthrough])])
 
 dnl
 dnl Check whether the flood protection should be included.
@@ -657,10 +653,6 @@ AC_DEFINE_UNQUOTED([SIZEOF_UINT32],[4],[Number of bytes for uint32_t.])
 
 dnl ----------------------------------------------------------------------
 dnl write it out
-
-for lib in $SERVERLIBS ; do
-  SERVERDIRS="$SERVERDIRS `echo $lib | sed 's|/.*||'`"
-done
 
 LIBS="$LIBS $EXTRALIBS"
 

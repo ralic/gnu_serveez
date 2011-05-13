@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_GNUTELLA
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1067,9 +1065,3 @@ nut_file_write (svz_socket_t *sock)
    */
   return (num_written < 0) ? -1 : 0;
 }
-
-#else /* ENABLE_GNUTELLA */
-
-int nut_transfer_dummy;         /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_GNUTELLA */

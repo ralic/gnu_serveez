@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <string.h>
 #include "networking-headers.h"
@@ -110,9 +108,3 @@ irc_decrypt_text (char *crypt, uint8_t key)
     }
   return text;
 }
-
-#else /* ENABLE_IRC_PROTO */
-
-int irc_crypt_dummy;            /* Shut up compiler.  */
-
-#endif /* ENABLE_IRC_PROTO */

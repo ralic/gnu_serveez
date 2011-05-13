@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#if ENABLE_AWCS_PROTO
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -934,12 +932,3 @@ awcs_detect_proto (svz_server_t *server, svz_socket_t *sock)
   sock->recv_buffer_fill -= len;
   return len;
 }
-
-int have_awcs = 1;
-
-#else /* ENABLE_AWCS_PROTO */
-
-int have_awcs = 0;      /* Shut compiler warnings up,
-                           make runtime checking possible */
-
-#endif /* not ENABLE_AWCS_PROTO */

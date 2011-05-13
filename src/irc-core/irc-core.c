@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -568,9 +566,3 @@ irc_string_equal (char *str1, char *str2)
     return 0;
   return -1;
 }
-
-#else /* ENABLE_IRC_PROTO */
-
-int irc_core_dummy;             /* Shut up compiler.  */
-
-#endif /* ENABLE_IRC_PROTO */

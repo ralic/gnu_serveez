@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -1107,11 +1105,3 @@ irc_printf (svz_socket_t *sock, const char *fmt, ...)
     }
   return len;
 }
-
-int have_irc = 1;
-
-#else /* ENABLE_IRC_PROTO */
-
-int have_irc = 0;            /* Shut up compiler, remember for runtime */
-
-#endif /* ENABLE_IRC_PROTO */

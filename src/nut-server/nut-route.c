@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_GNUTELLA
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -363,9 +361,3 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
     }
   return 0;
 }
-
-#else /* ENABLE_GNUTELLA */
-
-int nut_route_dummy;            /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_GNUTELLA */

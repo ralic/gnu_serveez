@@ -43,15 +43,48 @@ BUILT_SOURCES += \
   guile-server.x \
   guile.x
 
-#
-# Add your server subdirectory here
-#
-SUBDIRS = libserveez foo-server guile-server $(SERVERDIRS)
+SUBDIRS = libserveez guile-server
+PROTOLIBS =
 
-#
-# Add your library here
-#
-PROTOLIBS = foo-server/libfoo.a $(SERVERLIBS)
+SUBDIRS   += foo-server
+PROTOLIBS += foo-server/libfoo.a
+
+if SNTP
+SUBDIRS   += sntp-server
+PROTOLIBS += sntp-server/libsntp.a
+endif
+if GNUTELLA
+SUBDIRS   += nut-server
+PROTOLIBS += nut-server/libnut.a
+endif
+if TUNNEL
+SUBDIRS   += tunnel-server
+PROTOLIBS += tunnel-server/libtunnel.a
+endif
+if CONTROL
+SUBDIRS   += ctrl-server
+PROTOLIBS += ctrl-server/libctrl.a
+endif
+if IRC
+SUBDIRS   += irc-server                irc-core
+PROTOLIBS += irc-server/libircserver.a irc-core/libirccore.a
+endif
+if AWCS
+SUBDIRS   += awcs-server
+PROTOLIBS += awcs-server/libawcs.a
+endif
+if HTTP
+SUBDIRS   += http-server
+PROTOLIBS += http-server/libhttp.a
+endif
+if FAKEIDENT
+SUBDIRS   += fakeident-server
+PROTOLIBS += fakeident-server/libfakeident.a
+endif
+if PROG
+SUBDIRS   += prog-server
+PROTOLIBS += prog-server/libprog.a
+endif
 
 bin_PROGRAMS = serveez
 

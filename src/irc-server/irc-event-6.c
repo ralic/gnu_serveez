@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -149,9 +147,3 @@ irc_kill_callback (svz_socket_t *sock,
 
   return 0;
 }
-
-#else /* not ENABLE_IRC_PROTO */
-
-int irc_event_6_dummy;          /* Shut up compiler warnings.  */
-
-#endif /* not ENABLE_IRC_PROTO */

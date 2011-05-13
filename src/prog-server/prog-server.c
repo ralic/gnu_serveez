@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#if ENABLE_PROG_SERVER
-
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -413,9 +411,3 @@ prog_info_server (SVZ_UNUSED svz_server_t *server)
 {
   return NULL;
 }
-
-#else /* not ENABLE_PROG_SERVER */
-
-static int have_prog = 0;
-
-#endif /* not ENABLE_PROG_SERVER */

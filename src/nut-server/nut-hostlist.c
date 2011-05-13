@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_GNUTELLA
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -221,9 +219,3 @@ nut_host_catcher (svz_socket_t *sock, in_addr_t ip, in_port_t port)
     }
   return 0;
 }
-
-#else /* ENABLE_GNUTELLA */
-
-int nut_hostlist_dummy;         /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_GNUTELLA */

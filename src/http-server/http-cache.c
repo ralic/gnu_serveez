@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_HTTP_PROTO
-
 #include "timidity.h"
 #include <stdio.h>
 #include <string.h>
@@ -540,9 +538,3 @@ http_cache_read (svz_socket_t *sock)
 
   return 0;
 }
-
-#else /* ENABLE_HTTP_PROTO */
-
-int http_cache_dummy;           /* Silence compiler.  */
-
-#endif /* not ENABLE_HTTP_PROTO */

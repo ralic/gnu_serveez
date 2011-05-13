@@ -1,5 +1,14 @@
 2011-05-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use automake conditionals to gate sub-proto libs.
+
+	* configure.ac (SERVERDIRS, SERVERLIBS): Delete
+	AC_SUBSTs and all related code that sets these vars.
+	(SNTP, GNUTELLA, TUNNEL, CONTROL, IRC, AWCS, HTTP)
+	(FAKEIDENT, PROG): New AM_CONDITIONALs.
+
+2011-05-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Decruft: Don't bother maintaining a makefile in data/.
 
 	* Makefile.am (SUBDIRS): Remove data.

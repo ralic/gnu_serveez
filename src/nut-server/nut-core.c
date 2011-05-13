@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_GNUTELLA
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -501,9 +499,3 @@ nut_parse_property (char *header, int len, char *property)
     }
   return NULL;
 }
-
-#else /* ENABLE_GNUTELLA */
-
-int nut_core_dummy;             /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_GNUTELLA */

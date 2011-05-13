@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -360,9 +358,3 @@ irc_find_server (void)
 {
   return NULL;
 }
-
-#else /* not ENABLE_IRC_PROTO */
-
-int irc_server_dummy;           /* Shut up compiler.  */
-
-#endif /* ENABLE_IRC_PROTO */

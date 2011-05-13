@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <string.h>
 #include "networking-headers.h"
@@ -209,9 +207,3 @@ irc_note_callback (svz_socket_t *sock,
 
   return 0;
 }
-
-#else /* not ENABLE_IRC_PROTO */
-
-int irc_event_4_dummy;          /* Shut up compiler warnings.  */
-
-#endif /* not ENABLE_IRC_PROTO */

@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_IRC_PROTO
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -410,9 +408,3 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
 
   return 0;
 }
-
-#else /* ENABLE_IRC_PROTO */
-
-int irc_config_dummy;           /* Shut up compiler.  */
-
-#endif /* ENABLE_IRC_PROTO */

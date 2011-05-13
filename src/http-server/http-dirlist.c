@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#if ENABLE_HTTP_PROTO
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -317,9 +315,3 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 
   return dirdata;
 }
-
-#else /* ENABLE_HTTP_PROTO */
-
-int http_dirlist_dummy;         /* Silence compiler.  */
-
-#endif /* not ENABLE_HTTP_PROTO */

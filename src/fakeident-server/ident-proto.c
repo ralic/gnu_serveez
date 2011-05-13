@@ -21,8 +21,6 @@
 
 #include "config.h"
 
-#if ENABLE_FAKEIDENT
-
 #include <stdio.h>
 #include <ctype.h>
 #include "networking-headers.h"
@@ -218,9 +216,3 @@ fakeident_info_server (svz_server_t *server)
 
   return info;
 }
-
-#else /* ENABLE_FAKEIDENT */
-
-int fakeident_dummy = 0;        /* Shut compiler warnings up.  */
-
-#endif /* ENABLE_FAKEIDENT */

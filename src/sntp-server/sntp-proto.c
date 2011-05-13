@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_SNTP_PROTO
-
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -154,9 +152,3 @@ sntp_handle_request (svz_socket_t *sock,
   answer (sock, svz_udp_write);
   return 0;
 }
-
-#else /* not ENABLE_SNTP_PROTO */
-
-int sntp_dummy;                 /* Shut up compiler.  */
-
-#endif /* not ENABLE_SNTP_PROTO */

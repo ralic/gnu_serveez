@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_CONTROL_PROTO
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -530,9 +528,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 #ifdef ENABLE_IRC_PROTO
                    " IRC"
 #endif /* ENABLE_IRC_PROTO */
-#if ENABLE_CONTROL_PROTO
                    " CTRL"
-#endif /* ENABLE_CONTROL_PROTO */
 #if ENABLE_SNTP_PROTO
                    " SNTP"
 #endif /* ENABLE_SNTP_PROTO */
@@ -1159,11 +1155,3 @@ ctrl_idle (svz_socket_t *sock)
   sock->idle_counter = CTRL_LOAD_UPDATE;
   return 0;
 }
-
-int have_ctrl = 1;
-
-#else /* ENABLE_CONTROL_PROTO */
-
-int have_ctrl = 0; /* shut up compiler */
-
-#endif /* ENABLE_CONTROL_PROTO */

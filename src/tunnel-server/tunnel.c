@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_TUNNEL
-
 #include "timidity.h"
 #include <stdio.h>
 #include <string.h>
@@ -802,9 +800,3 @@ tnl_idle (svz_socket_t *sock)
     }
   return -1;
 }
-
-#else /* not ENABLE_TUNNEL */
-
-int tunnel_dummy;               /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_TUNNEL */

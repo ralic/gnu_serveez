@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_GNUTELLA
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -396,9 +394,3 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr,
 
   return 0;
 }
-
-#else /* ENABLE_GNUTELLA */
-
-int nut_request_dummy;          /* Shut compiler warnings up.  */
-
-#endif /* not ENABLE_GNUTELLA */

@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#if ENABLE_GNUTELLA
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1202,10 +1200,3 @@ nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
   return -1;
 }
 
-int have_gnutella = 1;
-
-#else /* ENABLE_GNUTELLA */
-
-int have_gnutella = 0;  /* Shut compiler warnings up, remember for runtime */
-
-#endif /* not ENABLE_GNUTELLA */
