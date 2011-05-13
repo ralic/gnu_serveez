@@ -35,34 +35,34 @@
    are mainly due to the fact that the gh interface is deprecated in newer
    versions.  */
 #ifndef SCM_PROCEDUREP
-#define SCM_PROCEDUREP(obj) SCM_NFALSEP (scm_procedure_p (obj))
+#define SCM_PROCEDUREP(obj) gi_nfalsep (scm_procedure_p (obj))
 #endif
 #ifndef SCM_EXACTP
-#define SCM_EXACTP(obj) SCM_NFALSEP (scm_exact_p (obj))
+#define SCM_EXACTP(obj) gi_nfalsep (scm_exact_p (obj))
 #endif
 #ifndef SCM_POSITIVEP
-#define SCM_POSITIVEP(obj) SCM_NFALSEP (scm_positive_p (obj))
+#define SCM_POSITIVEP(obj) gi_nfalsep (scm_positive_p (obj))
 #endif
 #ifndef SCM_NEGATIVEP
-#define SCM_NEGATIVEP(obj) SCM_NFALSEP (scm_negative_p (obj))
+#define SCM_NEGATIVEP(obj) gi_nfalsep (scm_negative_p (obj))
 #endif
 #ifndef SCM_PAIRP
-#define SCM_PAIRP(obj) SCM_NFALSEP (scm_pair_p (obj))
+#define SCM_PAIRP(obj) gi_nfalsep (scm_pair_p (obj))
 #endif
 #ifndef SCM_LISTP
-#define SCM_LISTP(obj) SCM_NFALSEP (scm_list_p (obj))
+#define SCM_LISTP(obj) gi_nfalsep (scm_list_p (obj))
 #endif
 #ifndef SCM_BOOLP
-#define SCM_BOOLP(obj) SCM_NFALSEP (scm_boolean_p (obj))
+#define SCM_BOOLP(obj) gi_nfalsep (scm_boolean_p (obj))
 #endif
 #ifndef SCM_BOOL
 #define SCM_BOOL(x) ((x) ? SCM_BOOL_T : SCM_BOOL_F)
 #endif
 #ifndef SCM_EQ_P
-#define SCM_EQ_P(x, y) SCM_NFALSEP (scm_eq_p (x, y))
+#define SCM_EQ_P(x, y) gi_nfalsep (scm_eq_p (x, y))
 #endif
 #ifndef SCM_CHARP
-#define SCM_CHARP(obj) SCM_NFALSEP (scm_char_p (obj))
+#define SCM_CHARP(obj) gi_nfalsep (scm_char_p (obj))
 #endif
 #ifndef SCM_CHAR
 #define SCM_CHAR(x) SCM_ICHR (x)

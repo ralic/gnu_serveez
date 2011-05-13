@@ -1,5 +1,17 @@
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_nfalsep
+
+	* gi.c (gi_nfalsep): New func.
+	(gi_stringp, gi_symbolp): Use ‘gi_nfalsep’.
+	* gi.h (gi_nfalsep): New func decl.
+	* guile-api.h: Throughout, use ‘gi_nfalsep’.
+	* guile-api.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+
+2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build guile] Determine smob tag type at configure time.
 
 	* guile-bin.c (guile_bin_tag): Use ‘svz_smob_tag_t’.

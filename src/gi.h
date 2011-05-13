@@ -48,6 +48,7 @@ extern unsigned long gi_scm2ulong (SCM number);
 
 size_t gi_string_length (SCM string);
 
+extern int gi_nfalsep (SCM obj);
 extern int gi_stringp (SCM obj);
 extern int gi_symbolp (SCM obj);
 

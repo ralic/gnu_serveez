@@ -799,7 +799,7 @@ guile_func_trigger_cond (svz_socket_t *sock)
   if (!SCM_UNBNDP (trigger_cond))
     {
       ret = guile_call (trigger_cond, 1, MAKE_SMOB (svz_socket, sock));
-      return SCM_NFALSEP (ret);
+      return gi_nfalsep (ret);
     }
   return 0;
 #undef FUNC_NAME
@@ -935,7 +935,7 @@ optional.  */)
     {
       SCM_ASSERT_TYPE (SCM_BOOLP (flag) || SCM_EXACTP (flag),
                        flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
-      if ((SCM_BOOLP (flag) && SCM_NFALSEP (flag) != 0) ||
+      if ((SCM_BOOLP (flag) && gi_nfalsep (flag) != 0) ||
           (SCM_EXACTP (flag) && gi_scm2int (flag) != 0))
         xsock->flags &= ~SVZ_SOFLG_NOFLOOD;
       else

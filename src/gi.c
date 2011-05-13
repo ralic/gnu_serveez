@@ -260,12 +260,22 @@ gi_string_length (SCM string)
 }
 
 int
+gi_nfalsep (SCM obj)
+{
+#if V17
+  return ! scm_is_false (obj);
+#else
+  return SCM_NFALSEP (obj);
+#endif
+}
+
+int
 gi_stringp (SCM obj)
 {
 #if V17
   return scm_is_string (obj);
 #else
-  return SCM_NFALSEP (scm_string_p (obj));
+  return gi_nfalsep (scm_string_p (obj));
 #endif
 }
 
@@ -275,7 +285,7 @@ gi_symbolp (SCM obj)
 #if V17
   return scm_is_symbol (obj);
 #else
-  return SCM_NFALSEP (scm_symbol_p (obj));
+  return gi_nfalsep (scm_symbol_p (obj));
 #endif
 }
 

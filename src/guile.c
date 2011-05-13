@@ -417,7 +417,7 @@ guile_to_boolean (SCM cell, int *target)
   /* Usual guile boolean.  */
   if (SCM_BOOLP (cell))
     {
-      i = SCM_NFALSEP (cell);
+      i = gi_nfalsep (cell);
       *target = (i == 0 ? 0 : 1);
     }
   /* Try with the integer converter.  */

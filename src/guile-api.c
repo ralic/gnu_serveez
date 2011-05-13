@@ -581,7 +581,7 @@ packet transfer in order to disable unnecessary delays.  */)
         {
           SCM_ASSERT_TYPE (SCM_BOOLP (enable) || SCM_EXACTP (enable),
                            enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
-          if ((SCM_BOOLP (enable) && SCM_NFALSEP (enable) != 0) ||
+          if ((SCM_BOOLP (enable) && gi_nfalsep (enable) != 0) ||
               (SCM_EXACTP (enable) && gi_scm2int (enable) != 0))
             set = 1;
         }
