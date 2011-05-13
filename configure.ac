@@ -697,7 +697,6 @@ AC_CONFIG_FILES([
     src/prog-server/Makefile
     src/guile-server/Makefile
     doc/Makefile
-    data/Makefile
     test/Makefile
 ])
 

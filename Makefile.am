@@ -26,10 +26,11 @@ ACLOCAL_AMFLAGS = -I m4
 
 include $(top_srcdir)/build-aux/common.mk
 
-SUBDIRS = src data test doc
+SUBDIRS = src test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha README-cross
 EXTRA_DIST += build-aux/guile-baux
+EXTRA_DIST += data
 
 CLEANFILES += *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES += aclocal.m4 config.h.in configure \
