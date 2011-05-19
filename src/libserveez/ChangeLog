@@ -1,5 +1,11 @@
 2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[woe int] Make token var global.
+
+	* windoze.c [!__MINGW32__] (windoze_dummy): Make var global.
+
+2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Make libserveez + headers installation optional.
 
 	U ≡ "Conditionalize var with ‘COURAGEOUS’".

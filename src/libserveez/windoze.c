@@ -466,8 +466,8 @@ svz_windoze_uni2asc (WCHAR *unicode)
   return asc;
 }
 
-#else /* __MINGW32__ */
+#else /* not __MINGW32__ */
 
-static int windoze_dummy;       /* Shut compiler warnings up.  */
+int windoze_dummy;                      /* Shut compiler warnings up.  */
 
 #endif /* not __MINGW32__ */
