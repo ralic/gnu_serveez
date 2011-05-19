@@ -82,9 +82,9 @@ HACKING libserveez API					-*- org -*-
     | [[file:hash.h][hash]]                 |   |   |   |   |   |      |
     | [[file:icmp-socket.h][icmp-socket]]          |   |   |   | o |   |      |
     | [[file:ipdata.h][ipdata]]               | x |   |   | o |   |      |
-    | [[file:server.h][server]]               |   |   |   |   | o |      |
-    | [[file:portcfg.h][portcfg]]              |   |   | x |   | o |      |
-    | [[file:cfg.h][cfg]]                  |   |   |   |   | o |      |
+    | [[file:server.h][server]]               |   |   |   |   |   |      |
+    | [[file:portcfg.h][portcfg]]              |   |   | x |   | x |      |
+    | [[file:cfg.h][cfg]]                  |   |   |   |   |   |      |
     | [[file:socket.h][socket]]               |   | x | x | o |   |      |
     | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |   |      |
     | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |   |      |
