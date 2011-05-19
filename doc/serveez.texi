@@ -236,6 +236,11 @@ them manually in the configuration file.
 This option depends on @samp{--enable-debug}.  With the debugging option
 disabled there is also no support for heap counters.  The heap
 counters are used to detect memory leaks in Serveez.
+@item --enable-libserveez-install
+This causes @samp{make install} to also copy libserveez and its
+header files to @code{$(libdir)} and @code{$(includedir)}, respectively.
+While Serveez is in alpha (version less than @samp{0.8.0}),
+this option is disabled by default.
 @end table
 
 For maximum flexibility and reproducibility, we recommend enabling

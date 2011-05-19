@@ -29,7 +29,12 @@ AM_MAKEINFOFLAGS = --split-size=999999
 info_TEXINFOS = serveez.texi
 gen = guile-boot.texi guile-api.texi serveez-api.texi
 serveez_TEXINFOS = serveez.texi $(gen) fdl.texi
-man_MANS = serveez.1 serveez-config.1
+
+man_MANS = serveez.1
+if COURAGEOUS
+man_MANS += serveez-config.1
+endif COURAGEOUS
+
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 	logo.jpg logosmall.jpg mandel.jpg
 CLEANFILES += stamp-vti*

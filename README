@@ -30,8 +30,9 @@ If you have problems building the package out of the box, this may be due
 to GNU libtool's inability to handle dynamic linking for your platform.
 In that case, try reconfiguring with `--disable-shared'.
 
-Installation populates the following directories (creating them first,
-if necessary) with various files:
+If Serveez is configured to install libserveez and its header files,
+then installation populates the following directories (creating them
+first, if necessary) with various files:
 
  $(bindir)     -- executables: serveez, serveez-config
  $(mandir)     -- manpages: serveez(1), serveez-config(1)
@@ -40,6 +41,9 @@ if necessary) with various files:
  $(libdir)     -- libserveez shared object + libtool support file(s)
  $(infodir)    -- serveez.info
  $(pkgdatadir) -- scheme (*.scm) files implementing guile servers
+
+Otherwise, only a subset is installed: $(bindir)/serveez,
+$(mandir)/serveez.1, ($infodir)/serveez.info, $(pkgdatadir)/*.scm.
 
 Before installing, consider doing "make check" and reporting any errors
 or strangeness you might encounter to bug-serveez (at gnu dot org).

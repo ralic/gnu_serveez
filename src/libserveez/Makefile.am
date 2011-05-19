@@ -31,7 +31,11 @@ SUBDIRS = coserver codec
 
 BUILT_SOURCES = svzpath.h
 
+if COURAGEOUS
 lib_LTLIBRARIES = libserveez.la
+else !COURAGEOUS
+noinst_LTLIBRARIES = libserveez.la
+endif !COURAGEOUS
 
 libserveez_la_LDFLAGS = -export-dynamic -version-info $(LIBSERVEEZ_INTERFACE)
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la codec/libcodec.la
@@ -44,8 +48,9 @@ libserveez_la_SOURCES = alloc.c util.c hash.c                             \
   interface.c dynload.c core.c socket.c array.c portcfg.c                 \
   binding.c passthrough.c cfg.c mutex.c
 
-# these file are available by #include <libserveez/foo.h>
+# these file are available by #include <libserveez/foo.h> (maybe ;-)
 
+if COURAGEOUS
 libserveezdir = $(includedir)/libserveez
 
 libserveez_HEADERS = alloc.h util.h hash.h socket.h                        \
@@ -53,6 +58,7 @@ libserveez_HEADERS = alloc.h util.h hash.h socket.h                        \
   server-core.h windoze.h defines.h boot.h server.h                        \
   interface.h dynload.h core.h array.h portcfg.h                           \
   binding.h passthrough.h cfg.h
+endif COURAGEOUS
 
 uninstall-hook:
 	rmdir "$(DESTDIR)$(libserveezdir)"

@@ -240,6 +240,16 @@ AS_CASE([$host_os],
 [*mingw32*],[MINGW32=yes CYGWIN=no],
 [*cygwin*],[MINGW32=no CYGWIN=yes])
 
+dnl
+dnl Check courage.
+dnl
+SVZ_FLAG([whether to install libserveez and headers],
+         [no],[libserveez-install],[Install libserveez and headers],[
+AC_DEFINE([INSTALL_LIBSERVEEZ_AND_HEADERS], 1,
+  [Define if configure enabled installation of libserveez and headers.])
+])
+AM_CONDITIONAL([COURAGEOUS],[SVZ_Y([enable_libserveez_install])])
+
 dnl ----------------------------------------------------------------------
 dnl checks for programs
 

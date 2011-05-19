@@ -1,3 +1,14 @@
+2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Make libserveez + headers installation optional.
+
+	U ≡ "Conditionalize var with ‘COURAGEOUS’".
+	* Makefile.am (lib_LTLIBRARIES): U.
+	[!COURAGEOUS] (noinst_LTLIBRARIES): New var.
+	(libserveezdir, libserveez_HEADERS): U.
+	* codec/Makefile.am (libcodecdir, libcodec_HEADERS): U.
+	* coserver/Makefile.am (libcoserverdir, libcoserver_HEADERS): U.
+
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Look in $(top_builddir) for config.status.

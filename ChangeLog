@@ -1,3 +1,10 @@
+2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Make libserveez + headers installation optional.
+
+	* configure.ac (libserveez-install): New SVZ_FLAG.
+	(COURAGEOUS): New AM_CONDITIONAL.
+
 2011-05-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use automake conditionals to gate sub-proto libs.

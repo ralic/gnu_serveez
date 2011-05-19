@@ -28,9 +28,11 @@ noinst_LTLIBRARIES = libcodec.la
 libcodec_la_SOURCES = codec.c gzlib.c bzip2.c
 libcodec_la_LIBADD = $(CODECLIBS)
 
+if COURAGEOUS
 libcodecdir = $(includedir)/libserveez/codec
 
 libcodec_HEADERS = codec.h
+endif COURAGEOUS
 
 noinst_HEADERS = gzlib.h bzip2.h
 

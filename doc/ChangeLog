@@ -1,3 +1,12 @@
+2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Make libserveez + headers installation optional.
+
+	* Makefile.am (man_MANS): Split into ‘= serveez.1’ and
+	‘+= serveez-config.1’; conditionalize the latter with ‘COURAGEOUS’.
+	* serveez.texi (Build and install) <Configure the source
+	package for your system>: Document ‘--enable-libserveez-install’.
+
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc int] Build .tsar files under src/, only if MAINTAINER_MODE.

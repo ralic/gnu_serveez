@@ -25,6 +25,7 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
+if COURAGEOUS
 #
 # Installation of the autoconf macro used to locate Serveez
 #
@@ -33,6 +34,7 @@ aclocal_DATA = serveez.m4
 
 # Yet another script
 bin_SCRIPTS = serveez-config
+endif COURAGEOUS
 
 # Perplexingly, Automake does not automatically distribute these.
 EXTRA_DIST = $(aclocal_DATA) guile-boot.scm
@@ -88,7 +90,9 @@ endif
 
 bin_PROGRAMS = serveez
 
+if COURAGEOUS
 include_HEADERS = libserveez.h
+endif COURAGEOUS
 
 serveez_SOURCES = \
 	action.h cpp-tricks.h le-u32-hash.h timidity.h \
@@ -144,6 +148,7 @@ c.tsar: $(c_docable)
 i = "$(DESTDIR)$(includedir)/libserveez"
 
 install-data-hook:
+if COURAGEOUS
 	$(SED) '/^#define [^_]/!d' svzconfig.h > $(i)/TMP0
 	cd $(i); mv -f defines.h TMP1; \
 	$(SED) -e '/#include "svzconfig.h"/{' \
@@ -159,6 +164,7 @@ install-data-hook:
 	  rm -f $$h.orig; \
 	done; \
 	rm -f TMP0 TMP1
+endif COURAGEOUS
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h
