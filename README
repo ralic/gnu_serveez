@@ -36,7 +36,6 @@ if necessary) with various files:
  $(bindir)     -- executables: serveez, serveez-config
  $(mandir)     -- manpages: serveez(1), serveez-config(1)
  $(includedir) -- libserveez.h
-                  svzconfig.h
                   libserveez/*.h (includes subdirs and headers)
  $(libdir)     -- libserveez shared object + libtool support file(s)
  $(infodir)    -- serveez.info
