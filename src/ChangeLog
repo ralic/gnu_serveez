@@ -1,5 +1,12 @@
 2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[nut int] Add abstraction: nut_sock_client_key
+
+	* nut-server/gnutella.c (nut_sock_client_key): New static func.
+	(nut_disconnect, nut_connect_socket): Use ‘nut_sock_client_key’.
+
+2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[nut int] Add abstraction: nut_v4addr_from
 
 	* nut-request.c (nut_v4addr_from): New func.

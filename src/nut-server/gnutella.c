@@ -584,6 +584,12 @@ disconnect_internal (void *k, void *v, void *closure)
     }
 }
 
+static char *
+nut_sock_client_key (svz_socket_t *sock)
+{
+  return nut_client_key (sock->remote_addr, sock->remote_port);
+}
+
 /*
  * This is the sock->disconnected_socket callback for gnutella
  * connections.
@@ -619,7 +625,7 @@ nut_disconnect (svz_socket_t *sock)
     }
 
   /* remove this socket from the current connection hash */
-  key = nut_client_key (sock->remote_addr, sock->remote_port);
+  key = nut_sock_client_key (sock);
   svz_hash_delete (cfg->conn, key);
 
   /* remove the connection from the host catcher */
@@ -1190,9 +1196,7 @@ nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
         return -1;
 
       /* put this client to the current connection hash */
-      svz_hash_put (cfg->conn,
-                    nut_client_key (sock->remote_addr, sock->remote_port),
-                    sock);
+      svz_hash_put (cfg->conn, nut_sock_client_key (sock), sock);
 
       return 0;
     }
