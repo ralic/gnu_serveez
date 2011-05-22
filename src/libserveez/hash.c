@@ -72,10 +72,10 @@ struct svz_hash_bucket
  * callback for any newly created hash table.
  */
 static unsigned long
-svz_hash_code (char *key)
+svz_hash_code (const char *key)
 {
   unsigned long code = 0;
-  char *p = key;
+  const char *p = key;
 
   assert (key);
   while (*p)
@@ -92,9 +92,9 @@ svz_hash_code (char *key)
  * strings are equal, otherwise non-zero.
  */
 static int
-svz_hash_key_equals (char *key1, char *key2)
+svz_hash_key_equals (const char *key1, const char *key2)
 {
-  char *p1, *p2;
+  const char *p1, *p2;
 
   assert (key1 && key2);
 
@@ -122,7 +122,7 @@ svz_hash_key_equals (char *key1, char *key2)
  * key length of the given key @var{key}.
  */
 static size_t
-svz_hash_key_length (char *key)
+svz_hash_key_length (const char *key)
 {
   size_t len = 0;
 
@@ -359,7 +359,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
  * @strong{Note}: This is sometimes the source of memory leaks.
  */
 void *
-svz_hash_put (svz_hash_t *hash, char *key, void *value)
+svz_hash_put (svz_hash_t *hash, const char *key, void *value)
 {
   unsigned long code = 0;
   int e;
@@ -414,7 +414,7 @@ svz_hash_put (svz_hash_t *hash, char *key, void *value)
  * such key, otherwise the previous value.
  */
 void *
-svz_hash_delete (svz_hash_t *hash, char *key)
+svz_hash_delete (svz_hash_t *hash, const char *key)
 {
   int n;
   unsigned long code;
@@ -462,7 +462,7 @@ svz_hash_delete (svz_hash_t *hash, char *key)
  * @var{hash}, or @code{NULL} if there is no such key.
  */
 void *
-svz_hash_get (const svz_hash_t *hash, char *key)
+svz_hash_get (const svz_hash_t *hash, const char *key)
 {
   int n;
   unsigned long code;

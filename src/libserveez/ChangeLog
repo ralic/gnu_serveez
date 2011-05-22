@@ -1,3 +1,15 @@
+2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib hash] Declare ‘const’ all ‘char *key’ args.
+
+	U ≡ "Declare ‘const’ all ‘char *’ args".
+	* hash.h (struct svz_hash):
+	For members ‘equals’, ‘code’, ‘keylen’: U.
+	(svz_hash_delete, svz_hash_put, svz_hash_get): U.
+	* hash.c (svz_hash_code): U; likewise, local var ‘p’.
+	(svz_hash_key_equals, svz_hash_key_length)
+	(svz_hash_put, svz_hash_delete, svz_hash_get): U.
+
 2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[woe int] Make token var global.

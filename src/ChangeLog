@@ -1,3 +1,15 @@
+2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib hash] Declare ‘const’ all ‘char *key’ args.
+
+	U ≡ "Declare ‘const’ all ‘char *’ args".
+	* awcs-server/awcs-proto.c (awcs_hash_keylen)
+	(awcs_hash_equals, awcs_hash_code): U.
+	* irc-core/irc-core.c (irc_string_equal): U.
+	* irc-core/irc-core.h (irc_string_equal): U.
+	* nut-server/gnutella.c (nut_hash_keylen)
+	(nut_hash_equals, nut_hash_code): U.
+
 2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	Make libserveez + headers installation optional.

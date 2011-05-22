@@ -544,9 +544,9 @@ irc_create_lcset (void)
  * strings are equal.
  */
 int
-irc_string_equal (char *str1, char *str2)
+irc_string_equal (const char *str1, const char *str2)
 {
-  char *p1, *p2;
+  const char *p1, *p2;
 
   if (str1 == str2)
     return 0;

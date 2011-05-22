@@ -85,7 +85,7 @@ extern irc_request_t irc_request;  /* single IRC request */
 #define IRC_IDENT_NOREPLY "*** No Ident response."
 
 /* Some useful function for parsing masks.  */
-int irc_string_equal (char *str1, char *str2);
+int irc_string_equal (const char *str1, const char *str2);
 int irc_string_regex (char *text, char *regex);
 
 /*

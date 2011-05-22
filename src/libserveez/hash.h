@@ -38,9 +38,9 @@ struct svz_hash
   size_t buckets;                  /* number of buckets in the table */
   size_t fill;                     /* number of filled buckets */
   size_t keys;                     /* number of stored keys */
-  int (* equals) (char *, char *); /* key string equality callback */
-  unsigned long (* code) (char *); /* hash code calculation callback */
-  size_t (* keylen) (char *);      /* how to get the hash key length */
+  int (* equals) (const char *, const char *); /* key string equality callback */
+  unsigned long (* code) (const char *); /* hash code calculation callback */
+  size_t (* keylen) (const char *);      /* how to get the hash key length */
   svz_free_func_t destroy;         /* element destruction callback */
   svz_hash_bucket_t *table;        /* hash table */
 };
@@ -55,9 +55,9 @@ __BEGIN_DECLS
  */
 SERVEEZ_API svz_hash_t *svz_hash_create (size_t, svz_free_func_t);
 SERVEEZ_API void svz_hash_destroy (svz_hash_t *);
-SERVEEZ_API void *svz_hash_delete (svz_hash_t *, char *);
-SERVEEZ_API void *svz_hash_put (svz_hash_t *, char *, void *);
-SERVEEZ_API void *svz_hash_get (const svz_hash_t *, char *);
+SERVEEZ_API void *svz_hash_delete (svz_hash_t *, const char *);
+SERVEEZ_API void *svz_hash_put (svz_hash_t *, const char *, void *);
+SERVEEZ_API void *svz_hash_get (const svz_hash_t *, const char *);
 SERVEEZ_API void svz_hash_foreach (svz_hash_do_t *, svz_hash_t *, void *);
 SERVEEZ_API size_t svz_hash_size (const svz_hash_t *);
 SERVEEZ_API char *svz_hash_contains (const svz_hash_t *, void *);

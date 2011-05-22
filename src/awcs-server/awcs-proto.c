@@ -81,19 +81,19 @@ svz_servertype_t awcs_server_definition =
  * clients it is not necessary to have character strings here.
  */
 static unsigned
-awcs_hash_keylen (SVZ_UNUSED char *id)
+awcs_hash_keylen (SVZ_UNUSED const char *id)
 {
   return 4;
 }
 
 static int
-awcs_hash_equals (char *id1, char *id2)
+awcs_hash_equals (const char *id1, const char *id2)
 {
   return memcmp (id1, id2, 4);
 }
 
 static unsigned long
-awcs_hash_code (char *id)
+awcs_hash_code (const char *id)
 {
   unsigned long code = le_u32_hash (id);
   return code;
