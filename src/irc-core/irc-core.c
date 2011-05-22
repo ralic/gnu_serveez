@@ -468,9 +468,9 @@ irc_parse_target (irc_request_t *request, int para)
  * character set for comparisons.
  */
 int
-irc_string_regex (char *text, char *regex)
+irc_string_regex (const char *text, const char *regex)
 {
-  char *p;
+  const char *p;
 
   /* parse until end of both strings */
   while (*regex && *text)

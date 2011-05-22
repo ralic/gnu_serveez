@@ -86,7 +86,7 @@ extern irc_request_t irc_request;  /* single IRC request */
 
 /* Some useful function for parsing masks.  */
 int irc_string_equal (const char *str1, const char *str2);
-int irc_string_regex (char *text, char *regex);
+int irc_string_regex (const char *text, const char *regex);
 
 /*
  * We need this for a lower case character set, because

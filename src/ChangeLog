@@ -1,5 +1,13 @@
 2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[irc int] Dose ‘irc_string_regex’ w/ ‘const’.
+
+	* irc-core/irc-core.c (irc_string_regex):
+	Declare ‘const’ args ‘text’ and ‘regex’, and local var ‘p’.
+	* irc-core/irc-core.h (irc_string_regex): Update func decl.
+
+2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[nut int] Add abstraction: nut_sock_client_key
 
 	* nut-server/gnutella.c (nut_sock_client_key): New static func.
