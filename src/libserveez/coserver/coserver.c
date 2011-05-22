@@ -96,7 +96,7 @@ static svz_array_t *svz_coservers = NULL;
  * should happen if the coserver delivers a result.
  */
 static void
-svz_coserver_send_request (int type, char *request,
+svz_coserver_send_request (int type, const char *request,
                            svz_coserver_handle_result_t handle_result,
                            void *closure)
 {

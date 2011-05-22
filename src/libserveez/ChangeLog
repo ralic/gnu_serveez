@@ -1,5 +1,12 @@
 2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[irc coserver] Dose coserver ‘request’ arg w/ ‘const’.
+
+	* coserver/coserver.c (svz_coserver_send_request):
+	Declare ‘char *request’ to be ‘const’.
+
+2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib hash] Declare ‘const’ all ‘char *key’ args.
 
 	U ≡ "Declare ‘const’ all ‘char *’ args".
