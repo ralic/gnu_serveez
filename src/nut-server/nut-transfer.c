@@ -79,6 +79,7 @@
 #include "libserveez.h"
 #include "gnutella.h"
 #include "nut-core.h"
+#include "nut-request.h"
 #include "nut-transfer.h"
 
 /*
@@ -562,8 +563,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       push.index = transfer->index;
       if ((port = svz_sock_portcfg (sock)) != NULL)
         addr = svz_portcfg_addr (port);
-      push.ip = cfg->ip ? cfg->ip : addr ?
-        addr->sin_addr.s_addr : sock->local_addr;
+      push.ip = nut_v4addr_from (cfg, addr, sock);
       push.port = (cfg->port ? cfg->port : addr ?
                    addr->sin_port : sock->local_port);
 

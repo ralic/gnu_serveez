@@ -22,6 +22,9 @@
 #define __NUT_REQUEST_H__ 1
 
 /* Exported functions.  */
+in_addr_t nut_v4addr_from (nut_config_t *cfg,
+                           struct sockaddr_in *addr,
+                           svz_socket_t *sock);
 int nut_reply (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet);
 int nut_push_request (svz_socket_t *sock, nut_header_t *hdr,
                       uint8_t *packet);

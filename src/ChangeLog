@@ -1,5 +1,15 @@
 2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[nut int] Add abstraction: nut_v4addr_from
+
+	* nut-request.c (nut_v4addr_from): New func.
+	(nut_query, nut_ping): Use ‘nut_v4addr_from’.
+	* nut-request.h (nut_v4addr_from): New func decl.
+	* nut-transfer.c: #include "nut-request.h".
+	(nut_send_push): Use ‘nut_v4addr_from’.
+
+2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib hash] Declare ‘const’ all ‘char *key’ args.
 
 	U ≡ "Declare ‘const’ all ‘char *’ args".

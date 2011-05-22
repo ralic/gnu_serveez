@@ -214,6 +214,18 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
   return 0;
 }
 
+in_addr_t
+nut_v4addr_from (nut_config_t *cfg,
+                 struct sockaddr_in *addr,
+                 svz_socket_t *sock)
+{
+  if (cfg->ip)
+    return cfg->ip;
+  if (addr)
+    return addr->sin_addr.s_addr;
+  return sock->local_addr;
+}
+
 /*
  * This is called whenever there was a search query received.
  */
@@ -285,8 +297,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
   reply.records = (uint8_t) n;
   if ((port = svz_sock_portcfg (sock)) != NULL)
     addr = svz_portcfg_addr (port);
-  reply.ip = cfg->ip ? cfg->ip : addr ?
-    addr->sin_addr.s_addr : sock->local_addr;
+  reply.ip = nut_v4addr_from (cfg, addr, sock);
   reply.port = (cfg->port ? cfg->port : addr ?
                 addr->sin_port : sock->local_port);
   reply.speed = (uint16_t) cfg->speed;
@@ -375,8 +386,7 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr,
 
   if ((port = svz_sock_portcfg (sock)) != NULL)
     addr = svz_portcfg_addr (port);
-  reply.ip = cfg->ip ? cfg->ip : addr ?
-    addr->sin_addr.s_addr : sock->local_addr;
+  reply.ip = nut_v4addr_from (cfg, addr, sock);
   reply.port = (cfg->port ? cfg->port : addr ?
                 addr->sin_port : sock->local_port);
   reply.files = cfg->db_files;
