@@ -51,7 +51,7 @@ static svz_smob_tag_t guile_bin_tag;
 #define GET_BIN_SMOB(binary) \
   ((guile_bin_t *) ((unsigned long) SCM_SMOB_DATA (binary)))
 #define CHECK_BIN_SMOB(binary) \
-  (SCM_NIMP (binary) && SCM_TYP16 (binary) == guile_bin_tag)
+  gi_smob_tagged_p (binary, guile_bin_tag)
 #define CHECK_BIN_SMOB_ARG(binary, arg, var)                       \
   if (!CHECK_BIN_SMOB (binary))                                    \
     scm_wrong_type_arg_msg (FUNC_NAME, arg, binary, "svz-binary"); \

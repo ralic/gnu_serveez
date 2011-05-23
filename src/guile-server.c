@@ -45,7 +45,6 @@
 
 #define _CTYPE(ctype,x)     guile_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
-#define NAME_PRED(ctype)    _CTYPE (ctype, p)
 #define NAME_CREATE(ctype)  _CTYPE (ctype, create)
 #define NAME_FREE(ctype)    _CTYPE (ctype, free)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
@@ -100,11 +99,10 @@ static int guile_use_exceptions = 1;
  * on a SMOB:
  * a) creator - Creates a new instance.
  * b) getter  - Converts a scheme cell to the C structure.
- * c) checker - Checks if the scheme cell represents this SMOB.
- * d) printer - Used when applying (display . args) in Guile.
- * e) init    - Initialization of the SMOB type
- * f) tag     - The new scheme tag used to identify a SMOB.
- * g) free    - Run if the SMOB gets destroyed.
+ * c) printer - Used when applying (display . args) in Guile.
+ * d) init    - Initialization of the SMOB type
+ * e) tag     - The new scheme tag used to identify a SMOB.
+ * f) free    - Run if the SMOB gets destroyed.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
 static svz_smob_tag_t NAME_TAG (ctype);                                      \
@@ -113,10 +111,6 @@ static SCM NAME_CREATE (ctype) (void *data) {                                \
 }                                                                            \
 static void * NAME_GET (ctype) (SCM smob) {                                  \
   return (void *) SCM_SMOB_DATA (smob);                                      \
-}                                                                            \
-static int NAME_PRED (ctype) (SCM smob) {                                    \
-  return (SCM_NIMP (smob) &&                                                 \
-          SCM_TYP16 (smob) == NAME_TAG (ctype)) ? 1 : 0;                     \
 }                                                                            \
 static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
                                SVZ_UNUSED scm_print_state *state) {          \
@@ -139,7 +133,7 @@ static void NAME_INIT (ctype) (void) {                                       \
 #define MAKE_SMOB(ctype, data) NAME_CREATE (ctype) (data)
 
 /* Checks if the given scheme cell is a smob or not.  */
-#define CHECK_SMOB(ctype, smob) NAME_PRED (ctype) (smob)
+#define CHECK_SMOB(ctype, smob)  gi_smob_tagged_p (smob, NAME_TAG (ctype))
 
 /* Extracts the smob data from a given smob cell.  */
 #define GET_SMOB(ctype, smob) NAME_GET (ctype) (smob)

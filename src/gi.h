@@ -69,6 +69,8 @@ extern void gi_define (const char *name, SCM value);
 extern SCM gi_primitive_eval (SCM form);
 extern SCM gi_primitive_load (const char *filename);
 
+extern int gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag);
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */

@@ -359,4 +359,11 @@ gi_primitive_load (const char *filename)
 #endif
 }
 
+int
+gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag)
+{
+  return SCM_NIMP (obj)
+    && tag == SCM_TYP16 (obj);
+}
+
 /* gi.c ends here */

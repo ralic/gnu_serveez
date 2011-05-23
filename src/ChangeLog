@@ -1,5 +1,16 @@
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_smob_tagged_p
+
+	* gi.c (gi_smob_tagged_p): New func.
+	* gi.h (gi_smob_tagged_p): New func decl.
+	* guile-bin.c (CHECK_BIN_SMOB): Use ‘gi_smob_tagged_p’.
+	* guile-server.c (NAME_PRED): Delete macro.
+	(MAKE_SMOB_DEFINITION): Don't define predicate func.
+	(CHECK_SMOB): Use ‘gi_smob_tagged_p’.
+
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Decruft: Remove ‘svz_servertype_config_print’ et al.
 
 	* guile-server.c [ENABLE_DEBUG] (print_hash_kv): Delete func.
