@@ -162,7 +162,7 @@ or @code{#f} on failure.  */)
     return ret;
 
   sock->disconnected_socket = guile_func_disconnected_socket;
-  return MAKE_SMOB (svz_socket, sock);
+  return MAKE_SMOB (socket, sock);
 #undef FUNC_NAME
 }
 
@@ -277,7 +277,7 @@ socket @var{sock} as a binary smob.  */)
 {
 #define FUNC_NAME s_guile_sock_receive_buffer
   svz_socket_t *xsock;
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   return guile_data_to_bin (xsock->recv_buffer, xsock->recv_buffer_fill);
 #undef FUNC_NAME
 }
@@ -296,7 +296,7 @@ specified size in bytes.  */)
   svz_socket_t *xsock;
   int len;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (!SCM_UNBNDP (size))
     {
       ASSERT_EXACT (2, size);
@@ -318,7 +318,7 @@ socket @var{sock} as a binary smob.  */)
 {
 #define FUNC_NAME s_guile_sock_send_buffer
   svz_socket_t *xsock;
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   return guile_data_to_bin (xsock->send_buffer, xsock->send_buffer_fill);
 #undef FUNC_NAME
 }
@@ -337,7 +337,7 @@ the specified size in bytes.  */)
   svz_socket_t *xsock;
   int len;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (!SCM_UNBNDP (size))
     {
       ASSERT_EXACT (2, size);
@@ -362,7 +362,7 @@ Return the number of bytes actually shuffled away.  */)
   svz_socket_t *xsock;
   int len;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
 
   /* Check if second length argument is given.  */
   if (!SCM_UNBNDP (length))
@@ -396,7 +396,7 @@ the socket @var{sock}.  */)
   long port;
   SCM pair;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   pair = scm_cons (gi_nnint2scm (xsock->remote_addr),
                    gi_integer2scm ((int) xsock->remote_port));
   if (!SCM_UNBNDP (address))
@@ -427,7 +427,7 @@ the socket @var{sock}.  */)
   long port;
   SCM pair;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   pair = scm_cons (gi_nnint2scm (xsock->local_addr),
                    gi_integer2scm ((int) xsock->local_port));
   if (!SCM_UNBNDP (address))
@@ -456,12 +456,12 @@ socket @var{parent}.  Return either a valid
   SCM oparent = SCM_EOL;
   svz_socket_t *xsock, *xparent;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xparent = svz_sock_getparent (xsock)) != NULL)
-    oparent = MAKE_SMOB (svz_socket, xparent);
+    oparent = MAKE_SMOB (socket, xparent);
   if (!SCM_UNBNDP (parent))
     {
-      CHECK_SMOB_ARG (svz_socket, parent, SCM_ARG2, "svz-socket", xparent);
+      CHECK_SMOB_ARG (socket, parent, SCM_ARG2, "svz-socket", xparent);
       svz_sock_setparent (xsock, xparent);
     }
   return oparent;
@@ -481,12 +481,12 @@ socket @var{referrer}.  Return either a valid
   SCM oreferrer = SCM_EOL;
   svz_socket_t *xsock, *xreferrer;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xreferrer = svz_sock_getreferrer (xsock)) != NULL)
-    oreferrer = MAKE_SMOB (svz_socket, xreferrer);
+    oreferrer = MAKE_SMOB (socket, xreferrer);
   if (!SCM_UNBNDP (referrer))
     {
-      CHECK_SMOB_ARG (svz_socket, referrer, SCM_ARG2, "svz-socket", xreferrer);
+      CHECK_SMOB_ARG (socket, referrer, SCM_ARG2, "svz-socket", xreferrer);
       svz_sock_setreferrer (xsock, xreferrer);
     }
   return oreferrer;
@@ -511,12 +511,12 @@ returned socket object part of a server.  */)
   svz_socket_t *xsock;
   svz_server_t *xserver;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xserver = svz_server_find (xsock->cfg)) != NULL)
-    oserver = MAKE_SMOB (svz_server, xserver);
+    oserver = MAKE_SMOB (server, xserver);
   if (!SCM_UNBNDP (server))
     {
-      CHECK_SMOB_ARG (svz_server, server, SCM_ARG2, "svz-server", xserver);
+      CHECK_SMOB_ARG (server, server, SCM_ARG2, "svz-server", xserver);
       xsock->cfg = xserver->cfg;
     }
   return oserver;
@@ -536,7 +536,7 @@ available, return @code{#f}.  */)
 #define FUNC_NAME s_guile_sock_protocol
   svz_socket_t *xsock;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   return gi_integer2scm (xsock->proto);
 #undef FUNC_NAME
 }
@@ -553,7 +553,7 @@ right @strong{before} the last call to @code{svz:sock:print}.  */)
 #define FUNC_NAME s_guile_sock_final_print
   svz_socket_t *xsock;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   xsock->flags |= SVZ_SOFLG_FINAL_WRITE;
   return SCM_UNSPECIFIED;
 #undef FUNC_NAME
@@ -574,7 +574,7 @@ packet transfer in order to disable unnecessary delays.  */)
   svz_socket_t *xsock;
   int old = 0, set = 0;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (xsock->proto & SVZ_PROTO_TCP)
     {
       if (!SCM_UNBNDP (enable))
@@ -603,7 +603,7 @@ Return @code{#t} if the given cell @var{sock} is an instance of a valid
 @code{#<svz-socket>}, otherwise @code{#f}.  */)
 {
 #define FUNC_NAME s_guile_sock_p
-  return CHECK_SMOB (svz_socket, sock) ? SCM_BOOL_T : SCM_BOOL_F;
+  return CHECK_SMOB (socket, sock) ? SCM_BOOL_T : SCM_BOOL_F;
 #undef FUNC_NAME
 }
 
@@ -616,7 +616,7 @@ Return @code{#t} if the given cell @var{server} is an instance of a valid
 @code{#<svz-server>}, otherwise @code{#f}.  */)
 {
 #define FUNC_NAME s_guile_server_p
-  return CHECK_SMOB (svz_server, server) ? SCM_BOOL_T : SCM_BOOL_F;
+  return CHECK_SMOB (server, server) ? SCM_BOOL_T : SCM_BOOL_F;
 #undef FUNC_NAME
 }
 
@@ -729,7 +729,7 @@ given, the set the @code{idle-counter}.  Please have a look at the
   svz_socket_t *xsock;
   int ocounter;
 
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   ocounter = xsock->idle_counter;
   if (!SCM_UNBNDP (counter))
     {
@@ -749,9 +749,7 @@ named_instance_or_smob (SCM server, const char *FUNC_NAME)
   if (GI_GET_XREP_MAYBE (name, server))
     rv = svz_server_get (name);
   if (! rv)
-    CHECK_SMOB_ARG (svz_server, server,
-                    SCM_ARG1, "svz-server or string",
-                    rv);
+    CHECK_SMOB_ARG (server, server, SCM_ARG1, "svz-server or string", rv);
   return rv;
 }
 
@@ -774,7 +772,7 @@ if there is no such binding yet.  */)
   if ((listeners = svz_server_listeners (xserver)) != NULL)
     {
       for (i = 0; i < svz_array_size (listeners); i++)
-        list = scm_cons (MAKE_SMOB (svz_socket, (svz_socket_t *)
+        list = scm_cons (MAKE_SMOB (socket, (svz_socket_t *)
                                     svz_array_get (listeners, i)),
                          list);
       svz_array_destroy (listeners);
@@ -803,7 +801,7 @@ empty list if there is no such client.  */)
   if ((clients = svz_server_clients (xserver)) != NULL)
     {
       svz_array_foreach (clients, sock, i)
-        list = scm_cons (MAKE_SMOB (svz_socket, sock), list);
+        list = scm_cons (MAKE_SMOB (socket, sock), list);
       svz_array_destroy (clients);
     }
   return list;
@@ -1103,7 +1101,7 @@ runs the procedure @var{callback} as @code{(callback user)}, where
   svz_socket_t *xsock;
 
   /* Check argument list first.  */
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   VALIDATE_CALLBACK (callback);
 
   ENQ_COSERVER_REQUEST (xsock, ident);
@@ -1130,7 +1128,7 @@ If that socket no longer exists, return @code{#f}.  */)
   id = gi_scm2int (SCM_CAR (ident));
   version = gi_scm2int (SCM_CDR (ident));
   if ((sock = svz_sock_find (id, version)) != NULL)
-    return MAKE_SMOB (svz_socket, sock);
+    return MAKE_SMOB (socket, sock);
   return SCM_BOOL_F;
 #undef FUNC_NAME
 }
@@ -1149,7 +1147,7 @@ coserver callback runs.  */)
 {
 #define FUNC_NAME s_guile_sock_ident
   svz_socket_t *xsock;
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   return scm_cons (gi_integer2scm (xsock->id), gi_integer2scm (xsock->version));
 #undef FUNC_NAME
 }
@@ -1227,7 +1225,7 @@ socket) @code{#f}.  */)
   int ret = -1;
 
   /* Check the arguments.  */
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   SCM_ASSERT_TYPE (SCM_EXACTP (oob) || SCM_CHARP (oob),
                    oob, SCM_ARG2, FUNC_NAME, "char or exact");
 

@@ -1,5 +1,18 @@
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Make ‘_CTYPE’ auto-prefix "svz_" portion of the type.
+
+	U ≡ "Throughout, update calls to
+	‘MAKE_SMOB’, ‘CHECK_SMOB’, ‘CHECK_SMOB_ARG’".
+	* guile-server.c: U.
+	(_CTYPE): Change prefix to "guile_svz_".
+	(MAKE_SMOB_DEFINITION): Don't take ‘description’; instead,
+	compute it from ‘ctype’.  Update all callers.
+	(INIT_SMOB): Update calls to ‘NAME_TAG’ and ‘NAME_PRINT’.
+	* guile-api.c: U.
+
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_make_tag
 
 	* gi.c [!SCM_SMOB_DATA] (always_zero): New static func.
