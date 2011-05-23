@@ -1,3 +1,13 @@
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Decruft: Remove ‘svz_servertype_config_print’ et al.
+
+	* guile-server.c [ENABLE_DEBUG] (print_hash_kv): Delete func.
+	[ENABLE_DEBUG] (portcfg_print): Likewise.
+	[ENABLE_DEBUG] (guile_servertype_config_print): Likewise.
+	(guile_servertype_config) [0]:
+	Don't call ‘guile_servertype_config_print’.
+
 2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[irc int] Dose ‘irc_string_regex’ w/ ‘const’.
