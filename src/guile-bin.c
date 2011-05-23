@@ -48,14 +48,12 @@ guile_bin_t;
 static svz_smob_tag_t guile_bin_tag;
 
 /* Useful defines for accessing the binary smob.  */
-#define GET_BIN_SMOB(binary) \
-  ((guile_bin_t *) ((unsigned long) SCM_SMOB_DATA (binary)))
 #define CHECK_BIN_SMOB(binary) \
   gi_smob_tagged_p (binary, guile_bin_tag)
 #define CHECK_BIN_SMOB_ARG(binary, arg, var)                       \
   if (!CHECK_BIN_SMOB (binary))                                    \
     scm_wrong_type_arg_msg (FUNC_NAME, arg, binary, "svz-binary"); \
-  var = GET_BIN_SMOB (binary)
+  var = gi_smob_data (binary)
 #define MAKE_BIN_SMOB()                                    \
   ((guile_bin_t *) ((void *)                               \
     gi_malloc (sizeof (guile_bin_t), "svz-binary")))
@@ -78,7 +76,7 @@ static int
 guile_bin_print (SCM binary, SCM port,
                  SVZ_UNUSED scm_print_state *state)
 {
-  guile_bin_t *bin = GET_BIN_SMOB (binary);
+  guile_bin_t *bin = gi_smob_data (binary);
   static char txt[256];
 
   sprintf (txt, "#<svz-binary %p, size: %d>", bin->data, bin->size);
@@ -92,7 +90,7 @@ guile_bin_print (SCM binary, SCM port,
 static size_t
 guile_bin_free (SCM binary)
 {
-  guile_bin_t *bin = GET_BIN_SMOB (binary);
+  guile_bin_t *bin = gi_smob_data (binary);
   size_t size = sizeof (guile_bin_t);
 
   /* Free the data pointer if it has been allocated by ourselves and
@@ -111,8 +109,8 @@ guile_bin_free (SCM binary)
 static SCM
 guile_bin_equal (SCM a, SCM b)
 {
-  guile_bin_t *bin1 = GET_BIN_SMOB (a);
-  guile_bin_t *bin2 = GET_BIN_SMOB (b);
+  guile_bin_t *bin1 = gi_smob_data (a);
+  guile_bin_t *bin2 = gi_smob_data (b);
 
   if (bin1 == bin2)
     return SCM_BOOL_T;
@@ -204,7 +202,7 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
 
       if (CHECK_BIN_SMOB (needle))
         {
-          search = GET_BIN_SMOB (needle);
+          search = gi_smob_data (needle);
           len = search->size;
           p = search->data;
         }
@@ -411,7 +409,7 @@ reference it is then a standalone binary smob as returned by
 
   if (CHECK_BIN_SMOB (append))
     {
-      concat = GET_BIN_SMOB (append);
+      concat = gi_smob_data (append);
       len = concat->size;
       p = concat->data;
     }
@@ -609,7 +607,7 @@ guile_garbage_to_bin (void *data, int size)
 void *
 guile_bin_to_data (SCM binary, int *size)
 {
-  guile_bin_t *bin = GET_BIN_SMOB (binary);
+  guile_bin_t *bin = gi_smob_data (binary);
   if (size)
     *size = bin->size;
   return bin->data;

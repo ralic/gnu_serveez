@@ -366,4 +366,14 @@ gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag)
     && tag == SCM_TYP16 (obj);
 }
 
+void *
+gi_smob_data (SCM smob)
+{
+#ifndef SCM_SMOB_DATA
+  return (void *) SCM_CDR (smob);
+#else
+  return (void *) SCM_SMOB_DATA (smob);
+#endif
+}
+
 /* gi.c ends here */

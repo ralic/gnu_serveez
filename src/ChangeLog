@@ -1,5 +1,22 @@
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_smob_data
+
+	* gi.c (gi_smob_data): New func.
+	* gi.h (gi_smob_data): New func decl.
+	* guile-api.h [!SCM_SMOB_DATA] (SCM_SMOB_DATA): Delete #define.
+	* guile-bin.c (GET_BIN_SMOB): Delete macro.
+	(CHECK_BIN_SMOB_ARG, guile_bin_print, guile_bin_free)
+	(guile_bin_equal, guile_bin_search, guile_bin_concat_x)
+	(guile_bin_to_data): Use ‘gi_smob_data’.
+	* guile-server.c (NAME_GET): Delete macro.
+	(MAKE_SMOB_DEFINITION): Don't define getter func;
+	use ‘gi_smob_data’ for print func.
+	(GET_SMOB): Delete macro.
+	(CHECK_SMOB, CHECK_SERVER_SMOB_ARG): Use ‘gi_smob_data’.
+
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile int] Decruft: Don't define unused smob free funcs.
 
 	* guile-server.c (NAME_FREE): Delete macro.

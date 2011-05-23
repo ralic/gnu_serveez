@@ -89,7 +89,6 @@
     return value; } while (0)
 #endif
 #ifndef SCM_SMOB_DATA
-#define SCM_SMOB_DATA(data) SCM_CDR (data)
 #define HAVE_OLD_SMOBS 1
 #endif
 

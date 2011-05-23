@@ -47,7 +47,6 @@
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
 #define NAME_CREATE(ctype)  _CTYPE (ctype, create)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
-#define NAME_GET(ctype)     _CTYPE (ctype, get)
 #define NAME_INIT(ctype)    _CTYPE (ctype, init)
 
 #define integer_else(obj, def)                  \
@@ -103,23 +102,19 @@ always_zero (SVZ_UNUSED SCM smob)
  * in the printer function.  The macro creates various function to operate
  * on a SMOB:
  * a) creator - Creates a new instance.
- * b) getter  - Converts a scheme cell to the C structure.
- * c) printer - Used when applying (display . args) in Guile.
- * d) init    - Initialization of the SMOB type
- * e) tag     - The new scheme tag used to identify a SMOB.
+ * b) printer - Used when applying (display . args) in Guile.
+ * c) init    - Initialization of the SMOB type
+ * d) tag     - The new scheme tag used to identify a SMOB.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
 static svz_smob_tag_t NAME_TAG (ctype);                                      \
 static SCM NAME_CREATE (ctype) (void *data) {                                \
   SCM_RETURN_NEWSMOB (NAME_TAG (ctype), data);                               \
 }                                                                            \
-static void * NAME_GET (ctype) (SCM smob) {                                  \
-  return (void *) SCM_SMOB_DATA (smob);                                      \
-}                                                                            \
 static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
                                SVZ_UNUSED scm_print_state *state) {          \
   static char txt[256];                                                      \
-  sprintf (txt, "#<%s %p>", description, (void *) SCM_SMOB_DATA (smob));     \
+  sprintf (txt, "#<%s %p>", description, gi_smob_data (smob));               \
   scm_puts (txt, port);                                                      \
   return 1;                                                                  \
 }                                                                            \
@@ -136,16 +131,13 @@ static void NAME_INIT (ctype) (void) {                                       \
 /* Checks if the given scheme cell is a smob or not.  */
 #define CHECK_SMOB(ctype, smob)  gi_smob_tagged_p (smob, NAME_TAG (ctype))
 
-/* Extracts the smob data from a given smob cell.  */
-#define GET_SMOB(ctype, smob) NAME_GET (ctype) (smob)
-
 /* Checks if the scheme cell @var{smob} is a smob and throws an error if
    not.  Otherwise the variable @var{var} receives the smob data.  */
 #define CHECK_SMOB_ARG(ctype, smob, arg, description, var) do { \
   if (!CHECK_SMOB (ctype, smob))                                \
     scm_wrong_type_arg_msg (FUNC_NAME, arg, smob, description); \
   else                                                          \
-    var = GET_SMOB (ctype, smob);                               \
+    var = gi_smob_data (smob);                                  \
   } while (0)
 
 /* Finally: With the help of the above macros we create smob types for
@@ -1064,8 +1056,8 @@ guile_config_convert (void *address, int type)
     SCM_ASSERT_TYPE (CHECK_SMOB (svz_server, smob) ||                        \
                      CHECK_SMOB (svz_socket, smob), smob, arg,               \
                      FUNC_NAME, "svz-server or svz-socket");                 \
-    var = CHECK_SMOB (svz_server, smob) ? GET_SMOB (svz_server, smob) :      \
-      svz_server_find (((svz_socket_t *) GET_SMOB (svz_socket, smob))->cfg); \
+    var = CHECK_SMOB (svz_server, smob) ? gi_smob_data (smob) :              \
+      svz_server_find (((svz_socket_t *) gi_smob_data (smob))->cfg);         \
   } while (0)
 
 SCM_DEFINE
