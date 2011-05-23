@@ -46,7 +46,6 @@
 #define _CTYPE(ctype,x)     guile_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
-#define NAME_INIT(ctype)    _CTYPE (ctype, init)
 
 #define integer_else(obj, def)                  \
   (SCM_EXACTP (obj)                             \
@@ -69,40 +68,12 @@ static char *guile_functions[] = {
 static int guile_use_exceptions = 1;
 
 /*
- * Depending on the smob implementation of Guile we use different functions
- * in order to create a new smob tag.  It is also necessary to apply a smob
- * `free' function for older Guile versions because it is called
- * unconditionally and has no reasonable default function.
- */
-
-#if HAVE_OLD_SMOBS
-static size_t
-always_zero (SVZ_UNUSED SCM smob)
-{
-  return 0;
-}
-
-  /* Guile 1.3 backward compatibility code.  */
-# define CREATE_SMOB_TAG(ctype, description)                               \
-  static scm_smobfuns guile_funs = {                                       \
-    NULL, always_zero,                                                     \
-    NAME_PRINT (ctype), NULL };                                            \
-  NAME_TAG (ctype) = scm_newsmob (&guile_funs);
-#else
-  /* Create new smob data type and assign a printer function.  */
-# define CREATE_SMOB_TAG(ctype, description)                               \
-  NAME_TAG (ctype) = scm_make_smob_type (description, 0);                  \
-  scm_set_smob_print (NAME_TAG (ctype), NAME_PRINT (ctype));
-#endif
-
-/*
  * Creates a Guile SMOB (small object).  The @var{ctype} specifies a base
  * name for all defined functions.  The argument @var{description} is used
  * in the printer function.  The macro creates various function to operate
  * on a SMOB:
- * a) printer - Used when applying (display . args) in Guile.
- * b) init    - Initialization of the SMOB type
- * c) tag     - The new scheme tag used to identify a SMOB.
+ * a) tag     - The new scheme tag used to identify a SMOB.
+ * b) printer - Used when applying (display . args) in Guile.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
 static svz_smob_tag_t NAME_TAG (ctype);                                      \
@@ -112,13 +83,15 @@ static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
   sprintf (txt, "#<%s %p>", description, gi_smob_data (smob));               \
   scm_puts (txt, port);                                                      \
   return 1;                                                                  \
-}                                                                            \
-static void NAME_INIT (ctype) (void) {                                       \
-  CREATE_SMOB_TAG (ctype, description);                                      \
 }
 
 /* Initializer macro for a new smob type.  */
-#define INIT_SMOB(ctype) NAME_INIT (ctype) ()
+#define INIT_SMOB(ctype)                        \
+  NAME_TAG (svz_ ## ctype) = gi_make_tag        \
+    ("svz-" #ctype,                             \
+     NULL,                                      \
+     NAME_PRINT (svz_ ## ctype),                \
+     NULL)
 
 /* Instantiating macro for a smob type.  */
 #define MAKE_SMOB(ctype, data)  gi_make_smob (NAME_TAG (ctype), data)
@@ -1666,9 +1639,9 @@ guile_server_init (void)
 
   /* Initialize the guile SMOB things.  Previously defined via
      MAKE_SMOB_DEFINITION ().  */
-  INIT_SMOB (svz_socket);
-  INIT_SMOB (svz_server);
-  INIT_SMOB (svz_servertype);
+  INIT_SMOB (socket);
+  INIT_SMOB (server);
+  INIT_SMOB (servertype);
 
 #include "guile-server.x"
 

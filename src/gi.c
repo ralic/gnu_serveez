@@ -359,6 +359,52 @@ gi_primitive_load (const char *filename)
 #endif
 }
 
+/* Depending on the smob implementation of Guile we use different
+   functions in order to create a new smob tag.  It is also necessary to
+   apply a smob `free' function for older Guile versions because it is
+   called unconditionally and has no reasonable default function.  */
+
+#ifndef SCM_SMOB_DATA
+static size_t
+always_zero (SVZ_UNUSED SCM smob)
+{
+  return 0;
+}
+#endif  /* !defined SCM_SMOB_DATA */
+
+svz_smob_tag_t
+gi_make_tag (const char *description,
+             const void *fn_free,
+             const void *fn_print,
+             const void *fn_equal)
+{
+  svz_smob_tag_t tag;
+
+#ifdef SCM_SMOB_DATA
+
+  tag = scm_make_smob_type (description, 0);
+  if (fn_free)
+    scm_set_smob_free (tag, fn_free);
+  scm_set_smob_print (tag, fn_print);
+  if (fn_equal)
+    scm_set_smob_equalp (tag, fn_equal);
+
+#else  /* !defined SCM_SMOB_DATA */
+
+  scm_smobfuns mfpe = {
+    NULL,                               /* mark */
+    fn_free ? fn_free : always_zero,
+    fn_print,
+    fn_equal
+  };
+
+  tag = scm_newsmob (&mfpe);
+
+#endif  /* !defined SCM_SMOB_DATA */
+
+  return tag;
+}
+
 int
 gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag)
 {

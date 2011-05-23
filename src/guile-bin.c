@@ -752,18 +752,10 @@ BIN_SET_HEAD (char)
 void
 guile_bin_init (void)
 {
-#if HAVE_OLD_SMOBS
-  /* Guile 1.3 backward compatibility code.  */
-  static scm_smobfuns guile_bin_funs = {
-    NULL, guile_bin_free, guile_bin_print, guile_bin_equal };
-  guile_bin_tag = scm_newsmob (&guile_bin_funs);
-#else
-  /* Create new smob data type.  */
-  guile_bin_tag = scm_make_smob_type ("svz-binary", 0);
-  scm_set_smob_print (guile_bin_tag, guile_bin_print);
-  scm_set_smob_free (guile_bin_tag, guile_bin_free);
-  scm_set_smob_equalp (guile_bin_tag, guile_bin_equal);
-#endif /* not HAVE_OLD_SMOBS */
+  guile_bin_tag = gi_make_tag ("svz-binary",
+                               guile_bin_free,
+                               guile_bin_print,
+                               guile_bin_equal);
 
 #include "guile-bin.x"
 }

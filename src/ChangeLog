@@ -1,5 +1,21 @@
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_make_tag
+
+	* gi.c [!SCM_SMOB_DATA] (always_zero): New static func.
+	(gi_make_tag): New func.
+	* gi.h (gi_make_tag): New func decl.
+	* guile-bin.c (guile_bin_init): Use ‘gi_make_tag’.
+	* guile-server.c (NAME_INIT): Delete macro.
+	[HAVE_OLD_SMOBS] (always_zero): Delete func.
+	(CREATE_SMOB_TAG): Delete macro.
+	(MAKE_SMOB_DEFINITION): Don't define init func.
+	(INIT_SMOB): Use ‘gi_make_tag’.
+	(guile_server_init): Update call to ‘INIT_SMOB’.
+	* guile-api.h (HAVE_OLD_SMOBS): Delete #define.
+
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_make_smob
 
 	* gi.c [!SCM_NEWSMOB] (SCM_NEWSMOB): New #define.

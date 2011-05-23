@@ -75,10 +75,6 @@
     scm_out_of_range_pos (FUNC_NAME, arg, gi_integer2scm (pos))
 #endif
 
-#ifndef SCM_SMOB_DATA
-#define HAVE_OLD_SMOBS 1
-#endif
-
 /* Idioms.  */
 
 #define ASSERT_EXACT(n,obj)                     \
