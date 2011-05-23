@@ -45,7 +45,6 @@
 
 #define _CTYPE(ctype,x)     guile_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
-#define NAME_CREATE(ctype)  _CTYPE (ctype, create)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
 #define NAME_INIT(ctype)    _CTYPE (ctype, init)
 
@@ -101,16 +100,12 @@ always_zero (SVZ_UNUSED SCM smob)
  * name for all defined functions.  The argument @var{description} is used
  * in the printer function.  The macro creates various function to operate
  * on a SMOB:
- * a) creator - Creates a new instance.
- * b) printer - Used when applying (display . args) in Guile.
- * c) init    - Initialization of the SMOB type
- * d) tag     - The new scheme tag used to identify a SMOB.
+ * a) printer - Used when applying (display . args) in Guile.
+ * b) init    - Initialization of the SMOB type
+ * c) tag     - The new scheme tag used to identify a SMOB.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
 static svz_smob_tag_t NAME_TAG (ctype);                                      \
-static SCM NAME_CREATE (ctype) (void *data) {                                \
-  SCM_RETURN_NEWSMOB (NAME_TAG (ctype), data);                               \
-}                                                                            \
 static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
                                SVZ_UNUSED scm_print_state *state) {          \
   static char txt[256];                                                      \
@@ -126,7 +121,7 @@ static void NAME_INIT (ctype) (void) {                                       \
 #define INIT_SMOB(ctype) NAME_INIT (ctype) ()
 
 /* Instantiating macro for a smob type.  */
-#define MAKE_SMOB(ctype, data) NAME_CREATE (ctype) (data)
+#define MAKE_SMOB(ctype, data)  gi_make_smob (NAME_TAG (ctype), data)
 
 /* Checks if the given scheme cell is a smob or not.  */
 #define CHECK_SMOB(ctype, smob)  gi_smob_tagged_p (smob, NAME_TAG (ctype))

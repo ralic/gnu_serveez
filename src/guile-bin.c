@@ -47,6 +47,8 @@ guile_bin_t;
 /* The smob tag.  */
 static svz_smob_tag_t guile_bin_tag;
 
+#define NEW_BIN(data)  gi_make_smob (guile_bin_tag, data)
+
 /* Useful defines for accessing the binary smob.  */
 #define CHECK_BIN_SMOB(binary) \
   gi_smob_tagged_p (binary, guile_bin_tag)
@@ -152,7 +154,7 @@ sweep phase of the garbage collector.  */)
       bin->garbage = 0;
     }
 
-  SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
+  return NEW_BIN (bin);
 #undef FUNC_NAME
 }
 
@@ -302,7 +304,7 @@ binary smob @var{binary}.  */)
     {
       reverse->garbage = 0;
       reverse->data = NULL;
-      SCM_RETURN_NEWSMOB (guile_bin_tag, reverse);
+      return NEW_BIN (reverse);
     }
 
   /* Reserve some memory for the new smob.  */
@@ -313,7 +315,7 @@ binary smob @var{binary}.  */)
   for (first = 0, last = reverse->size - 1; first < reverse->size; )
     reverse->data[first++] = bin->data[last--];
 
-  SCM_RETURN_NEWSMOB (guile_bin_tag, reverse);
+  return NEW_BIN (reverse);
 #undef FUNC_NAME
 }
 
@@ -482,7 +484,7 @@ return all data until the end of @var{binary}.  */)
   ret->data = bin->data + from;
   ret->garbage = 0;
 
-  SCM_RETURN_NEWSMOB (guile_bin_tag, ret);
+  return NEW_BIN (ret);
 #undef FUNC_NAME
 }
 
@@ -534,7 +536,7 @@ either exact numbers in a byte's range or characters.  */)
     {
       bin->garbage = 0;
       bin->data = NULL;
-      SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
+      return NEW_BIN (bin);
     }
 
   /* Iterate over the list and build up binary smob.  */
@@ -559,7 +561,7 @@ either exact numbers in a byte's range or characters.  */)
       list = SCM_CDR (list);
     }
 
-  SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
+  return NEW_BIN (bin);
 #undef FUNC_NAME
 }
 
@@ -583,7 +585,7 @@ guile_data_to_bin (void *data, int size)
   bin->size = size;
   bin->data = data;
   bin->garbage = 0;
-  SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
+  return NEW_BIN (bin);
 }
 
 /* Converts the data pointer @var{data} with a size of @var{size} bytes
@@ -598,7 +600,7 @@ guile_garbage_to_bin (void *data, int size)
   bin->size = size;
   bin->data = data;
   bin->garbage = 1;
-  SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
+  return NEW_BIN (bin);
 }
 
 /* This function converts the given binary smob @var{binary} back to a

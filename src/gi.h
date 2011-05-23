@@ -70,6 +70,7 @@ extern SCM gi_primitive_eval (SCM form);
 extern SCM gi_primitive_load (const char *filename);
 
 extern int gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag);
+extern SCM gi_make_smob (svz_smob_tag_t tag, void *data);
 extern void *gi_smob_data (SCM smob);
 
 #endif  /* !defined __GI_H__ */

@@ -1,5 +1,22 @@
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_make_smob
+
+	* gi.c [!SCM_NEWSMOB] (SCM_NEWSMOB): New #define.
+	[!SCM_RETURN_NEWSMOB] (SCM_RETURN_NEWSMOB): New #define.
+	(gi_make_smob): New func.
+	* gi.h (gi_make_smob): New func decl.
+	* guile-bin.c (NEW_BIN): New macro.
+	(guile_string_to_bin, guile_bin_reverse)
+	(guile_bin_subset, guile_list_to_bin)
+	(guile_data_to_bin, guile_garbage_to_bin): Use ‘NEW_BIN’.
+	* guile-server.c (NAME_CREATE): Delete macro.
+	(MAKE_SMOB_DEFINITION): Don't define a create func.
+	(MAKE_SMOB): Use ‘gi_make_smob’.
+	* guile-api.h (SCM_NEWSMOB, SCM_RETURN_NEWSMOB): Delete macros.
+
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_smob_data
 
 	* gi.c (gi_smob_data): New func.

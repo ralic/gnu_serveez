@@ -366,6 +366,31 @@ gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag)
     && tag == SCM_TYP16 (obj);
 }
 
+#ifndef SCM_NEWSMOB
+#define SCM_NEWSMOB(value, tag, data)  do       \
+    {                                           \
+      SCM_NEWCELL (value);                      \
+      SCM_SETCDR (value, data);                 \
+      SCM_SETCAR (value, tag);                  \
+    }                                           \
+  while (0)
+#endif
+#ifndef SCM_RETURN_NEWSMOB
+#define SCM_RETURN_NEWSMOB(tag, data)  do       \
+    {                                           \
+      SCM value;                                \
+      SCM_NEWSMOB (value, tag, data);           \
+      return value;                             \
+    }                                           \
+  while (0)
+#endif
+
+SCM
+gi_make_smob (svz_smob_tag_t tag, void *data)
+{
+  SCM_RETURN_NEWSMOB (tag, data);
+}
+
 void *
 gi_smob_data (SCM smob)
 {

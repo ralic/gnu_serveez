@@ -75,19 +75,6 @@
     scm_out_of_range_pos (FUNC_NAME, arg, gi_integer2scm (pos))
 #endif
 
-/* Compatibility macros for Guile 1.3 version.  Also defines the macro
-   HAVE_OLD_SMOBS which indicates a different smob implementation.  */
-#ifndef SCM_NEWSMOB
-#define SCM_NEWSMOB(value, tag, data) do {                         \
-    SCM_NEWCELL (value);                                           \
-    SCM_SETCDR (value, data); SCM_SETCAR (value, tag); } while (0)
-#endif
-#ifndef SCM_RETURN_NEWSMOB
-#define SCM_RETURN_NEWSMOB(tag, data) do { \
-    SCM value;                             \
-    SCM_NEWSMOB (value, tag, data);        \
-    return value; } while (0)
-#endif
 #ifndef SCM_SMOB_DATA
 #define HAVE_OLD_SMOBS 1
 #endif
