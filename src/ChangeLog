@@ -1,5 +1,14 @@
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile int] Decruft: Don't define unused smob free funcs.
+
+	* guile-server.c (NAME_FREE): Delete macro.
+	[HAVE_OLD_SMOBS] (always_zero): New static func.
+	[HAVE_OLD_SMOBS] (CREATE_SMOB_TAG): Use ‘always_zero’.
+	(MAKE_SMOB_DEFINITION): Don't define a free func.
+
+2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_smob_tagged_p
 
 	* gi.c (gi_smob_tagged_p): New func.

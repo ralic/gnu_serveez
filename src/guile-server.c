@@ -46,7 +46,6 @@
 #define _CTYPE(ctype,x)     guile_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
 #define NAME_CREATE(ctype)  _CTYPE (ctype, create)
-#define NAME_FREE(ctype)    _CTYPE (ctype, free)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
 #define NAME_GET(ctype)     _CTYPE (ctype, get)
 #define NAME_INIT(ctype)    _CTYPE (ctype, init)
@@ -79,10 +78,16 @@ static int guile_use_exceptions = 1;
  */
 
 #if HAVE_OLD_SMOBS
+static size_t
+always_zero (SVZ_UNUSED SCM smob)
+{
+  return 0;
+}
+
   /* Guile 1.3 backward compatibility code.  */
 # define CREATE_SMOB_TAG(ctype, description)                               \
   static scm_smobfuns guile_funs = {                                       \
-    NULL, NAME_FREE (ctype),                                               \
+    NULL, always_zero,                                                     \
     NAME_PRINT (ctype), NULL };                                            \
   NAME_TAG (ctype) = scm_newsmob (&guile_funs);
 #else
@@ -102,7 +107,6 @@ static int guile_use_exceptions = 1;
  * c) printer - Used when applying (display . args) in Guile.
  * d) init    - Initialization of the SMOB type
  * e) tag     - The new scheme tag used to identify a SMOB.
- * f) free    - Run if the SMOB gets destroyed.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
 static svz_smob_tag_t NAME_TAG (ctype);                                      \
@@ -118,9 +122,6 @@ static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
   sprintf (txt, "#<%s %p>", description, (void *) SCM_SMOB_DATA (smob));     \
   scm_puts (txt, port);                                                      \
   return 1;                                                                  \
-}                                                                            \
-static size_t NAME_FREE (ctype) (SVZ_UNUSED SCM smob) {                      \
-  return 0;                                                                  \
 }                                                                            \
 static void NAME_INIT (ctype) (void) {                                       \
   CREATE_SMOB_TAG (ctype, description);                                      \
