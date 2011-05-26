@@ -1,3 +1,12 @@
+2011-05-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add ‘svz_address_t’ and related functions / macros.
+
+	* address.h: New file.
+	* address.c: New file.
+	* Makefile.am (libserveez_la_SOURCES): Add address.c.
+	(libserveez_HEADERS, docable): Add address.h.
+
 2011-05-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[irc coserver] Dose coserver ‘request’ arg w/ ‘const’.

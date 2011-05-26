@@ -1,3 +1,9 @@
+2011-05-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add ‘svz_address_t’ and related functions / macros.
+
+	* libserveez.h: #include "libserveez/address.h".
+
 2011-05-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[int] Make ‘_CTYPE’ auto-prefix "svz_" portion of the type.

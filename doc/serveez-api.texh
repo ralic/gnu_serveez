@@ -145,6 +145,7 @@ conflict with the other ``Port configuration'' node. ---ttn]
 * Library features::      A high-level list of what libserveez provides
 * Memory management::     How memory is managed in Serveez
 * Data structures::       Data structure helpers
+* svz_address_t::         A data type to hold family plus bits
 * Utility functions::     Miscellaneous helper functions
 * Core functions::        Network core implementations
 * Client connections::    Client connection functions
@@ -273,6 +274,25 @@ simple C types like integers or pointers.
 @tsin i "F svz_hash_size"
 @tsin i "F svz_hash_contains"
 @tsin i "F svz_hash_exists"
+
+@node svz_address_t
+@subsection svz_address_t
+
+A network address comprises a @dfn{family}, such as @code{AF_INET}
+(also known as IPv4), and its @dfn{bits} in network byte order, such as
+the bytes 127, 0, 0 and 1 (also known as the @dfn{IPv4 loopback
+address}).  Many libserveez functions take @code{svz_address_t *}.
+
+@tsin i "F svz_address_make"
+@tsin i "F svz_address_family"
+@tsin i "F svz_address_to"
+@tsin i "F svz_address_same"
+@tsin i "F svz_pp_address"
+@tsin i "F svz_pp_addr_port"
+@tsin i "F svz_address_copy"
+@tsin i "M SVZ_SET_ADDR"
+@tsin i "M SVZ_PP_ADDR"
+@tsin i "M SVZ_PP_ADDR_PORT"
 
 @node Utility functions
 @subsection Utility functions

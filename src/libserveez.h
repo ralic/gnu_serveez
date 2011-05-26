@@ -22,6 +22,7 @@
 #define __LIBSERVEEZ_H__ 1
 
 #include "libserveez/defines.h"
+#include "libserveez/address.h"
 #include "libserveez/boot.h"
 #include "libserveez/alloc.h"
 #include "libserveez/array.h"

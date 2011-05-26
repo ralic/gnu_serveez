@@ -1,3 +1,10 @@
+2011-05-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add ‘svz_address_t’ and related functions / macros.
+
+	* serveez-api.texh (Embedding API): Add "svz_address_t" to menu.
+	(svz_address_t): New node/subsection.
+
 2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	Make libserveez + headers installation optional.
