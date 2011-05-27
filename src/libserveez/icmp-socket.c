@@ -552,8 +552,8 @@ svz_icmp_write_socket (svz_socket_t *sock)
   p = sock->send_buffer;
   memcpy (&do_write, p, sizeof (do_write));
   p += sizeof (do_write);
-  memcpy (&receiver.sin_addr.s_addr, p, sizeof (sock->remote_addr));
-  p += sizeof (sock->remote_addr);
+  memcpy (&receiver.sin_addr.s_addr, p, sizeof (in_addr_t));
+  p += sizeof (in_addr_t);
   memcpy (&receiver.sin_port, p, sizeof (sock->remote_port));
   p += sizeof (sock->remote_port);
   assert ((int) do_write <= sock->send_buffer_fill);
@@ -617,8 +617,8 @@ svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
   int ret = 0;
 
   len = sizeof (len);
-  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
-  len += sizeof (sock->remote_addr);
+  memcpy (&buffer[len], &sock->remote_addr, sizeof (in_addr_t));
+  len += sizeof (in_addr_t);
   memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
   len += sizeof (sock->remote_port);
 
@@ -663,8 +663,8 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
        * of each packet.
        */
       len = sizeof (len);
-      memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
-      len += sizeof (sock->remote_addr);
+      memcpy (&buffer[len], &sock->remote_addr, sizeof (in_addr_t));
+      len += sizeof (in_addr_t);
       memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
       len += sizeof (sock->remote_port);
       if ((size = length) > ICMP_MSG_SIZE)
