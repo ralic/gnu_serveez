@@ -26,4 +26,11 @@
 # include <netinet/in.h>
 #endif
 
+/* We want to prepare for IPv6 but not yet *really* support it,
+   hence this lameness.  */
+#include <stdlib.h>
+#define STILL_NO_V6_DAMMIT(x)                   \
+  if (AF_INET != svz_address_family (x))        \
+    abort ()
+
 #endif  /* !defined __NETWORKING_HEADERS_H__ */

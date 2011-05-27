@@ -283,6 +283,16 @@ A network address comprises a @dfn{family}, such as @code{AF_INET}
 the bytes 127, 0, 0 and 1 (also known as the @dfn{IPv4 loopback
 address}).  Many libserveez functions take @code{svz_address_t *}.
 
+@strong{Please note}: Although @code{svz_address_t}
+supports@footnote{that is, if your system supports it} IPv6, the rest
+of libserveez it does not (yet).  This means you can freely create and
+manipulate address objects with the functions described in this
+section, but any attempt to pass to the rest of libserveez an address
+with a @var{family} other than @code{AF_INET} will immediately abort
+the process.  When full IPv6 support is in place, this blurb will be
+deleted and the list returned by @code{svz_library_features} will
+include an appropriate indicator (@pxref{Library features}).
+
 @tsin i "F svz_address_make"
 @tsin i "F svz_address_family"
 @tsin i "F svz_address_to"

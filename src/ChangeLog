@@ -1,3 +1,9 @@
+2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[ipv6] Add lameness: STILL_NO_V6_DAMMIT
+
+	* networking-headers.h (STILL_NO_V6_DAMMIT): New macro.
+
 2011-05-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add ‘svz_address_t’ and related functions / macros.
