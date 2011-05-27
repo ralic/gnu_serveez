@@ -21,9 +21,16 @@
 
 #ifdef __MINGW32__
 # include <winsock2.h>
+/* FIXME: How to DTRT here?
+ */
+# define IPV6_OK  0
 #else
 # include <arpa/inet.h>
 # include <netinet/in.h>
+/* See:
+ * http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap02.html
+ */
+# define IPV6_OK  (0 < _POSIX_IPV6)
 #endif
 
 /* We want to prepare for IPv6 but not yet *really* support it,

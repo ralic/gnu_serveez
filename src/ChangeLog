@@ -1,5 +1,11 @@
 2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[ipv6] Add potential unlameness: IPV6_OK
+
+	* networking-headers.h (IPV6_OK): New #define.
+
+2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[ipv6] Add lameness: STILL_NO_V6_DAMMIT
 
 	* networking-headers.h (STILL_NO_V6_DAMMIT): New macro.
