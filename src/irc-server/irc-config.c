@@ -320,6 +320,7 @@ irc_client_killed (irc_client_t *client, irc_config_t *cfg)
 int
 irc_client_valid (irc_client_t *client, irc_config_t *cfg)
 {
+  char buf[64];
   irc_user_t *user;
 
   /* first we check whether this client is within the K lines */
@@ -334,7 +335,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
   for (user = cfg->user_auth; user; user = user->next)
     {
       if ((irc_string_regex (client->user, user->user_ip) &&
-           irc_string_regex (svz_inet_ntoa (client->sock->remote_addr),
+           irc_string_regex (SVZ_PP_ADDR (buf, client->sock->remote_addr),
                              user->ip)) ||
           (irc_string_regex (client->user, user->user_host) &&
            irc_string_regex (client->host, user->host)))

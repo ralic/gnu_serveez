@@ -24,6 +24,7 @@
 /* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
+#include "libserveez/address.h"
 #include "libserveez/socket.h"
 /* end svzint */
 
@@ -110,7 +111,7 @@ SERVEEZ_API const char *svz_coserver_type_name (const svz_coserver_t *);
 /*
  * These are the three wrappers for our existing coservers.
  */
-SERVEEZ_API void svz_coserver_rdns_invoke (in_addr_t,
+SERVEEZ_API void svz_coserver_rdns_invoke (svz_address_t *,
                                            svz_coserver_handle_result_t,
                                            void *);
 

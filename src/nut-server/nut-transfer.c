@@ -333,6 +333,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
                    nut_record_t *record, char *savefile)
 {
   nut_config_t *cfg = sock->cfg;
+  svz_address_t *addr;
   svz_socket_t *xsock;
   char *ext, *file, *pattern;
   struct stat buf;
@@ -397,7 +398,10 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
     }
 
   /* try to connect to the host */
-  if ((xsock = svz_tcp_connect (reply->ip, reply->port)) != NULL)
+  addr = svz_address_make (AF_INET, &reply->ip);
+  xsock = svz_tcp_connect (addr, reply->port);
+  svz_free (addr);
+  if (xsock != NULL)
     {
       svz_log (SVZ_LOG_NOTICE, "nut: connecting %s:%u\n",
                svz_inet_ntoa (reply->ip), ntohs (reply->port));
@@ -598,9 +602,13 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       svz_free (pushkey);
 
 #if ENABLE_DEBUG
-      svz_log (SVZ_LOG_DEBUG, "nut: sent push request to %s:%u\n",
-                  svz_inet_ntoa (sock->remote_addr),
-                  ntohs (sock->remote_port));
+      {
+        char buf[64];
+
+        svz_log (SVZ_LOG_DEBUG, "nut: sent push request to %s\n",
+                 SVZ_PP_ADDR_PORT (buf, sock->remote_addr,
+                                   sock->remote_port));
+      }
 #endif
 
       /* put into sent packet hash */

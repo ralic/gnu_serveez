@@ -93,12 +93,14 @@ static int
 svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
 {
   svz_portcfg_t *port = parent->port;
-  char *ip = svz_inet_ntoa (child->remote_addr);
+  char ip[64];
   time_t *t, *s = TIME_T_TOO_FAT ? svz_malloc (sizeof (time_t)) : NULL;
   time_t current;
   size_t n;
   int nr, ret = 0;
   svz_array_t *accepted;
+
+  SVZ_PP_ADDR (ip, child->remote_addr);
 
   /* Check connect frequency.  */
   if (port->accepted)

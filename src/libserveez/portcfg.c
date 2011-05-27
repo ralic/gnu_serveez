@@ -352,11 +352,12 @@ struct expand_closure
 static int
 expand_internal (const svz_interface_t *ifc, void *closure)
 {
-  in_addr_t ipaddr = ifc->ipaddr;
+  in_addr_t ipaddr;
   struct expand_closure *x = closure;
   svz_portcfg_t *port = svz_portcfg_dup (x->this);
   struct sockaddr_in *addr = svz_portcfg_addr (port);
 
+  svz_address_to (&ipaddr, ifc->addr);
   addr->sin_addr.s_addr = ipaddr;
   svz_portcfg_set_ipaddr (port, svz_strdup (svz_inet_ntoa (ipaddr)));
   svz_array_add (x->ports, port);
@@ -570,10 +571,12 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
   if ((ifc = svz_interface_search (str)) != NULL)
     {
 #if ENABLE_DEBUG
+      char buf[64];
+
       svz_log (SVZ_LOG_DEBUG, "`%s' is %s\n", ifc->description,
-               svz_inet_ntoa (ifc->ipaddr));
+               SVZ_PP_ADDR (buf, ifc->addr));
 #endif
-      addr->sin_addr.s_addr = ifc->ipaddr;
+      svz_address_to (&addr->sin_addr.s_addr, ifc->addr);
       return 0;
     }
   return svz_inet_aton (str, addr);

@@ -24,6 +24,7 @@
 /* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
+#include "libserveez/address.h"
 /* end svzint */
 /* begin svzint */
 #define ICMP_HEADER_SIZE 10
@@ -44,7 +45,7 @@ __BEGIN_DECLS
 SBO int svz_icmp_lazy_read_socket (svz_socket_t *);
 SBO int svz_icmp_write_socket (svz_socket_t *);
 SBO int svz_icmp_check_request (svz_socket_t *);
-SERVEEZ_API svz_socket_t *svz_icmp_connect (in_addr_t, in_port_t, uint8_t);
+SERVEEZ_API svz_socket_t *svz_icmp_connect (svz_address_t *, in_port_t, uint8_t);
 SERVEEZ_API int svz_icmp_send_control (svz_socket_t *, uint8_t);
 SERVEEZ_API int svz_icmp_write (svz_socket_t *, char *, int);
 

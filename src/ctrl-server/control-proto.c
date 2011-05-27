@@ -416,12 +416,14 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     }
   if (xsock->flags & SVZ_SOFLG_SOCK)
     {
-      svz_sock_printf (sock, " foreign  : %s:%u\r\n",
-                       svz_inet_ntoa (xsock->remote_addr),
-                       ntohs (xsock->remote_port));
-      svz_sock_printf (sock, " local    : %s:%u\r\n",
-                       svz_inet_ntoa (xsock->local_addr),
-                       ntohs (xsock->local_port));
+      char buf[64];
+
+      svz_sock_printf (sock, " foreign  : %s\r\n",
+                       SVZ_PP_ADDR_PORT (buf, xsock->remote_addr,
+                                         xsock->remote_port));
+      svz_sock_printf (sock, " local    : %s\r\n",
+                       SVZ_PP_ADDR_PORT (buf, xsock->local_addr,
+                                         xsock->local_port));
     }
 
   svz_sock_printf (sock,
@@ -603,18 +605,14 @@ stat_con_internal (svz_socket_t *sock, void *closure)
   else
     id = "None";
 
-  snprintf (linet, 64, "%s:%u",
-           svz_inet_ntoa (sock->local_addr),
-           ntohs (sock->local_port));
-  snprintf (rinet, 64, "%s:%u",
-           svz_inet_ntoa (sock->remote_addr),
-           ntohs (sock->remote_port));
   svz_sock_printf (to,
                    "%-16s %4d %6d %6d "
                    "%-20s %-20s"        /* FIXME: IPv4 */
                    "\r\n", id,
                    sock->id, sock->recv_buffer_fill,
-                   sock->send_buffer_fill, linet, rinet);
+                   sock->send_buffer_fill,
+                   SVZ_PP_ADDR_PORT (linet, sock->local_addr, sock->local_port),
+                   SVZ_PP_ADDR_PORT (rinet, sock->remote_addr, sock->remote_port));
   return 0;
 }
 

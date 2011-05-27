@@ -24,6 +24,7 @@
 
 /* begin svzint */
 #include "libserveez/defines.h"
+#include "libserveez/address.h"
 /* end svzint */
 
 /* Do not write more than this many bytes to a socket at once.  */
@@ -103,9 +104,9 @@ struct svz_socket
 
   /* The following items always MUST be in network byte order.  */
   in_port_t remote_port;        /* Port number of remote end.  */
-  in_addr_t remote_addr;        /* IP address of remote end.  */
+  svz_address_t *remote_addr;   /* IP address of remote end.  */
   in_port_t local_port;         /* Port number of local end.  */
-  in_addr_t local_addr;         /* IP address of local end.  */
+  svz_address_t *local_addr;    /* IP address of local end.  */
 
   char *send_buffer;            /* Buffer for outbound data.  */
   char *recv_buffer;            /* Buffer for inbound data.  */

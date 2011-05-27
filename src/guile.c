@@ -1488,8 +1488,9 @@ static int
 access_interfaces_internal (const svz_interface_t *ifc, void *closure)
 {
   SCM *list = closure;
+  char buf[64];
 
-  *list = scm_cons (gi_string2scm (svz_inet_ntoa (ifc->ipaddr)), *list);
+  *list = scm_cons (gi_string2scm (SVZ_PP_ADDR (buf, ifc->addr)), *list);
   return 0;
 }
 
@@ -1528,7 +1529,8 @@ local interfaces as a list of ip addresses in dotted decimal form.  If
                   continue;
                 }
               sprintf (description, "guile interface %d", n);
-              svz_interface_add (n, description, addr.sin_addr.s_addr, 0);
+              svz_interface_add (n, description, AF_INET,
+                                 &addr.sin_addr.s_addr, 0);
             }
           svz_array_destroy (array);
         }

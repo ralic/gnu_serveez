@@ -1,5 +1,31 @@
 2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘svz_address_t *’ for func args / struct members.
+
+	U ≡ "Update internals".
+	* awcs-server/awcs-proto.c (awcs_status_connected): U.
+	* ctrl-server/control-proto.c (ctrl_stat_id, stat_con_internal): U.
+	* guile-api.c (guile_sock_connect, guile_sock_remote_address)
+	(guile_sock_local_address, guile_coserver_rdns): U.
+	* guile.c (access_interfaces_internal, guile_access_interfaces): U.
+	* http-server/http-cgi.c (http_create_cgi_envp): U.
+	* http-server/http-core.c (http_log, http_error_response): U.
+	* http-server/http-proto.c (http_init): U.
+	* irc-server/irc-config.c (irc_client_valid): U.
+	* irc-server/irc-server.c (irc_dns_done): U.
+	* nut-server/gnutella.c (nut_connect_ip)
+	(nut_sock_client_key, nut_detect_connect): U.
+	* nut-server/nht-hostlist.c (nut_hosts_check, nut_host_catcher): U.
+	* nut-server/nut-request.c (nut_push_request, nut_v4addr_from): U.
+	* nut-server/nut-transfer.c (nut_init_transfer, nut_send_push): U.
+	* options.c (display_ifc): U.
+	* tunnel-server/tunnel.c (tnl_addr, tnl_create_socket)
+	(tnl_connect_socket, tnl_check_request_tcp_target)
+	(tnl_handle_request_udp_target, tnl_handle_request_udp_source)
+	(tnl_handle_request_icmp_target, tnl_handle_request_icmp_source): U.
+
+2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[ipv6] Add potential unlameness: IPV6_OK
 
 	* networking-headers.h (IPV6_OK): New #define.

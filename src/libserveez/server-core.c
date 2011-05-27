@@ -631,7 +631,7 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
   char *ip;
   size_t n;
   int ret;
-  char *remote;
+  char remote[64];
 
   /* Check arguments and return if this function cannot work.  */
   if (parent == NULL || child == NULL || parent->port == NULL)
@@ -639,7 +639,7 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 
   /* Get port configuration and remote address.  */
   port = parent->port;
-  remote = svz_inet_ntoa (child->remote_addr);
+  SVZ_PP_ADDR (remote, child->remote_addr);
 
   /* Check the deny IP addresses.  */
   if (port->deny)

@@ -206,6 +206,8 @@ http_init (svz_server_t *server)
   /* resolve localhost if server name is not set */
   if (!cfg->host)
     {
+      svz_address_t *address;
+
       if ((ports = svz_server_portcfgs (server)) != NULL)
         {
           addr = svz_portcfg_addr ((svz_portcfg_t *) svz_array_get (ports, 0));
@@ -214,7 +216,9 @@ http_init (svz_server_t *server)
         }
       if (host == INADDR_ANY)
         host = htonl (INADDR_LOOPBACK);
-      svz_coserver_rdns_invoke (host, http_localhost, cfg);
+      address = svz_address_make (AF_INET, &host);
+      svz_coserver_rdns_invoke (address, http_localhost, cfg);
+      svz_free (address);
     }
 
   /* start http logging system */

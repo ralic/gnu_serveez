@@ -235,7 +235,8 @@ static int
 awcs_status_connected (svz_socket_t *sock)
 {
   in_port_t port;
-  in_addr_t addr;
+  svz_address_t *addr;
+  char buf[64];
   awcs_config_t *cfg = sock->cfg;
 
   if (!cfg->server)
@@ -258,7 +259,7 @@ awcs_status_connected (svz_socket_t *sock)
                        cfg->server->id,
                        STATUS_CONNECT,
                        sock->id,
-                       svz_inet_ntoa (addr),
+                       SVZ_PP_ADDR (buf, addr),
                        htons (port), '\0'))
     {
       svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");

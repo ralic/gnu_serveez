@@ -326,10 +326,12 @@ svz_tcp_default_connect (svz_socket_t *sock)
  * errors.
  */
 svz_socket_t *
-svz_tcp_connect (in_addr_t host, in_port_t port)
+svz_tcp_connect (svz_address_t *host, in_port_t port)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;
+
+  STILL_NO_V6_DAMMIT (host);
 
   /* Create a socket.  */
   if ((sockfd = svz_socket_create (SVZ_PROTO_TCP)) == (svz_t_socket) -1)

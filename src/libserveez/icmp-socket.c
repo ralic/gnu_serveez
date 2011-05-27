@@ -457,13 +457,15 @@ svz_icmp_read_socket (svz_socket_t *sock)
 #endif
       sock->last_recv = time (NULL);
       if (!(sock->flags & SVZ_SOFLG_FIXED))
-        {
-          sock->remote_addr = sender.sin_addr.s_addr;
-        }
+        SVZ_SET_ADDR (sock->remote_addr, AF_INET, &sender.sin_addr.s_addr);
 #if ENABLE_DEBUG
-      svz_log (SVZ_LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
-               sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
-               svz_inet_ntoa (sock->remote_addr), num_read);
+      {
+        char buf[64];
+
+        svz_log (SVZ_LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
+                 sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
+                 SVZ_PP_ADDR (buf, sock->remote_addr), num_read);
+      }
 #endif /* ENABLE_DEBUG */
 
       /*
@@ -617,7 +619,7 @@ svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
   int ret = 0;
 
   len = sizeof (len);
-  memcpy (&buffer[len], &sock->remote_addr, sizeof (in_addr_t));
+  svz_address_to (&buffer[len], sock->remote_addr);
   len += sizeof (in_addr_t);
   memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
   len += sizeof (sock->remote_port);
@@ -663,7 +665,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
        * of each packet.
        */
       len = sizeof (len);
-      memcpy (&buffer[len], &sock->remote_addr, sizeof (in_addr_t));
+      svz_address_to (&buffer[len], sock->remote_addr);
       len += sizeof (in_addr_t);
       memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
       len += sizeof (sock->remote_port);
@@ -767,10 +769,12 @@ svz_icmp_check_request (svz_socket_t *sock)
  * Return @code{NULL} on errors, otherwise an enqueued socket structure.
  */
 svz_socket_t *
-svz_icmp_connect (in_addr_t host, in_port_t port, uint8_t type)
+svz_icmp_connect (svz_address_t *host, in_port_t port, uint8_t type)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;
+
+  STILL_NO_V6_DAMMIT (host);
 
   /* Create a client socket.  */
   if ((sockfd = svz_socket_create (SVZ_PROTO_ICMP)) == (svz_t_socket) -1)
@@ -797,7 +801,7 @@ svz_icmp_connect (in_addr_t host, in_port_t port, uint8_t type)
   svz_sock_intern_connection_info (sock);
 
   /* Put foreign address here.  */
-  sock->remote_addr = host;
+  sock->remote_addr = svz_address_copy (host);
   sock->remote_port = sock->id;
 
   sock->read_socket = svz_icmp_read_socket;

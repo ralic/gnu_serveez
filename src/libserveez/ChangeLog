@@ -1,5 +1,42 @@
 2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘svz_address_t *’ for func args / struct members.
+
+	U ≡ "Update arglist to take ‘svz_address_t *’ instead of
+	‘in_addr_t’"; N ≡ "Add call to ‘STILL_NO_V6_DAMMIT’"; every
+	header has implicit: "<svzint> #include "libserveez/address.h"".
+	* core.h (svz_socket_connect): U.
+	* coserver/coserver.h (svz_coserver_rdns_invoke): U.
+	* icmp-socket.h (svz_icmp_connect): U.
+	* interface.h (struct svz_interface):
+	Drop member ‘ipaddr’; add member ‘addr’.
+	(svz_interface_add): Take family and bits instead of v4addr.
+	* socket.h (struct svz_socket): Change type
+	of ‘remote_addr’ and ‘local_addr’ to ‘svz_address_t *’.
+	* tcp-socket.h (svz_tcp_connect): U.
+	* udp-socket.c (svz_udp_connect): U.
+	* core.c (svz_socket_connect): U; N; update internals.
+	* coserver/coserver.c (svz_coserver_rdns_invoke): Likewise.
+	(svz_coserver_ident_invoke): Update internals.
+	* icmp-socket.c (svz_icmp_read_socket, svz_icmp_send_control)
+	(svz_icmp_write, svz_icmp_check_request, svz_icmp_connect): Likewise.
+	* interface.c (svz_interface_collect, desetroy_ifc): Likewise.
+	(svz_interface_add): U; N; update internals.
+	(svz_interface_get): U; update internals.
+	(svz_interface_check): Update internals.
+	* portcfg.c (expand_internal)
+	(svz_portcfg_convert_addr): Likewise.
+	* server-core.c (svz_sock_check_access): Likewise.
+	* server-socket.c (svz_sock_check_frequency): Likewise.
+	* socket.c (svz_sock_free)
+	(svz_sock_intern_connection_info): Likewise.
+	* tcp-socket.c (svz_tcp_connect): U; N.
+	* udp-socket.c (svz_udp_read_socket)
+	(svz_udp_write): Update internals.
+	(svz_udp_connect): U; N.
+
+2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Use ‘sizeof (in_addr_t)’ more.
 
 	* icmp-socket.c (svz_icmp_write_socket)

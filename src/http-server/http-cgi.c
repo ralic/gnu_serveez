@@ -339,6 +339,7 @@ http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
                       char *script,        /* the cgi script's filename */
                       int type)            /* the cgi type */
 {
+  char buf[64];
   http_socket_t *http;
   http_config_t *cfg = sock->cfg;
 
@@ -398,11 +399,11 @@ http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
    * set up some more environment variables which might be
    * necessary for the cgi script
    */
-  svz_envblock_add (env, "SERVER_NAME=%s",
-                    cfg->host ? cfg->host : svz_inet_ntoa (sock->local_addr));
+  svz_envblock_add (env, "SERVER_NAME=%s", cfg->host ? cfg->host :
+                    SVZ_PP_ADDR (buf, sock->local_addr));
   svz_envblock_add (env, "SERVER_PORT=%u", ntohs (sock->local_port));
   svz_envblock_add (env, "REMOTE_ADDR=%s", http->host ? http->host :
-                    svz_inet_ntoa (sock->remote_addr));
+                    SVZ_PP_ADDR (buf, sock->remote_addr));
   svz_envblock_add (env, "REMOTE_PORT=%u", ntohs (sock->remote_port));
   svz_envblock_add (env, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
   svz_envblock_add (env, "GATEWAY_INTERFACE=%s", CGI_VERSION);

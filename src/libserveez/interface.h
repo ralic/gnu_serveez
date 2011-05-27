@@ -24,6 +24,7 @@
 
 /* begin svzint */
 #include "libserveez/defines.h"
+#include "libserveez/address.h"
 /* end svzint */
 
 /*
@@ -33,7 +34,7 @@ typedef struct svz_interface
 {
   size_t index;         /* interface index */
   char *description;    /* interface description */
-  in_addr_t ipaddr;     /* its IP address */
+  svz_address_t *addr;  /* address */
   int detected;         /* interface flag */
 }
 svz_interface_t;
@@ -43,7 +44,7 @@ typedef int (svz_interface_do_t) (const svz_interface_t *, void *);
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_foreach_interface (svz_interface_do_t *, void *);
-SERVEEZ_API int svz_interface_add (size_t, char *, in_addr_t, int);
+SERVEEZ_API int svz_interface_add (size_t, char *, int, const void *, int);
 SBO svz_interface_t *svz_interface_search (char *);
 SBO void svz_interface_check (void);
 

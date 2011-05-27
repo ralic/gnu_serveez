@@ -280,6 +280,7 @@ http_log (svz_socket_t *sock)
 {
   http_config_t *cfg = sock->cfg;
   http_socket_t *http = sock->data;
+  char buf[64];
   static char line[1024];
   char *referrer, *agent, *p, *start;
 
@@ -330,7 +331,7 @@ http_log (svz_socket_t *sock)
               /* %h - host name */
             case 'h':
               strcat (line, http->host ? http->host :
-                      svz_inet_ntoa (sock->remote_addr));
+                      SVZ_PP_ADDR (buf, sock->remote_addr));
               p++;
               break;
               /* %t - request time stamp */
@@ -545,6 +546,7 @@ http_error_response (svz_socket_t *sock, int response)
   http_config_t *cfg = sock->cfg;
   http_socket_t *http = sock->data;
   char *txt;
+  char buf[64];
 
   /* Convert error code to text.  */
   switch (response)
@@ -637,7 +639,7 @@ http_error_response (svz_socket_t *sock, int response)
                           response, txt,
                           SERVER_STRING,
                           cfg->host ? cfg->host :
-                          svz_inet_ntoa (sock->local_addr),
+                          SVZ_PP_ADDR (buf, sock->local_addr),
                           ntohs (sock->local_port), cfg->admin, cfg->admin);
 }
 

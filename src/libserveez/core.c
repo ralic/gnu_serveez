@@ -297,14 +297,18 @@ svz_socket_create (int proto)
  * at the network port @var{port}.  Return non-zero on errors.
  */
 int
-svz_socket_connect (svz_t_socket sockfd, in_addr_t host, in_port_t port)
+svz_socket_connect (svz_t_socket sockfd, svz_address_t *host, in_port_t port)
 {
+  in_addr_t v4addr;
   struct sockaddr_in server;
   int error;
 
+  STILL_NO_V6_DAMMIT (host);
+  svz_address_to (&v4addr, host);
+
   /* Setup the server address.  */
   server.sin_family = AF_INET;
-  server.sin_addr.s_addr = host;
+  server.sin_addr.s_addr = v4addr;
   server.sin_port = port;
 
   /* Try to connect to the server, */

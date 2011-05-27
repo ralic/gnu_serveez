@@ -226,20 +226,25 @@ static int
 nut_connect_ip (nut_config_t *cfg, in_addr_t ip, in_port_t port)
 {
   svz_socket_t *sock;
+  svz_address_t *addr = svz_address_make (AF_INET, &ip);
 
   /* try to connect to this host */
-  if ((sock = svz_tcp_connect (ip, port)) != NULL)
+  if ((sock = svz_tcp_connect (addr, port)) != NULL)
     {
-      svz_log (SVZ_LOG_NOTICE, "nut: connecting %s:%u\n",
-               svz_inet_ntoa (ip), ntohs (port));
+      char buf[64];
+
+      svz_log (SVZ_LOG_NOTICE, "nut: connecting %s\n",
+               SVZ_PP_ADDR_PORT (buf, addr, port));
       sock->cfg = cfg;
       sock->flags |= SVZ_SOFLG_NOFLOOD;
       sock->check_request = nut_detect_connect;
       sock->idle_func = nut_connect_timeout;
       sock->idle_counter = NUT_CONNECT_TIMEOUT;
       svz_sock_printf (sock, NUT_CONNECT);
+      svz_free (addr);
       return 0;
     }
+  svz_free (addr);
   return -1;
 }
 
@@ -587,7 +592,10 @@ disconnect_internal (void *k, void *v, void *closure)
 static char *
 nut_sock_client_key (svz_socket_t *sock)
 {
-  return nut_client_key (sock->remote_addr, sock->remote_port);
+  in_addr_t v4addr;
+
+  svz_address_to (&v4addr, sock->remote_addr);
+  return nut_client_key (v4addr, sock->remote_port);
 }
 
 /*
@@ -1064,10 +1072,11 @@ nut_detect_connect (svz_socket_t *sock)
   if (sock->recv_buffer_fill >= len &&
       !memcmp (sock->recv_buffer, NUT_OK, len))
     {
+      char buf[64];
+
       sock->userflags |= (NUT_FLAG_CLIENT | NUT_FLAG_SELF);
-      svz_log (SVZ_LOG_NOTICE, "nut: host %s:%u connected\n",
-               svz_inet_ntoa (sock->remote_addr),
-               ntohs (sock->remote_port));
+      svz_log (SVZ_LOG_NOTICE, "nut: host %s connected\n",
+               SVZ_PP_ADDR_PORT (buf, sock->remote_addr, sock->remote_port));
       svz_sock_reduce_recv (sock, len);
 
       if (nut_connect_socket (svz_server_find (cfg), sock) == -1)

@@ -428,6 +428,10 @@ svz_sock_resize_buffers (svz_socket_t *sock,
 int
 svz_sock_free (svz_socket_t *sock)
 {
+  if (sock->remote_addr)
+    svz_free (sock->remote_addr);
+  if (sock->local_addr)
+    svz_free (sock->local_addr);
   if (sock->recv_buffer)
     svz_free (sock->recv_buffer);
   if (sock->send_buffer)
@@ -477,7 +481,7 @@ svz_sock_intern_connection_info (svz_socket_t *sock)
       port = 0;
     }
   sock->remote_port = port;
-  sock->remote_addr = addr;
+  SVZ_SET_ADDR (sock->remote_addr, AF_INET, &addr);
 
   size = sizeof (s);
   if (!getsockname (sock->sock_desc, (struct sockaddr *) &s, &size))
@@ -491,7 +495,7 @@ svz_sock_intern_connection_info (svz_socket_t *sock)
       port = 0;
     }
   sock->local_port = port;
-  sock->local_addr = addr;
+  SVZ_SET_ADDR (sock->local_addr, AF_INET, &addr);
 
   return 0;
 }

@@ -135,6 +135,7 @@ nut_hosts_check (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   struct hosts_check_closure x;
+  char buf[64];
 
   /* do not enter this routine if you do not want to send something */
   if (!(sock->userflags & NUT_FLAG_HOSTS))
@@ -159,8 +160,9 @@ nut_hosts_check (svz_socket_t *sock)
   /* send HTML footer */
   if (svz_sock_printf (sock, NUT_HTML_FOOTER,
                        PACKAGE_NAME, PACKAGE_VERSION,
-                       svz_inet_ntoa (sock->local_addr),
-                       ntohs (sock->local_port)) == -1)
+                       SVZ_PP_ADDR (buf, sock->local_addr),
+                       ntohs (sock->local_port))
+      == -1)
     return -1;
 
   /* state that we have sent all available data */
@@ -189,12 +191,16 @@ nut_host_catcher (svz_socket_t *sock, in_addr_t ip, in_port_t port)
   /* not yet in host catcher hash */
   if (client == NULL)
     {
+      svz_address_t *addr = svz_address_make (AF_INET, &ip);
+      int samep = svz_address_same (addr, sock->local_addr);
+
+      svz_free (addr);
       /* check if it is a valid ip/host combination */
       if ((ip & 0xff000000) == 0 || (ip & 0x00ff0000) == 0 ||
           (ip & 0x0000ff00) == 0 || (ip & 0x000000ff) == 0 ||
           (ip & 0xff000000) == 0xff000000 || (ip & 0x00ff0000) == 0x00ff0000 ||
           (ip & 0x0000ff00) == 0x0000ff00 || (ip & 0x000000ff) == 0x000000ff ||
-          ip == sock->local_addr ||
+          samep ||
           port == 0)
         {
 #if ENABLE_DEBUG

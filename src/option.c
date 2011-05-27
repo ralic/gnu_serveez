@@ -192,8 +192,9 @@ static struct option serveez_options[] = {
 static int
 display_ifc (const svz_interface_t *ifc, SVZ_UNUSED void *closure)
 {
-  char *addr = svz_inet_ntoa (ifc->ipaddr);
+  char addr[64];
 
+  SVZ_PP_ADDR (addr, ifc->addr);
   if (ifc->description)
     /* interface with description */
     printf ("%40s: %s\n",

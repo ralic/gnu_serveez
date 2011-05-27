@@ -58,6 +58,9 @@
 static int
 svz_udp_read_socket (svz_socket_t *sock)
 {
+#if ENABLE_DEBUG
+  char buf[64];
+#endif
   int do_read, num_read;
   socklen_t len;
   struct sockaddr_in sender;
@@ -97,14 +100,14 @@ svz_udp_read_socket (svz_socket_t *sock)
       if (!(sock->flags & SVZ_SOFLG_FIXED))
         {
           sock->remote_port = sender.sin_port;
-          sock->remote_addr = sender.sin_addr.s_addr;
+          SVZ_SET_ADDR (sock->remote_addr, AF_INET, &sender.sin_addr.s_addr);
         }
 
 #if ENABLE_DEBUG
-      svz_log (SVZ_LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
+      svz_log (SVZ_LOG_DEBUG, "udp: recv%s: %s (%d bytes)\n",
                sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
-               svz_inet_ntoa (sock->remote_addr),
-               ntohs (sock->remote_port), num_read);
+               SVZ_PP_ADDR_PORT (buf, sock->remote_addr, sock->remote_port),
+               num_read);
 #endif /* ENABLE_DEBUG */
 
       /* Check access lists.  */
@@ -309,7 +312,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
        * of each data packet.
        */
       len = sizeof (len);
-      memcpy (&buffer[len], &sock->remote_addr, sizeof (in_addr_t));
+      svz_address_to (&buffer[len], sock->remote_addr);
       len += sizeof (in_addr_t);
       memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
       len += sizeof (sock->remote_port);
@@ -348,10 +351,12 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
  * some other UDP server.
  */
 svz_socket_t *
-svz_udp_connect (in_addr_t host, in_port_t port)
+svz_udp_connect (svz_address_t *host, in_port_t port)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;
+
+  STILL_NO_V6_DAMMIT (host);
 
   /* Create a client socket.  */
   if ((sockfd = svz_socket_create (SVZ_PROTO_UDP)) == (svz_t_socket) -1)

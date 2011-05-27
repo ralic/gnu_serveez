@@ -172,17 +172,21 @@ svz_make_sock_iv (svz_socket_t *sock)
 
 /**
  * Enqueue a request for the reverse DNS coserver
- * to resolve @var{ip} address (in network byte order),
+ * to resolve address @var{addr},
  * arranging for callback @var{cb} to be called with two args:
  * the hostname (a string) and the opaque data @var{closure}.
  */
 void
-svz_coserver_rdns_invoke (in_addr_t ip,
+svz_coserver_rdns_invoke (svz_address_t *addr,
                           svz_coserver_handle_result_t cb,
                           void *closure)
 {
+  char buf[64];
+
+  STILL_NO_V6_DAMMIT (addr);
   svz_coserver_send_request (SVZ_COSERVER_REVERSE_DNS,
-                             svz_inet_ntoa (ip), cb, closure);
+                             SVZ_PP_ADDR (buf, addr),
+                             cb, closure);
 }
 
 /**
@@ -209,10 +213,12 @@ svz_coserver_ident_invoke (svz_socket_t *sock,
                            svz_coserver_handle_result_t cb,
                            void *closure)
 {
+  char addrbuf[64];
   char buffer[COSERVER_BUFSIZE];
-  snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
-            svz_inet_ntoa (sock->remote_addr),
-            ntohs (sock->remote_port), ntohs (sock->local_port));
+
+  snprintf (buffer, COSERVER_BUFSIZE, "%s:%u",
+            SVZ_PP_ADDR_PORT (addrbuf, sock->remote_addr, sock->remote_port),
+            ntohs (sock->local_port));
   svz_coserver_send_request (SVZ_COSERVER_IDENT, buffer, cb, closure);
 }
 

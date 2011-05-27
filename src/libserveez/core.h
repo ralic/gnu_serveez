@@ -24,6 +24,7 @@
 /* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
+#include "libserveez/address.h"
 /* end svzint */
 
 /* protocol definitions */
@@ -43,7 +44,7 @@ SBO int svz_fd_block (int);
 SERVEEZ_API int svz_fd_cloexec (int);
 SERVEEZ_API int svz_tcp_cork (svz_t_socket, int);
 SERVEEZ_API int svz_tcp_nodelay (svz_t_socket, int, int *);
-SBO int svz_socket_connect (svz_t_socket, in_addr_t, in_port_t);
+SBO int svz_socket_connect (svz_t_socket, svz_address_t *, in_port_t);
 SBO svz_t_socket svz_socket_create (int);
 SERVEEZ_API int svz_closesocket (svz_t_socket);
 SBO int svz_socket_create_pair (int, svz_t_socket desc[2]);

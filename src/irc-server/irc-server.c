@@ -180,6 +180,7 @@ irc_dns_done (char *ip, void *closure)
   irc_server_t *server = closure;
   irc_config_t *cfg = server->cfg;
   svz_socket_t *sock;
+  svz_address_t *addr;
 
   /* check if dns lookup was successful */
   if (!ip)
@@ -190,7 +191,10 @@ irc_dns_done (char *ip, void *closure)
 
   /* try connecting */
   server->addr = inet_addr (ip);
-  if ((sock = svz_tcp_connect (server->addr, server->port)) == NULL)
+  addr = svz_address_make (AF_INET, &server->addr);
+  sock = svz_tcp_connect (addr, server->port);
+  svz_free (addr);
+  if (sock == NULL)
     {
       return -1;
     }

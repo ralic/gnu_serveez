@@ -173,8 +173,12 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
       if (cfg->uploads <= cfg->max_uploads &&
           (entry = nut_get_database (cfg, NULL, push->index)) != NULL)
         {
+          svz_address_t *addr = svz_address_make (AF_INET, &push->ip);
+
+          xsock = svz_tcp_connect (addr, push->port);
+          svz_free (addr);
           /* try to connect to given host */
-          if ((xsock = svz_tcp_connect (push->ip, push->port)) != NULL)
+          if (xsock != NULL)
             {
               svz_log (SVZ_LOG_NOTICE, "nut: connecting %s:%u\n",
                        svz_inet_ntoa (push->ip), ntohs (push->port));
@@ -223,7 +227,12 @@ nut_v4addr_from (nut_config_t *cfg,
     return cfg->ip;
   if (addr)
     return addr->sin_addr.s_addr;
-  return sock->local_addr;
+  {
+    in_addr_t v4addr;
+
+    svz_address_to (&v4addr, sock->local_addr);
+    return v4addr;
+  }
 }
 
 /*

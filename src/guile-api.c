@@ -98,7 +98,8 @@ or @code{#f} on failure.  */)
 {
 #define FUNC_NAME s_guile_sock_connect
   svz_socket_t *sock;
-  in_addr_t xhost;
+  in_addr_t v4addr;
+  svz_address_t *xhost;
   in_port_t xport = 0;
   long p;
   int xproto;
@@ -111,7 +112,7 @@ or @code{#f} on failure.  */)
 
   /* Extract host to connect to.  */
   if (SCM_EXACTP (host))
-    xhost = htonl (gi_scm2int (host));
+    v4addr = htonl (gi_scm2int (host));
   else
     {
       char str[128];
@@ -119,7 +120,7 @@ or @code{#f} on failure.  */)
       GI_GET_XREP (str, host);
       if (svz_inet_aton (str, &addr) == -1)
         {
-          if (guile_resolve (str, &xhost) == -1)
+          if (guile_resolve (str, &v4addr) == -1)
             {
               guile_error ("%s: IP in dotted decimals or hostname expected",
                            FUNC_NAME);
@@ -127,8 +128,9 @@ or @code{#f} on failure.  */)
             }
         }
       else
-        xhost = addr.sin_addr.s_addr;
+        v4addr = addr.sin_addr.s_addr;
     }
+  xhost = svz_address_make (AF_INET, &v4addr);
 
   /* Extract protocol to use.  */
   xproto = gi_scm2int (proto);
@@ -157,6 +159,7 @@ or @code{#f} on failure.  */)
     default:
       SCM_OUT_OF_RANGE (SCM_ARG2, proto);
     }
+  svz_free (xhost);
 
   if (sock == NULL)
     return ret;
@@ -393,11 +396,13 @@ the socket @var{sock}.  */)
 {
 #define FUNC_NAME s_guile_sock_remote_address
   svz_socket_t *xsock;
+  in_addr_t v4addr;
   long port;
   SCM pair;
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-  pair = scm_cons (gi_nnint2scm (xsock->remote_addr),
+  svz_address_to (&v4addr, xsock->remote_addr);
+  pair = scm_cons (gi_nnint2scm (v4addr),
                    gi_integer2scm ((int) xsock->remote_port));
   if (!SCM_UNBNDP (address))
     {
@@ -405,7 +410,8 @@ the socket @var{sock}.  */)
                        && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2,
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
-      xsock->remote_addr = gi_scm2ulong (SCM_CAR (address));
+      v4addr = gi_scm2ulong (SCM_CAR (address));
+      SVZ_SET_ADDR (xsock->remote_addr, AF_INET, &v4addr);
       xsock->remote_port = port;
     }
   return pair;
@@ -424,11 +430,13 @@ the socket @var{sock}.  */)
 {
 #define FUNC_NAME s_guile_sock_local_address
   svz_socket_t *xsock;
+  in_addr_t v4addr;
   long port;
   SCM pair;
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-  pair = scm_cons (gi_nnint2scm (xsock->local_addr),
+  svz_address_to (&v4addr, xsock->local_addr);
+  pair = scm_cons (gi_nnint2scm (v4addr),
                    gi_integer2scm ((int) xsock->local_port));
   if (!SCM_UNBNDP (address))
     {
@@ -436,7 +444,8 @@ the socket @var{sock}.  */)
                        && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2,
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
-      xsock->local_addr = gi_scm2ulong (SCM_CAR (address));
+      v4addr = gi_scm2ulong (SCM_CAR (address));
+      SVZ_SET_ADDR (xsock->local_addr, AF_INET, &v4addr);
       xsock->local_port = port;
     }
   return pair;
@@ -1073,6 +1082,7 @@ requested IP address @var{addr}.  */)
 {
 #define FUNC_NAME s_guile_coserver_rdns
   in_addr_t ip;
+  svz_address_t *a;
 
   /* Check argument list first.  */
   ASSERT_EXACT (1, addr);
@@ -1080,8 +1090,10 @@ requested IP address @var{addr}.  */)
 
   /* Convert IP address into C long value.  */
   ip = gi_scm2ulong (addr);
+  a = svz_address_make (AF_INET, &ip);
 
-  ENQ_COSERVER_REQUEST (ip, rdns);
+  ENQ_COSERVER_REQUEST (a, rdns);
+  svz_free (a);
   return SCM_UNSPECIFIED;
 #undef FUNC_NAME
 }

@@ -26,11 +26,12 @@
 /* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
+#include "libserveez/address.h"
 /* end svzint */
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_socket_t *svz_tcp_connect (in_addr_t, in_port_t);
+SERVEEZ_API svz_socket_t *svz_tcp_connect (svz_address_t *, in_port_t);
 SERVEEZ_API int svz_tcp_read_socket (svz_socket_t *);
 SBO int svz_tcp_write_socket (svz_socket_t *);
 SBO int svz_tcp_recv_oob (svz_socket_t *);

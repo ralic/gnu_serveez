@@ -169,11 +169,10 @@ tnl_finalize (svz_server_t *server)
 static char *
 tnl_addr (svz_socket_t *sock)
 {
-  static char addr[24];
+  static char buf[64];
 
-  sprintf (addr, "%s:%u", svz_inet_ntoa (sock->remote_addr),
-           ntohs (sock->remote_port));
-  return addr;
+  SVZ_PP_ADDR_PORT (buf, sock->remote_addr, sock->remote_port);
+  return buf;
 }
 
 /*
@@ -217,16 +216,17 @@ static svz_socket_t *
 tnl_create_socket (svz_socket_t *sock, int source)
 {
   tnl_config_t *cfg = sock->cfg;
-  in_addr_t ip = 0;
+  svz_address_t *ip = NULL;
   in_port_t port = 0;
   svz_socket_t *xsock = NULL;
   struct sockaddr_in *addr;
+  char buf[64];
 
   /* get host and target ip if necessary */
   if (!(cfg->target->proto & SVZ_PROTO_PIPE))
     {
       addr = svz_portcfg_addr (cfg->target);
-      ip = addr->sin_addr.s_addr;
+      ip = svz_address_make (AF_INET, &addr->sin_addr.s_addr);
       port = addr->sin_port;
     }
 
@@ -250,7 +250,7 @@ tnl_create_socket (svz_socket_t *sock, int source)
       break;
     default:
       svz_log (SVZ_LOG_ERROR, "tunnel: invalid target configuration\n");
-      return NULL;
+      goto unlucky;
     }
 
   /* target is a TCP connection */
@@ -258,14 +258,14 @@ tnl_create_socket (svz_socket_t *sock, int source)
     {
       if ((xsock = svz_tcp_connect (ip, port)) == NULL)
         {
-          svz_log (SVZ_LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
-                   svz_inet_ntoa (ip), ntohs (port));
-          return NULL;
+          svz_log (SVZ_LOG_ERROR, "tunnel: tcp: cannot connect to %s\n",
+                   SVZ_PP_ADDR_PORT (buf, ip, port));
+          goto unlucky;
         }
 
 #if ENABLE_DEBUG
-      svz_log (SVZ_LOG_DEBUG, "tunnel: tcp: connecting to %s:%u\n",
-               svz_inet_ntoa (ip), ntohs (port));
+      svz_log (SVZ_LOG_DEBUG, "tunnel: tcp: connecting to %s\n",
+               SVZ_PP_ADDR_PORT (buf, ip, port));
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_tcp_target;
       resize_buffers (xsock);
@@ -276,14 +276,14 @@ tnl_create_socket (svz_socket_t *sock, int source)
     {
       if ((xsock = svz_udp_connect (ip, port)) == NULL)
         {
-          svz_log (SVZ_LOG_ERROR, "tunnel: udp: cannot connect to %s:%u\n",
-                   svz_inet_ntoa (ip), ntohs (port));
-          return NULL;
+          svz_log (SVZ_LOG_ERROR, "tunnel: udp: cannot connect to %s\n",
+                   SVZ_PP_ADDR_PORT (buf, ip, port));
+          goto unlucky;
         }
 
 #if ENABLE_DEBUG
-      svz_log (SVZ_LOG_DEBUG, "tunnel: udp: connecting to %s:%u\n",
-               svz_inet_ntoa (ip), ntohs (port));
+      svz_log (SVZ_LOG_DEBUG, "tunnel: udp: connecting to %s\n",
+               SVZ_PP_ADDR_PORT (buf, ip, port));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_udp_target;
       xsock->idle_func = tnl_idle;
@@ -298,13 +298,13 @@ tnl_create_socket (svz_socket_t *sock, int source)
           == NULL)
         {
           svz_log (SVZ_LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
-                   svz_inet_ntoa (ip));
-          return NULL;
+                   SVZ_PP_ADDR (buf, ip));
+          goto unlucky;
         }
 
 #if ENABLE_DEBUG
       svz_log (SVZ_LOG_DEBUG, "tunnel: icmp: connecting to %s\n",
-               svz_inet_ntoa (ip));
+               SVZ_PP_ADDR (buf, ip));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_icmp_target;
       xsock->idle_func = tnl_idle;
@@ -337,6 +337,9 @@ tnl_create_socket (svz_socket_t *sock, int source)
   xsock->userflags = (sock->userflags | source) & ~(TNL_FLAG_TGT);
   xsock->disconnected_socket = tnl_disconnect_target;
 
+ unlucky:
+  if (ip)
+    svz_free (ip);
   return xsock;
 }
 
@@ -438,7 +441,7 @@ tnl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   source = tnl_create_connect ();
   source->source_sock = sock;
   source->target_sock = xsock;
-  source->ip = sock->remote_addr;
+  svz_address_to (&source->ip, sock->remote_addr);
   source->port = sock->remote_port;
   xsock->data = source;
   sock->data = source;
@@ -467,7 +470,7 @@ tnl_check_request_tcp_target (svz_socket_t *sock)
 
   /* obtain source connection */
   xsock = source->source_sock;
-  xsock->remote_addr = source->ip;
+  SVZ_SET_ADDR (xsock->remote_addr, AF_INET, &source->ip);
   xsock->remote_port = source->port;
 
   /* forward data to source connection */
@@ -535,7 +538,7 @@ tnl_handle_request_udp_target (svz_socket_t *sock, char *packet, int len)
 
   /* get source connection from data field */
   xsock = source->source_sock;
-  xsock->remote_addr = source->ip;
+  SVZ_SET_ADDR (xsock->remote_addr, AF_INET, &source->ip);
   xsock->remote_port = source->port;
 
   /* forward packet data to source connection */
@@ -579,7 +582,7 @@ tnl_handle_request_udp_source (svz_socket_t *sock, char *packet, int len)
       /* foreign address not in hash, create new target connection */
       source = tnl_create_connect ();
       source->source_sock = sock;
-      source->ip = sock->remote_addr;
+      svz_address_to (&source->ip, sock->remote_addr);
       source->port = sock->remote_port;
       svz_hash_put (cfg->client, tnl_addr (sock), source);
 
@@ -618,7 +621,7 @@ tnl_handle_request_icmp_target (svz_socket_t *sock, char *packet, int len)
 
   /* get source connection from data field */
   xsock = source->source_sock;
-  xsock->remote_addr = source->ip;
+  SVZ_SET_ADDR (xsock->remote_addr, AF_INET, &source->ip);
   xsock->remote_port = source->port;
 
   /* forward packet data to source connection */
@@ -662,7 +665,7 @@ tnl_handle_request_icmp_source (svz_socket_t *sock, char *packet, int len)
       /* foreign address not in hash, create new target connection */
       source = tnl_create_connect ();
       source->source_sock = sock;
-      source->ip = sock->remote_addr;
+      svz_address_to (&source->ip, sock->remote_addr);
       source->port = sock->remote_port;
       svz_hash_put (cfg->client, tnl_addr (sock), source);
 

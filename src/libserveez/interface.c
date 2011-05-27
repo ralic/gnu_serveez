@@ -283,7 +283,7 @@ svz_interface_collect (void)
                   *(ifEntry->if_descr + ifEntry->if_descrlen) = '\0';
                   svz_interface_add (ifEntry->if_index,
                                      (char *) ifEntry->if_descr,
-                                     ifEntry->if_index, 1);
+                                     AF_INET, &ifEntry->if_index, 1);
                 }
             }
         }
@@ -417,14 +417,14 @@ svz_interface_collect (void)
                   ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
                   svz_interface_add (ipTable->table[n].dwIndex,
                                      (char *) ifTable->table[i].bDescr,
-                                     ipTable->table[n].dwAddr, 1);
+                                     AF_INET, &ipTable->table[n].dwAddr, 1);
                   break;
                 }
             }
           if (i == ifTable->dwNumEntries)
             {
               svz_interface_add (ipTable->table[n].dwIndex, NULL,
-                                 ipTable->table[n].dwAddr, 1);
+                                 AF_INET, &ipTable->table[n].dwAddr, 1);
             }
         }
 
@@ -537,7 +537,8 @@ svz_interface_collect (void)
           index++;
 #endif
           svz_interface_add (index, ifr->ifr_name,
-                             (*(struct sockaddr_in *)
+                             AF_INET,
+                             &(*(struct sockaddr_in *)
                               (void *) &ifr2.ifr_addr).sin_addr.s_addr, 1);
         }
     }
@@ -568,22 +569,30 @@ destroy_ifc (void *p)
 
   if (ifc->description)
     svz_free (ifc->description);
+  if (ifc->addr)
+    svz_free (ifc->addr);
   svz_free (ifc);
 }
 
 /**
  * Add a network interface to the current list of known interfaces.  Drop
  * duplicate entries.  The given arguments @var{index} specifies the network
- * interface index number, @var{desc} an interface desription, @var{addr}
- * the IP address in network byte order and the @var{detected} flag if
+ * interface index number, @var{desc} an interface desription,
+ * @var{family} an address-family (e.g., @code{AF_INET}), @var{bits} the
+ * address data in network-byte order, and the @var{detected} flag if
  * the given network interface has been detected by Serveez itself or not.
  */
 int
-svz_interface_add (size_t index, char *desc, in_addr_t addr, int detected)
+svz_interface_add (size_t index, char *desc,
+                   int family, const void *bits,
+                   int detected)
 {
   char *p;
   size_t n;
   svz_interface_t *ifc;
+  svz_address_t *addr = svz_address_make (family, bits);
+
+  STILL_NO_V6_DAMMIT (addr);
 
   /* Check if there is such an interface already.  */
   if (svz_interfaces == NULL)
@@ -594,8 +603,11 @@ svz_interface_add (size_t index, char *desc, in_addr_t addr, int detected)
     {
       svz_array_foreach (svz_interfaces, ifc, n)
         {
-          if (ifc->ipaddr == addr)
-            return -1;
+          if (svz_address_same (ifc->addr, addr))
+            {
+              svz_free (addr);
+              return -1;
+            }
         }
     }
 
@@ -603,7 +615,7 @@ svz_interface_add (size_t index, char *desc, in_addr_t addr, int detected)
   ifc = svz_malloc (sizeof (svz_interface_t));
   ifc->detected = detected ? 1 : 0;
   ifc->index = index;
-  ifc->ipaddr = addr;
+  ifc->addr = addr;
   ifc->description = svz_strdup (desc);
 
   /* Delete trailing white space characters.  */
@@ -621,14 +633,14 @@ svz_interface_add (size_t index, char *desc, in_addr_t addr, int detected)
  * @var{addr} if any.  Returns @code{NULL} otherwise.
  */
 static svz_interface_t *
-svz_interface_get (in_addr_t addr)
+svz_interface_get (svz_address_t *addr)
 {
   svz_interface_t *ifc;
   size_t n;
 
   svz_array_foreach (svz_interfaces, ifc, n)
     {
-      if (ifc->ipaddr == addr)
+      if (svz_address_same (ifc->addr, addr))
         return ifc;
     }
   return NULL;
@@ -677,6 +689,7 @@ svz_interface_check (void)
   svz_interface_t *ofc, *ifc;
   size_t n, o;
   int found, changes = 0;
+  char buf[64];
 
   if (svz_interfaces)
     {
@@ -688,18 +701,21 @@ svz_interface_check (void)
       /* Look for removed network interfaces.  */
       svz_array_foreach (interfaces, ifc, n)
         {
-          if (svz_interface_get (ifc->ipaddr) == NULL)
+          if (svz_interface_get (ifc->addr) == NULL)
             {
+              in_addr_t v4addr;
+
+              svz_address_to (&v4addr, ifc->addr);
               if (!ifc->detected)
                 {
                   /* Re-apply software network interfaces.  */
                   svz_interface_add (ifc->index, ifc->description,
-                                     ifc->ipaddr, ifc->detected);
+                                     AF_INET, &v4addr, ifc->detected);
                 }
               else
                 {
                   svz_log (SVZ_LOG_NOTICE, "%s: %s has been removed\n",
-                           ifc->description, svz_inet_ntoa (ifc->ipaddr));
+                           ifc->description, SVZ_PP_ADDR (buf, ifc->addr));
                   changes++;
                 }
             }
@@ -711,13 +727,13 @@ svz_interface_check (void)
           found = 0;
           svz_array_foreach (interfaces, ofc, o)
             {
-              if (ofc->ipaddr == ifc->ipaddr)
+              if (svz_address_same (ofc->addr, ifc->addr))
                 found++;
             }
           if (!found)
             {
               svz_log (SVZ_LOG_NOTICE, "%s: %s has been added\n",
-                       ifc->description, svz_inet_ntoa (ifc->ipaddr));
+                       ifc->description, SVZ_PP_ADDR (buf, ifc->addr));
               changes++;
             }
         }
