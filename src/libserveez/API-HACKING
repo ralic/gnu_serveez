@@ -64,32 +64,32 @@ HACKING libserveez API					-*- org -*-
     | [[file:raw-socket.h][raw-socket]]           | x |   |   |   |   |      |
     | [[file:dynload.h][dynload]]              |   |   |   |   |   | [[more-dynload][more]] |
     | [[file:mutex.h][mutex]]                | x | x |   |   |   |      |
-    | [[file:tcp-socket.h][tcp-socket]]           |   |   |   | o |   |      |
+    | [[file:tcp-socket.h][tcp-socket]]           |   |   |   | x |   |      |
     | [[file:windoze.h][windoze]]              |   | x |   |   |   |      |
     | [[file:boot.h][boot]]                 |   |   |   |   |   |      |
-    | [[file:udp-socket.h][udp-socket]]           |   |   |   | o |   |      |
-    | [[file:interface.h][interface]]            |   |   |   | o |   |      |
+    | [[file:udp-socket.h][udp-socket]]           |   |   |   | x |   |      |
+    | [[file:interface.h][interface]]            |   |   |   | x |   |      |
     | [[file:binding.h][binding]]              |   |   |   |   | x | [[more-binding][more]] |
     | [[file:pipe-socket.h][pipe-socket]]          |   |   |   |   |   |      |
     | [[file:passthrough.h][passthrough]]          |   | x |   |   |   |      |
     | [[file:defines.h][defines]]              |   |   |   |   |   |      |
-    | [[file:core.h][core]]                 |   |   |   | o |   | [[more-core][more]] |
+    | [[file:core.h][core]]                 |   |   |   | x |   | [[more-core][more]] |
     | [[file:alloc.h][alloc]]                |   |   |   |   |   |      |
     | [[file:iphlpapi.h][iphlpapi]]             | x | x |   |   |   |      |
     | [[file:array.h][array]]                |   |   |   |   |   |      |
     | [[file:server-core.h][server-core]]          |   |   |   |   |   | [[more-server-core][more]] |
     | [[file:util.h][util]]                 |   | x |   |   |   |      |
     | [[file:hash.h][hash]]                 |   |   |   |   |   |      |
-    | [[file:icmp-socket.h][icmp-socket]]          |   |   |   | o |   |      |
-    | [[file:ipdata.h][ipdata]]               | x |   |   | o |   |      |
+    | [[file:icmp-socket.h][icmp-socket]]          |   |   |   | x |   |      |
+    | [[file:ipdata.h][ipdata]]               | x |   |   |   |   |      |
     | [[file:server.h][server]]               |   |   |   |   |   |      |
     | [[file:portcfg.h][portcfg]]              |   |   | x |   | x |      |
     | [[file:cfg.h][cfg]]                  |   |   |   |   |   |      |
-    | [[file:socket.h][socket]]               |   | x | x | o |   |      |
+    | [[file:socket.h][socket]]               |   | x | x | x |   |      |
     | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |   |      |
     | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |   |      |
     | [[file:codec/gzlib.h][codec/gzlib]]          | x |   |   |   |   |      |
-    | [[file:coserver/coserver.h][coserver/coserver]]    |   | x | x | o |   | [[more-coserver/coserver][more]] |
+    | [[file:coserver/coserver.h][coserver/coserver]]    |   | x | x | x |   | [[more-coserver/coserver][more]] |
     | [[file:coserver/dns.h][coserver/dns]]         | x |   |   |   |   |      |
     | [[file:coserver/ident.h][coserver/ident]]       | x |   |   |   |   |      |
     | [[file:coserver/reverse-dns.h][coserver/reverse-dns]] | x |   |   |   |   |      |
