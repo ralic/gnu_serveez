@@ -98,7 +98,7 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
   time_t current;
   size_t n;
   int nr, ret = 0;
-  svz_array_t *accepted;
+  svz_array_t *accepted = NULL;
 
   SVZ_PP_ADDR (ip, child->remote_addr);
 
