@@ -106,12 +106,12 @@ or @code{#f} on failure.  */)
   struct sockaddr_in addr;
   SCM ret = SCM_BOOL_F;
 
-  SCM_ASSERT_TYPE (SCM_EXACTP (host) || gi_stringp (host),
+  SCM_ASSERT_TYPE (gi_exactp (host) || gi_stringp (host),
                    host, SCM_ARG1, FUNC_NAME, "string or exact");
   ASSERT_EXACT (2, proto);
 
   /* Extract host to connect to.  */
-  if (SCM_EXACTP (host))
+  if (gi_exactp (host))
     v4addr = htonl (gi_scm2int (host));
   else
     {
@@ -406,8 +406,8 @@ the socket @var{sock}.  */)
                    gi_integer2scm ((int) xsock->remote_port));
   if (!SCM_UNBNDP (address))
     {
-      SCM_ASSERT_TYPE (SCM_PAIRP (address) && SCM_EXACTP (SCM_CAR (address))
-                       && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2,
+      SCM_ASSERT_TYPE (SCM_PAIRP (address) && gi_exactp (SCM_CAR (address))
+                       && gi_exactp (SCM_CDR (address)), address, SCM_ARG2,
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
       v4addr = gi_scm2ulong (SCM_CAR (address));
@@ -440,8 +440,8 @@ the socket @var{sock}.  */)
                    gi_integer2scm ((int) xsock->local_port));
   if (!SCM_UNBNDP (address))
     {
-      SCM_ASSERT_TYPE (SCM_PAIRP (address) && SCM_EXACTP (SCM_CAR (address))
-                       && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2,
+      SCM_ASSERT_TYPE (SCM_PAIRP (address) && gi_exactp (SCM_CAR (address))
+                       && gi_exactp (SCM_CDR (address)), address, SCM_ARG2,
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
       v4addr = gi_scm2ulong (SCM_CAR (address));
@@ -588,10 +588,10 @@ packet transfer in order to disable unnecessary delays.  */)
     {
       if (!SCM_UNBNDP (enable))
         {
-          SCM_ASSERT_TYPE (SCM_BOOLP (enable) || SCM_EXACTP (enable),
+          SCM_ASSERT_TYPE (SCM_BOOLP (enable) || gi_exactp (enable),
                            enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
           if ((SCM_BOOLP (enable) && gi_nfalsep (enable) != 0) ||
-              (SCM_EXACTP (enable) && gi_scm2int (enable) != 0))
+              (gi_exactp (enable) && gi_scm2int (enable) != 0))
             set = 1;
         }
       if (svz_tcp_nodelay (xsock->sock_desc, set, &old) < 0)
@@ -1134,8 +1134,8 @@ If that socket no longer exists, return @code{#f}.  */)
   int version, id;
   svz_socket_t *sock;
 
-  SCM_ASSERT_TYPE (SCM_PAIRP (ident) && SCM_EXACTP (SCM_CAR (ident)) &&
-                   SCM_EXACTP (SCM_CDR (ident)), ident, SCM_ARG1,
+  SCM_ASSERT_TYPE (SCM_PAIRP (ident) && gi_exactp (SCM_CAR (ident)) &&
+                   gi_exactp (SCM_CDR (ident)), ident, SCM_ARG1,
                    FUNC_NAME, "pair of exact");
   id = gi_scm2int (SCM_CAR (ident));
   version = gi_scm2int (SCM_CDR (ident));
@@ -1238,7 +1238,7 @@ socket) @code{#f}.  */)
 
   /* Check the arguments.  */
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (SCM_EXACTP (oob) || SCM_CHARP (oob),
+  SCM_ASSERT_TYPE (gi_exactp (oob) || SCM_CHARP (oob),
                    oob, SCM_ARG2, FUNC_NAME, "char or exact");
 
   /* Send the oob byte through TCP sockets only.  */

@@ -1,3 +1,18 @@
+2011-05-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[gi] Add func: gi_exactp
+
+	Suggested by Mike Gran.
+
+	* gi.c (gi_exactp): New func.
+	* gi.h (gi_exactp): New func decl.
+	* guile-api.c: Do ‘s/SCM_EXACTP/gi_exactp/g’.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* guile-api.h (SCM_EXACTP): Delete macro.
+	(ASSERT_EXACT): Use ‘gi_exactp’.
+
 2011-05-28  Mike Gran  <spk121@yahoo.com>  (tiny change)
 
 	[gi 1.8] Fix bug: Call ‘scm_makfromstr’ w/ third arg.

@@ -37,9 +37,6 @@
 #ifndef SCM_PROCEDUREP
 #define SCM_PROCEDUREP(obj) gi_nfalsep (scm_procedure_p (obj))
 #endif
-#ifndef SCM_EXACTP
-#define SCM_EXACTP(obj) gi_nfalsep (scm_exact_p (obj))
-#endif
 #ifndef SCM_POSITIVEP
 #define SCM_POSITIVEP(obj) gi_nfalsep (scm_positive_p (obj))
 #endif
@@ -79,7 +76,7 @@
 
 #define ASSERT_EXACT(n,obj)                     \
   SCM_ASSERT_TYPE                               \
-  (SCM_EXACTP (obj), obj,                       \
+  (gi_exactp (obj), obj,                        \
    SCM_ARG ## n, FUNC_NAME, "exact")
 
 #define ASSERT_STRING(n,obj)                    \

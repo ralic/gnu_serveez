@@ -293,6 +293,17 @@ gi_symbolp (SCM obj)
 }
 
 int
+gi_exactp (SCM obj)
+{
+#ifdef SCM_EXACTP
+  return SCM_EXACTP (obj);
+#else
+  return gi_nfalsep (scm_number_p (obj))
+    && gi_nfalsep (scm_exact_p (obj));
+#endif
+}
+
+int
 gi_get_xrep (char *buf, size_t len, SCM symbol_or_string)
 {
   SCM obj;

@@ -51,6 +51,7 @@ size_t gi_string_length (SCM string);
 extern int gi_nfalsep (SCM obj);
 extern int gi_stringp (SCM obj);
 extern int gi_symbolp (SCM obj);
+extern int gi_exactp (SCM obj);
 
 #define STRING_OR_SYMBOL_P(obj)                 \
   (gi_stringp (obj) || gi_symbolp (obj))

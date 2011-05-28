@@ -48,7 +48,7 @@
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
 
 #define integer_else(obj, def)                  \
-  (SCM_EXACTP (obj)                             \
+  (gi_exactp (obj)                              \
    ? gi_scm2int (obj)                           \
    : def)
 
@@ -843,14 +843,14 @@ For instance, you can arrange for Serveez to pass the
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (SCM_EXACTP (boundary) || gi_stringp (boundary),
+  SCM_ASSERT_TYPE (gi_exactp (boundary) || gi_stringp (boundary),
                    boundary, SCM_ARG2, FUNC_NAME, "string or exact");
 
   /* Release previously set boundaries.  */
   guile_sock_clear_boundary (xsock);
 
   /* Setup for fixed sized packets.  */
-  if (SCM_EXACTP (boundary))
+  if (gi_exactp (boundary))
     {
       xsock->boundary = NULL;
       xsock->boundary_size = gi_scm2int (boundary);
@@ -890,10 +890,10 @@ optional.  */)
   flags = xsock->flags;
   if (!SCM_UNBNDP (flag))
     {
-      SCM_ASSERT_TYPE (SCM_BOOLP (flag) || SCM_EXACTP (flag),
+      SCM_ASSERT_TYPE (SCM_BOOLP (flag) || gi_exactp (flag),
                        flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
       if ((SCM_BOOLP (flag) && gi_nfalsep (flag) != 0) ||
-          (SCM_EXACTP (flag) && gi_scm2int (flag) != 0))
+          (gi_exactp (flag) && gi_scm2int (flag) != 0))
         xsock->flags &= ~SVZ_SOFLG_NOFLOOD;
       else
         xsock->flags |= SVZ_SOFLG_NOFLOOD;

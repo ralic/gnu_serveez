@@ -191,7 +191,7 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   SCM_ASSERT (gi_stringp (needle) || SCM_CHARP (needle) ||
-              SCM_EXACTP (needle) || CHECK_BIN_SMOB (needle),
+              gi_exactp (needle) || CHECK_BIN_SMOB (needle),
               needle, SCM_ARG2, FUNC_NAME);
 
   /* Search for a pattern.  */
@@ -233,7 +233,7 @@ occurrence of @var{needle} in the binary smob @var{binary}.  */)
     }
 
   /* Search for a single byte.  */
-  else if (SCM_CHARP (needle) || SCM_EXACTP (needle))
+  else if (SCM_CHARP (needle) || gi_exactp (needle))
     {
       uint8_t c;
       uint8_t *p, *end;
@@ -334,7 +334,7 @@ exact number.  */)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   ASSERT_EXACT (2, index);
-  SCM_ASSERT_TYPE (SCM_EXACTP (value) || SCM_CHARP (value),
+  SCM_ASSERT_TYPE (gi_exactp (value) || SCM_CHARP (value),
                    value, SCM_ARG3, FUNC_NAME, "char or exact");
 
   /* Check the range of the index argument.  */
@@ -543,7 +543,7 @@ either exact numbers in a byte's range or characters.  */)
   while (SCM_PAIRP (list))
     {
       val = SCM_CAR (list);
-      if (!SCM_EXACTP (val) && !SCM_CHARP (val))
+      if (!gi_exactp (val) && !SCM_CHARP (val))
         {
           gi_free ((void *) bin->data, bin->size, "svz-binary-data");
           gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");

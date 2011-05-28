@@ -379,7 +379,7 @@ guile_to_integer (SCM cell, int *target)
   char str[64], *endp;
 
   /* Usual guile exact number.  */
-  if (SCM_EXACTP (cell))
+  if (gi_exactp (cell))
     {
       *target = gi_scm2int (cell);
     }
