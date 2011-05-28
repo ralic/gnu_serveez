@@ -1,3 +1,9 @@
+2011-05-28  Mike Gran  <spk121@yahoo.com>  (tiny change)
+
+	[gi 1.8] Fix bug: Call ‘scm_makfromstr’ w/ third arg.
+
+	* gi.c [V17] (mem2scm, mem02scm): New macros.
+
 2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘svz_address_t *’ for func args / struct members.
