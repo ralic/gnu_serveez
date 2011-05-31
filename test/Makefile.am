@@ -41,7 +41,7 @@ check_DATA = but-of-course
 
 btdt_SOURCES = btdt.c
 
-LDADD = -L../src/libserveez -lserveez
+LDADD = ../src/libserveez/libserveez.la
 
 but-of-course: ../src/config.h
 	{ echo '(define (boc? symbol) (memq symbol (quote (' ; \

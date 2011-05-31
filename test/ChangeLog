@@ -1,3 +1,11 @@
+2011-05-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Don't use -L/-l for in-tree ‘LDADD’; use .la instead.
+
+	See (info "(automake) Linking").
+
+	* Makefile.am (LDADD): Specify .../libserveez.la directly.
+
 2011-05-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[v] Use ‘primitive-load’ for but-of-course.
