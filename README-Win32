@@ -56,7 +56,7 @@ is optional.  You just need to adjust the paths.
     $ set CC=cl -D__MINGW32__ -D_WIN32
     $ set LD=link
     $ sh configure --disable-debug --host=mingw32 --build=mingw32 \
-		   --enable-thread-safety --with-guile=<directory>
+		   --with-guile=<directory>
 
 
 Requirements
