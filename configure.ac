@@ -278,8 +278,7 @@ AC_MSG_NOTICE([end: libtool stuff])
 dnl
 dnl Check Guile installation.
 dnl
-SVZ_GUILE
-SVZ_GUILE_CHECK
+SVZ_GUILE_FLAGS
 
 dnl ----------------------------------------------------------------------
 dnl checks for libraries
@@ -390,6 +389,10 @@ AS_IF([SVZ_Y([svz_cv_header_netinet_tcp_h])],
   [Define if you have the <netinet/tcp.h> header file.])])
 
 AS_IF([SVZ_Y([enable_crypt])],[AC_CHECK_HEADERS([crypt.h])])
+
+AC_CHECK_HEADERS([guile/gh.h],,,[
+#include <libguile.h>
+])
 
 dnl woe
 AC_CHECK_HEADERS_ONCE([winsock2.h])

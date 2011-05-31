@@ -109,80 +109,29 @@ AC_ARG_WITH([$2],[SVZ_HELP_STRING([--with-$2]m4_ifnblank([$3],[=$3]),
 AS_VAR_POPDEF([VAR])dnl
 ])dnl
 
-dnl ----------------------------------------------------------------------
+dnl SVZ_GUILE_FLAGS
 dnl
-dnl SVZ_GUILE -- Locate a Guile installation.
-dnl This macro sets both the variables GUILE_CFLAGS and GUILE_LDFLAGS to be
-dnl passed to the compiler and linker. In a first try it uses the
-dnl `guile-config' script in order to obtain these settings. Then it proceeds
-dnl the `--with-guile=DIR' option of the ./configure script.
-dnl
-dnl SVZ_GUILE_CHECK -- Checks for Guile results and exits if necessary.
-dnl
+dnl First, call ‘GUILE_PROGS’ to define shell var ‘GUILE_CONFIG’.
+dnl (If this fails, signal error and exit failurefully.)
+dnl Use that program to determine -I, -L and -l options, appended
+dnl respectively to shell vars ‘CPPFLAGS’, ‘LDFLAGS’, and ‘LIBS’.
 
-AC_DEFUN([SVZ_GUILE], [
-  SVZ_WITH([/usr/local],[guile],[DIR],[Guile installation in DIR],
-           [no],[/usr/local],["$withval"])
-  GUILEDIR="$with_guile"
-
-  AC_MSG_CHECKING([for guile installation])
-  AS_IF([test xno != x"$GUILEDIR"],[
-    GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`
-    AS_CASE([$build_os],[mingw*],[
-      GUILEDIR=`eval cygpath -w -i "$GUILEDIR"`
-      GUILEDIR=`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`
-    ])
-    AS_IF([test -f "$GUILEDIR/lib/libguile.so" \
-        || test -n `find "$GUILEDIR/lib" -name 'libguile.so.*' 2>/dev/null` \
-        || test -f "$GUILEDIR/lib/libguile.dylib" \
-        || test -f "$GUILEDIR/bin/libguile.dll" \
-        || test -f "$GUILEDIR/bin/cygguile.dll"],[
-      GUILE_CFLAGS="-I$GUILEDIR/include"
-      AS_IF([SVZ_Y([CYGWIN]) || SVZ_Y([MINGW32])],
-            [GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"])
-      GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
-      GUILE_BUILD="yes"
-      AC_MSG_RESULT([yes])
-    ])
-  ])
-
-  AS_IF([SVZ_NOT_Y([GUILE_BUILD])],[
-    guile=""
-    AS_IF([test x != x`guile-config --version 2>&1 | grep version`],[
-      guile=`guile-config --version 2>&1 | grep version`
-      [guile=`echo $guile | sed -e 's/[^0-9\.]//g'`]
-    ])
-    AS_IF([test x != x"$guile"],[
-      AS_CASE([$guile],
-       [[1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*]],
-       [AC_MSG_RESULT([$guile >= 1.3])
-        GUILE_BUILD="yes"],
-       [AC_MSG_RESULT([$guile < 1.3])
-        AC_MSG_WARN([GNU Guile version 1.3 or above is needed, and you
-                     do not seem to have it handy on your system.])])
-      GUILE_CFLAGS=`guile-config compile`
-      GUILE_LDFLAGS=`guile-config link`
-      GUILEDIR=`guile-config info prefix`
-    ],[
-      AC_MSG_RESULT([missing])
-      GUILE_CFLAGS=""
-      GUILE_LDFLAGS=""
-    ])
-    AS_UNSET([guile])
-  ])
-  AS_IF([test -f "$GUILEDIR/include/guile/gh.h"],
-   [AC_DEFINE([HAVE_GUILE_GH_H], 1,
-     [Define to 1 if your Guile installation includes <guile/gh.h>.])])
-  AS_UNSET([GUILEDIR])
-  AC_SUBST([GUILE_CFLAGS])
-  AC_SUBST([GUILE_LDFLAGS])
-])
-
-AC_DEFUN([SVZ_GUILE_CHECK], [
-  AS_IF([SVZ_NOT_Y([GUILE_BUILD])],[
-    AC_MSG_ERROR([
-  $PACKAGE_STRING requires an installed Guile. You can specify the
-  install location by passing `--with-guile=<directory>'.  Guile
-  version 1.4 is preferred.])])])
+AC_DEFUN([SVZ_GUILE_FLAGS],[
+dnl Search for guile-config; bail if not found.
+AC_PATH_PROG([GUILE_CONFIG],[guile-config])
+AS_IF([! test -x "$GUILE_CONFIG"],[AC_MSG_ERROR([Guile not found])])
+dnl Set ‘CPPFLAGS’ directly.
+AS_VAR_APPEND([CPPFLAGS],[" `$GUILE_CONFIG compile`"])
+dnl Split the ‘link’ output to set ‘LDFLAGS’ and ‘LIBS’.
+guile_link_flags=`$GUILE_CONFIG link`
+guile_ldflags=`echo $guile_link_flags | sed 's/ -l.*//'`
+guile_squash=`echo $guile_ldflags | sed 's/././g'`
+guile_libs=`echo $guile_link_flags | sed 's|^'${guile_squash}'||'`
+AS_VAR_APPEND([LDFLAGS],[" $guile_ldflags"])
+AS_VAR_APPEND([LIBS],["$guile_libs"])
+dnl Clean up.
+m4_foreach([var],[link_flags, ldflags, squash, libs],[
+AS_UNSET([guile_]var)])
+])dnl
 
 dnl inc.m4 ends here

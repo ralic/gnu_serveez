@@ -1,3 +1,11 @@
+2011-05-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Drop ‘--with-guile’; use only guile-config(1).
+
+	* serveez.texi (Build and install): Suggest options for
+	building Guile under "Requirements"; remove ‘--with-guile’
+	from table of configure options; update example.
+
 2011-05-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[ipv6] Add lameness: STILL_NO_V6_DAMMIT

@@ -55,8 +55,7 @@ is optional.  You just need to adjust the paths.
     $ set PATH=%PATH%;c:\Programme\cygwin\bin
     $ set CC=cl -D__MINGW32__ -D_WIN32
     $ set LD=link
-    $ sh configure --disable-debug --host=mingw32 --build=mingw32 \
-		   --with-guile=<directory>
+    $ sh configure --disable-debug --host=mingw32 --build=mingw32
 
 
 Requirements

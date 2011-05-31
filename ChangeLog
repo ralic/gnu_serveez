@@ -1,3 +1,13 @@
+2011-05-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Drop ‘--with-guile’; use only guile-config(1).
+
+	* m4/inc.m4 (SVZ_GUILE_FLAGS): New AC_DEFUN.
+	(SVZ_GUILE, SVZ_GUILE_CHECK): Delete AC_DEFUNs.
+	* configure.ac (SVZ_GUILE_FLAGS): Add macro call.
+	(SVZ_GUILE, SVZ_GUILE_CHECK): Delete macro calls.
+	(guile/gh.h): New AC_CHECK_HEADERS.
+
 2011-05-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	Make libserveez + headers installation optional.
