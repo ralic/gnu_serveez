@@ -169,6 +169,14 @@ endif COURAGEOUS
 dist-hook:
 	rm -f $(distdir)/svzconfig.h
 
+SUFFIXES = .scm .puny .c
+
+.puny.c:
+	$(gx) as-C-byte-array -v high -t char $< > $@
+
+.scm.puny:
+	$(gx) punify -n $< > $@
+
 # woe
 
 EXTRA_DIST += svzconfig.h.serveez config.h.serveez
@@ -178,7 +186,7 @@ serveez_DEPENDENCIES += $(resource_OBJECTS)
 # We don't do this to avoid disturbing the linker command-line order (above).
 # serveez_LDADD += $(resource_OBJECTS)
 
-SUFFIXES = .rc .ro
+SUFFIXES += .rc .ro
 
 .rc.ro:
 	$(WINDRES) -i $< -o $@
@@ -196,9 +204,3 @@ woedsp = $(stems:%=%.dsp)
 EXTRA_DIST += serveez.rc $(woeap) $(woedsp)
 CLEANFILES += *.ro
 MAINTAINERCLEANFILES += $(woedsp)
-
-.puny.c:
-	$(gx) as-C-byte-array -v high -t char $< > $@
-
-.scm.puny:
-	$(gx) punify -n $< > $@

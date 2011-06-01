@@ -1,3 +1,10 @@
+2011-06-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Reorder src/Makefile.am top-level; split ‘SUFFIXES’.
+
+	* Makefile.am (.puny.c, .scm.puny): Move earlier in file.
+	(SUFFIXES): Add .scm, .puny, .c; split; use ‘+=’ for second.
+
 2011-05-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi] Add func: gi_exactp
