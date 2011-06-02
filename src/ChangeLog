@@ -1,5 +1,20 @@
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Remove "AWCS protocol / server" support.
+
+	* Makefile.am [AWCS] (SUBDIRS, PROTOLIBS):
+	Delete ‘+=’-style assignements.
+	* cfgfile.c: Don't #include "awcs-server/awcs-proto.h".
+	(init_server_definitions) [ENABLE_AWCS_PROTO]:
+	Don't add servertype ‘awcs_server_definition’.
+	* ctrl-server/control-proto.c (ctrl_stat): Don't mention AWCS.
+	* awcs-server/Makefile.am: Delete file.
+	* awcs-server/awcs-proto.c: Delete file.
+	* awcs-server/awcs-proto.h: Delete file.
+	* awcs-server/: Delete directory.
+
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Remove "native MSVC" support.
 
 	* Makefile.am (EXTRA_DIST): Remove

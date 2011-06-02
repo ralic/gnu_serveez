@@ -1,5 +1,12 @@
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Remove "AWCS protocol / server" support.
+
+	* configure.ac (awcs-proto): Delete SVZ_FLAG.
+	(AC_CONFIG_FILES): Remove src/awcs-server/Makefile.
+
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Remove "native MSVC" support.
 
 	* Makefile.am (EXTRA_DIST): Remove README-Win32, serveez.dsw,

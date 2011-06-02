@@ -1,5 +1,14 @@
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Remove "AWCS protocol / server" support.
+
+	* serveez.texi (Build and install): Remove
+	‘--enable-awcs-proto’ from table of configure options.
+	(Existing servers): Remove "Chat Server" from menu.
+	(Chat Server): Delete node/subsection.
+
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Remove "native MSVC" support.
 
 	* Makefile.am (MANUAL_FILES): Remove $(top_srcdir)/README-Win32.

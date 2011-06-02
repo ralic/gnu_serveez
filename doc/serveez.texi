@@ -176,9 +176,6 @@ If you enabled both of them then Serveez will support the so
 called TimeStamp protocol, which is an EFNet extension of the
 original IRC protocol.  In order to connect to EFNet you MUST
 use this option.
-@item --enable-awcs-proto
-In order to use the Serveez software for the textSure (C) chat
-system you MUST enable this feature.
 @item --enable-http-proto
 When using Serveez as part of the textSure (C) chat system you
 will will have need of an additional web server.  This option
@@ -1348,7 +1345,6 @@ example for an easy start.
 * SNTP Server::                 Simple network time protocol server
 * Gnutella Spider::             Gnutella Client description
 * Tunnel Server::               Description of the port forwarder
-* Chat Server::                 Chat Server (aWCS, textSure) description
 * Fake Ident Server::           Description of a simple ident server
 * Passthrough Server::          Description of the program passthrough server
 * Mandel Server::               Distributed Mandelbrot server
@@ -2085,133 +2081,6 @@ to.
 @item target (port configuration, no default)
 The target port configuration.
 @end table
-
-@node Chat Server
-@subsection Chat Server
-
-@subsubsection General description
-
-The whole Serveez package was originally written by Martin
-Grabmueller as a fast C backend for a chat system (now called textSure).
-This can be found at @uref{http://www.lkcc.org/}.  The server
-implements two kinds of protocols.  One is for the master server which
-does all the administrative stuff.  The second is for the chat
-clients (applets or bots).  Basically the chat server is a simple multicast
-unit.
-
-@subsubsection Specification of the Slave/Master server protocol of aWCS
-
-@table @asis
-@item Master server
-The first client that connects and sends an aWCS initialize message
-(see below) becomes the master server.
-When the master server disconnects, all clients get kicked.
-
-@item Other clients
-All other clients have to send the aWCS client initialize message,
-which is the string "aWCS\0" (note the final NUL character, which is
-part of the message).  Messages received from those clients are simply
-sent to the master server with the client number of the sender
-prefixed (see `Messages from clients').
-
-@item Message format
-A request consists of a sequence of characters terminated with the
-NUL character '\0'.
-
-@item Messages from clients
-All messages from clients are routed to the master server, but
-modified in such a way that some digits and one space precede the
-original message.  These digits are the (decimal) client's id.
-
-@item Messages from the master server
-Messages that come from the master server must have the following
-format:
-
-The first character is one of the following and has a special meaning:
-
-@multitable @columnfractions .15 .85
-@item Character @tab Meaning
-@item 0 @tab Send message to all clients.
-@item 1 @tab Send message to the clients denoted in the message.
-@item 2 @tab Report status to the master server.
-@item 3 @tab Kick the clients denoted in the message.
-@item 4 @tab Turn off flood protection for the clients in the message.
-@item 5 @tab Turn on flood protection for the clients in the message.
-@item 6 @tab Initialization message.
-@end multitable
-
-Those special characters are followed by a single space.
-
-Messages which require additional parameters (multicast for example)
-carry these parameters after the space in a comma separated list of
-client ids in the format mentioned above.  The client id list is terminated
-by the \0 character terminating the request (if no parameters follow)
-or by a single space (if parameters follow).  Note that no spaces are allowed
-in comma separated lists.
-
-@example
-Examples:
-
-0 Hallo Welt\0
-  - Send "Hallo Welt\0" to all clients except the
-    master server.
-
-1 1,4,6 Gruezi!\0
-  - Send "Gruezi\0" to the clients 1, 4 and 6.
-
-2 \0
-  - Send status data back to the master server.
-
-3 3,4\0
-  - Kicks clients 3 and 4.
-
-4 4,16\0
-  - Turn off flood protection for clients 4 and 16.
-
-5 1,5\0
-  - Turn on flood protection for clients 1 and 5.
-
-6 \0
-  - Initialize data structures and accept the
-    connection as the master server.
-@end example
-
-@item Status messages for the master server
-The low level server posts messages to the master server on several
-occasions, for example when clients connect, disconnect etc.
-
-Status messages have the same format as other client messages for the
-master server.  The client number in the message is the id of the
-master server itself, followed by a space, the status message type and
-additional parameters.
-
-@multitable @columnfractions .08 .4 .52
-@item Type @tab Description @tab Parameter
-@item 0 @tab Client has connected. @tab Client id, client IP number:port
-@item 1 @tab Client has disconnected. @tab Client id, error code
-@item 2 @tab Client got kicked. @tab Client id, kick reason
-@item 3 @tab Low level server is alive. @tab 42
-@item 4 @tab Notify time elapsed. @tab 42
-@end multitable
-
-@multitable @columnfractions .2 .8
-@item Error code @tab Description
-@item 0 @tab Success
-@item 1 @tab Client closed connection
-@end multitable
-
-@multitable @columnfractions .2 .8
-@item Kick reason @tab Description
-@item 0 @tab Flooding
-@item 1 @tab Output buffer overflow
-@end multitable
-
-@end table
-
-@subsubsection Configuration
-
-There is nothing to be configured yet.  You should notice that it is possible
-to bind this server to both named pipes and TCP ports.
 
 @node Fake Ident Server
 @subsection Fake Ident Server

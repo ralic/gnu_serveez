@@ -521,9 +521,6 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 
   /* display compile time feature list */
   svz_sock_printf (sock, "Features  : FOO"
-#ifdef ENABLE_AWCS_PROTO
-                   " AWCS"
-#endif /* ENABLE_AWCS_PROTO */
 #ifdef ENABLE_HTTP_PROTO
                    " HTTP"
 #endif /* ENABLE_HTTP_PROTO */

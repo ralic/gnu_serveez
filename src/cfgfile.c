@@ -31,9 +31,6 @@
  * Include headers of servers.
  */
 #include "foo-server/foo-proto.h"
-#if ENABLE_AWCS_PROTO
-# include "awcs-server/awcs-proto.h"
-#endif
 #if ENABLE_HTTP_PROTO
 # include "http-server/http-proto.h"
 #endif
@@ -66,9 +63,6 @@ void
 init_server_definitions (void)
 {
   svz_servertype_add (&foo_server_definition);
-#if ENABLE_AWCS_PROTO
-  svz_servertype_add (&awcs_server_definition);
-#endif
 #if ENABLE_HTTP_PROTO
   svz_servertype_add (&http_server_definition);
 #endif

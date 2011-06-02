@@ -71,10 +71,6 @@ if IRC
 SUBDIRS   += irc-server                irc-core
 PROTOLIBS += irc-server/libircserver.a irc-core/libirccore.a
 endif
-if AWCS
-SUBDIRS   += awcs-server
-PROTOLIBS += awcs-server/libawcs.a
-endif
 if HTTP
 SUBDIRS   += http-server
 PROTOLIBS += http-server/libhttp.a

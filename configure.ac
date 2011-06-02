@@ -169,16 +169,6 @@ SVZ_FLAG([whether to enable password encryption],
          [no],[crypt],[Include password encryption])
 
 dnl
-dnl Check whether the aWCS protocol should be included.
-dnl
-SVZ_FLAG([whether to enable support for the aWCS protocol],
-         [yes],[awcs-proto],[Include the aWCS protocol],[
-AC_DEFINE([ENABLE_AWCS_PROTO], 1,
-  [Define if the aWCS protocol should be supported.])
-])
-AM_CONDITIONAL([AWCS],[SVZ_Y([enable_awcs_proto])])
-
-dnl
 dnl Check whether the HTTP protocol should be included.
 dnl
 SVZ_FLAG([whether to enable support for the HTTP protocol],
@@ -689,7 +679,6 @@ AC_CONFIG_FILES([
     src/libserveez/coserver/Makefile
     src/libserveez/codec/Makefile
     src/serveez-config
-    src/awcs-server/Makefile
     src/ctrl-server/Makefile
     src/http-server/Makefile
     src/irc-core/Makefile

@@ -1,3 +1,12 @@
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove "AWCS protocol / server" support.
+
+	* serveez.cfg
+	(textSure-port, textSure-port-pipe, aWCS-server)
+	("tunnel-source7", "tunnel-target7", tunnel-server7):
+	Delete ports, servers and their bindings.
+
 2011-05-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Decruft: Don't bother maintaining a makefile in data/.
