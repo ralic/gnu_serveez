@@ -1,3 +1,18 @@
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove "native MSVC" support.
+
+	* Makefile.am (EXTRA_DIST): Remove README-Win32, serveez.dsw,
+	serveez.ap, build-aux/vcgen.bat, build-ax/autodsp.
+	(MAINTAINERCLEANFILES): Remove serveez.dsw.
+	(woe32-project-files): Delete target.
+	(serveez.dsw): Delete prerequistite decl.
+	(no-woe32): Delete target.
+	* README-Win32: Delete file.
+	* build-aux/autodsp: Delete file.
+	* build-aux/vcgen.bat: Delete file.
+	* serveez.ap: Delete file.
+
 2011-05-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Drop ‘--with-guile’; use only guile-config(1).

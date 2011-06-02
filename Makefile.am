@@ -48,21 +48,3 @@ dist-hook:
 
 uninstall-hook:
 	 rmdir "$(DESTDIR)$(pkgdatadir)"
-
-# woe
-
-EXTRA_DIST += README-Win32 serveez.dsw serveez.ap \
-	build-aux/vcgen.bat build-aux/autodsp
-
-MAINTAINERCLEANFILES += serveez.dsw
-
-woe32-project-files:
-	@echo Creating woe32 project files...
-	cd $(srcdir) ; perl build-aux/autodsp
-
-# This rule triggers creation of .dsw and .dsp files on "make dist".
-serveez.dsw: woe32-project-files
-
-no-woe32:
-	cd $(srcdir) ; find . -name '*.ds[wp]' -delete
-	find . -name '*.serveez' -delete

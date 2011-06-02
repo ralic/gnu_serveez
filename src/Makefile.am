@@ -179,8 +179,6 @@ SUFFIXES = .scm .puny .c
 
 # woe
 
-EXTRA_DIST += svzconfig.h.serveez config.h.serveez
-
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 serveez_DEPENDENCIES += $(resource_OBJECTS)
 # We don't do this to avoid disturbing the linker command-line order (above).
@@ -191,16 +189,4 @@ SUFFIXES += .rc .ro
 .rc.ro:
 	$(WINDRES) -i $< -o $@
 
-svzconfig.h.serveez: svzconfig.h
-	cp $< $@
-
-config.h.serveez: config.h
-	cp $< $@
-
-stems = $(bin_PROGRAMS)
-woeap = $(stems:%=%.ap)
-woedsp = $(stems:%=%.dsp)
-
-EXTRA_DIST += serveez.rc $(woeap) $(woedsp)
 CLEANFILES += *.ro
-MAINTAINERCLEANFILES += $(woedsp)

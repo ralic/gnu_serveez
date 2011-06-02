@@ -1,3 +1,15 @@
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove "native MSVC" support.
+
+	* Makefile.am (EXTRA_DIST): Remove
+	svzconfig.h.serveez, config.h.serveez.
+	(svzconfig.h.serveez, config.h.serveez): Delete targets.
+	(stems, woeap, woedsp): Delete vars.
+	(EXTRA_DIST): Remove serveez.rc, $(woeap), $(woedsp).
+	(MAINTAINERCLEANFILES): Remove $(woedsp).
+	* serveez.ap: Delete file.
+
 2011-06-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Reorder src/Makefile.am top-level; split ‘SUFFIXES’.

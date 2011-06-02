@@ -1,3 +1,15 @@
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove "native MSVC" support.
+
+	* Makefile.am (MANUAL_FILES): Remove $(top_srcdir)/README-Win32.
+	* index.html: Remove link/blurb for README-Win32.
+	* serveez.en.html: Don't mention "native version" of Guile.
+	* serveez.texi (Build and install): Don't mention "native compiler".
+	(HTTP Server): Don't mention "native port" or "native host name".
+	(Porting issues) <woe>: Prune MSVC++, ref to README-Win32;
+	reflow accordingly; add caveat footnote re Cygwin connection limit.
+
 2011-05-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Drop ‘--with-guile’; use only guile-config(1).

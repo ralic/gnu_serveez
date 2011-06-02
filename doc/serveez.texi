@@ -284,7 +284,7 @@ sleepless ~/serveez-@value{VERSION}> make install
 If you have problems building the package out of the box this is due to
 GNU libtool's inability to handle dynamic linking in most cases.  That
 is why we recommend to try to configure the package with
-@samp{--disable-shared} and/or the native compiler (if any).
+@samp{--disable-shared}.
 
 @node Environment variables
 @section Environment variables
@@ -1426,7 +1426,7 @@ HTTP server tries to execute the program @file{test.pl} within the
 The @code{cgi-dir} is the CGI document root (on the server).
 
 @item cgi-application (hash, default: empty)
-Within the MinGW32 and native port you can use this hash to associate
+Within the MinGW32 port you can use this hash to associate
 certain file suffices with applications on your computer (e.g., "pl" with
 "perl").  This is necessary because there is no possibility to check whether
 a file is executable on Win32.
@@ -1473,7 +1473,7 @@ This address appears on some server-generated pages, such as error
 documents.
 
 @item host (string, default: localhost)
-This is the native host name of your web server.  Sometimes the server has
+This is the host name of your web server.  Sometimes the server has
 to send back its own name to the client.  It will use this value.
 Be aware that you cannot invent such a name.
 
@@ -2547,13 +2547,13 @@ A lot of @code{#define}'s help to work around some of the different
 Unix' oddities.  Have a look at @file{config.h} for a complete list
 of all these conditionals.
 
-Most doubtful might be the Win32 port.  There are three different ways of
-compiling Serveez on Win32: Using Cygwin, using MinGW (both gcc) and using
-the M$ Visual C++ compiler.  The Cygwin version of Serveez depends on the
-Unix emulation layer DLL @file{cygwin1.dll}.  All three versions work
-but it is preferable to use MinGW (or M$ Visual C++) for performance reasons.
-The Cygwin version is slow and limited to a very low number (some 64) of
-open files/network connections.
+Most doubtful might be the Win32 port.  There are two different ways of
+compiling Serveez on Win32: Cygwin and MinGW.  The Cygwin version of
+Serveez depends on the Unix emulation layer DLL @file{cygwin1.dll}.
+Both versions work but it is preferable to use MinGW for performance
+reasons.  The Cygwin version is slow and limited to a very low number
+(some 64) of open files/network connections.@footnote{This was written
+circa 2003---maybe the situation is now improved.}
 
 There are major differences between the Win32 and Unix implementations due
 to the completely different API those systems provide.
@@ -2663,12 +2663,6 @@ handle.  There is a fix in the more recent perl distributions that you can
 use as a general solution.  @code{-loldnames -lperlcrt -lmsvcrt} will get
 you @code{TYPE_CHAR} for socket handles.
 @end table
-
-If you want to compile Serveez with the native M$ Visual C++ compiler you
-have to go quite a long way.  But it is possible anyway.  We assume you got
-a Cygwin development environment somewhere, the Developer Studio installation
-and @samp{@value{s_PACKAGE}} and @samp{guile} in separate directories.
-Please have a look at the @file{README-Win32} file for more information.
 
 Now follows the list on which operating systems and architectures
 Serveez has been build and tested successfully.

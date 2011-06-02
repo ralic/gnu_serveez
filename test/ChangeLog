@@ -1,3 +1,12 @@
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove "native MSVC" support.
+
+	* Makefile.am (stems, woeap, woedsp): Delete vars.
+	(MAINTAINERCLEANFILES): Remove $(woedsp).
+	(EXTRA_DIST): Remove $(woedsp), $(woeap).
+	* btdt.ap: Delete file.
+
 2011-05-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Don't use -L/-l for in-tree ‘LDADD’; use .la instead.

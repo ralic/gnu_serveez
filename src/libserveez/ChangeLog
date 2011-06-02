@@ -1,3 +1,13 @@
+2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove "native MSVC" support.
+
+	* Makefile.am (EXTRA_DIST): Remove
+	libserveez.dsp, libserveez.ap, svzpath.h.serveez.
+	(MAINTAINERCLEANFILES): Remove libserveez.dsp.
+	(svzpath.h.serveez): Delete target.
+	* libserveez.ap: Delete file.
+
 2011-05-28  Mike Gran  <spk121@yahoo.com>  (tiny change)
 
 	[lib] Fix bug: Init auto var in ‘svz_sock_check_frequency’.

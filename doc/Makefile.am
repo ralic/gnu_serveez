@@ -41,7 +41,6 @@ CLEANFILES += stamp-vti*
 DISTCLEANFILES = stamp-*
 
 MANUAL_FILES = \
-  $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 
 MAINTAINERCLEANFILES += $(gen)

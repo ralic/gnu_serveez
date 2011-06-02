@@ -47,12 +47,3 @@ but-of-course: ../src/config.h
 	{ echo '(define (boc? symbol) (memq symbol (quote (' ; \
 	  $(SED) '/#define \(.*\) 1/!d;s//\1/' $< ; \
 	  echo '))))' ; } > $@
-
-# woe
-
-stems = $(check_PROGRAMS:%-test=%)
-woeap = $(stems:%=%.ap)
-woedsp = $(stems:%=%.dsp)
-
-MAINTAINERCLEANFILES += $(woedsp)
-EXTRA_DIST += $(woedsp) $(woeap)

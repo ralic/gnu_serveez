@@ -84,12 +84,3 @@ docable = \
 
 libserveez.tsar: $(docable)
 	$(gx) s3as -o $@ $^
-
-# woe
-
-EXTRA_DIST += libserveez.dsp libserveez.ap svzpath.h.serveez
-
-MAINTAINERCLEANFILES += libserveez.dsp
-
-svzpath.h.serveez: svzpath.h
-	cp $< $@
