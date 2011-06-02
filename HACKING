@@ -61,7 +61,7 @@ See the end for copying conditions.
 ***** DONE prune by-now standardized bits from [[file:doc/Makefile.am][doc/Makefile.am]]
 ***** DONE move *.serveez file creation (woe32) to "make dist"
 ***** DONE drop [[file:build-aux/debian.sh.in][debian]] and [[file:build-aux/redhat.sh.in][redhat]] scripts
-***** TODO add --enable-libserveez-install (default disabled)
+***** DONE add --enable-libserveez-install (default disabled)
 *** DONE Zonk ‘__PARAMS’; require prototypes.
 *** DONE Assume signal handlers return ‘void’.
 *** DONE Remove svz_t_{size,off}.
