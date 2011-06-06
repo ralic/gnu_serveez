@@ -19,10 +19,7 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
 #-----------------------------------------------------------------------
-# Usage: ./autogen.sh [--woe32]
-#
-# Optional arg ‘--woe32’ means also create .dsw and .dsp files.
-# (Normally, they are created on "make dist" only.)
+# Usage: ./autogen.sh
 #
 # Prerequisite tools:
 # - GNU Autoconf 2.64
@@ -49,10 +46,6 @@ guile-baux-tool import \
 
 # Invoke all the auto* tools.
 autoreconf --verbose --force --install --symlink --warnings=all
-
-# Life is usually full enough of woe, but one can always opt for more.
-test x"$1" = x--woe32 \
-    && make -f Makefile.am woe32-project-files srcdir=.
 
 # We used to run configure here, but that's not really part of
 # the bootstrap proper.  However, a nice reminder hurts no one.

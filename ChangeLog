@@ -1,3 +1,11 @@
+2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Remove more "native MSVC" support.
+
+	Omission from 2011-06-02, "Remove "native MSVC" support".
+
+	* autogen.sh: Don't recognize/handle option ‘--woe32’.
+
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Remove "AWCS protocol / server" support.
