@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#if HAVE_ZLIB && HAVE_ZLIB_H
+#if HAVE_LIBZ && HAVE_ZLIB_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -278,8 +278,8 @@ zlib_decode (svz_codec_data_t *data)
   return ret == Z_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
 
-#else /* HAVE_ZLIB && HAVE_ZLIB_H */
+#else /* !(HAVE_LIBZ && HAVE_ZLIB_H) */
 
 static int have_zlib = 0;
 
-#endif /* HAVE_ZLIB && HAVE_ZLIB_H */
+#endif /* !(HAVE_LIBZ && HAVE_ZLIB_H) */

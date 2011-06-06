@@ -37,10 +37,10 @@
    ((codec)->type == SVZ_CODEC_ENCODER) ? "encoder" : NULL)
 
 /* Include codec headers if any.  */
-#if HAVE_ZLIB && HAVE_ZLIB_H
+#if HAVE_LIBZ && HAVE_ZLIB_H
 #include "libserveez/codec/gzlib.h"
 #endif
-#if HAVE_BZ2LIB
+#if HAVE_LIBBZ2
 #include "libserveez/codec/bzip2.h"
 #endif
 
@@ -95,14 +95,14 @@ svz_codec_get (char *description, int type)
 static int
 svz_codec_init (void)
 {
-#if HAVE_ZLIB && HAVE_ZLIB_H
+#if HAVE_LIBZ && HAVE_ZLIB_H
   svz_codec_register (&zlib_encoder);
   svz_codec_register (&zlib_decoder);
-#endif /* HAVE_ZLIB && HAVE_ZLIB_H */
-#if HAVE_BZ2LIB
+#endif /* HAVE_LIBZ && HAVE_ZLIB_H */
+#if HAVE_LIBBZ2
   svz_codec_register (&bzip2_encoder);
   svz_codec_register (&bzip2_decoder);
-#endif /* HAVE_BZ2LIB */
+#endif /* HAVE_LIBBZ2 */
   return 0;
 }
 

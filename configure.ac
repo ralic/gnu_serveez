@@ -33,12 +33,10 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([1.10 no-define])
 AM_MAINTAINER_MODE
 
-CODECLIBS=""
 EXTRALIBS=""
 LIBSERVEEZLIBS=""
 SERVEEZ_LIBS=""
 
-AC_SUBST([CODECLIBS])        dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([LIBSERVEEZLIBS])   dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([SERVEEZ_LIBS])     dnl FIXME: Use ‘LIBS’ et al directly.
 
@@ -276,23 +274,14 @@ dnl checks for libraries
 dnl
 dnl Check for codec libraries.
 dnl
-AC_CHECK_LIB([z],[zlibVersion],[
-  AC_DEFINE([HAVE_ZLIB], 1, [Define if you have the zlib library.])
-  CODECLIBS="$CODECLIBS -lz"
-])
+AC_CHECK_LIB([z],[zlibVersion])
+AC_CHECK_LIB([bz2],[BZ2_bzCompress],,
+[AC_CHECK_LIB([bz2],[bzCompress])])
 
-have_bz2=no
-AC_CHECK_LIB([bz2],[bzCompress],[have_bz2=yes],
-[AC_CHECK_LIB([bz2],[BZ2_bzCompress],[have_bz2=bz2_prefix])])
-AS_IF([test no != $have_bz2],[
-  AC_DEFINE([HAVE_BZ2LIB], 1, [Define if you have the bz2 library.])
-  CODECLIBS="$CODECLIBS -lbz2"
-  AS_IF([test bz2_prefix = $have_bz2],[
-    AC_DEFINE([HAVE_BZ2LIB_PREFIX], 1,
-      [Define if you have a prefixed bz2 library (>= v1.0)])
-  ])
+AS_IF([SVZ_Y([ac_cv_lib_bz2_BZ2_bzCompress])],[
+AC_DEFINE([HAVE_BZ2LIB_PREFIX], 1,
+ [Define if you have a prefixed bz2 library (>= v1.0)])
 ])
-AS_UNSET([have_bz2])
 
 dnl
 dnl Check whether extra net libraries are required.

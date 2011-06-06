@@ -1,5 +1,14 @@
 2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Merge $(CODECLIBS) into $(LIBS).
+
+	* configure.ac (CODECLIBS): Delete var, AC_SUBST.
+	(HAVE_ZLIB, HAVE_BZ2LIB): Delete AC_SUBSTs; rewrite
+	the AC_CHECK_LIB calls to not specify ACTION-IF-FOUND;
+	for libz2, check for ‘BZ2_bzCompress’ before ‘bzCompress’.
+
+2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Remove more "native MSVC" support.
 
 	Omission from 2011-06-02, "Remove "native MSVC" support".

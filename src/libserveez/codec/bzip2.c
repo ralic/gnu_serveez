@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#if HAVE_BZ2LIB
+#if HAVE_LIBBZ2
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -341,8 +341,8 @@ bzip2_decode (svz_codec_data_t *data)
   return ret == BZ_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
 
-#else /* HAVE_BZ2LIB */
+#else /* !HAVE_LIBBZ2 */
 
 static int have_bzip2 = 0;
 
-#endif /* HAVE_BZ2LIB */
+#endif /* !HAVE_LIBBZ2 */
