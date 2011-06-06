@@ -1,5 +1,13 @@
 2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build woe] For libs, grow ‘LIBS’ R2L, not ‘EXTRALIBS’ L2R.
+
+	* configure.ac: Check for libmwsock, libws2_32, libuser32,
+	libshell32 and libadvapi32 using simplified AC_CHECK_LIB calls,
+	reordered to grow right-to-left.
+
+2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Remove redundant AC_DEFINE.
 
 	* configure.ac (HAVE_LIBKSTAT): Delete AC_DEFINE;

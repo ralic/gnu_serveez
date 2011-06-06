@@ -292,24 +292,44 @@ AC_CHECK_LIB([kstat],[kstat_open])
 # woe
 
 resource_FILES=""
+dnl
+dnl WARNING: Possible breakage!
+dnl
+dnl Each AC_CHECK_LIB used to explicitly append to shell var ‘EXTRALIBS’
+dnl (growing left to right).  Now, by omitting the ACTION-IF-FOUND, they
+dnl implicitly prepend to shell var ‘LIBS’ (growing right to left).
+dnl To preserve the original ordering, we have reversed the order in
+dnl each group of sequential AC_CHECK_LIB calls, as well as the order
+dnl of the groups.  This introduces a change in ‘CFLAGS’ and ‘LDFLAGS’
+dnl from the pov of ‘user32’, ‘shell32’ and ‘advapi32’, however:
+dnl previously, they did not have ‘-mno-cygwin’ (etc); now, they do.
+dnl
+dnl Furthermore, these system-level libraries should probably find
+dnl themselves at the end of ‘LIBS’.  To effect that, this woe32 block
+dnl should probably be done earliest (before zlib).
+dnl
+dnl Summary: This (presumably functioning previously) code might now be
+dnl broken.  We say "might" because the maintainers thoroughly avoid
+dnl woe, so this change will go untested until someone complains.
+dnl
 AS_IF([SVZ_Y([CYGWIN]) || SVZ_Y([MINGW32])],[
   AC_DEFINE([FD_SETSIZE], 4096, [Make CygWin / MinGW32 use large FD sets.])
   AC_DEFINE([WIN32_LEAN_AND_MEAN], 1, [Define for faster code generation.])
-  AC_CHECK_LIB([advapi32],[main],[EXTRALIBS="$EXTRALIBS -ladvapi32"])
-  AC_CHECK_LIB([shell32],[main],[EXTRALIBS="$EXTRALIBS -lshell32"])
-  AC_CHECK_LIB([user32],[main],[EXTRALIBS="$EXTRALIBS -luser32"])
   resource_FILES="serveez.rc"
+  AS_IF([SVZ_Y([MINGW32])],[
+    AC_CHECK_LIB([mswsock],[main])
+    AC_CHECK_LIB([ws2_32],[main])
+  ])
   AS_IF([test xno != x"$MINGDIR" && SVZ_NOT_Y([MINGW32])],[
     CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
     LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
-    AC_CHECK_LIB([ws2_32],[main],[EXTRALIBS="$EXTRALIBS -lws2_32"])
-    AC_CHECK_LIB([mswsock],[main],[EXTRALIBS="$EXTRALIBS -lmswsock"])
+    AC_CHECK_LIB([mswsock],[main])
+    AC_CHECK_LIB([ws2_32],[main])
     AC_MSG_RESULT([using MinGW32 headers and libraries in ${MINGDIR}])
   ])
-  AS_IF([SVZ_Y([MINGW32])],[
-    AC_CHECK_LIB([ws2_32],[main],[EXTRALIBS="$EXTRALIBS -lws2_32"])
-    AC_CHECK_LIB([mswsock],[main],[EXTRALIBS="$EXTRALIBS -lmswsock"])
-  ])
+  AC_CHECK_LIB([user32],[main])
+  AC_CHECK_LIB([shell32],[main])
+  AC_CHECK_LIB([advapi32],[main])
 ])
 AC_SUBST([resource_FILES])
 
