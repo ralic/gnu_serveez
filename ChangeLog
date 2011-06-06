@@ -1,5 +1,12 @@
 2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Move success and "new platform" notices after AC_OUTPUT.
+
+	* configure.ac: Move success and "new platform"
+	notices after ‘AC_OUTPUT’; use ‘AC_MSG_NOTICE’.
+
+2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Merge $(CODECLIBS) into $(LIBS).
 
 	* configure.ac (CODECLIBS): Delete var, AC_SUBST.

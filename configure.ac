@@ -48,14 +48,6 @@ AC_SUBST([LIBSERVEEZ_INTERFACE])
 AC_DEFINE_UNQUOTED([LIBSERVEEZ_INTERFACE],["$LIBSERVEEZ_INTERFACE"],
   [The triple CUR:REV:AGE describing the libserveez API.])
 
-AS_IF([grep "$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
-[AC_MSG_RESULT([
-  $PACKAGE_NAME has never been compiled or run on this platform.
-  Please send an email to <dev-serveez@gnu.org> including your compiler
-  version and whether it worked correctly or not.  '$host'
-  will then be added to the PLATFORMS file included in this package.
-])])
-
 dnl
 dnl Check whether debug output should be included.
 dnl
@@ -683,14 +675,15 @@ AC_CONFIG_FILES([
     test/Makefile
 ])
 
-dnl
-dnl Print results.
-dnl
-AC_MSG_RESULT([])
-AC_MSG_RESULT([	$PACKAGE version $VERSION configured successfully.])
-AC_MSG_RESULT([])
-
 AC_OUTPUT
+
+AC_MSG_NOTICE([$PACKAGE_STRING successfully configured -- cool!])
+AS_IF([grep "z$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
+[AC_MSG_NOTICE([Welcome!
+  $PACKAGE_NAME has never been compiled or run on this platform.
+  Please send an email to <$PACKAGE_BUGREPORT> including
+  your compiler version and whether it worked correctly or not.
+  '$host' will then be added to the file data/PLATFORMS.])])
 
 dnl ----------------------------------------------------------------------
 dnl configure.ac ends here
