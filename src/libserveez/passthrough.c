@@ -570,8 +570,8 @@ static int
 svz_process_shuffle (svz_process_t *proc)
 {
   svz_t_socket pair[2];
-  svz_t_handle process_to_serveez[2];
-  svz_t_handle serveez_to_process[2];
+  svz_t_handle process_to_serveez[2] = { 0 };
+  svz_t_handle serveez_to_process[2] = { 0 };
   svz_socket_t *xsock;
   int pid;
 

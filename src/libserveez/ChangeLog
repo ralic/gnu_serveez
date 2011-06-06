@@ -1,3 +1,10 @@
+2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib int] Init some local variables for GCC 4.4 peace of mind.
+
+	* passthrough.c (svz_process_shuffle):
+	Init local vars ‘process_to_serveez’, ‘serveez_to_process’.
+
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Remove "native MSVC" support.
