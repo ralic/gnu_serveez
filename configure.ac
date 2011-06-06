@@ -287,11 +287,7 @@ SVZ_EXTRALIBS_MAYBE([gethostbyaddr],[nsl])
 SVZ_EXTRALIBS_MAYBE([inet_aton],[resolv])
 
 dnl Solaris.
-AC_CHECK_LIB([kstat],[kstat_open],[
-  AC_DEFINE([HAVE_LIBKSTAT], 1,
-    [Define if Solaris provides the kstat library.])
-  EXTRALIBS="$EXTRALIBS -lkstat"
-])
+AC_CHECK_LIB([kstat],[kstat_open])
 
 # woe
 
