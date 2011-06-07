@@ -1,3 +1,12 @@
+2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v] Decruft: Delete unused test/prog-test.cfg.
+
+	The passthrough test (t001) uses an inline configuration.
+
+	* prog-test.cfg: Delete file.
+	* Makefile.am (EXTRA_DIST): Remove prog-test.cfg.
+
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Remove "native MSVC" support.
