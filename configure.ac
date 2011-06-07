@@ -33,7 +33,6 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([1.10 no-define])
 AM_MAINTAINER_MODE
 
-EXTRALIBS=""
 LIBSERVEEZLIBS=""
 SERVEEZ_LIBS=""
 
@@ -278,13 +277,13 @@ AC_DEFINE([HAVE_BZ2LIB_PREFIX], 1,
 dnl
 dnl Check whether extra net libraries are required.
 dnl
-SVZ_EXTRALIBS_MAYBE([socketpair],[socket])
+SVZ_LIBS_MAYBE([socketpair],[socket])
 
 dnl
 dnl Check for Solaris nsl and resolv library.
 dnl
-SVZ_EXTRALIBS_MAYBE([gethostbyaddr],[nsl])
-SVZ_EXTRALIBS_MAYBE([inet_aton],[resolv])
+SVZ_LIBS_MAYBE([gethostbyaddr],[nsl])
+SVZ_LIBS_MAYBE([inet_aton],[resolv])
 
 dnl Solaris.
 AC_CHECK_LIB([kstat],[kstat_open])
@@ -499,7 +498,7 @@ dnl
 dnl Check for ‘crypt’ function.
 dnl
 AS_IF([SVZ_Y([enable_crypt])],
-[SVZ_EXTRALIBS_MAYBE([crypt],[descrypt crypt])])
+[SVZ_LIBS_MAYBE([crypt],[descrypt crypt])])
 AS_IF([test xno = x"$ac_cv_search_crypt"],
 [AC_MSG_ERROR([--enable-crypt specified but crypt(3) not available
                (i.e., not in: libc, libdescrypt, libcrypt)])])
@@ -551,7 +550,7 @@ dnl Check if ‘alphasort’ is declared.  Also check for ‘alphasort’,
 dnl ‘strsignal’ and ‘scandir’ in -liberty.
 dnl
 save_LIBS="$LIBS"
-LIBS="$LIBS $SERVEEZ_LIBS $EXTRALIBS"
+LIBS="$LIBS $SERVEEZ_LIBS"
 AC_CHECK_FUNCS([alphasort scandir strsignal])
 LIBS="$save_LIBS"
 AS_UNSET([save_LIBS])
@@ -611,13 +610,9 @@ AS_IF([SVZ_Y([ac_cv_func_hstrerror]) || SVZ_Y([ac_cv_lib_resolv_hstrerror])],
 dnl
 dnl Checks for RPC services.
 dnl
-SVZ_EXTRALIBS_MAYBE([getrpcent],[nsl])dnl libnsl for HP-UX.
-save_LIBS="$LIBS"
-LIBS="$LIBS $EXTRALIBS"
+SVZ_LIBS_MAYBE([getrpcent],[nsl])dnl libnsl for HP-UX.
 AC_CHECK_FUNCS([getrpcbyname getrpcbynumber setrpcent endrpcent \
   pmap_set pmap_unset pmap_getmaps get_myaddress])
-LIBS="$save_LIBS"
-AS_UNSET([save_LIBS])
 
 AC_CHECK_DECLS([setrpcent, endrpcent], [], [], [[
      #ifdef HAVE_NETDB_H
@@ -653,8 +648,6 @@ AC_DEFINE_UNQUOTED([SIZEOF_UINT32],[4],[Number of bytes for uint32_t.])
 
 dnl ----------------------------------------------------------------------
 dnl write it out
-
-LIBS="$LIBS $EXTRALIBS"
 
 dnl
 dnl Setup configuration variables.

@@ -1,3 +1,14 @@
+2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Merge ‘EXTRALIBS’ into ‘LIBS’.
+
+	* m4/inc.m4 (SVZ_GOT_X, SVZ_LIBS_MAYBE): New AC_DEFUNs.
+	(SVZ_HAVE_FUNC_MAYBE_IN_LIB): Use ‘SVZ_GOT_X’.
+	(SVZ_EXTRALIBS_MAYBE): Delete AC_DEFUN.
+	* configure.ac (EXTRALIBS): Delete var; throughout,
+	do s/SVZ_EXTRALIBS_MAYBE/SVZ_LIBS_MAYBE/, removing any
+	surrounding save/restore of ‘LIBS’.
+
 2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build woe] For libs, grow ‘LIBS’ R2L, not ‘EXTRALIBS’ L2R.

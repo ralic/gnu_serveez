@@ -33,31 +33,31 @@ dnl  test xyes != x"$VAR"
 dnl
 AC_DEFUN([SVZ_NOT_Y],[test xyes != x"$]$1["])
 
+dnl SVZ_GOT_X(FUNC)
+dnl
+dnl Do ‘AC_DEFINE’ on FUNC (upcasing it first and prefixing "HAVE_").
+dnl
+AC_DEFUN([SVZ_GOT_X],[AC_DEFINE([HAVE_]m4_toupper([$1]), 1,
+ [Define to 1 if you have the $1 function.])])
+
+dnl SVZ_LIBS_MAYBE(FUNC,LIBRARIES)
+dnl
+dnl Do ‘AC_SEARCH_LIBS’ on FUNC and LIBRARIES, and
+dnl (if successful) ‘SVZ_GOT_X’ on FUNC.
+dnl
+AC_DEFUN([SVZ_LIBS_MAYBE],[AC_SEARCH_LIBS([$1],[$2],[SVZ_GOT_X([$1])])])
+
 dnl SVZ_HAVE_FUNC_MAYBE_IN_LIB(FUNC,VAR)
 dnl
-dnl First, do ‘AC_DEFINE’ on FUNC.  Next, if shell variable
+dnl First, do ‘SVZ_GOT_X’ on FUNC.  Next, if shell variable
 dnl ac_cv_search_FUNC does not have value "none required", then
 dnl append it to VAR.
 dnl
 AC_DEFUN([SVZ_HAVE_FUNC_MAYBE_IN_LIB],[
-AC_DEFINE([HAVE_]m4_toupper([$1]), 1,
-  [Define to 1 if you have the $1 function.])dnl
+SVZ_GOT_X([$1])
 AS_VAR_PUSHDEF([VAR],[ac_cv_search_$1])dnl
 test 'xnone required' = x"$VAR" || $2="[$]$2 $VAR"
 AS_VAR_POPDEF([VAR])dnl
-])
-
-dnl SVZ_EXTRALIBS_MAYBE(FUNC,LIBRARIES)
-dnl
-dnl Save value of shell variable ‘LIBS’; do ‘AC_SEARCH_LIBS’ on FUNC
-dnl and LIBRARIES, and (if successful) ‘SVZ_HAVE_FUNC_MAYBE_IN_LIB’
-dnl on FUNC and shell variable ‘EXTRALIBS’; restore ‘LIBS’ afterwards.
-dnl
-AC_DEFUN([SVZ_EXTRALIBS_MAYBE],[
-save_LIBS="$LIBS"
-AC_SEARCH_LIBS([$1],[$2],
-[SVZ_HAVE_FUNC_MAYBE_IN_LIB([$1],[EXTRALIBS])])
-LIBS="$save_LIBS"
 ])
 
 dnl SVZ_HELP_STRING(LHS,DEFAULT,BLURB)
