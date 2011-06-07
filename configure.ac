@@ -33,10 +33,8 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([1.10 no-define])
 AM_MAINTAINER_MODE
 
-LIBSERVEEZLIBS=""
 SERVEEZ_LIBS=""
 
-AC_SUBST([LIBSERVEEZLIBS])   dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([SERVEEZ_LIBS])     dnl FIXME: Use ‘LIBS’ et al directly.
 
 dnl ----------------------------------------------------------------------
@@ -563,34 +561,25 @@ dnl
 dnl Check for shared library loading interface.
 dnl FIXME: Abrogate; libtool to the rescue!
 dnl
-save_LIBS="$LIBS"
-AC_SEARCH_LIBS([dlopen],[dl svld],
-[SVZ_HAVE_FUNC_MAYBE_IN_LIB([dlopen],[LIBSERVEEZLIBS])],
-[AC_CHECK_LIB([dld],[dld_link],
-  [AC_DEFINE([HAVE_DLD_LINK], 1,
-    [Define if you have the dld_link function.])
- LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])])
-LIBS="$save_LIBS"
+SVZ_LIBS_MAYBE([dlopen],[dl svld])
+AS_IF([test no = "$ac_cv_search_dlopen"],
+[SVZ_LIBS_MAYBE([dld_link],[dld])])
 
 dnl
 dnl Check for thread libraries.
 dnl
-have_threads=no
+threadsp=false
+AC_DEFUN([SVZ_SET_THREADSP],[AS_IF([$1],[threadsp=true])])
 AS_IF([SVZ_NOT_Y([ac_cv_func_fwrite_unlocked])],[
-  AS_IF([SVZ_Y([MINGW32])],
-   [have_threads=yes],
-   [dnl POSIX
-    AC_CHECK_LIB([pthread],[pthread_create],[
-      have_threads=yes
-      LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lpthread"],
-      dnl FreeBSD
-      [AC_CHECK_LIB([c_r],[pthread_create],[
-        have_threads=yes
-        LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lc_r"])])])])
-AS_IF([SVZ_Y([have_threads])],
+  SVZ_SET_THREADSP([SVZ_Y([MINGW32])])
+  # libpthread for POSIX, libc_r for FreeBSD
+  AS_IF([! $threadsp],[SVZ_LIBS_MAYBE([pthread_create],[pthread c_r])])
+  SVZ_SET_THREADSP([test no != "$ac_cv_search_pthread_create"])
+])
+AS_IF([$threadsp],
 [AC_DEFINE([ENABLE_LOG_MUTEX], 1,
   [Define to 1 if svz_log should use a mutex around its stdio calls.])])
-AS_UNSET([have_threads])
+AS_UNSET([threadsp])
 
 dnl
 dnl Check for ‘hstrerror’, ‘h_errno’ and ‘strsignal’ functions.

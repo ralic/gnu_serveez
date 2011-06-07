@@ -1,5 +1,16 @@
 2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Merge ‘$(LIBSERVEEZLIBS)’ into ‘$(LIBS)’.
+
+	* configure.ac (LIBSERVEEZLIBS): Delete var, AC_SUBST.
+	(dlopen, dld_link): Use ‘SVZ_LIBS_MAYBE’ for these C funcs.
+	(have_threads): Delete var.
+	(threadsp): New var.
+	(SVZ_SET_THREADSP): New AC_DEFUN.
+	(pthread_create): Use ‘SVZ_LIBS_MAYBE’ for this C func.
+
+2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Merge ‘EXTRALIBS’ into ‘LIBS’.
 
 	* m4/inc.m4 (SVZ_GOT_X, SVZ_LIBS_MAYBE): New AC_DEFUNs.

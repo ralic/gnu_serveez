@@ -38,9 +38,7 @@ noinst_LTLIBRARIES = libserveez.la
 endif !COURAGEOUS
 
 libserveez_la_LDFLAGS = -export-dynamic -version-info $(LIBSERVEEZ_INTERFACE)
-libserveez_la_DEPENDENCIES = coserver/libcoserver.la codec/libcodec.la
-libserveez_la_LIBADD = $(libserveez_la_DEPENDENCIES) \
-  $(LIBSERVEEZLIBS)
+libserveez_la_LIBADD = coserver/libcoserver.la codec/libcodec.la
 
 libserveez_la_SOURCES = address.c alloc.c util.c hash.c                   \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \

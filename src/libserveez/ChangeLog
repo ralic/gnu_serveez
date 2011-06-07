@@ -1,3 +1,11 @@
+2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Merge ‘$(LIBSERVEEZLIBS)’ into ‘$(LIBS)’.
+
+	* Makefile.am (libserveez_la_DEPENDENCIES):
+	Delete var, incorporating its value into...
+	(libserveez_la_LIBADD): ...this one; remove $(LIBSERVEEZLIBS).
+
 2011-06-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Merge $(CODECLIBS) into $(LIBS).
