@@ -33,10 +33,6 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([1.10 no-define])
 AM_MAINTAINER_MODE
 
-SERVEEZ_LIBS=""
-
-AC_SUBST([SERVEEZ_LIBS])     dnl FIXME: Use ‘LIBS’ et al directly.
-
 dnl ----------------------------------------------------------------------
 dnl information on the package
 
@@ -507,25 +503,15 @@ AC_CHECK_FUNCS([host_statistics])
 dnl
 dnl Check for ‘getopt’ and ‘getopt_long’ functions and headers.
 dnl
-save_LIBS="$LIBS"
-AC_SEARCH_LIBS([getopt],[iberty],
-[SVZ_HAVE_FUNC_MAYBE_IN_LIB([getopt],[getoptlib])])
-AC_SEARCH_LIBS([getopt_long],[iberty],
-[SVZ_HAVE_FUNC_MAYBE_IN_LIB([getopt_long],[getopt_longlib])])
-LIBS="$save_LIBS"
+SVZ_LIBS_MAYBE([getopt_long],[iberty])
+AS_IF([test no = "$ac_cv_search_getopt_long"],
+[SVZ_LIBS_MAYBE([getopt],[iberty])])
 
 dnl
 dnl We might declare getopt_long ourselves if the headers do not.
 dnl
 AS_IF([test xno != x"$ac_cv_search_getopt_long"],[
   AC_CHECK_DECLS([getopt_long], [], [], [[#include <getopt.h>]])])
-
-AS_IF([test "$getoptlib" || test "$getopt_longlib"],
-[AS_CASE([$host_os],
-         [mingw*],[LIBS="$LIBS $getoptlib"],
-         [SERVEEZ_LIBS="$SERVEEZ_LIBS $getoptlib"])])
-AS_UNSET([getoptlib])
-AS_UNSET([getopt_longlib])
 
 dnl
 dnl Check for ‘timezone’ and ‘daylight’ variables
@@ -547,15 +533,10 @@ dnl
 dnl Check if ‘alphasort’ is declared.  Also check for ‘alphasort’,
 dnl ‘strsignal’ and ‘scandir’ in -liberty.
 dnl
-save_LIBS="$LIBS"
-LIBS="$LIBS $SERVEEZ_LIBS"
 AC_CHECK_FUNCS([alphasort scandir strsignal])
-LIBS="$save_LIBS"
-AS_UNSET([save_LIBS])
 
 AS_IF([SVZ_Y([ac_cv_header_dirent_h])],
 [AC_CHECK_DECLS([alphasort], [], [], [[#include <dirent.h>]])])
-
 
 dnl
 dnl Check for shared library loading interface.

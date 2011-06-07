@@ -110,7 +110,7 @@ serveez_DEPENDENCIES = $(PROTOLIBS) \
 	libserveez/libserveez.la
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
-	libserveez/libserveez.la $(SERVEEZ_LIBS)
+	libserveez/libserveez.la
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 AM_CPPFLAGS += $(GUILE_CFLAGS)

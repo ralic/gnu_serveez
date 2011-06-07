@@ -1,5 +1,15 @@
 2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Merge ‘$(SERVEEZ_LIBS)’ into ‘$(LIBS)’.
+
+	* configure.ac (SERVEEZ_LIBS): Delete var, AC_SUBST.
+	(getopt_long): Use ‘SVZ_LIBS_MAYBE’ for this C func.
+	(getopt): Likewise, but only if ‘getopt_long’ is not found.
+	(alphasort, scandir, strsignal): Remove surrounding
+	‘LIBS’ save/munge/restore for these C funcs.
+
+2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Merge ‘$(LIBSERVEEZLIBS)’ into ‘$(LIBS)’.
 
 	* configure.ac (LIBSERVEEZLIBS): Delete var, AC_SUBST.
