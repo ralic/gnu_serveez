@@ -346,27 +346,13 @@ AC_CHECK_HEADERS_ONCE([
   rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h
 ])
 
+AC_CHECK_HEADERS_ONCE([netinet/tcp.h])
 AC_CHECK_HEADERS_ONCE([netdb.h])
 
 dnl HP-UX.
 AC_CHECK_HEADERS_ONCE([sys/param.h sys/pstat.h])
 dnl IRIX.
 AC_CHECK_HEADERS_ONCE([sys/sysget.h sys/sysinfo.h])
-
-dnl
-dnl Some installations need <sys/types.h> before <netinet/tcp.h>.
-dnl
-AC_CACHE_CHECK([for netinet/tcp.h],[svz_cv_header_netinet_tcp_h],
-[AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
-    #include <sys/types.h>
-    #include <netinet/tcp.h>
-]])],
-  [svz_cv_header_netinet_tcp_h=yes],
-  [svz_cv_header_netinet_tcp_h=no])])
-
-AS_IF([SVZ_Y([svz_cv_header_netinet_tcp_h])],
-[AC_DEFINE([HAVE_NETINET_TCP_H], 1,
-  [Define if you have the <netinet/tcp.h> header file.])])
 
 AS_IF([SVZ_Y([enable_crypt])],[AC_CHECK_HEADERS([crypt.h])])
 
@@ -517,17 +503,9 @@ dnl
 dnl Check for ‘timezone’ and ‘daylight’ variables
 dnl (FreeBSD and NetBSD do not provide).
 dnl
-AC_CACHE_CHECK([for timezone and daylight variables],[svz_cv_var_timezone],
-[AC_LINK_IFELSE(
-   [AC_LANG_PROGRAM(
-     [[extern long int timezone; extern int daylight;]],
-     [[long int t = timezone; int d = daylight; return (d + t);]])],
-   [svz_cv_var_timezone=yes],
-   [svz_cv_var_timezone=no])])
-
-AS_IF([SVZ_Y([svz_cv_var_timezone])],
-[AC_DEFINE([HAVE_TIMEZONE], 1,
-  [Define if you have timezone and daylight.])])
+AC_CHECK_DECLS([timezone, daylight],,,[[
+#include <time.h>
+]])
 
 dnl
 dnl Check if ‘alphasort’ is declared.  Also check for ‘alphasort’,
@@ -569,12 +547,9 @@ AC_CHECK_DECLS([strsignal], [], [], [[
     #include <string.h>
 ]])
 
-AC_CHECK_FUNCS([hstrerror],,
-[AC_CHECK_LIB([resolv],[hstrerror],
- [AC_DEFINE([HAVE_HSTRERROR], 1,
-   [Define if you have the hstrerror function.])])])
+SVZ_LIBS_MAYBE([hstrerror],[resolv])
 
-AS_IF([SVZ_Y([ac_cv_func_hstrerror]) || SVZ_Y([ac_cv_lib_resolv_hstrerror])],
+AS_IF([test no != "$ac_cv_search_hstrerror"],
 [AC_CHECK_DECLS([hstrerror, h_errno], [], [], [[#include <netdb.h>]])])
 
 dnl

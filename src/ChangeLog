@@ -1,5 +1,12 @@
 2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Use facilities that implicitly ‘AC_DEFINE’.
+
+	* http-server/http-core.c (timezone, daylight): For preproc
+	conditional, use ‘!HAVE_DECL_TIMEZONE || !HAVE_DECL_DAYLIGHT’.
+
+2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Merge ‘$(SERVEEZ_LIBS)’ into ‘$(LIBS)’.
 
 	* Makefile.am (serveez_LDADD): Remove $(SERVEEZ_LIBS).

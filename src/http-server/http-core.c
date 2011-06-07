@@ -57,7 +57,7 @@ http_header_t http_header;
 #  define daylight _daylight
 # endif
 
-#elif !HAVE_TIMEZONE
+#elif !HAVE_DECL_TIMEZONE || !HAVE_DECL_DAYLIGHT
 /*
  * For some reason FreeBSD 3.2 does not provide `timezone' and `daylight'.
  */
