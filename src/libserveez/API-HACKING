@@ -40,7 +40,6 @@ HACKING libserveez API					-*- org -*-
     | x | svz_config_type_finalize | impl       | internalize                |
 *** use "hidden" attribute (gcc only)
 *** internalize elements unused outside of libserveez
-* refine, refine, refine!
 *** noinst
     header is not installed (not in [[file:../libserveez.h][libserveez.h]])
     → ∅ (also → automatic ‘x’ for other columns)
@@ -55,6 +54,7 @@ HACKING libserveez API					-*- org -*-
 *** pretty printer
     modify printing funcs to take ‘char *buf’ and ‘size_t size’;
     make them re-entrant (no static state)
+* refine, refine, refine!
 *** work in progress ([[elisp:(let%20((dired-listing-switches%20"-alhFGrS"))%20(dired%20"*.h"))][dired by size]]) ([[shell:nm%20-g%20--defined-only%20.libs/libserveez.so][.so exports]])
     (for columns: ? ≡ need-info, o ≡ todo, x ≡ done)
     |----------------------+---+---+---+---+---+------|
@@ -62,7 +62,7 @@ HACKING libserveez API					-*- org -*-
     |----------------------+---+---+---+---+---+------|
     | [[file:server-socket.h][server-socket]]        | x |   |   |   |   |      |
     | [[file:raw-socket.h][raw-socket]]           | x |   |   |   |   |      |
-    | [[file:dynload.h][dynload]]              |   |   |   |   |   | [[more-dynload][more]] |
+    | [[file:dynload.h][dynload]]              |   |   |   |   |   |      |
     | [[file:mutex.h][mutex]]                | x | x |   |   |   |      |
     | [[file:tcp-socket.h][tcp-socket]]           |   |   |   | x |   |      |
     | [[file:windoze.h][windoze]]              |   | x |   |   |   |      |
@@ -95,10 +95,6 @@ HACKING libserveez API					-*- org -*-
     | [[file:coserver/reverse-dns.h][coserver/reverse-dns]] | x |   |   |   |   |      |
     | [[file:coserver/xerror.h][coserver/xerror]]      | x |   |   |   |   |      |
     |----------------------+---+---+---+---+---+------|
-*** more-dynload
-***** replace svz_dynload_path_{set,get}
-      with ‘svz_load_path (char const *DIR)’;
-      if DIR is NULL, clear the path; else push DIR
 *** more-binding
 ***** specialize ‘svz_server_portcfgs’
       into ‘svz_server_first_configured_address’ for clients [[file:~/build/GNU/serveez/src/http-server/http-proto.c::svz_server_portcfgs][http]], [[file:~/build/GNU/serveez/src/irc-server/irc-proto.c::svz_server_portcfgs][irc]]
