@@ -183,16 +183,14 @@ gi_list_5 (SCM a1, SCM a2, SCM a3, SCM a4, SCM a5)
   return list_5 (a1, a2, a3, a4, a5);
 }
 
-#if V15
-#define make_vector  scm_c_make_vector
-#else
-#define make_vector  scm_make_vector
-#endif
-
 extern SCM
 gi_n_vector (size_t len, SCM fill)
 {
-  return make_vector (integer2scm (len), fill);
+#if V15
+  return scm_c_make_vector (len, fill);
+#else
+  return scm_make_vector (integer2scm (len), fill);
+#endif
 }
 
 #if V15

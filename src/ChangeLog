@@ -1,3 +1,10 @@
+2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[gi 1.6] Fix bug: Use ‘scm_c_make_vector’ correctly.
+
+	* gi.c (make_vector): Delete macro.
+	(gi_n_vector) [V15]: Use ‘len’ directly.
+
 2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Use facilities that implicitly ‘AC_DEFINE’.
