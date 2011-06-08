@@ -112,10 +112,9 @@ serveez_DEPENDENCIES = $(PROTOLIBS) \
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la
 
-serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
-AM_CPPFLAGS += $(GUILE_CFLAGS)
+serveez_LDFLAGS = $(SERVEEZ_LDFLAGS) $(LDFLAGS)
 
-snarfcppopts = $(DEFAULT_INCLUDES) $(GUILE_CFLAGS)
+snarfcppopts = $(DEFAULT_INCLUDES) $(CPPFLAGS)
 
 .c.x:
 	$(gx) c2x -o $@ $< -- $(snarfcppopts)

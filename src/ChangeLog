@@ -1,3 +1,14 @@
+2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Fix bug: Use $(LDFLAGS) and $(CPPFLAGS) directly.
+
+	Regression introduced 2011-05-31,
+	"Drop ‘--with-guile’; use only guile-config(1)".
+
+	* Makefile.am (AM_CPPFLAGS): Remove $(GUILE_CFLAGS).
+	(serveez_LDFLAGS): Add $(LDFLAGS); remove $(GUILE_LDFLAGS).
+	(snarfcppopts): Add $(CPPFLAGS); remove $(GUILE_CFLAGS).
+
 2011-06-08  Thien-Thi Nguyen  <ttn@ambire>
 
 	[gi 1.8] Use ‘scm_to_locale_stringbuf’.
