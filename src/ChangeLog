@@ -1,3 +1,9 @@
+2011-06-08  Thien-Thi Nguyen  <ttn@ambire>
+
+	[gi 1.8] Use ‘scm_to_locale_stringbuf’.
+
+	* gi.c (gi_get_xrep) [V17]: Use ‘scm_to_locale_stringbuf’.
+
 2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi 1.6] Fix bug: Use ‘scm_c_make_vector’ correctly.

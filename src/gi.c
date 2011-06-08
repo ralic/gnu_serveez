@@ -322,7 +322,7 @@ gi_get_xrep (char *buf, size_t len, SCM symbol_or_string)
   {
     size_t sanity;
 
-    scm_c_string2str (obj, buf, &sanity);
+    sanity = scm_to_locale_stringbuf (obj, buf, len);
     assert (sanity == actual);
   }
 #else
