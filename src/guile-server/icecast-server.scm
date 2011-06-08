@@ -118,7 +118,7 @@
         (addr (svz:sock:remote-address sock)))
     (if (and idx (= idx 0))
         (begin
-          (println "icecast: client detected at " (svz:inet-ntoa (car addr)))
+          (println "icecast: client detected at " (inet-ntoa (car addr)))
           -1)
         0)))
 
@@ -215,7 +215,7 @@
           (hash-set! data "port" port)
           (icecast-id3-tag data)
           (if (not host)
-              (set! host (svz:inet-ntoa (car addr))))
+              (set! host (inet-ntoa (car addr))))
           (if (and host user)
               (set! host (string-append user "@" host)))
           (println "icecast: uploading `" file "'"

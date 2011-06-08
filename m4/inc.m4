@@ -134,4 +134,30 @@ m4_foreach([var],[link_flags, ldflags, squash, libs],[
 AS_UNSET([guile_]var)])
 ])dnl
 
+dnl SVZ_GUILE_HAS_PROC(PROC)
+dnl
+dnl Check if Guile defineds procedure PROC.  If not, arrange to
+dnl ‘AC_DEFINE’ a variable named GUILE_MISSING_FOO, where FOO
+dnl is PROC, appropriately massaged for C syntax.
+dnl
+AC_DEFUN([SVZ_GUILE_HAS_PROC],[
+AS_VAR_PUSHDEF([VAR],[svz_cv_guile_has_$1])dnl
+AS_VAR_PUSHDEF([DEF],[GUILE_MISSING_$1])dnl
+AC_CACHE_CHECK([if guile has procedure `$1'],[VAR],
+[AS_IF([${GUILE-guile} -c "$1 (exit 0)" >/dev/null 2>&1],
+       [AS_VAR_SET([VAR],[yes])],
+       [AS_VAR_SET([VAR],[no])])])
+AS_VAR_IF([VAR],[no],[AC_DEFINE_UNQUOTED([DEF], 1)])
+AS_VAR_POPDEF([DEF])dnl
+AS_VAR_POPDEF([VAR])dnl
+])dnl
+
+dnl SVZ_CHECK_GUILE_MISSING(PROCS)
+dnl
+dnl Do SVZ_GUILE_HAS_PROC for every proc in PROCS.
+dnl
+AC_DEFUN([SVZ_CHECK_GUILE_MISSING],[for proc in m4_normalize([$1])
+do SVZ_GUILE_HAS_PROC([$proc])
+done])dnl
+
 dnl inc.m4 ends here

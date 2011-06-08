@@ -1,3 +1,10 @@
+2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Don't define some procs that Guile might already provide.
+
+	* guile-api.texh: Delete @tsin for ‘svz:htons’, svz:‘ntohs’,
+	‘svz:htonl’, ‘svz:ntohl’, ‘svz:inet-aton’, ‘svz:inet-ntoa’.
+
 2011-06-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Remove "AWCS protocol / server" support.

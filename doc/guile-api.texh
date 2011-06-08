@@ -170,13 +170,6 @@ details.
 @tsin i svz:sock:protocol
 @tsin i svz:read-file
 
-@tsin i svz:htons
-@tsin i svz:ntohs
-@tsin i svz:htonl
-@tsin i svz:ntohl
-@tsin i svz:inet-aton
-@tsin i svz:inet-ntoa
-
 @tsin i svz:server?
 @tsin i svz:server:listeners
 @tsin i svz:server:clients

@@ -24,7 +24,7 @@ dnl init
 
 AC_PREREQ([2.64])
 AC_INIT([GNU Serveez],[0.1.7],[bug-serveez@gnu.org])
-AC_CONFIG_HEADERS([src/config.h src/svzconfig.h])
+AC_CONFIG_HEADERS([src/config.h src/svzconfig.h src/guile-missing.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_BUILD
@@ -252,6 +252,11 @@ dnl
 dnl Check Guile installation.
 dnl
 SVZ_GUILE_FLAGS
+
+SVZ_CHECK_GUILE_MISSING([
+ ntohs ntohl htons htonl
+ inet-aton inet-ntoa
+])
 
 dnl ----------------------------------------------------------------------
 dnl checks for libraries

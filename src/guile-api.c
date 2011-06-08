@@ -55,6 +55,7 @@
 #include <libguile.h>
 #include "networking-headers.h"
 #include "libserveez.h"
+#include "guile-missing.h"
 
 /* Validate network port range.  */
 #define VALIDATE_NETPORT(port, cell, arg) do {                       \
@@ -169,9 +170,10 @@ or @code{#f} on failure.  */)
 #undef FUNC_NAME
 }
 
+#if GUILE_MISSING_inet_ntoa
 SCM_DEFINE
 (guile_svz_inet_ntoa,
- "svz:inet-ntoa", 1, 0, 0,
+ "inet-ntoa", 1, 0, 0,
  (SCM address),
  doc: /***********
 Convert the Internet host address
@@ -185,10 +187,12 @@ numbers-and-dots notation.  */)
   return gi_string2scm (str);
 #undef FUNC_NAME
 }
+#endif  /* GUILE_MISSING_inet_ntoa */
 
+#if GUILE_MISSING_inet_aton
 SCM_DEFINE
 (guile_svz_inet_aton,
- "svz:inet-aton", 1, 0, 0,
+ "inet-aton", 1, 0, 0,
  (SCM address),
  doc: /***********
 Convert the Internet host address @var{address} from the standard
@@ -209,10 +213,12 @@ Return @code{#f} if the address is invalid.  */)
   return gi_nnint2scm (addr.sin_addr.s_addr);
 #undef FUNC_NAME
 }
+#endif  /* GUILE_MISSING_inet_aton */
 
+#if GUILE_MISSING_ntohl
 SCM_DEFINE
 (guile_svz_ntohl,
- "svz:ntohl", 1, 0, 0,
+ "ntohl", 1, 0, 0,
  (SCM netlong),
  doc: /***********
 Convert the 32 bit long integer
@@ -223,10 +229,12 @@ Convert the 32 bit long integer
   return gi_nnint2scm (ntohl (gi_scm2ulong (netlong)));
 #undef FUNC_NAME
 }
+#endif  /* GUILE_MISSING_ntohl */
 
+#if GUILE_MISSING_htonl
 SCM_DEFINE
 (guile_svz_htonl,
- "svz:htonl", 1, 0, 0,
+ "htonl", 1, 0, 0,
  (SCM hostlong),
  doc: /***********
 Convert the 32 bit long integer
@@ -237,13 +245,15 @@ Convert the 32 bit long integer
   return gi_nnint2scm (htonl (gi_scm2ulong (hostlong)));
 #undef FUNC_NAME
 }
+#endif  /* GUILE_MISSING_htonl */
 
+#if GUILE_MISSING_ntohs
 SCM_DEFINE
 (guile_svz_ntohs,
- "svz:ntohs", 1, 0, 0,
+ "ntohs", 1, 0, 0,
  (SCM netshort),
  doc: /***********
-Converts the 16 bit short integer
+Convert the 16 bit short integer
 @var{netshort} from network byte order to host byte order.  */)
 {
 #define FUNC_NAME s_guile_svz_ntohs
@@ -253,13 +263,15 @@ Converts the 16 bit short integer
   return gi_integer2scm (ntohs (i));
 #undef FUNC_NAME
 }
+#endif  /* GUILE_MISSING_ntohs */
 
+#if GUILE_MISSING_htons
 SCM_DEFINE
 (guile_svz_htons,
- "svz:htons", 1, 0, 0,
+ "htons", 1, 0, 0,
  (SCM hostshort),
  doc: /***********
-Converts the 16 bit short integer
+Convert the 16 bit short integer
 @var{hostshort} from host byte order to network byte order.  */)
 {
 #define FUNC_NAME s_guile_svz_htons
@@ -269,6 +281,7 @@ Converts the 16 bit short integer
   return gi_integer2scm (htons (i));
 #undef FUNC_NAME
 }
+#endif  /* GUILE_MISSING_htons */
 
 SCM_DEFINE
 (guile_sock_receive_buffer,

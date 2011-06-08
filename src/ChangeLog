@@ -1,5 +1,19 @@
 2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Don't define some procs that Guile might already provide.
+
+	* guile-missing.h.in: New file.
+	* guile-api.c: #include "guile-missing.h".
+	(guile_svz_inet_ntoa, guile_svz_inet_aton, guile_svz_ntohl)
+	(guile_svz_htonl, guile_svz_ntohs, guile_svz_htons):
+	Surround with like-named ‘#if GUILE_MISSING_foo ... #endif’;
+	rename exported scheme procedure without "svz:" prefix.
+	* guile-server/icecast-server.scm (icecast-detect-proto)
+	(icecast-next-file): Use ‘inet-ntoa’ directly.
+	* guile-server/inetd.scm (bind-rpc-service): Use ‘ntohs’ directly.
+
+2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Fix bug: Use $(LDFLAGS) and $(CPPFLAGS) directly.
 
 	Regression introduced 2011-05-31,
