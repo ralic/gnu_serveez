@@ -1,3 +1,9 @@
+2011-06-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[gi 2.x] Presume V19 if SCM_MAJOR_VERSION is 2.
+
+	* gi.c [2 == SCM_MAJOR_VERSION] (V19): New #define.
+
 2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Don't define some procs that Guile might already provide.

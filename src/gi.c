@@ -25,6 +25,9 @@
 #include "timidity.h"
 
 #if defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION
+#if 2 == SCM_MAJOR_VERSION
+#define V19  1
+#endif  /* 2 == SCM_MAJOR_VERSION */
 #if 1 == SCM_MAJOR_VERSION
 #define V19  (SCM_MINOR_VERSION >= 9)
 #define V17  (SCM_MINOR_VERSION >= 7)
