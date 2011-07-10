@@ -1528,7 +1528,7 @@ local interfaces as a list of ip addresses in dotted decimal form.  If
                   guile_global_error = -1;
                   continue;
                 }
-              sprintf (description, "guile interface %d", n);
+              sprintf (description, "guile interface %zu", n);
               svz_interface_add (n, description, AF_INET,
                                  &addr.sin_addr.s_addr, 0);
             }

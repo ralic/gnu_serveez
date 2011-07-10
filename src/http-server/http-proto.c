@@ -882,7 +882,7 @@ http_info_server (svz_server_t *server)
            " keep alive      : for %d requests\r\n"
            " default type    : %s\r\n"
            " type file       : %s\r\n"
-           " content types   : %d",
+           " content types   : %zu",
            bindings,
            cfg->indexfile,
            cfg->docs,

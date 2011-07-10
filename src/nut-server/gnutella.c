@@ -942,16 +942,16 @@ nut_info_server (svz_server_t *server)
            " share path      : %s\r\n"
            " search pattern  : %s\r\n"
            " file extensions : %s\r\n"
-           " routing table   : %u entries\r\n"
-           " connected hosts : %u/%u\r\n"
-           " sent packets    : %u\r\n"
+           " routing table   : %zu entries\r\n"
+           " connected hosts : %zu/%zu\r\n"
+           " sent packets    : %zu\r\n"
            " routing errors  : %u\r\n"
-           " hosts           : %u gnutella clients seen\r\n"
+           " hosts           : %zu gnutella clients seen\r\n"
            " data pool       : %u MB in %u files on %u hosts\r\n"
            " database        : %u MB in %u files\r\n"
            " downloads       : %u/%u\r\n"
            " uploads         : %u/%u\r\n"
-           " recent queries  : %u",
+           " recent queries  : %zu",
            bindings,
            cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
            cfg->port ? svz_itoa (ntohs (cfg->port)) : "no specified",

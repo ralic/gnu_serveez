@@ -1,3 +1,12 @@
+2011-07-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Use ‘%zu’ in format string for ‘size_t’ args.
+
+	* foo-server/foo-proto.c (foo_info_server): Use ‘%zu’.
+	* guile.c (guile_access_interfaces): Likewise.
+	* http-server/http-proto.c (http_info_server): Likewise.
+	* nut-server/gnutella.c (nut_info_server): Likewise.
+
 2011-06-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi 2.x] Presume V19 if SCM_MAJOR_VERSION is 2.

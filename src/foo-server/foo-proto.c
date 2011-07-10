@@ -297,13 +297,13 @@ foo_info_server (svz_server_t *server)
 
   svz_array_foreach (cfg->messages, str, i)
     {
-      sprintf (text, " messages[%d] : %s\r\n", i, str);
+      sprintf (text, " messages[%zu] : %s\r\n", i, str);
       strcat (info, text);
     }
 
   svz_array_foreach (cfg->ports, j, i)
     {
-      sprintf (text, " ports[%d] : %d\r\n", i, (int) ((long) j));
+      sprintf (text, " ports[%zu] : %d\r\n", i, (int) ((long) j));
       strcat (info, text);
     }
 
