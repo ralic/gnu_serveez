@@ -25,13 +25,9 @@
 
 #define POST_METHOD 0            /* POST id */
 #define GET_METHOD  1            /* GET id */
-#define HTTP_NO_CGI ((char *)-1) /* 'no cgi' pointer */
 
-#define CGI_VERSION "CGI/1.0"
+#define CGI_VERSION "CGI/1.1"
 
-char *http_check_cgi (svz_socket_t *sock, char *request);
-int http_cgi_exec (svz_socket_t *, svz_t_handle, svz_t_handle,
-                   char *, char *, int);
 int http_post_response (svz_socket_t *sock, char *request, int flags);
 int http_cgi_get_response (svz_socket_t *sock, char *request, int flags);
 int http_cgi_write (svz_socket_t *sock);

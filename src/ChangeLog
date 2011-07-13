@@ -1,5 +1,32 @@
 2011-07-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[http cgi] Handle ‘PATH_INFO’; bump to CGI 1.1.
+
+	* http-server/http-cgi.h (HTTP_NO_CGI): Delete #define.
+	(CGI_VERSION): Bump version to "1.1".
+	(http_check_cgi, http_cgi_exec): Delete func decls.
+	* http-server/http-cgi.c (details): New struct.
+	(clear_details): New static func.
+	(cgi_create_envp): Rename from ‘http_create_cgi_envp’;
+	don't take SCRIPT; instead, take ‘struct details *det’;
+	use ‘det->script’ directly for ‘SCRIPT_NAME’;
+	jam env vars ‘PATH_INFO’, ‘QUERY_STRING’.
+	(check_cgi): Rename from ‘http_check_cgi’; make static;
+	take ‘struct details *det’; change type of rv to ‘int’;
+	on error, return -1; populate ‘det’ with script, filename,
+	path-info and nv-pairs; don't bother w/ filename realloc.
+	(pre_exec): Rename from ‘http_pre_exec’; make static; don't
+	take ‘file’, ‘request’; instead, take ‘struct details *det’;
+	update call to ‘cgi_create_envp’; don't set ‘QUERY_STRING’ here.
+	(cgi_exec): Rename from ‘http_cgi_exec’; make static; don't
+	take ‘file’, ‘request’; instead, take ‘struct details *det’;
+	update calls to ‘pre_exec’.
+	(LOSE): New macro.
+	(http_cgi_get_response, http_post_response): Update calls
+	to ‘check_cgi’, ‘cgi_exec’; use ‘clear_details’, ‘LOSE’.
+
+2011-07-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘size_t’ more.
 
 	* nut-server/gnutella.c (nut_hash_keylen):

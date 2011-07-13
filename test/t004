@@ -83,7 +83,7 @@
  `((or (equal? "1" (getenv "VERBOSE"))
        (set! println (lambda x x)))
 
-   (define-server! 'http-server '((cgi-dir . "./")
+   (define-server! 'http-server '((cgi-dir . ".")
                                   (logfile . ,(string-append
                                                TESTBASE
                                                "-http.log"))))
@@ -109,7 +109,7 @@
     (apply simple-format port s args)
     (display "\r\n" port))
 
-  (define (try method tail . text)
+  (define (try method path-info query-string . text)
 
     (define (badness s . args)
       (let ((cep (current-error-port)))
@@ -118,7 +118,11 @@
       (exit #f))
 
     ;; Make the request.
-    (crlf-after "~A ~A~A HTTP/1.0" method BASE tail)
+    (crlf-after "~A ~A~A~A HTTP/1.0" method BASE
+                path-info
+                (if query-string
+                    (string-append "?" query-string)
+                    ""))
     (cond ((null? text)
            (crlf-after ""))
           (else
@@ -156,18 +160,16 @@
             (or (equal? expected actual)
                 (badness "ERROR: mismatch: for ‘~S’ expect ~S but got ~S"
                          k expected actual))))
-        (chk 'GATEWAY_INTERFACE "CGI/1.0")
+        (chk 'GATEWAY_INTERFACE "CGI/1.1")
         (chk 'REQUEST_METHOD (symbol->string method))
         (chk 'SERVER_PORT "2000")
         (chk 'REMOTE_ADDR "127.0.0.1")
         (chk 'SCRIPT_NAME BASE)
-        (chk 'QUERY_STRING (if (and (not (string-null? tail))
-                                    (char=? #\? (string-ref tail 0)))
-                               (substring tail 1)
-                               ""))
+        (chk 'PATH_INFO path-info)
+        (chk 'QUERY_STRING query-string)
         )))
 
-  (try 'GET "?n1=v1&n2=v2")
+  (try 'GET "/some/path" "n1=v1&n2=v2")
   (close-port port))
 
 (and (file-exists? SCRIPT-NAME)
