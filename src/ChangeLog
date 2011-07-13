@@ -1,3 +1,10 @@
+2011-07-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Use ‘size_t’ more.
+
+	* nut-server/gnutella.c (nut_hash_keylen):
+	Change return type to ‘size_t’.
+
 2011-07-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Use ‘%zu’ in format string for ‘size_t’ args.

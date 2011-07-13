@@ -171,7 +171,7 @@ svz_servertype_t nut_server_definition =
  * `nut_hash_code' are the routing table hash callbacks to handle
  * GUIDs as keys instead of plain NULL terminated character strings.
  */
-static unsigned
+static size_t
 nut_hash_keylen (SVZ_UNUSED const char *id)
 {
   return NUT_GUID_SIZE;
