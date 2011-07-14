@@ -1,5 +1,13 @@
 2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Simplify password init for control protocol.
+
+	* option.c (handle_options): Use ‘svz_strdup’ for password.
+	* serveez.c (guile_entry): Transfer the password
+	from ‘option’ to ‘control_protocol_password’ directly.
+
+2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[http] Fix bug: Don't allocate ‘host’ config item in perm space.
 
 	Allocating in permanent space (via ‘svz_pstrdup’) is wrong because

@@ -295,9 +295,9 @@ handle_options (int argc, char **argv)
           if (!optarg || strlen (optarg) < 2)
             usage (EXIT_FAILURE);
 #if defined HAVE_CRYPT
-          options.pass = svz_pstrdup (crypt (optarg, optarg));
+          options.pass = svz_strdup (crypt (optarg, optarg));
 #else
-          options.pass = svz_pstrdup (optarg);
+          options.pass = svz_strdup (optarg);
 #endif
           break;
 #endif  /* ENABLE_CONTROL_PROTO */

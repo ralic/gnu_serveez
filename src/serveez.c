@@ -87,7 +87,9 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   if (options->pass)
     {
       svz_free (control_protocol_password);
-      control_protocol_password = svz_strdup (options->pass);
+      /* Transfer: set destination and reset source.  */
+      control_protocol_password = options->pass;
+      options->pass = NULL;
     }
 #endif
 
