@@ -38,6 +38,9 @@ HACKING libserveez API					-*- org -*-
     | x | svz_pipe_cleanup         | impl       | internalize                |
     | x | svz_config_type_init     | impl       | internalize                |
     | x | svz_config_type_finalize | impl       | internalize                |
+    | x | svz_pmalloc              | impl       | internalize                |
+    | x | svz_prealloc             | impl       | internalize                |
+    | x | svz_pstrdup              | impl       | internalize                |
 *** use "hidden" attribute (gcc only)
 *** internalize elements unused outside of libserveez
 *** noinst

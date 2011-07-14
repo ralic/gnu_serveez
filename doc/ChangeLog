@@ -1,3 +1,10 @@
+2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize svz_p{malloc,realloc,strdup}.
+
+	* serveez-api.texh (Memory management):
+	Delete ‘svz_pmalloc’, ‘svz_prealloc’, ‘svz_pstrdup’.
+
 2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Don't define some procs that Guile might already provide.

@@ -385,20 +385,7 @@ svz_strdup (const char *src)
   return dst;
 }
 
-/**
- * Allocate a block of memory of @var{size} bytes permanently.
- * This block is not tracked internally.
- */
-void *
-svz_pmalloc (size_t size)
-{
-  void *ptr = svz_malloc_func (size);
-  if (ptr == NULL)
-    oom ("malloc");
-  return ptr;
-}
-
-/**
+/*
  * Resize the memory block pointed to by @var{ptr} to @var{size} bytes.
  * This routine also allocates memory permanently.
  */
@@ -411,17 +398,20 @@ svz_prealloc (void *ptr, size_t size)
   return dst;
 }
 
-/**
+/*
  * Duplicate the given character string @var{src} permanently.
  */
 char *
 svz_pstrdup (const char *src)
 {
   char *dst;
+  size_t count;
 
   assert (src);
-  dst = svz_pmalloc (strlen (src) + 1);
-  memcpy (dst, src, strlen (src) + 1);
+  count = 1 + strlen (src);
+  if (! (dst = svz_malloc_func (count)))
+    oom ("malloc");
+  memcpy (dst, src, count);
 
   return dst;
 }

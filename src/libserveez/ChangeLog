@@ -1,5 +1,14 @@
 2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_p{malloc,realloc,strdup}.
+
+	* alloc.h (svz_pmalloc): Delete func decl.
+	(svz_prealloc, svz_pstrdup): Do ‘s/SERVEEZ_API/SBO/’; mark ‘svzint’.
+	* alloc.c (svz_pmalloc): Incorporate into ‘svz_pstrdup’.
+	(svz_prealloc, svz_pstrdup): Unmark docstring for snarfing.
+
+2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Clean up for ‘ENABLE_DEBUG=1 DEBUG_MEMORY_LEAKS=1’.
 
 	* alloc.c (heap_hash_keylen): Return ‘size_t’; add ‘const’ to arg.

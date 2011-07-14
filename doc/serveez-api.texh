@@ -218,10 +218,6 @@ with shared memory arenas or any other underlying memory API.
 @tsin i "F svz_free"
 @tsin i "F svz_strdup"
 
-@tsin i "F svz_pmalloc"
-@tsin i "F svz_prealloc"
-@tsin i "F svz_pstrdup"
-
 @tsin i "F svz_get_curalloc"
 
 @node Data structures
