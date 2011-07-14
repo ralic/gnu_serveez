@@ -266,7 +266,7 @@ http_localhost (char *host, void *closure)
 
   if (host && !cfg->host)
     {
-      cfg->host = svz_pstrdup (host);
+      cfg->host = svz_strdup (host);
     }
   return 0;
 }

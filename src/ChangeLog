@@ -1,5 +1,17 @@
 2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[http] Fix bug: Don't allocate ‘host’ config item in perm space.
+
+	Allocating in permanent space (via ‘svz_pstrdup’) is wrong because
+	the http configuration (including the ‘host’ item) is later freed.
+	Some versions of glibc report this as "double-free".  When built
+	w/ ‘ENABLE_DEBUG=1 DEBUG_MEMORY_LEAKS=1’, ‘svz_free’ reports the
+	pointer "not found in heap".
+
+	* http-server/http-core.c (http_localhost): Use ‘svz_strdup’.
+
+2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Clean up for ‘ENABLE_DEBUG=1 DEBUG_MEMORY_LEAKS=1’.
 
 	* le-u32-hash.h: #include <stdint.h>.
