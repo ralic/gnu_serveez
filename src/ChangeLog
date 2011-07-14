@@ -1,3 +1,9 @@
+2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Clean up for ‘ENABLE_DEBUG=1 DEBUG_MEMORY_LEAKS=1’.
+
+	* le-u32-hash.h: #include <stdint.h>.
+
 2011-07-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[http cgi] Handle ‘PATH_INFO’; bump to CGI 1.1.

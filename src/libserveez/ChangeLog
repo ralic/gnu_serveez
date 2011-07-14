@@ -1,3 +1,12 @@
+2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Clean up for ‘ENABLE_DEBUG=1 DEBUG_MEMORY_LEAKS=1’.
+
+	* alloc.c (heap_hash_keylen): Return ‘size_t’; add ‘const’ to arg.
+	(heap_hash_equals, heap_hash_code): Add ‘const’ to args.
+	(heap_internal): Use ‘%zu’ in format string for ‘size_t’ args.
+	(svz_heap): Delete unused local vars.
+
 2011-06-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Merge ‘$(LIBSERVEEZLIBS)’ into ‘$(LIBS)’.

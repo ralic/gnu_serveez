@@ -20,6 +20,8 @@
 #ifndef __LE_U32_HASH_H__
 #define __LE_U32_HASH_H__ 1
 
+#include <stdint.h>
+
 /* Historical note: This used to be called ‘SVZ_UINT32’.
    The "le" in its new name stands for "little-endian".  */
 #define le_u32_hash(p)                          \

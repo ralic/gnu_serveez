@@ -69,22 +69,22 @@ svz_set_mm_funcs (svz_malloc_func_t cus_malloc,
 static svz_hash_t *heap = NULL;
 
 /* return static heap hash code key length */
-static unsigned
-heap_hash_keylen (SVZ_UNUSED char *id)
+static size_t
+heap_hash_keylen (SVZ_UNUSED const char *id)
 {
   return SIZEOF_VOID_P;
 }
 
 /* compare two heap hash values */
 static int
-heap_hash_equals (char *id1, char *id2)
+heap_hash_equals (const char *id1, const char *id2)
 {
   return memcmp (id1, id2, SIZEOF_VOID_P);
 }
 
 /* calculate heap hash code */
 static unsigned long
-heap_hash_code (char *id)
+heap_hash_code (const char *id)
 {
   unsigned long code = le_u32_hash (id);
   code >>= 3;
@@ -339,7 +339,7 @@ heap_internal (SVZ_UNUSED void *k, void *v, SVZ_UNUSED void *closure)
   size_t *p = (size_t *) block->ptr;
 
   p -= 2;
-  printf ("heap: caller = %p, ptr = %p, size = %u\n",
+  printf ("heap: caller = %p, ptr = %p, size = %zu\n",
           block->caller, block->ptr, block->size);
   svz_hexdump (stdout, "unreleased heap",
                (int) block->ptr, block->ptr, *p, 256);
@@ -354,10 +354,6 @@ heap_internal (SVZ_UNUSED void *k, void *v, SVZ_UNUSED void *closure)
 void
 svz_heap (void)
 {
-  heap_block_t **block;
-  unsigned long n;
-  size_t *p;
-
   if (svz_hash_size (heap))
     {
       svz_hash_foreach (heap_internal, heap, NULL);
