@@ -1,3 +1,13 @@
+2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v int] Enhance testing environment somewhat.
+
+	* common (fs, push-dot-on-load-path!, the-serveez-binary)
+	(simple-serveez-invocation): New procs.
+	(exec-serveez!): Use ‘the-serveez-binary’.
+	* t003 <main>: Use ‘fs’.
+	* test-suite.scm: Rewrite.
+
 2011-07-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[http cgi] Handle ‘PATH_INFO’; bump to CGI 1.1.

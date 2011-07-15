@@ -114,7 +114,7 @@
     (and VERBOSE? (fso "said:\t~A~A~%" space x))
     (let ((answer (read-line port)))
       (and VERBOSE? (fso "got:\t~A~%" answer))
-      (or (equal? (simple-format #f "~A" x)
+      (or (equal? (fs "~A" x)
                   (substring answer (min (string-length answer)
                                          IGNORABLE)))
           (badness "unexpected answer!~%said:\t~A~%got:\t~A"

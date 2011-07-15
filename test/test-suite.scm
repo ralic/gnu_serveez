@@ -1,5 +1,3 @@
-;; -*-scheme-*-
-;;
 ;; test-suite.scm - test suite library
 ;;
 ;; Copyright (C) 2011 Thien-Thi Nguyen
@@ -18,81 +16,65 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
-;; Module definition.
-(define-module (test-suite))
+(define-module (test-suite)
+  #:export (test-suite
+            run-test-suite
+            run-test
+            pass-if
+            pass-if-exception))
 
-;; Import the public serveez symbols.
 (if (defined? 'micro-version)
     (use-modules (guile-user)))
 
-;; This is the test suite library's core.  It evaluates the 'test'
-;; expression giving it the title 'description' and compares its result
-;; with the 'expected' value.  If you pass a valid 'exception' symbol it
-;; is possible to verify that 'test' throws this exception.
-(define (run-test description expected exception test)
-  (catch #t
-         (lambda ()
-           (let ((result (test)))
-             (if (eq? result expected)
-                 (throw 'pass)
-                 (throw 'fail))))
+(define VERBOSE? (equal? "1" (getenv "VERBOSE")))
+
+(define BADNESS #f)
+
+(define PAD (make-string 40 #\space))
+
+(define (fso s . args)
+  (apply simple-format #t s args))
+
+(define (run-test description exception test)
+
+  (define (report blurb)
+    (or (string=? "ok" blurb)
+        (set! BADNESS (1+ BADNESS)))
+    (and VERBOSE?
+         (fso "~A~A: ~A\r~%"
+              (substring PAD (string-length description))
+              description
+              blurb)))
+
+  (catch #t (lambda () (throw (if (equal? #t (test))
+                                  'pass
+                                  'fail)))
          (lambda (key . args)
-           (cond
-            ((eq? key 'pass)
-             (report description "ok"))
-            ((eq? key 'fail)
-             (report description "failed"))
-            ((eq? key 'quit)
-             (report description "fatal failure (exited)"))
-            ((eq? key exception)
-             (report description "ok"))
-            (else
-             (report description "unexpected exception")
-             (apply throw key args))))))
+           (case key
+             ((pass) (report "ok"))
+             ((fail) (report "failed"))
+             ((quit) (report "fatal failure (exited)"))
+             (else (cond ((eq? key exception)
+                          (report "ok"))
+                         (else
+                          (report "unexpected exception")
+                          (apply throw key args))))))))
 
-;; Passes both arguments to 'run-test' and expects 'test' to return #t.
-;; No exceptions allowed.  The test fails if 'test' returns other than #t
-;; or throws an exception.
-(defmacro pass-if (description test)
-  `(run-test ,description #t 'invalid (lambda () ,test)))
+(define-macro (pass-if description test)
+  `(run-test ,description 'invalid (lambda () ,test)))
 
-;; Convenience macro similar to 'pass-if' but checks whether the expression
-;; 'test' throws the 'exception' symbol.
-(defmacro pass-if-exception (description exception test)
-  `(run-test ,description #t ,exception (lambda () ,test)))
+(define-macro (pass-if-exception description exception test)
+  `(run-test ,description ,exception (lambda () ,test)))
 
-;; Displays a given test 'description' with the result 'result'.  The
-;; displayed line is properly formatted.
-(define (report description result)
-  (let* ((text description) (n 40))
-    (let loop ((i (string-length text)))
-      (if (< i n) (begin
-                    (set! text (string-append " " text))
-                    (loop (+ i 1)))))
-    (display text)
-    (display ": ")
-    (display result)
-    (display "\r\n")))
-
-;; Main entry point for a test suite using this library.  Display the test
-;; suite description 'title' and runs any given 'test' expression which is
-;; usually a number of 'pass-if' statements.
 (define (run-test-suite title test)
   (serveez-verbosity 0)
   (serveez-exceptions #f)
-  (display title)
-  (display "\r\n")
+  (and VERBOSE? (fso "~A\r~%" title))
+  (set! BADNESS 0)
   (test)
-  (serveez-nuke))
+  (serveez-nuke BADNESS))
 
-;; Convenience macro for the above main entry point.  Use this from real
-;; test suite files.
-(defmacro test-suite (title . test)
+(define-macro (test-suite title . test)
   `(run-test-suite ,title (lambda () ,@test)))
 
-;; Export these procedures and macros to be public.
-(export test-suite
-        run-test-suite
-        run-test
-        pass-if
-        pass-if-exception)
+;;; test-suite.scm ends here

@@ -29,6 +29,9 @@
 (define (hex n)
   (number->string n 16))
 
+(define (fs s . args)
+  (apply simple-format #f s args))
+
 (define (fso s . args)
   (apply simple-format #t s args))
 
@@ -43,8 +46,24 @@
     (lambda ()
       (for-each write config))))
 
+(define (push-dot-on-load-path!)
+  (setenv "GUILE_LOAD_PATH" (fs ".~A" (cond ((getenv "GUILE_LOAD_PATH")
+                                             => (lambda (s)
+                                                  (fs ":~A" s)))
+                                            (else "")))))
+
+(define (the-serveez-binary)
+  (or (getenv "SERVEEZ_BINARY")
+      "../src/serveez"))
+
+(define (simple-serveez-invocation)
+  (fs "~A -f ~A -l ~A"
+      (the-serveez-binary)
+      (config-filename)
+      (fs "~A.log" TESTBASE)))
+
 (define (exec-serveez!)
-  (execl "../src/serveez" "serveez"
+  (execl (the-serveez-binary) "serveez"
          "-l" (string-append TESTBASE ".log")
          "-f" (config-filename))
   (exit #f))
