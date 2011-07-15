@@ -1,3 +1,15 @@
+2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile] Arrange for ‘serveez-nuke’ to set serveez exit value.
+
+	* serveez.c: #include "gi.h".
+	(global_exit_value): New var.
+	(guile_launch_pad): Init ‘global_exit_value’;
+	use ‘scm_exit_status’ on it to compute ‘exit’ arg.
+	* guile-server.c (global_exit_value): New var decl.
+	(guile_nuke_happened): Take optional arg EXIT-VALUE;
+	if set, GC-protect it and save it to ‘global_exit_value’.
+
 2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[int] Simplify password init for control protocol.

@@ -289,15 +289,25 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
   return oldproc;
 }
 
+extern SCM global_exit_value;
+
 SCM_DEFINE
 (guile_nuke_happened,
- "serveez-nuke", 0, 0, 0,
- (void),
+ "serveez-nuke", 0, 1, 0,
+ (SCM exit_value),
  doc: /***********
 Shutdown all network connections and terminate after the next event
-loop.  You should use this instead of calling @code{quit}.  */)
+loop.  You should use this instead of calling @code{quit}.
+Optional arg @var{exit-value} specifies an exit value for the
+serveez program.  It is mapped to a number via @code{scm_exit_value}.  */)
 {
 #define FUNC_NAME s_guile_nuke_happened
+  if (! SCM_UNBNDP (exit_value))
+    {
+      gi_gc_unprotect (global_exit_value);
+      global_exit_value = gi_gc_protect (exit_value);
+    }
+
   raise (SIGQUIT);
   return SCM_UNSPECIFIED;
 #undef FUNC_NAME
