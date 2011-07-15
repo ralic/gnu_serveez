@@ -1,5 +1,14 @@
 2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[v] Add test for procs for binary objects.
+
+	* binary-test.scm: Incorporate into...
+	* t005: ...new file.
+	* Makefile.am (TESTS): Add t005.
+	(EXTRA_DIST): Remove binary-test.scm.
+
+2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v int] Enhance testing environment somewhat.
 
 	* common (fs, push-dot-on-load-path!, the-serveez-binary)

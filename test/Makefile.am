@@ -28,12 +28,12 @@ GUILE = guile
 
 TESTS_ENVIRONMENT = $(GUILE) -s
 XFAIL_TESTS =
-TESTS = t000 t001 t002 t003 t004
+TESTS = t000 t001 t002 t003 t004 t005
 
 CLEANFILES += *.log
 
 EXTRA_DIST = common $(TESTS) \
-	test-suite.scm binary-test.scm server-test.scm \
+	test-suite.scm server-test.scm \
 	guile-server-test.scm
 
 check_PROGRAMS = btdt
