@@ -1,3 +1,9 @@
+2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Use Automake conditionals to gate codec glue.
+
+	* configure.ac (WITH_ZLIB, WITH_BZLIB): New AM_CONDITIONALs.
+
 2011-06-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Don't define some procs that Guile might already provide.

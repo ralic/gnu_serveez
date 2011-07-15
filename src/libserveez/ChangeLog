@@ -1,3 +1,14 @@
+2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Use Automake conditionals to gate codec glue.
+
+	* codec/Makefile.am (libcodec_la_SOURCES):
+	Reformulate to one basic assign, followed by two additive assign ‘+=’
+	stanzas for gzlib.c and bzip2.c, surrounded by ‘if WITH_ZLIB’..‘endif’
+	and ‘if WITH_BZLIB’..‘endif’, respectively.
+	* codec/bzip2.c: Presume ‘HAVE_LIBZ2’, ‘HAVE_BZLIB_H’.
+	* codec/gzlib.c: Presume ‘HAVE_LIBZ’, ‘HAVE_ZLIB_H’.
+
 2011-07-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize svz_p{malloc,realloc,strdup}.

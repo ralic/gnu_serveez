@@ -19,17 +19,11 @@
  */
 
 #include "config.h"
-
-#if HAVE_LIBBZ2
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
-#if HAVE_BZLIB_H
-# include <bzlib.h>
-#endif
+#include <bzlib.h>
 #include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/codec/codec.h"
@@ -340,9 +334,3 @@ bzip2_decode (svz_codec_data_t *data)
 
   return ret == BZ_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
-
-#else /* !HAVE_LIBBZ2 */
-
-static int have_bzip2 = 0;
-
-#endif /* !HAVE_LIBBZ2 */

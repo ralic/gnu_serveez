@@ -19,17 +19,11 @@
  */
 
 #include "config.h"
-
-#if HAVE_LIBZ && HAVE_ZLIB_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
-#if HAVE_ZLIB_H
-# include <zlib.h>
-#endif
+#include <zlib.h>
 #include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/codec/codec.h"
@@ -277,9 +271,3 @@ zlib_decode (svz_codec_data_t *data)
 
   return ret == Z_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
-
-#else /* !(HAVE_LIBZ && HAVE_ZLIB_H) */
-
-static int have_zlib = 0;
-
-#endif /* !(HAVE_LIBZ && HAVE_ZLIB_H) */
