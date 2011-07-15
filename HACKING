@@ -94,10 +94,13 @@ See the end for copying conditions.
 ***** DONE add proc ‘libserveez-features’
 ***** TODO make buildable under Guile 2 (hint: see [[Mike Gran's fork]])
 *** TODO Enable / augment the Guile tests.
-***** TODO add driver
-***** DONE add test for Guile server
-*** TODO Spiff documentation
-***** TODO grammar and misc style fixes
+***** DONE add driver
+***** DONE add tests
+******* DONE Guile server
+******* DONE binary objects
+******* TODO server config exceptions
+******* TODO guile-server config exceptions
+*** DONE Spiff documentation
 ***** DONE move to GFDL 1.3
 ***** DONE two spaces after sentences
 ***** DONE merge API into primary manual
@@ -111,7 +114,6 @@ See the end for copying conditions.
 ***** Use ranges for copyright notices.
 ***** Use nicer single quotes in informative files.
 *** build
-***** Drop MSVC support.
 ***** Use hydra for continuous integration.
 ***** Investigate using gnulib.
 ***** Use libtool more (libltdl et al).
@@ -121,6 +123,7 @@ See the end for copying conditions.
 ******* use ‘reverse!’ instead of ‘reverse’
 ******* use ‘fs’, ‘fso’, etc.
 ******* use (widely available) SRFI and ice-9 modules
+*** Spiff docs (grammar and misc style fixes).
 *** Support IPv6.
 *** Assimilate <<Mike Gran's fork>> ([[shell:cd%20..%20&&%20git%20clone%20git://github.com/spk121/serveez-mg.git][clone]] [[file:~/build/GNU/serveez-mg][visit]]).
 *** Expose relax/throttle time (formerly ‘RELAX_FD_TIME’) to cfg machinery.
@@ -350,7 +353,7 @@ to be ephemeral, undergoing rebase, amendment, and ultimately removal.
     - Check the [[next]] and [[other stuff to do]] lists and the
       [[file:NEWS][NEWS]] and [[file:BUGS][BUGS]] files for pending or completed tasks.
     - Are the M$-Windows files up to date (*.dsp, *.dsw)?
-    - Compile, run and test it on M$-Windows (MinGW32, Cygwin and MSVC).
+    - Compile, run and test it on M$-Windows (MinGW32, Cygwin).
     - Make sure [[file:THANKS][THANKS]] and README-* are up to date.
 
 *** Test build and packaging.
