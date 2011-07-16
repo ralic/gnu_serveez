@@ -1,3 +1,16 @@
+2011-07-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile] Simplify ‘serveez-nuke’ exit-value protocol.
+
+	This is motivated by t005 segfaulting under Guile 1.8.7.
+
+	* serveez.c: Don't #include "gi.h".
+	(global_exit_value): Change type from ‘SCM’ to ‘int’.
+	(guile_launch_pad): Update its init; pass it directly to ‘exit’.
+	* guile-server.c (global_exit_value): Update var decl.
+	(guile_nuke_happened): Don't bother w/ gc protection; also,
+	finangle the ‘scm_exit_status’ arg to keep it from segfaulting.
+
 2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[guile] Arrange for ‘serveez-nuke’ to set serveez exit value.

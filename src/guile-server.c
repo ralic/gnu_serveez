@@ -289,7 +289,7 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
   return oldproc;
 }
 
-extern SCM global_exit_value;
+extern int global_exit_value;
 
 SCM_DEFINE
 (guile_nuke_happened,
@@ -303,10 +303,8 @@ serveez program.  It is mapped to a number via @code{scm_exit_value}.  */)
 {
 #define FUNC_NAME s_guile_nuke_happened
   if (! SCM_UNBNDP (exit_value))
-    {
-      gi_gc_unprotect (global_exit_value);
-      global_exit_value = gi_gc_protect (exit_value);
-    }
+    /* The ‘cons’ avoids a segfault in Guile 1.8.7.  */
+    global_exit_value = scm_exit_status (scm_cons (exit_value, SCM_EOL));
 
   raise (SIGQUIT);
   return SCM_UNSPECIFIED;

@@ -37,7 +37,6 @@
 #include "misc-macros.h"
 #include "cfgfile.h"
 #include "option.h"
-#include "gi.h"
 #include "guile-api.h"
 #include "guile.h"
 #include "guile-server.h"
@@ -45,9 +44,8 @@
 /* Command line option structure.  */
 option_t *options = NULL;
 
-/* This is for ‘serveez-nuke’ to set.  The protocol is:
-   unprotect the old value; protect the new; assign it.  */
-SCM global_exit_value;
+/* This is for ‘serveez-nuke’ to set.  */
+int global_exit_value;
 
 /* Our private launch pad.  */
 void
@@ -55,9 +53,9 @@ guile_launch_pad (void *closure, int argc, char **argv)
 {
   void (* entry) (int, char **) = (void (*) (int, char **)) closure;
 
-  global_exit_value = gi_gc_protect (SCM_BOOL_T);
+  global_exit_value = EXIT_SUCCESS;
   entry (argc, argv);
-  exit (scm_exit_status (global_exit_value));
+  exit (global_exit_value);
 }
 
 #if ENABLE_CONTROL_PROTO
