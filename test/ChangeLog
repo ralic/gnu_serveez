@@ -1,3 +1,13 @@
+2011-07-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v] Add test for misconfiguration handling.
+
+	* server-test.scm: Incorporate into...
+	* guile-server-test.scm: Incorporate into...
+	* t006: ...new file.
+	* Makefile.am (TESTS): Add t006.
+	(EXTRA_DIST): Remove server-test.scm, guile-server-test.scm.
+
 2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[v] Add test for procs for binary objects.
