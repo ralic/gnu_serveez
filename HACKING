@@ -93,13 +93,13 @@ See the end for copying conditions.
 ***** DONE snarf definitions
 ***** DONE add proc ‘libserveez-features’
 ***** TODO make buildable under Guile 2 (hint: see [[Mike Gran's fork]])
-*** TODO Enable / augment the Guile tests.
+*** DONE Enable / augment the Guile tests.
 ***** DONE add driver
 ***** DONE add tests
 ******* DONE Guile server
 ******* DONE binary objects
-******* TODO server config exceptions
-******* TODO guile-server config exceptions
+******* DONE server misconfiguration
+******* DONE guile-server misconfiguration
 *** DONE Spiff documentation
 ***** DONE move to GFDL 1.3
 ***** DONE two spaces after sentences
