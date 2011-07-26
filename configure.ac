@@ -30,7 +30,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE([1.10 no-define])
+AM_INIT_AUTOMAKE([1.11.1 no-define])
 AM_MAINTAINER_MODE
 
 dnl ----------------------------------------------------------------------
