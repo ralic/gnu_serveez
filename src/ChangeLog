@@ -1,3 +1,10 @@
+2011-08-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile int] Use ‘scm_free0’ directly.
+
+	* gi.c [!SCM_SMOB_DATA] (always_zero): Delete func.
+	(gi_make_tag) [!SCM_SMOB_DATA]: Use ‘scm_free0’ directly.
+
 2011-07-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[guile] Simplify ‘serveez-nuke’ exit-value protocol.

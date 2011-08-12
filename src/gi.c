@@ -379,14 +379,6 @@ gi_primitive_load (const char *filename)
    apply a smob `free' function for older Guile versions because it is
    called unconditionally and has no reasonable default function.  */
 
-#ifndef SCM_SMOB_DATA
-static size_t
-always_zero (SVZ_UNUSED SCM smob)
-{
-  return 0;
-}
-#endif  /* !defined SCM_SMOB_DATA */
-
 svz_smob_tag_t
 gi_make_tag (const char *description,
              const void *fn_free,
@@ -408,7 +400,7 @@ gi_make_tag (const char *description,
 
   scm_smobfuns mfpe = {
     NULL,                               /* mark */
-    fn_free ? fn_free : always_zero,
+    fn_free ? fn_free : scm_free0,
     fn_print,
     fn_equal
   };
