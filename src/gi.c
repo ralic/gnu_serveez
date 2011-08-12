@@ -380,7 +380,7 @@ gi_primitive_load (const char *filename)
    called unconditionally and has no reasonable default function.  */
 
 svz_smob_tag_t
-gi_make_tag (const char *description,
+gi_make_tag (const char *description, size_t sz,
              const void *fn_free,
              const void *fn_print,
              const void *fn_equal)
@@ -389,9 +389,8 @@ gi_make_tag (const char *description,
 
 #ifdef SCM_SMOB_DATA
 
-  tag = scm_make_smob_type (description, 0);
-  if (fn_free)
-    scm_set_smob_free (tag, fn_free);
+  tag = scm_make_smob_type (description, sz);
+  scm_set_smob_free (tag, fn_free ? fn_free : scm_free0);
   scm_set_smob_print (tag, fn_print);
   if (fn_equal)
     scm_set_smob_equalp (tag, fn_equal);

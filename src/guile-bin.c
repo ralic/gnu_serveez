@@ -752,7 +752,7 @@ BIN_SET_HEAD (char)
 void
 guile_bin_init (void)
 {
-  guile_bin_tag = gi_make_tag ("svz-binary",
+  guile_bin_tag = gi_make_tag ("svz-binary", sizeof (guile_bin_t),
                                guile_bin_free,
                                guile_bin_print,
                                guile_bin_equal);

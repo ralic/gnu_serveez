@@ -70,7 +70,7 @@ extern void gi_define (const char *name, SCM value);
 extern SCM gi_primitive_eval (SCM form);
 extern SCM gi_primitive_load (const char *filename);
 
-extern svz_smob_tag_t gi_make_tag (const char *description,
+extern svz_smob_tag_t gi_make_tag (const char *description, size_t sz,
                                    const void *fn_free,
                                    const void *fn_print,
                                    const void *fn_equalp);

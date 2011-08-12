@@ -91,6 +91,7 @@ static int NAME_PRINT (ctype)                   \
 #define INIT_SMOB(ctype)                        \
   NAME_TAG (ctype) = gi_make_tag                \
     ("svz-" #ctype,                             \
+     sizeof (svz_ ## ctype ## _t *),            \
      NULL,                                      \
      NAME_PRINT (ctype),                        \
      NULL)

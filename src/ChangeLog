@@ -1,5 +1,15 @@
 2011-08-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Fix bug: Declare smob sizes.
+
+	* gi.c (gi_make_tag): Take arg ‘sz’; pass it to
+	‘scm_make_smob_type’; also, default free func to ‘scm_free0’.
+	* gi.h (gi_make_tag): Update func decl.
+	* guile-bin.c (guile_bin_init): Declare ‘svz-binary’ size.
+	* guile-server.c (INIT_SMOB): Update call to ‘gi_make_tag’.
+
+2011-08-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile int] Use ‘scm_free0’ directly.
 
 	* gi.c [!SCM_SMOB_DATA] (always_zero): Delete func.
