@@ -103,7 +103,7 @@ gi_gc_unprotect (SCM obj)
 #define mem2scm(len,ptr)  scm_from_locale_stringn (ptr, len)
 #define mem02scm(ptr)     scm_from_locale_string (ptr)
 #elif V17
-#define mem2scm(len,ptr)  scm_makfromstr (ptr, len, 0)
+#define mem2scm(len,ptr)  scm_mem2string (ptr, len)
 #define mem02scm(ptr)     scm_makfrom0str (ptr)
 #elif V15
 #define mem2scm(len,ptr)  scm_makfromstr (ptr, len)

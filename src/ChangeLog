@@ -1,3 +1,13 @@
+2011-08-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile int] Use ‘scm_mem2string’ for V17.
+
+	Hmm, ‘scm_mem2string’ is "discouraged" but not (yet?) "deprecated".
+	Using it we avoid (for now) jumping into locale land, which has its
+	own set of quirks.
+
+	* gi.c [V17] (mem2scm): Use ‘scm_mem2string’.
+
 2011-08-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[guile] Fix bug: Declare smob sizes.
