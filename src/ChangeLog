@@ -1,5 +1,14 @@
 2011-10-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_smob_free_rv
+
+	* gi.c (POSSIBLY_UNUSED_GI_SMOB_FREE_RV_PARAM): New #define.
+	(gi_smob_free_rv): New func.
+	* gi.h (gi_smob_free_rv): New func decl.
+	* guile-bin.c (guile_bin_free): Use ‘gi_smob_free_rv’.
+
+2011-10-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile int] Add abstraction: BFREE
 
 	* guile-api.h (BFREE): New macro.

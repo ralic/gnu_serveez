@@ -103,7 +103,7 @@ guile_bin_free (SCM binary)
       BFREE (DATA, bin->data, bin->size);
     }
   BFREE (SMOB, bin, sizeof (guile_bin_t));
-  return size;
+  return gi_smob_free_rv (size);
 }
 
 /* Smob equal function: Return #t if the both cells @var{a} and @var{b}

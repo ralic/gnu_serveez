@@ -23,6 +23,7 @@ extern void *gi_malloc (size_t len, const char *name);
 extern void *gi_realloc (void *mem, size_t olen, size_t nlen,
                          const char *name);
 extern void gi_free (void *mem, size_t len, const char *name);
+extern size_t gi_smob_free_rv (size_t len);
 
 extern SCM gi_gc_protect (SCM object);
 extern SCM gi_gc_unprotect (SCM object);

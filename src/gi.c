@@ -79,6 +79,22 @@ gi_free (void *mem,
 #endif
 }
 
+#if V17 /* FIXME: Is this the correct demarcation?  */
+#define POSSIBLY_UNUSED_GI_SMOB_FREE_RV_PARAM  UNUSED
+#else
+#define POSSIBLY_UNUSED_GI_SMOB_FREE_RV_PARAM
+#endif
+
+size_t
+gi_smob_free_rv (POSSIBLY_UNUSED_GI_SMOB_FREE_RV_PARAM size_t len)
+{
+#if V17 /* FIXME: Is this the correct demarcation?  */
+  return 0;
+#else
+  return len;
+#endif
+}
+
 #if V15
 #define gc_protect    scm_gc_protect_object
 #define gc_unprotect  scm_gc_unprotect_object
