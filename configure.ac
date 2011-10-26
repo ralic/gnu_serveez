@@ -265,14 +265,8 @@ dnl
 dnl Check for codec libraries.
 dnl
 AC_CHECK_LIB([z],[zlibVersion])
-AM_CONDITIONAL([WITH_ZLIB],[SVZ_Y([ac_cv_header_zlib_h]) &&
-                            SVZ_Y([ac_cv_lib_z_zlibVersion])])
-
 AC_CHECK_LIB([bz2],[BZ2_bzCompress],,
 [AC_CHECK_LIB([bz2],[bzCompress])])
-AM_CONDITIONAL([WITH_BZLIB],[SVZ_Y([ac_cv_header_bzlib_h]) &&
-                             SVZ_Y([ac_cv_lib_bz2_BZ2_bzCompress]) ||
-                             SVZ_Y([ac_cv_lib_bz2_bzCompress])])
 
 AS_IF([SVZ_Y([ac_cv_lib_bz2_BZ2_bzCompress])],[
 AC_DEFINE([HAVE_BZ2LIB_PREFIX], 1,
@@ -604,6 +598,15 @@ AC_DEFINE_UNQUOTED([SIZEOF_UINT32],[4],[Number of bytes for uint32_t.])
 
 dnl ----------------------------------------------------------------------
 dnl write it out
+
+dnl These two are here because their components are computed in two
+dnl sections: "checks for libraries" and "checks for header files".
+AM_CONDITIONAL([WITH_BZLIB],[SVZ_Y([ac_cv_header_bzlib_h]) &&
+                             SVZ_Y([ac_cv_lib_bz2_BZ2_bzCompress]) ||
+                             SVZ_Y([ac_cv_lib_bz2_bzCompress])])
+
+AM_CONDITIONAL([WITH_ZLIB],[SVZ_Y([ac_cv_header_zlib_h]) &&
+                            SVZ_Y([ac_cv_lib_z_zlibVersion])])
 
 dnl
 dnl Setup configuration variables.

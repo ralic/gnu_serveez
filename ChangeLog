@@ -1,3 +1,14 @@
+2011-10-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Fix bug: Move codec glue Automake conditionals later.
+
+	Regression introduced 2011-07-15, "Use
+	Automake conditionals to gate codec glue".
+	Reported by Mike Gran.
+
+	* configure.ac (WITH_ZLIB, WITH_BZLIB): Move into section
+	"write it out", which is after "checks for header files".
+
 2011-07-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot] Bump Automake required version to 1.11.1.
