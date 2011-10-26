@@ -87,4 +87,8 @@
 #define BSMOB_WHAT  "svz-binary"
 #define BDATA_WHAT  "svz-binary-data"
 
+/* You are lucky: We have successfully resisted the urge
+   to name this ‘BEEE_FREEEEEEEE_XXXXX_ONE’.  */
+#define BFREE(what,ptr,len)  gi_free (ptr, len, B ## what ## _WHAT)
+
 #endif /* not __GUILE_API_H__ */

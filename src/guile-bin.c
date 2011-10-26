@@ -100,9 +100,9 @@ guile_bin_free (SCM binary)
   if (bin->garbage)
     {
       size += bin->size;
-      gi_free ((void *) bin->data, bin->size, BDATA_WHAT);
+      BFREE (DATA, bin->data, bin->size);
     }
-  gi_free ((void *) bin, sizeof (guile_bin_t), BSMOB_WHAT);
+  BFREE (SMOB, bin, sizeof (guile_bin_t));
   return size;
 }
 
@@ -545,16 +545,16 @@ either exact numbers in a byte's range or characters.  */)
       val = SCM_CAR (list);
       if (!gi_exactp (val) && !SCM_CHARP (val))
         {
-          gi_free ((void *) bin->data, bin->size, BDATA_WHAT);
-          gi_free ((void *) bin, sizeof (guile_bin_t), BSMOB_WHAT);
+          BFREE (DATA, bin->data, bin->size);
+          BFREE (SMOB, bin, sizeof (guile_bin_t));
           scm_wrong_type_arg_msg (FUNC_NAME, SCM_ARGn, val, "char or exact");
         }
       value = SCM_CHARP (val) ?
         ((int) SCM_CHAR (val)) : gi_scm2int (val);
       if (value < -128 || value > 255)
         {
-          gi_free ((void *) bin->data, bin->size, BDATA_WHAT);
-          gi_free ((void *) bin, sizeof (guile_bin_t), BSMOB_WHAT);
+          BFREE (DATA, bin->data, bin->size);
+          BFREE (SMOB, bin, sizeof (guile_bin_t));
           SCM_OUT_OF_RANGE (SCM_ARGn, val);
         }
       *p++ = (uint8_t) value;

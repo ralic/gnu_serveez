@@ -1212,7 +1212,7 @@ reading from the port.  */)
   /* Read from file descriptor and evaluate return value.  */
   if ((ret = read (fdes, data, len)) < 0)
     {
-      gi_free (data, len, BDATA_WHAT);
+      BFREE (DATA, data, len);
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
                         gi_list_3 (errnostring (),
                                    gi_integer2scm (fdes),
@@ -1221,7 +1221,7 @@ reading from the port.  */)
     }
   else if (ret == 0)
     {
-      gi_free (data, len, BDATA_WHAT);
+      BFREE (DATA, data, len);
       return SCM_EOF_VAL;
     }
   else if (ret != len)
