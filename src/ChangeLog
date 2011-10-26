@@ -1,3 +1,12 @@
+2011-10-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile int] Add abstractions: BSMOB_WHAT, BDATA_WHAT
+
+	* guile-api.h (BSMOB_WHAT, BDATA_WHAT): New #define:s.
+	* guile-api.c: Do ‘s/"svz-binary-data"/BDATA_WHAT/g’;
+	‘s/"svz-binary"/BSMOB_WHAT/g’.
+	* guile-bin.c: Likewise.
+
 2011-08-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[guile int] Use ‘scm_mem2string’ for V17.

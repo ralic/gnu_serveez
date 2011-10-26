@@ -84,4 +84,7 @@
   (gi_stringp (obj), obj,                       \
    SCM_ARG ## n, FUNC_NAME, "string")
 
+#define BSMOB_WHAT  "svz-binary"
+#define BDATA_WHAT  "svz-binary-data"
+
 #endif /* not __GUILE_API_H__ */

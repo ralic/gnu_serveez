@@ -54,11 +54,11 @@ static svz_smob_tag_t guile_bin_tag;
   gi_smob_tagged_p (binary, guile_bin_tag)
 #define CHECK_BIN_SMOB_ARG(binary, arg, var)                       \
   if (!CHECK_BIN_SMOB (binary))                                    \
-    scm_wrong_type_arg_msg (FUNC_NAME, arg, binary, "svz-binary"); \
+    scm_wrong_type_arg_msg (FUNC_NAME, arg, binary, BSMOB_WHAT);   \
   var = gi_smob_data (binary)
 #define MAKE_BIN_SMOB()                                    \
   ((guile_bin_t *) ((void *)                               \
-    gi_malloc (sizeof (guile_bin_t), "svz-binary")))
+    gi_malloc (sizeof (guile_bin_t), BSMOB_WHAT)))
 
 SCM_DEFINE
 (guile_bin_p,
@@ -81,7 +81,7 @@ guile_bin_print (SCM binary, SCM port,
   guile_bin_t *bin = gi_smob_data (binary);
   static char txt[256];
 
-  sprintf (txt, "#<svz-binary %p, size: %d>", bin->data, bin->size);
+  sprintf (txt, "#<%s %p, size: %d>", BSMOB_WHAT, bin->data, bin->size);
   scm_puts (txt, port);
   return 1;
 }
@@ -100,9 +100,9 @@ guile_bin_free (SCM binary)
   if (bin->garbage)
     {
       size += bin->size;
-      gi_free ((void *) bin->data, bin->size, "svz-binary-data");
+      gi_free ((void *) bin->data, bin->size, BDATA_WHAT);
     }
-  gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
+  gi_free ((void *) bin, sizeof (guile_bin_t), BSMOB_WHAT);
   return size;
 }
 
@@ -144,7 +144,7 @@ sweep phase of the garbage collector.  */)
   bin->size = (int) gi_string_length (string);
   if (bin->size > 0)
     {
-      bin->data = gi_malloc (1 + bin->size, "svz-binary-data");
+      bin->data = gi_malloc (1 + bin->size, BDATA_WHAT);
       gi_get_xrep ((char *) bin->data, 1 + bin->size, string);
       bin->garbage = 1;
     }
@@ -308,7 +308,7 @@ binary smob @var{binary}.  */)
     }
 
   /* Reserve some memory for the new smob.  */
-  reverse->data = gi_malloc (reverse->size, "svz-binary-data");
+  reverse->data = gi_malloc (reverse->size, BDATA_WHAT);
   reverse->garbage = 1;
 
   /* Apply reverse byte order to the new smob.  */
@@ -429,12 +429,12 @@ reference it is then a standalone binary smob as returned by
   if (bin->garbage)
     {
       bin->data = gi_realloc (bin->data, bin->size, bin->size + len,
-                              "svz-binary-data");
+                              BDATA_WHAT);
     }
   else
     {
       uint8_t *odata = bin->data;
-      bin->data = gi_malloc (bin->size + len, "svz-binary-data");
+      bin->data = gi_malloc (bin->size + len, BDATA_WHAT);
       memcpy (bin->data, odata, bin->size);
     }
 
@@ -529,7 +529,7 @@ either exact numbers in a byte's range or characters.  */)
 
   if (bin->size > 0)
     {
-      p = bin->data = gi_malloc (bin->size, "svz-binary-data");
+      p = bin->data = gi_malloc (bin->size, BDATA_WHAT);
       bin->garbage = 1;
     }
   else
@@ -545,16 +545,16 @@ either exact numbers in a byte's range or characters.  */)
       val = SCM_CAR (list);
       if (!gi_exactp (val) && !SCM_CHARP (val))
         {
-          gi_free ((void *) bin->data, bin->size, "svz-binary-data");
-          gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
+          gi_free ((void *) bin->data, bin->size, BDATA_WHAT);
+          gi_free ((void *) bin, sizeof (guile_bin_t), BSMOB_WHAT);
           scm_wrong_type_arg_msg (FUNC_NAME, SCM_ARGn, val, "char or exact");
         }
       value = SCM_CHARP (val) ?
         ((int) SCM_CHAR (val)) : gi_scm2int (val);
       if (value < -128 || value > 255)
         {
-          gi_free ((void *) bin->data, bin->size, "svz-binary-data");
-          gi_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
+          gi_free ((void *) bin->data, bin->size, BDATA_WHAT);
+          gi_free ((void *) bin, sizeof (guile_bin_t), BSMOB_WHAT);
           SCM_OUT_OF_RANGE (SCM_ARGn, val);
         }
       *p++ = (uint8_t) value;
@@ -752,7 +752,7 @@ BIN_SET_HEAD (char)
 void
 guile_bin_init (void)
 {
-  guile_bin_tag = gi_make_tag ("svz-binary", sizeof (guile_bin_t),
+  guile_bin_tag = gi_make_tag (BSMOB_WHAT, sizeof (guile_bin_t),
                                guile_bin_free,
                                guile_bin_print,
                                guile_bin_equal);
