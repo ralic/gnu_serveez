@@ -1,5 +1,6 @@
 \input texinfo
 @c %**start of header
+@documentencoding utf-8
 @setfilename serveez.info
 @settitle GNU Serveez
 @exampleindent 2
