@@ -27,6 +27,7 @@ Makefile.in
 /libtool
 /stamp-h*
 
+/build-aux/ar-lib
 /build-aux/config.guess
 /build-aux/config.sub
 /build-aux/depcomp

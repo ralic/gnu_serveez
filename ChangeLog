@@ -1,3 +1,14 @@
+2012-10-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot] Use Automake-supplied macro to search for archiver.
+
+	Suggested by autoreconf.
+
+	* configure.ac <before doing any compilation>:
+	Move ‘AC_USE_SYSTEM_EXTENSIONS’ to here...
+	<checks for programs>: ...from here.
+	Also, replace ‘AC_CHECK_PROG([AR],...)’ with ‘AM_PROG_AR’.
+
 2011-10-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Fix bug: Move codec glue Automake conditionals later.

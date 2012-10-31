@@ -224,12 +224,18 @@ AC_DEFINE([INSTALL_LIBSERVEEZ_AND_HEADERS], 1,
 AM_CONDITIONAL([COURAGEOUS],[SVZ_Y([enable_libserveez_install])])
 
 dnl ----------------------------------------------------------------------
+dnl before doing any compilation
+dnl (e.g., ‘AM_PROG_AR’ does ‘AC_COMPILE_IFELSE’, sigh)
+
+AC_USE_SYSTEM_EXTENSIONS
+
+dnl ----------------------------------------------------------------------
 dnl checks for programs
 
 AC_PROG_INSTALL
 AC_PROG_SED
 AC_PROG_AWK
-AC_CHECK_PROG([AR],[ar],[ar],[:])
+AM_PROG_AR
 AC_CHECK_PROG([WINDRES],[windres],[windres],[:])
 
 dnl
@@ -238,7 +244,6 @@ dnl
 AC_PROG_CC_C99
 AS_IF([test xno = x"$ac_cv_prog_cc_c99"],
 [AC_MSG_ERROR([No C99 capable compiler found -- see README.])])
-AC_USE_SYSTEM_EXTENSIONS dnl FIXME: Is this the right place?
 
 dnl
 dnl Libtool.  FIXME: Is this the right place?
