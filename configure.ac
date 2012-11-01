@@ -651,7 +651,7 @@ AC_CONFIG_FILES([
 AC_OUTPUT
 
 AC_MSG_NOTICE([$PACKAGE_STRING successfully configured -- cool!])
-AS_IF([grep "z$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
+AS_IF([grep "^$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
 [AC_MSG_NOTICE([Welcome!
   $PACKAGE_NAME has never been compiled or run on this platform.
   Please send an email to <$PACKAGE_BUGREPORT> including
