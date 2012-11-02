@@ -13,7 +13,7 @@
 This manual documents GNU Serveez @value{VERSION},
 released @value{UPDATED}.
 
-Copyright @copyright{} 2011 Thien-Thi Nguyen@*
+Copyright @copyright{} 2011, 2012 Thien-Thi Nguyen@*
 Copyright @copyright{} 2000--2002 Stefan Jahn <stefan@@lkcc.org>@*
 Copyright @copyright{} 2000--2002 Raimund Jacob <raimi@@lkcc.org>@*
 Copyright @copyright{} 1999 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>

@@ -1,7 +1,7 @@
 /*
  * address.c - abstract address for IPv4, IPv6
  *
- * Copyright (C) 2011 Thien-Thi Nguyen
+ * Copyright (C) 2011, 2012 Thien-Thi Nguyen
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

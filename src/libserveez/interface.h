@@ -1,7 +1,7 @@
 /*
  * interfaces.h - network interface definitions
  *
- * Copyright (C) 2011 Thien-Thi Nguyen
+ * Copyright (C) 2011, 2012 Thien-Thi Nguyen
  * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *

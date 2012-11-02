@@ -1,7 +1,7 @@
 /*
  * guile-api.c - export additional Serveez functionality to Guile
  *
- * Copyright (C) 2011 Thien-Thi Nguyen
+ * Copyright (C) 2011, 2012 Thien-Thi Nguyen
  * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it

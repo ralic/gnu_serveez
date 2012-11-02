@@ -1,7 +1,7 @@
 /*
  * guile-bin.h - binary data exchange layer for guile servers
  *
- * Copyright (C) 2011 Thien-Thi Nguyen
+ * Copyright (C) 2011, 2012 Thien-Thi Nguyen
  * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
