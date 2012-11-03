@@ -116,15 +116,12 @@ HACKING libserveez API					-*- org -*-
 ******* move ctrl-server funcs into coserver.c
 ******* zonk ‘svz_foreach_coserver’, ‘svz_coserver_destroy’
 ***** make ‘svz_coserver_send_request’ take ‘svz_coserver_t *’, not TYPE
-* generate libserveez.h
-*** topo sort headers
-*** concatenate, re-grouping by
-***** typedef
-***** struct
-***** #define
-***** func decl
-***** macro
-*** don't install individual headers
+* rework libserveez.h generation, re-grouping by
+*** typedef
+*** struct
+*** #define
+*** func decl
+*** macro
 * etc
 #+STARTUP: odd
 
