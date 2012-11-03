@@ -64,6 +64,7 @@ Makefile.in
 /src/config.h.in
 /src/guile-boot.c
 /src/guile-missing.h
+/src/libserveez.h
 /src/scm.tsar
 /src/serveez
 /src/serveez-config

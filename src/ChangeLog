@@ -1,5 +1,19 @@
 2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	Generate monolithic libserveez.h; install it solely.
+
+	* libserveez.h: Delete file.
+	* libserveez.h-TEMPLATE: New file.
+	* Makefile.am (CLEANFILES): Add libserveez.h.
+	(BUILT_SOURCES): Add libserveez.h.
+	(hbits): New var.
+	(libserveez.h): New target.
+	(EXTRA_DIST): Add $(hbits), libserveez.h-TEMPLATE.
+	(i): Delete var.
+	(install-data-hook): Delete target.
+
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘svz_hash_configure’ more.
 
 	* irc-server/irc-proto.c (make_irc_e_hash_table): New static func.

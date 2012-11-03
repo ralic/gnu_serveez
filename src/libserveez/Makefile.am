@@ -46,21 +46,6 @@ libserveez_la_SOURCES = address.c alloc.c util.c hash.c                   \
   interface.c dynload.c core.c socket.c array.c portcfg.c                 \
   binding.c passthrough.c cfg.c mutex.c
 
-# these file are available by #include <libserveez/foo.h> (maybe ;-)
-
-if COURAGEOUS
-libserveezdir = $(includedir)/libserveez
-
-libserveez_HEADERS = address.h alloc.h util.h hash.h socket.h              \
-  tcp-socket.h pipe-socket.h udp-socket.h icmp-socket.h                    \
-  server-core.h windoze.h defines.h boot.h server.h                        \
-  interface.h dynload.h core.h array.h portcfg.h                           \
-  binding.h passthrough.h cfg.h
-endif COURAGEOUS
-
-uninstall-hook:
-	rmdir "$(DESTDIR)$(libserveezdir)"
-
 svzpath.h: $(top_builddir)/config.status
 	@echo "Generating svzpath.h..."
 	@echo '#define SVZ_PKGDATADIR "$(pkgdatadir)"' > $@

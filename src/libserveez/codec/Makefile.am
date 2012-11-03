@@ -33,13 +33,4 @@ if WITH_BZLIB
 libcodec_la_SOURCES += bzip2.c
 endif
 
-if COURAGEOUS
-libcodecdir = $(includedir)/libserveez/codec
-
-libcodec_HEADERS = codec.h
-endif COURAGEOUS
-
 noinst_HEADERS = gzlib.h bzip2.h
-
-uninstall-hook:
-	rmdir "$(DESTDIR)$(libcodecdir)"

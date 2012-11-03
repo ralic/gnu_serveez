@@ -39,7 +39,8 @@ endif COURAGEOUS
 # Perplexingly, Automake does not automatically distribute these.
 EXTRA_DIST = $(aclocal_DATA) guile-boot.scm
 
-BUILT_SOURCES = guile-boot.c
+CLEANFILES += libserveez.h
+BUILT_SOURCES = libserveez.h guile-boot.c
 BUILT_SOURCES += \
   guile-bin.x \
   guile-server.x \
@@ -89,6 +90,55 @@ bin_PROGRAMS = serveez
 if COURAGEOUS
 include_HEADERS = libserveez.h
 endif COURAGEOUS
+
+# NB: Order is important here -- don't screw it up!
+# See also the ‘EXTRA_DIST’ comment, below.
+hbits = \
+ libserveez/defines.h \
+ libserveez/address.h \
+ libserveez/boot.h \
+ libserveez/alloc.h \
+ libserveez/array.h \
+ libserveez/hash.h \
+ libserveez/util.h \
+ libserveez/socket.h \
+ libserveez/core.h \
+ libserveez/pipe-socket.h \
+ libserveez/portcfg.h \
+ libserveez/cfg.h \
+ libserveez/server.h \
+ libserveez/binding.h \
+ libserveez/tcp-socket.h \
+ libserveez/udp-socket.h \
+ libserveez/icmp-socket.h \
+ libserveez/server-core.h \
+ libserveez/windoze.h \
+ libserveez/coserver/coserver.h \
+ libserveez/interface.h \
+ libserveez/dynload.h \
+ libserveez/passthrough.h \
+ libserveez/codec/codec.h
+
+libserveez.h: $(hbits) svzconfig.h
+	for f in svzconfig.h $(hbits) ; do			\
+	  part=`echo $$f | $(SED) 's|^[^/]*/||;s/.h$$//'` ;	\
+	  printf '\f\n/* (%s) */' $$part ;			\
+	  $(SED) -e '1,/^#ifndef/d'				\
+	         -e '/_H__/d'					\
+	         -e '/^#include /d'				\
+	         -e '/ends here/d'				\
+	         $(srcdir)/$$f ;				\
+	done							\
+	| $(SED) -e '/begin svzint/,/end svzint/d'		\
+	         -e '/^SBO.*;$$/d'				\
+	         -e '/^SBO/,/;$$/d'				\
+	> $@T
+	$(SED) '/#define/r $@T' $(srcdir)/$@-TEMPLATE > $@
+	rm -f $@T
+
+# NB: This means we need not mention those files in $(hbits) in the
+# libserveez{/codec,/coserver}/Makefile.am files (tested w/ Automake 1.12.4).
+EXTRA_DIST += $(hbits) libserveez.h-TEMPLATE
 
 serveez_SOURCES = \
 	action.h cpp-tricks.h le-u32-hash.h timidity.h \
@@ -140,27 +190,6 @@ c_docable = \
 
 c.tsar: $(c_docable)
 	$(gx) c-tsar $(foo_ar_update) -- $(snarfcppopts)
-
-i = "$(DESTDIR)$(includedir)/libserveez"
-
-install-data-hook:
-if COURAGEOUS
-	$(SED) '/^#define [^_]/!d' svzconfig.h > $(i)/TMP0
-	cd $(i); mv -f defines.h TMP1; \
-	$(SED) -e '/#include "svzconfig.h"/{' \
-	       -e ' s|.*|/* Extracted configuration.  */|' \
-	       -e ' r TMP0' \
-	       -e '}' TMP1 > defines.h; \
-	for h in *.h codec/*.h coserver/*.h; do \
-	  mv $$h $$h.orig; \
-	  $(SED) -e '/begin svzint/,/end svzint/d' \
-	         -e '/^SBO.*;$$/d' \
-	         -e '/^SBO/,/;$$/d' \
-	    $$h.orig > $$h; \
-	  rm -f $$h.orig; \
-	done; \
-	rm -f TMP0 TMP1
-endif COURAGEOUS
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h

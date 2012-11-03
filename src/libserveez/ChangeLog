@@ -1,5 +1,14 @@
 2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	Generate monolithic libserveez.h; install it solely.
+
+	∀ files: "(uninstall-hook): Delete target".
+	* Makefile.am (libserveezdir, libserveez_HEADERS): Delete vars.
+	* codec/Makefile.am (libcodecdir, libcodec_HEADERS): Likewise.
+	* coserver/Makefile.am (libcoserverdir, libcoserver_HEADERS): Likewise.
+
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘svz_hash_configure’ more.
 
 	* alloc.c (heap_add): Use ‘svz_hash_configure’.

@@ -28,13 +28,4 @@ noinst_LTLIBRARIES = libcoserver.la
 
 libcoserver_la_SOURCES = coserver.c dns.c ident.c reverse-dns.c xerror.c
 
-if COURAGEOUS
-libcoserverdir = $(includedir)/libserveez/coserver
-
-libcoserver_HEADERS = coserver.h
-endif COURAGEOUS
-
 noinst_HEADERS = dns.h ident.h reverse-dns.h xerror.h
-
-uninstall-hook:
-	rmdir "$(DESTDIR)$(libcoserverdir)"
