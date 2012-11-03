@@ -42,9 +42,13 @@ libserveez_la_LIBADD = coserver/libcoserver.la codec/libcodec.la
 
 libserveez_la_SOURCES = address.c alloc.c util.c hash.c                   \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \
-  server-core.c server-loop.c windoze.c boot.c server.c server-socket.c   \
+  server-core.c server-loop.c boot.c server.c server-socket.c             \
   interface.c dynload.c core.c socket.c array.c portcfg.c                 \
   binding.c passthrough.c cfg.c mutex.c
+
+if MINGW32
+libserveez_la_SOURCES += windoze.c
+endif MINGW32
 
 svzpath.h: $(top_builddir)/config.status
 	@echo "Generating svzpath.h..."

@@ -111,8 +111,14 @@ hbits = \
  libserveez/tcp-socket.h \
  libserveez/udp-socket.h \
  libserveez/icmp-socket.h \
- libserveez/server-core.h \
- libserveez/windoze.h \
+ libserveez/server-core.h
+
+if MINGW32
+hbits += \
+ libserveez/windoze.h
+endif MINGW32
+
+hbits += \
  libserveez/coserver/coserver.h \
  libserveez/interface.h \
  libserveez/dynload.h \

@@ -1,3 +1,9 @@
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib int] Use Automake conditional to gate windoze.[hc].
+
+	* configure.ac (MINGW32): New AM_CONDITIONAL.
+
 2012-11-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Fix typo in PLATFORM grep invocation.

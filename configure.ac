@@ -212,6 +212,7 @@ dnl
 AS_CASE([$host_os],
 [*mingw32*],[MINGW32=yes CYGWIN=no],
 [*cygwin*],[MINGW32=no CYGWIN=yes])
+AM_CONDITIONAL([MINGW32],[SVZ_Y([MINGW32])]) dnl FIXME: What about ‘CYGWIN’?
 
 dnl
 dnl Check courage.

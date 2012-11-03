@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#ifdef __MINGW32__
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -465,9 +463,3 @@ svz_windoze_uni2asc (WCHAR *unicode)
   WideCharToMultiByte (CP_ACP, 0, unicode, -1, asc, 256, NULL, NULL);
   return asc;
 }
-
-#else /* not __MINGW32__ */
-
-int windoze_dummy;                      /* Shut compiler warnings up.  */
-
-#endif /* not __MINGW32__ */

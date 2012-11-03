@@ -1,5 +1,11 @@
 2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Use Automake conditional to gate windoze.[hc].
+
+	* Makefile.am (hbits): Include windoze.h only ‘if MINGW32’.
+
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Generate monolithic libserveez.h; install it solely.
 
 	* libserveez.h: Delete file.
