@@ -198,6 +198,15 @@ nut_hash_code (const char *id)
   return code;
 }
 
+static svz_hash_t *
+make_nut_kce_hash_table (svz_free_func_t destroy)
+{
+  return svz_hash_configure (svz_hash_create (4, destroy),
+                             nut_hash_keylen,
+                             nut_hash_code,
+                             nut_hash_equals);
+}
+
 /*
  * This is the default idle function for self connected gnutella hosts.
  * It simply returns an error if the socket was not connected in a
@@ -469,16 +478,10 @@ nut_init (svz_server_t *server)
   cfg->port = htons (cfg->force_port);
 
   /* create and modify packet hash */
-  cfg->packet = svz_hash_create (4, svz_free);
-  cfg->packet->code = nut_hash_code;
-  cfg->packet->equals = nut_hash_equals;
-  cfg->packet->keylen = nut_hash_keylen;
+  cfg->packet = make_nut_kce_hash_table (svz_free);
 
   /* create and modify reply hash */
-  cfg->reply = svz_hash_create (4, NULL);
-  cfg->reply->code = nut_hash_code;
-  cfg->reply->equals = nut_hash_equals;
-  cfg->reply->keylen = nut_hash_keylen;
+  cfg->reply = make_nut_kce_hash_table (NULL);
 
   /* create current connection hash */
   cfg->conn = svz_hash_create (4, NULL);
@@ -493,10 +496,7 @@ nut_init (svz_server_t *server)
   cfg->push = svz_hash_create (4, (svz_free_func_t) nut_free_transfer);
 
   /* create and modify the routing table hash */
-  cfg->route = svz_hash_create (4, NULL);
-  cfg->route->code = nut_hash_code;
-  cfg->route->equals = nut_hash_equals;
-  cfg->route->keylen = nut_hash_keylen;
+  cfg->route = make_nut_kce_hash_table (NULL);
 
   /* calculate this server instance's GUID */
   nut_calc_guid (cfg->guid);

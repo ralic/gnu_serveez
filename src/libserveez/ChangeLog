@@ -1,5 +1,11 @@
 2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use ‘svz_hash_configure’ more.
+
+	* alloc.c (heap_add): Use ‘svz_hash_configure’.
+
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_hash_configure
 
 	* hash.h (svz_hash_configure): New func decl.

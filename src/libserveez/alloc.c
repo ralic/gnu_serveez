@@ -106,12 +106,10 @@ static void
 heap_add (heap_block_t *block)
 {
   if (heap == NULL)
-    {
-      heap = svz_hash_create (4, NULL);
-      heap->keylen = heap_hash_keylen;
-      heap->code = heap_hash_code;
-      heap->equals = heap_hash_equals;
-    }
+    heap = svz_hash_configure (svz_hash_create (4, NULL),
+                               heap_hash_keylen,
+                               heap_hash_code,
+                               heap_hash_equals);
   svz_hash_put (heap, (char *) &block->ptr, block);
 }
 

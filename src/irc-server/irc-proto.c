@@ -219,6 +219,13 @@ irc_check_tcp_bindings (svz_server_t *server)
   return err;
 }
 
+static svz_hash_t *
+make_irc_e_hash_table (void)
+{
+  return svz_hash_configure (svz_hash_create (4, NULL),
+                             NULL, NULL, irc_string_equal);
+}
+
 #define MAX_TMP_STRLEN  256
 
 /*
@@ -265,10 +272,8 @@ irc_init (svz_server_t *server)
   cfg->email = svz_strdup (tmp[2]);
 
   /* initialize hashes and lists */
-  cfg->clients = svz_hash_create (4, NULL);
-  cfg->channels = svz_hash_create (4, NULL);
-  cfg->clients->equals = irc_string_equal;
-  cfg->channels->equals = irc_string_equal;
+  cfg->clients = make_irc_e_hash_table ();
+  cfg->channels = make_irc_e_hash_table ();
   cfg->servers = NULL;
   cfg->history = NULL;
 
