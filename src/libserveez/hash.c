@@ -214,6 +214,34 @@ svz_hash_create (size_t size, svz_free_func_t destroy)
 }
 
 /**
+ * Set the internal @var{keylen}, @var{code} and and @var{equals}
+ * functions for hash table @var{hash}.  Return @var{hash}.
+ *
+ * @var{keylen} takes @code{const char *data} and returns @code{size_t},
+ * the number of bytes in @var{data} representing the key.
+ *
+ * @var{code} takes @code{const char *data}
+ * and returns @code{unsigned long}.
+ *
+ * @var{equals} takes @code{const char *data1, const char *data2}
+ * and returns @code{int}, which should be non-zero if equal.
+ *
+ * As a special case, a @code{NULL} value means don't set that function,
+ * leaving it to its default value.
+ */
+svz_hash_t *
+svz_hash_configure (svz_hash_t *hash,
+                    size_t (* keylen) (const char *),
+                    unsigned long (* code) (const char *),
+                    int (* equals) (const char *, const char *))
+{
+  if (keylen) hash->keylen = keylen;
+  if (code)   hash->code   = code;
+  if (equals) hash->equals = equals;
+  return hash;
+}
+
+/**
  * Destroy the existing hash table @var{hash}, @code{svz_free}ing
  * all keys within the hash, the hash table and the hash itself.
  * If a non-@code{NULL} element destruction callback was specified to

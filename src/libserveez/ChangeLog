@@ -1,5 +1,12 @@
 2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_hash_configure
+
+	* hash.h (svz_hash_configure): New func decl.
+	* hash.c (svz_hash_configure): New func.
+
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C int] Promote macro ‘UNUSED’ to its own file.
 
 	* alloc.c: #include "unused.h"; do ‘s/SVZ_UNUSED/UNUSED/g’.

@@ -262,6 +262,7 @@ store two values associated with the same key.  The values can have any
 simple C types like integers or pointers.
 
 @tsin i "F svz_hash_create"
+@tsin i "F svz_hash_configure"
 @tsin i "F svz_hash_destroy"
 @tsin i "F svz_hash_delete"
 @tsin i "F svz_hash_put"

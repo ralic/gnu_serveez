@@ -54,6 +54,11 @@ __BEGIN_DECLS
  * Basic hash table functions.
  */
 SERVEEZ_API svz_hash_t *svz_hash_create (size_t, svz_free_func_t);
+SERVEEZ_API svz_hash_t *
+svz_hash_configure (svz_hash_t *hash,
+                    size_t (* keylen) (const char *),
+                    unsigned long (* code) (const char *),
+                    int (* equals) (const char *, const char *));
 SERVEEZ_API void svz_hash_destroy (svz_hash_t *);
 SERVEEZ_API void *svz_hash_delete (svz_hash_t *, const char *);
 SERVEEZ_API void *svz_hash_put (svz_hash_t *, const char *, void *);
