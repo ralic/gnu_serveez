@@ -31,6 +31,7 @@
 #include "gi.h"
 #include "guile-api.h"
 #include "guile-bin.h"
+#include "unused.h"
 
 /*
  * Structure definition of the data the binary smob refers to.
@@ -76,7 +77,7 @@ Return @code{#t} if @var{obj} is an instance of the binary smob type.  */)
    cell @var{binary} to the output port @var{port}.  */
 static int
 guile_bin_print (SCM binary, SCM port,
-                 SVZ_UNUSED scm_print_state *state)
+                 UNUSED scm_print_state *state)
 {
   guile_bin_t *bin = gi_smob_data (binary);
   static char txt[256];

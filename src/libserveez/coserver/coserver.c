@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include "timidity.h"
+#include "unused.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -645,7 +646,7 @@ svz_coserver_check_request (svz_socket_t *sock)
  * the standard @code{check_request} detected a full packet by any coserver.
  */
 static int
-svz_coserver_handle_request (SVZ_UNUSED svz_socket_t *sock,
+svz_coserver_handle_request (UNUSED svz_socket_t *sock,
                              char *request, int len)
 {
   int ret;

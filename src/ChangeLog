@@ -1,3 +1,39 @@
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C int] Promote macro ‘UNUSED’ to its own file.
+
+	* unused.h: New file.
+	* Makefile.am (noinst_HEADERS): Add unused.h.
+	* gi.c: #include "unused.h".
+	(UNUSED): Delete macro.
+	* guile-bin.c: #include "unused.h"; do ‘s/SVZ_UNUSED/UNUSED/g’.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* option.c: Likewise.
+	* serveez.c: Likewise.
+	* ctrl-server/control-proto.c: Likewise.
+	* fakeident-server/ident-proto.c: Likewise.
+	* foo-server/foo-proto.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-event-2.c: Likewise.
+	* irc-server/irc-event-3.c: Likewise.
+	* irc-server/irc-event-5.c: Likewise.
+	* irc-server/irc-event-6.c: Likewise.
+	* irc-server/irc-event-7.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* irc-server/irc-server.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-route.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* sntp-server/sntp-proto.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
 2011-10-26  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi] Add func: gi_smob_free_rv

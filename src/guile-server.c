@@ -42,6 +42,7 @@
 #include "guile.h"
 #include "guile-bin.h"
 #include "guile-server.h"
+#include "unused.h"
 
 #define _CTYPE(ctype,x)     guile_svz_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
@@ -77,7 +78,7 @@ static int guile_use_exceptions = 1;
 static svz_smob_tag_t NAME_TAG (ctype);         \
 static int NAME_PRINT (ctype)                   \
      (SCM smob, SCM port,                       \
-      SVZ_UNUSED scm_print_state *state)        \
+      UNUSED scm_print_state *state)            \
 {                                               \
   static char txt[256];                         \
                                                 \
@@ -1367,7 +1368,7 @@ struct servertype_config_closure
 };
 
 static void
-servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
+servertype_config_internal (void *k, UNUSED void *v, void *closure)
 {
   struct servertype_config_closure *x = closure;
   char *key = k;

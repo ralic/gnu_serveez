@@ -39,6 +39,7 @@
 #include "networking-headers.h"
 #include "libserveez.h"
 #include "sntp-proto.h"
+#include "unused.h"
 
 /*
  * Simple network time server configuration.
@@ -81,7 +82,7 @@ svz_servertype_t sntp_server_definition =
  * Initialize a SNTP server instance.
  */
 int
-sntp_init (SVZ_UNUSED svz_server_t *server)
+sntp_init (UNUSED svz_server_t *server)
 {
   return 0;
 }
@@ -90,8 +91,8 @@ sntp_init (SVZ_UNUSED svz_server_t *server)
  * No protocol detection for TCP/PIPE needed.
  */
 int
-sntp_detect_proto (SVZ_UNUSED svz_server_t *server,
-                   SVZ_UNUSED svz_socket_t *sock)
+sntp_detect_proto (UNUSED svz_server_t *server,
+                   UNUSED svz_socket_t *sock)
 {
   return -1;
 }
@@ -135,7 +136,7 @@ answer (svz_socket_t *sock, wr_t *wr)
  * connection for shutdown.
  */
 int
-sntp_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+sntp_connect_socket (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   sock->check_request = NULL;
   sock->flags |= SVZ_SOFLG_FINAL_WRITE;
@@ -147,7 +148,7 @@ sntp_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
  */
 int
 sntp_handle_request (svz_socket_t *sock,
-                     SVZ_UNUSED char *packet, SVZ_UNUSED int len)
+                     UNUSED char *packet, UNUSED int len)
 {
   answer (sock, svz_udp_write);
   return 0;

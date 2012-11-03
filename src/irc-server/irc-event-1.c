@@ -38,6 +38,7 @@
 #include "irc-crypt.h"
 #include "irc-event.h"
 #include "irc-config.h"
+#include "unused.h"
 
 #include "timestamp.c"                  /* for ‘irc_send_init_block’ */
 
@@ -308,7 +309,7 @@ irc_user_callback (svz_socket_t *sock,
 int
 irc_motd_callback (svz_socket_t *sock,
                    irc_client_t *client,
-                   SVZ_UNUSED irc_request_t *request)
+                   UNUSED irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   FILE *f;

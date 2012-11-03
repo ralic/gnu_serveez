@@ -47,6 +47,7 @@
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cache.h"
+#include "unused.h"
 
 svz_hash_t *http_cache = NULL;               /* actual cache entry hash */
 size_t http_cache_entries = 0;               /* amount of cache entries */
@@ -101,8 +102,8 @@ http_free_cache (void)
 
 #if ENABLE_DEBUG
 static void
-cache_consistency_internal (SVZ_UNUSED void *k, void *v,
-                            SVZ_UNUSED void *closure)
+cache_consistency_internal (UNUSED void *k, void *v,
+                            UNUSED void *closure)
 {
   http_cache_entry_t *ent = v;
 

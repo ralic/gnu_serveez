@@ -30,6 +30,7 @@
 #include "irc-proto.h"
 #include "irc-event.h"
 #include "irc-server.h"
+#include "unused.h"
 
 /*
  *         Command: ADMIN
@@ -111,7 +112,7 @@ irc_time_callback (svz_socket_t *sock,
 int
 irc_lusers_callback (svz_socket_t *sock,
                      irc_client_t *client,
-                     SVZ_UNUSED irc_request_t *request)
+                     UNUSED irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 

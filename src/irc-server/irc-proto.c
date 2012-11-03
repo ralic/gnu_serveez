@@ -41,6 +41,7 @@
 #include "irc-event.h"
 #include "irc-server.h"
 #include "irc-config.h"
+#include "unused.h"
 
 /*
  * The IRC server instance default configuration,
@@ -144,7 +145,7 @@ static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
  * Global IRC server initializer.
  */
 int
-irc_global_init (SVZ_UNUSED svz_servertype_t *server)
+irc_global_init (UNUSED svz_servertype_t *server)
 {
 #if 0
   printf ("sizeof (socket_t)             = %d\n", sizeof (socket_data_t));
@@ -168,7 +169,7 @@ irc_global_init (SVZ_UNUSED svz_servertype_t *server)
  * Global IRC server finalizer.
  */
 int
-irc_global_finalize (SVZ_UNUSED svz_servertype_t *server)
+irc_global_finalize (UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -787,7 +788,7 @@ struct regex_channel_closure
 };
 
 static void
-regex_channel_internal (SVZ_UNUSED void *k, void *v, void *closure)
+regex_channel_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_channel_t *ch = v;
   struct regex_channel_closure *x = closure;
@@ -953,7 +954,7 @@ struct find_userhost_closure
 };
 
 static void
-find_userhost_internal (SVZ_UNUSED void *k, void *v, void *closure)
+find_userhost_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_client_t *client = v;
   struct find_userhost_closure *x = closure;
@@ -1007,7 +1008,7 @@ struct regex_nick_closure
 };
 
 static void
-regex_nick_internal (SVZ_UNUSED void *k, void *v, void *closure)
+regex_nick_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_client_t *client = v;
   struct regex_nick_closure *x = closure;

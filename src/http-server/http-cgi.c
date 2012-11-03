@@ -56,6 +56,7 @@
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cgi.h"
+#include "unused.h"
 
 /*
  * Extended disconnect_socket callback for CGIs.  Handling CGI related
@@ -951,7 +952,7 @@ cgi_exec (svz_socket_t *sock,  /* the socket structure */
  */
 int
 http_cgi_get_response (svz_socket_t *sock, char *request,
-                       SVZ_UNUSED int flags)
+                       UNUSED int flags)
 {
   svz_t_handle dummy;
   svz_t_handle cgi2s[2];
@@ -1005,7 +1006,7 @@ http_cgi_get_response (svz_socket_t *sock, char *request,
  */
 int
 http_post_response (svz_socket_t *sock, char *request,
-                    SVZ_UNUSED int flags)
+                    UNUSED int flags)
 {
   struct details det;
   char *length;

@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <zlib.h>
 #include "networking-headers.h"
+#include "unused.h"
 #include "libserveez/alloc.h"
 #include "libserveez/codec/codec.h"
 #include "libserveez/codec/gzlib.h"
@@ -69,7 +70,7 @@ zlib_data_t;
    we assign here the Serveez core library's allocators it is possible to
    detect memory leaks within calls to the 'zlib' library.  */
 static voidpf
-zlib_alloc (SVZ_UNUSED voidpf data, uInt n, uInt size)
+zlib_alloc (UNUSED voidpf data, uInt n, uInt size)
 {
   voidpf ptr;
   if ((ptr = (voidpf) svz_malloc (n * size)) == NULL)
@@ -78,7 +79,7 @@ zlib_alloc (SVZ_UNUSED voidpf data, uInt n, uInt size)
 }
 
 static void
-zlib_free (SVZ_UNUSED voidpf data, voidpf ptr)
+zlib_free (UNUSED voidpf data, voidpf ptr)
 {
   svz_free (ptr);
 }

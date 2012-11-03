@@ -34,6 +34,7 @@
 #include "libserveez.h"
 #include "misc-macros.h"
 #include "prog-server.h"
+#include "unused.h"
 
 /*
  * Default configuration definition.
@@ -93,9 +94,9 @@ svz_servertype_t prog_server_definition =
  * Handle request callback.  Not yet used.
  */
 int
-prog_handle_request (SVZ_UNUSED svz_socket_t *sock,
-                     SVZ_UNUSED char *request,
-                     SVZ_UNUSED int len)
+prog_handle_request (UNUSED svz_socket_t *sock,
+                     UNUSED char *request,
+                     UNUSED int len)
 {
   return -1;
 }
@@ -105,8 +106,8 @@ prog_handle_request (SVZ_UNUSED svz_socket_t *sock,
  * no use to detect a client.
  */
 int
-prog_detect_proto (SVZ_UNUSED svz_server_t *server,
-                   SVZ_UNUSED svz_socket_t *sock)
+prog_detect_proto (UNUSED svz_server_t *server,
+                   UNUSED svz_socket_t *sock)
 {
   return -1;
 }
@@ -213,7 +214,7 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
  * Global initializer.  Not used yet.
  */
 int
-prog_global_init (SVZ_UNUSED svz_servertype_t *server)
+prog_global_init (UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -222,7 +223,7 @@ prog_global_init (SVZ_UNUSED svz_servertype_t *server)
  * Global finalizer.  Not used yet.
  */
 int
-prog_global_finalize (SVZ_UNUSED svz_servertype_t *server)
+prog_global_finalize (UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -388,7 +389,7 @@ prog_init (svz_server_t *server)
  * Notify callback.  Not used yet.
  */
 int
-prog_notify (SVZ_UNUSED svz_server_t *server)
+prog_notify (UNUSED svz_server_t *server)
 {
   return 0;
 }
@@ -397,8 +398,8 @@ prog_notify (SVZ_UNUSED svz_server_t *server)
  * Info client callback.  Not used yet.
  */
 char *
-prog_info_client (SVZ_UNUSED svz_server_t *server,
-                  SVZ_UNUSED svz_socket_t *sock)
+prog_info_client (UNUSED svz_server_t *server,
+                  UNUSED svz_socket_t *sock)
 {
   return NULL;
 }
@@ -407,7 +408,7 @@ prog_info_client (SVZ_UNUSED svz_server_t *server,
  * Info server callback.  Not used yet.
  */
 char *
-prog_info_server (SVZ_UNUSED svz_server_t *server)
+prog_info_server (UNUSED svz_server_t *server)
 {
   return NULL;
 }

@@ -29,6 +29,7 @@
 # include <sys/socket.h>
 #endif
 #include "networking-headers.h"
+#include "unused.h"
 #include "libserveez/alloc.h"
 #include "libserveez/hash.h"
 #include "libserveez/util.h"
@@ -78,7 +79,7 @@ struct foreach_server_closure
 };
 
 static void
-foreach_server_internal (SVZ_UNUSED void *k, void *v, void *closure)
+foreach_server_internal (UNUSED void *k, void *v, void *closure)
 {
   struct foreach_server_closure *x = closure;
 

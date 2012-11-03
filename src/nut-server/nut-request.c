@@ -36,6 +36,7 @@
 #include "nut-transfer.h"
 #include "nut-hostlist.h"
 #include "nut-request.h"
+#include "unused.h"
 
 /*
  * This routine will be called when a search reply occurs.  Here we
@@ -379,7 +380,7 @@ nut_pong (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
  */
 int
 nut_ping (svz_socket_t *sock, nut_header_t *hdr,
-          SVZ_UNUSED uint8_t *null)
+          UNUSED uint8_t *null)
 {
   nut_config_t *cfg = sock->cfg;
   nut_pong_t reply;

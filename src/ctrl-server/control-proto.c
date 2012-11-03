@@ -25,6 +25,7 @@
 #include <string.h>
 #include <time.h>
 #include "networking-headers.h"
+#include "unused.h"
 
 #ifndef __MINGW32__
 # include <sys/types.h>
@@ -115,7 +116,7 @@ cpu_state_t cpu_state;
  * server to a given port configuration.
  */
 int
-ctrl_init (SVZ_UNUSED svz_server_t *server)
+ctrl_init (UNUSED svz_server_t *server)
 {
   return 0;
 }
@@ -124,7 +125,7 @@ ctrl_init (SVZ_UNUSED svz_server_t *server)
  * Server instance finalizer.
  */
 int
-ctrl_finalize (SVZ_UNUSED svz_server_t *server)
+ctrl_finalize (UNUSED svz_server_t *server)
 {
   return 0;
 }
@@ -133,7 +134,7 @@ ctrl_finalize (SVZ_UNUSED svz_server_t *server)
  * Server info callback.
  */
 char *
-ctrl_info_server (SVZ_UNUSED svz_server_t *server)
+ctrl_info_server (UNUSED svz_server_t *server)
 {
   static char info[128];
 
@@ -145,8 +146,8 @@ ctrl_info_server (SVZ_UNUSED svz_server_t *server)
  * Client info callback.
  */
 char *
-ctrl_info_client (SVZ_UNUSED svz_server_t *server,
-                  SVZ_UNUSED svz_socket_t *sock)
+ctrl_info_client (UNUSED svz_server_t *server,
+                  UNUSED svz_socket_t *sock)
 {
   static char info[128];
 
@@ -160,7 +161,7 @@ ctrl_info_client (SVZ_UNUSED svz_server_t *server,
  * the receive buffer looks like the control protocol.
  */
 int
-ctrl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+ctrl_detect_proto (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   int ret = 0;
 
@@ -223,7 +224,7 @@ ctrl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
  * routine.
  */
 int
-ctrl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+ctrl_connect_socket (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   svz_sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
   sock->check_request = svz_sock_check_request;
@@ -255,7 +256,7 @@ ctrl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
  * connection will be closed immediately.
  */
 int
-ctrl_quit (SVZ_UNUSED svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_quit (UNUSED svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   return flag;
 }
@@ -266,7 +267,7 @@ ctrl_quit (SVZ_UNUSED svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
  * of Serveez implements.
  */
 int
-ctrl_help (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_help (svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   svz_sock_printf (sock,
     "\r\n available commands:\r\n"
@@ -618,7 +619,7 @@ stat_con_internal (svz_socket_t *sock, void *closure)
  * each socket structure currently within the socket list.
  */
 int
-ctrl_stat_con (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_stat_con (svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   svz_sock_printf (sock, "\r\n%s",
                    "Proto              Id  RecvQ  SendQ "
@@ -635,7 +636,7 @@ ctrl_stat_con (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
  * visual representation of the http cache structures.
  */
 int
-ctrl_stat_cache (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_stat_cache (svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   int n, total, files;
   char *p;
@@ -671,7 +672,7 @@ ctrl_stat_cache (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
  * Free all HTTP cache entries.
  */
 int
-ctrl_kill_cache (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_kill_cache (svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   svz_sock_printf (sock, "%d HTTP cache entries reinitialized.\r\n",
                    http_cache_entries);
@@ -707,7 +708,7 @@ stat_coservers_internal (const svz_coserver_t *coserver,
  * Show all Co-Server instances statistics.
  */
 int
-ctrl_stat_coservers (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_stat_coservers (svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   /* go through all internal coserver instances */
   svz_foreach_coserver (stat_coservers_internal, sock);
@@ -790,7 +791,7 @@ killall_internal (svz_socket_t *sock, void *closure)
  * coservers and sockets with the priority flag set.
  */
 int
-ctrl_killall (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
+ctrl_killall (svz_socket_t *sock, int flag, UNUSED char *arg)
 {
   struct killall_closure closure = { sock, 0 };
 
@@ -828,7 +829,7 @@ restart_coservers_internal (const svz_coserver_t *coserver,
  * Restart coservers.
  */
 int
-ctrl_restart (svz_socket_t *sock, int type, SVZ_UNUSED char *arg)
+ctrl_restart (svz_socket_t *sock, int type, UNUSED char *arg)
 {
   struct restart_closure closure = { sock, type };
   svz_coserver_t *coserver;

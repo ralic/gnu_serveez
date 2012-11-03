@@ -29,6 +29,7 @@
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
+#include "unused.h"
 
 /*
  *         Command: PART
@@ -1074,7 +1075,7 @@ struct names_cb_ch_closure
 };
 
 static void
-names_cb_ch_internal (SVZ_UNUSED void *k, void *v, void *closure)
+names_cb_ch_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_channel_t *ch = v;
   struct names_cb_ch_closure *x = closure;
@@ -1100,7 +1101,7 @@ struct names_cb_cl_closure
 };
 
 static void
-names_cb_cl_internal (SVZ_UNUSED void *k, void *v, void *closure)
+names_cb_cl_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_client_t *cl = v;
   struct names_cb_cl_closure *x = closure;
@@ -1244,7 +1245,7 @@ struct list_cb_closure
 };
 
 static void
-list_cb_internal (SVZ_UNUSED void *k, void *v, void *closure)
+list_cb_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_channel_t *ch = v;
   struct list_cb_closure *x = closure;

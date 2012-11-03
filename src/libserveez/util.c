@@ -57,6 +57,7 @@
 #endif
 
 #include "networking-headers.h"
+#include "unused.h"
 #include "libserveez/alloc.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"
@@ -120,7 +121,7 @@ static int spew_mutex_valid;
 #ifndef HAVE_FWRITE_UNLOCKED
 #define SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED
 #else
-#define SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED  SVZ_UNUSED
+#define SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED  UNUSED
 #endif
 
 void

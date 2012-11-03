@@ -30,6 +30,7 @@
 #include "gnutella.h"
 #include "nut-route.h"
 #include "nut-core.h"
+#include "unused.h"
 
 /*
  * This function canonizes gnutella queries.  Thus we prevent the network
@@ -224,7 +225,7 @@ struct route_closure
 };
 
 static void
-route_internal (SVZ_UNUSED void *k, void *v, void *closure)
+route_internal (UNUSED void *k, void *v, void *closure)
 {
   svz_socket_t *sock = v;
   struct route_closure *x = closure;

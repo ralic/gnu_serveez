@@ -40,6 +40,7 @@
 #include "guile-api.h"
 #include "guile.h"
 #include "guile-server.h"
+#include "unused.h"
 
 /* Command line option structure.  */
 option_t *options = NULL;
@@ -66,7 +67,7 @@ extern char *control_protocol_password;
  * This is the entry point for the guile interface.
  */
 static void
-guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
+guile_entry (UNUSED int argc, UNUSED char **argv)
 {
   /* Detect operating system.  */
   svz_log (SVZ_LOG_NOTICE, "%s\n", svz_sys_version ());

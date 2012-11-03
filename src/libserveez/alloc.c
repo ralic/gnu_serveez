@@ -23,6 +23,7 @@
 #include "config.h"
 
 #include "timidity.h"
+#include "unused.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,7 +71,7 @@ static svz_hash_t *heap = NULL;
 
 /* return static heap hash code key length */
 static size_t
-heap_hash_keylen (SVZ_UNUSED const char *id)
+heap_hash_keylen (UNUSED const char *id)
 {
   return SIZEOF_VOID_P;
 }
@@ -333,7 +334,7 @@ svz_free (void *ptr)
 
 #if DEBUG_MEMORY_LEAKS
 static void
-heap_internal (SVZ_UNUSED void *k, void *v, SVZ_UNUSED void *closure)
+heap_internal (UNUSED void *k, void *v, UNUSED void *closure)
 {
   heap_block_t *block = v;
   size_t *p = (size_t *) block->ptr;

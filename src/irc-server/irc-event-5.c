@@ -29,6 +29,7 @@
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
+#include "unused.h"
 
 /*         Command: WHOWAS
  *      Parameters: <nickname> [<count> [<server>]]
@@ -93,7 +94,7 @@ irc_whowas_callback (svz_socket_t *sock,
  * Check if a certain client is visible to another.
  */
 static int
-irc_client_visible (SVZ_UNUSED irc_config_t *cfg,
+irc_client_visible (UNUSED irc_config_t *cfg,
                     irc_client_t *client,  /* who wants to know about */
                     irc_client_t *rclient) /* this client */
 {

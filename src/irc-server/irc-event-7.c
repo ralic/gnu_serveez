@@ -28,6 +28,7 @@
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
+#include "unused.h"
 
 /*
  *         Command: ISON
@@ -138,7 +139,7 @@ struct users_cb_closure
 };
 
 static void
-users_cb_internal (SVZ_UNUSED void *k, void *v, void *closure)
+users_cb_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_client_t *cl = v;
   struct users_cb_closure *x = closure;

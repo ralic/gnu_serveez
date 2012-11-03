@@ -1,3 +1,16 @@
+2012-11-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C int] Promote macro ‘UNUSED’ to its own file.
+
+	* alloc.c: #include "unused.h"; do ‘s/SVZ_UNUSED/UNUSED/g’.
+	* codec/bzip2.c: Likewise.
+	* codec/gzlib.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* server-core.c: Likewise.
+	* server.c: Likewise.
+	* util.c: Likewise.
+	* defines.h (SVZ_UNUSED): Delete macro.
+
 2011-07-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Use Automake conditionals to gate codec glue.

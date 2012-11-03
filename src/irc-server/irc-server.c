@@ -36,6 +36,7 @@
 #include "irc-proto.h"
 #include "irc-event.h"
 #include "irc-server.h"
+#include "unused.h"
 
 #define DEFAULT_PORT 6667
 
@@ -117,7 +118,7 @@ irc_parse_line (char *line, char *fmt, ...)
 }
 
 static void
-dns_done_cl_internal (SVZ_UNUSED void *k, void *v, void *closure)
+dns_done_cl_internal (UNUSED void *k, void *v, void *closure)
 {
   irc_client_t *cl = v;
   svz_socket_t *sock = closure;
@@ -137,7 +138,7 @@ dns_done_cl_internal (SVZ_UNUSED void *k, void *v, void *closure)
 }
 
 static void
-dns_done_ch_internal (SVZ_UNUSED void *k, void *v, void *closure)
+dns_done_ch_internal (UNUSED void *k, void *v, void *closure)
 {
   int n;
   irc_channel_t *ch = v;

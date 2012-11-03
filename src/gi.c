@@ -23,6 +23,7 @@
 # include <guile/gh.h>
 #endif
 #include "timidity.h"
+#include "unused.h"
 
 #if defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION
 #if 2 == SCM_MAJOR_VERSION
@@ -34,12 +35,6 @@
 #define V15  (SCM_MINOR_VERSION >= 5)
 #endif  /* 1 == SCM_MAJOR_VERSION */
 #endif  /* defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION */
-
-#ifdef __GNUC__
-#define UNUSED  __attribute__ ((__unused__))
-#else
-#define UNUSED
-#endif
 
 void *
 gi_malloc (size_t len, const char *name)

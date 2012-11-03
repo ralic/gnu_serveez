@@ -24,12 +24,6 @@
 #include "svzconfig.h"  /* NB: See ../Makefile.am ‘install-data-hook’.  */
 
 /* begin svzint */
-#ifdef __GNUC__
-#define SVZ_UNUSED  __attribute__ ((__unused__))
-#else
-#define SVZ_UNUSED
-#endif
-
 #if GCC_HAS_ATTRIBUTE_VISIBILITY
 #define DSOPRIVATE  __attribute__ ((__visibility__ ("hidden")))
 #else

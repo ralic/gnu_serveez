@@ -32,6 +32,7 @@
 #include "networking-headers.h"
 #include "libserveez.h"
 #include "option.h"
+#include "unused.h"
 
 #ifndef HAVE_GETOPT
 /*
@@ -190,7 +191,7 @@ static struct option serveez_options[] = {
 #endif
 
 static int
-display_ifc (const svz_interface_t *ifc, SVZ_UNUSED void *closure)
+display_ifc (const svz_interface_t *ifc, UNUSED void *closure)
 {
   char addr[64];
 

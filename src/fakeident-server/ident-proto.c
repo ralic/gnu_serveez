@@ -26,6 +26,7 @@
 #include "networking-headers.h"
 #include "libserveez.h"
 #include "ident-proto.h"
+#include "unused.h"
 
 /*
  * Configuration for this server containing the default values.
@@ -82,7 +83,7 @@ svz_servertype_t fakeident_server_definition =
  * Initialize a fakeident server instance
  */
 int
-fakeident_init (SVZ_UNUSED svz_server_t *server)
+fakeident_init (UNUSED svz_server_t *server)
 {
   return 0;
 }
@@ -91,7 +92,7 @@ fakeident_init (SVZ_UNUSED svz_server_t *server)
  * When we get a connection this callback is invoked.  set up more callbacks.
  */
 int
-fakeident_connect_socket (SVZ_UNUSED svz_server_t *server,
+fakeident_connect_socket (UNUSED svz_server_t *server,
                           svz_socket_t *sock)
 {
   sock->boundary = "\n";
@@ -106,7 +107,7 @@ fakeident_connect_socket (SVZ_UNUSED svz_server_t *server,
  * A valid request for us is: "number[space]*,[space]*number[space]*\r\n
  */
 int
-fakeident_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+fakeident_detect_proto (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   int retval = 0;
   char *p = sock->recv_buffer;
@@ -160,7 +161,7 @@ fakeident_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
  */
 int
 fakeident_handle_request (svz_socket_t *sock,
-                          SVZ_UNUSED char *request, SVZ_UNUSED int len)
+                          UNUSED char *request, UNUSED int len)
 {
   struct fakeident_config *cfg = (struct fakeident_config *) sock->cfg;
   int err = 0;

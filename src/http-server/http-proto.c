@@ -59,6 +59,7 @@
 #include "http-cgi.h"
 #include "http-dirlist.h"
 #include "http-cache.h"
+#include "unused.h"
 
 /*
  * The HTTP server instance configuration.
@@ -168,7 +169,7 @@ http_request [HTTP_REQUESTS] =
  * Global http server initializer.
  */
 int
-http_global_init (SVZ_UNUSED svz_servertype_t *server)
+http_global_init (UNUSED svz_servertype_t *server)
 {
 #ifdef __MINGW32__
   http_start_netapi ();
@@ -181,7 +182,7 @@ http_global_init (SVZ_UNUSED svz_servertype_t *server)
  * Global http server finalizer.
  */
 int
-http_global_finalize (SVZ_UNUSED svz_servertype_t *server)
+http_global_finalize (UNUSED svz_servertype_t *server)
 {
   http_free_cache ();
 #ifdef __MINGW32__
@@ -620,7 +621,7 @@ http_file_read (svz_socket_t *sock)
  * the receive buffer looks like an HTTP request.
  */
 int
-http_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+http_detect_proto (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   int n;
 
@@ -903,7 +904,7 @@ http_info_server (svz_server_t *server)
  * Client info callback for the http protocol.
  */
 char *
-http_info_client (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+http_info_client (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   http_socket_t *http = sock->data;
   http_cache_t *cache = http->cache;
@@ -1361,7 +1362,7 @@ http_head_response (svz_socket_t *sock, char *request, int flags)
  */
 int
 http_default_response (svz_socket_t *sock,
-                       SVZ_UNUSED char *request, SVZ_UNUSED int flags)
+                       UNUSED char *request, UNUSED int flags)
 {
   svz_sock_printf (sock, HTTP_NOT_IMPLEMENTED "\r\n");
   http_error_response (sock, 501);

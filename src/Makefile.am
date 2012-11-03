@@ -102,6 +102,7 @@ serveez_SOURCES = \
 
 noinst_HEADERS = changedir.h misc-macros.h \
 	networking-headers.h o-binary.h \
+	unused.h \
 	woe-statpred.h woe-wait.h
 
 EXTRA_serveez_SOURCES = guile-api.c guile-api.h

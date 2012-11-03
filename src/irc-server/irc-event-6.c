@@ -28,6 +28,7 @@
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
+#include "unused.h"
 
 /*
  *         Command: PING
@@ -101,8 +102,8 @@ irc_pong_callback (svz_socket_t *sock,
  * Parameters: <error message>
  */
 int
-irc_error_callback (SVZ_UNUSED svz_socket_t *sock,
-                    SVZ_UNUSED irc_client_t *client,
+irc_error_callback (UNUSED svz_socket_t *sock,
+                    UNUSED irc_client_t *client,
                     irc_request_t *request)
 {
   svz_log (SVZ_LOG_ERROR, "irc: %s\n", request->para[0]);

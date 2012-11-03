@@ -36,6 +36,7 @@
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-hostlist.h"
+#include "unused.h"
 
 /*
  * This routine is the write_socket callback when delivering the
@@ -90,7 +91,7 @@ struct hosts_check_closure
 };
 
 static void
-hosts_check_internal (SVZ_UNUSED void *k, void *v, void *closure)
+hosts_check_internal (UNUSED void *k, void *v, void *closure)
 {
   nut_host_t *host = v;
   struct hosts_check_closure *x = closure;

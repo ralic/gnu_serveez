@@ -33,6 +33,7 @@
 #include "networking-headers.h"
 #include "libserveez.h"
 #include "tunnel.h"
+#include "unused.h"
 
 /*
  * The default tunnel server configuration.
@@ -79,7 +80,7 @@ svz_servertype_t tnl_server_definition =
  * The tunnel server's global initializer.
  */
 int
-tnl_global_init (SVZ_UNUSED svz_servertype_t *server)
+tnl_global_init (UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -88,7 +89,7 @@ tnl_global_init (SVZ_UNUSED svz_servertype_t *server)
  * The tunnel server's global finalizer.
  */
 int
-tnl_global_finalize (SVZ_UNUSED svz_servertype_t *server)
+tnl_global_finalize (UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -408,7 +409,7 @@ tnl_send_request_target (svz_socket_t *sock, char *packet, int len, int flag)
  * share the port configuration with other TCP or pipe servers.
  */
 int
-tnl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+tnl_detect_proto (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   svz_log (SVZ_LOG_NOTICE, "tunnel: %s connection accepted\n",
            sock->flags & SVZ_SOFLG_PIPE ? "pipe" : "tcp");
@@ -420,7 +421,7 @@ tnl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
  * to setup the tunnel server specific callbacks.
  */
 int
-tnl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+tnl_connect_socket (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   svz_socket_t *xsock = NULL;
   tnl_connect_t *source;

@@ -45,6 +45,7 @@
 #include "guile-api.h"
 #include "guile-server.h"
 #include "guile.h"
+#include "unused.h"
 
 /* Port configuration items.  */
 #define PORTCFG_PORT    "port"
@@ -718,7 +719,7 @@ optionhash_cb_before (char *server, void *arg)
 /* Integer callback for configuring a server.  */
 static int
 optionhash_cb_integer (char *server, void *arg, char *key, int *target,
-                       int hasdef, SVZ_UNUSED int def)
+                       int hasdef, UNUSED int def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -745,7 +746,7 @@ optionhash_cb_integer (char *server, void *arg, char *key, int *target,
 /* Boolean callback for configuring a server.  */
 static int
 optionhash_cb_boolean (char *server, void *arg, char *key, int *target,
-                       int hasdef, SVZ_UNUSED int def)
+                       int hasdef, UNUSED int def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -773,7 +774,7 @@ optionhash_cb_boolean (char *server, void *arg, char *key, int *target,
 static int
 optionhash_cb_intarray (char *server, void *arg, char *key,
                         svz_array_t **target, int hasdef,
-                        SVZ_UNUSED svz_array_t *def)
+                        UNUSED svz_array_t *def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -806,7 +807,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
 /* String callback for configuring a server.  */
 static int
 optionhash_cb_string (char *server, void *arg, char *key,
-                      char **target, int hasdef, SVZ_UNUSED char *def)
+                      char **target, int hasdef, UNUSED char *def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -836,7 +837,7 @@ optionhash_cb_string (char *server, void *arg, char *key,
 static int
 optionhash_cb_strarray (char *server, void *arg, char *key,
                         svz_array_t **target, int hasdef,
-                        SVZ_UNUSED svz_array_t *def)
+                        UNUSED svz_array_t *def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -868,7 +869,7 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
 static int
 optionhash_cb_hash (char *server, void *arg, char *key,
                     svz_hash_t **target, int hasdef,
-                    SVZ_UNUSED svz_hash_t *def)
+                    UNUSED svz_hash_t *def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -900,7 +901,7 @@ optionhash_cb_hash (char *server, void *arg, char *key,
 static int
 optionhash_cb_portcfg (char *server, void *arg, char *key,
                        svz_portcfg_t **target, int hasdef,
-                       SVZ_UNUSED svz_portcfg_t *def)
+                       UNUSED svz_portcfg_t *def)
 {
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
@@ -1730,7 +1731,7 @@ does nothing if the control protocol is not enabled.  */)
  * evaluator or a guile procedure call failed.
  */
 static SCM
-guile_exception (SVZ_UNUSED void *data, SCM tag, SCM args)
+guile_exception (UNUSED void *data, SCM tag, SCM args)
 {
   /* FIXME: current-load-port is not defined in this state.  Why?  */
   char str[64];

@@ -26,6 +26,7 @@
 #include "networking-headers.h"
 #include "libserveez.h"
 #include "foo-proto.h"
+#include "unused.h"
 
 /*
  * Packet specification for @code{check_request}.
@@ -111,7 +112,7 @@ foo_rdns_done (char *host, void *closure)
  * Handle a single request as found by the `sock_check_request ()'.
  */
 int
-foo_handle_request (svz_socket_t *sock, SVZ_UNUSED char *request, int len)
+foo_handle_request (svz_socket_t *sock, UNUSED char *request, int len)
 {
   foo_config_t *cfg = sock->cfg;
 
@@ -124,7 +125,7 @@ foo_handle_request (svz_socket_t *sock, SVZ_UNUSED char *request, int len)
  * protocol.
  */
 int
-foo_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
+foo_detect_proto (UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   /* see if the stream starts with our identification string */
   if (sock->recv_buffer_fill >= 5 &&
@@ -191,7 +192,7 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
  * values.
  */
 int
-foo_global_init (SVZ_UNUSED svz_servertype_t *server)
+foo_global_init (UNUSED svz_servertype_t *server)
 {
   char *strarray[] = {
     "Hello !", "This", "is", "a", "default", "string", "array."
@@ -229,7 +230,7 @@ foo_global_init (SVZ_UNUSED svz_servertype_t *server)
  * Called once for foo servers, free our default values.
  */
 int
-foo_global_finalize (SVZ_UNUSED svz_servertype_t *server)
+foo_global_finalize (UNUSED svz_servertype_t *server)
 {
   svz_array_destroy (foo_config.ports);
   svz_array_destroy (foo_config.messages);
@@ -252,7 +253,7 @@ foo_finalize (svz_server_t *server)
  * Initialize a foo server instance.
  */
 int
-foo_init (SVZ_UNUSED svz_server_t *server)
+foo_init (UNUSED svz_server_t *server)
 {
   return 0;
 }
