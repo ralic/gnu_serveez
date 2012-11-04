@@ -66,8 +66,8 @@ See the end for copying conditions.
 *** DONE Assume signal handlers return ‘void’.
 *** DONE Remove svz_t_{size,off}.
 *** DONE Remove svz_c_{const,signed}.
-*** TODO Clean up libserveez API ([[file:src/libserveez/API-HACKING][API-HACKING]]).
-*** TODO Update Guile support.
+*** DONE Clean up libserveez API ([[file:src/libserveez/API-HACKING][API-HACKING]]).
+*** DONE Update Guile support.
 ***** DONE update internal interfaces
 ******* DONE SCM_INUM (m) => gi_scm2int (f)
 ******* DONE SCM_INUMP (m) => SCM_EXACTP (m)
@@ -92,7 +92,7 @@ See the end for copying conditions.
 ******* DONE scm_unprotect_object (f) => gi_gc_unprotect (f)
 ***** DONE snarf definitions
 ***** DONE add proc ‘libserveez-features’
-***** TODO make buildable under Guile 2 (hint: see [[Mike Gran's fork]])
+***** DONE make buildable under Guile 2 (hint: see [[Mike Gran's fork]])
 *** DONE Enable / augment the Guile tests.
 ***** DONE add driver
 ***** DONE add tests
