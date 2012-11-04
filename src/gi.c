@@ -19,22 +19,28 @@
 #include "config.h"
 #include <string.h>
 #include <libguile.h>
+
+#define COMBINED(maj,min)  ((100 * (maj)) + (min))
+
+#if defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION
+#define GUILE_COMBINED_V  COMBINED (SCM_MAJOR_VERSION, SCM_MINOR_VERSION)
+#else
+#define GUILE_COMBINED_V  COMBINED (1, 4)
+#endif
+
+#define GUILE_V_LT(maj,min)  (GUILE_COMBINED_V < COMBINED (maj, min))
+#define GUILE_V_GE(maj,min)  (! GUILE_V_LT (maj, min))
+
 #ifdef HAVE_GUILE_GH_H
 # include <guile/gh.h>
 #endif
+
 #include "timidity.h"
 #include "unused.h"
 
-#if defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION
-#if 2 == SCM_MAJOR_VERSION
-#define V19  1
-#endif  /* 2 == SCM_MAJOR_VERSION */
-#if 1 == SCM_MAJOR_VERSION
-#define V19  (SCM_MINOR_VERSION >= 9)
-#define V17  (SCM_MINOR_VERSION >= 7)
-#define V15  (SCM_MINOR_VERSION >= 5)
-#endif  /* 1 == SCM_MAJOR_VERSION */
-#endif  /* defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION */
+#define V19  GUILE_V_GE (1, 9)
+#define V17  GUILE_V_GE (1, 7)
+#define V15  GUILE_V_GE (1, 5)
 
 void *
 gi_malloc (size_t len, const char *name)
