@@ -31,7 +31,9 @@
 #define GUILE_V_LT(maj,min)  (GUILE_COMBINED_V < COMBINED (maj, min))
 #define GUILE_V_GE(maj,min)  (! GUILE_V_LT (maj, min))
 
-#ifdef HAVE_GUILE_GH_H
+/* If the system Guile is 1.8 but we are compiling for 2.0, for example,
+   avoid pulling in the system Guile gh.h.  */
+#if defined HAVE_GUILE_GH_H && GUILE_V_LT (1, 9)
 # include <guile/gh.h>
 #endif
 
