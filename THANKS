@@ -1,7 +1,18 @@
 THANKS for GNU Serveez
-
 See end for copying conditions.
 
+
+A big thanks go to the following people for suggesting features and
+reporting bugs (sometimes with fixes) for GNU Serveez 0.2.0 and up:
+
+  Mike Gran
+  Karl Berry
+  Raimund Jacob
+  Julian Graham
+
+
+----------8<----- snip ------------------------------------------------
+This is the pre-0.2.0 THANKS file.
 
 Here are listed all the hackers who helped creating this package:
 
