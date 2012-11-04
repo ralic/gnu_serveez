@@ -6,6 +6,7 @@
 @exampleindent 2
 @syncodeindex vr cp
 @syncodeindex fn cp
+@set txideftypefnnl
 @c %** end of header
 
 @include version.texi
