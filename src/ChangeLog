@@ -1,5 +1,11 @@
 2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi 2.x] Use ‘scm_from_locale_symbol’.
+
+	* gi.c (symbol2scm) [V19]: Use ‘scm_from_locale_symbol’.
+
+2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Aggressively avoid <guile/gh.h> for Guile 1.9 and later.
 
 	* gi.c: Don't #include <guile/gh.h> for Guile 1.9 and later,

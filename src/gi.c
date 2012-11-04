@@ -145,7 +145,7 @@ gi_string2scm (char const * s)
 }
 
 #if V19
-#define symbol2scm  scm_make_symbol
+#define symbol2scm  scm_from_locale_symbol
 #elif V15
 #define symbol2scm  scm_str2symbol
 #else
