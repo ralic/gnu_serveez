@@ -1,5 +1,14 @@
 2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Explicitly declare UTF-8 correctly.
+
+	This fixes the botched 2011-12-27, "Explicitly declare UTF-8".
+
+	* serveez.texi <header>: Say "UTF-8";
+	move @documentencoding after @setfilename.
+
+2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Arrange for LF after (C function) return type (PDF only).
 
 	* serveez.texi <header>: Do ‘@set txideftypefnnl’.
