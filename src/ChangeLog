@@ -1,5 +1,12 @@
 2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi 2.x] Use ‘scm_c_private_lookup’.
+
+	* gi.c (gi_lookup) [V19]: Use ‘scm_c_private_lookup’
+	and ‘scm_variable_ref’.
+
+2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi 2.x] Use ‘scm_from_locale_symbol’.
 
 	* gi.c (symbol2scm) [V19]: Use ‘scm_from_locale_symbol’.

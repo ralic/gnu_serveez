@@ -232,7 +232,10 @@ gi_lookup (char const *string)
 {
   SCM rv;
 
-#if V15
+#if V19
+  rv = scm_c_private_lookup ("guile-user", string);
+  rv = scm_variable_ref (rv);
+#elif V15
   rv = scm_sym2var (symbol2scm (string),
                     scm_current_module_lookup_closure (),
                     SCM_BOOL_F);
