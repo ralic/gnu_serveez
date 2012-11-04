@@ -47,6 +47,7 @@ Makefile.in
 /m4/lt~obsolete.m4
 
 /doc/*.info
+/doc/*.pdf
 /doc/guile-api.texi
 /doc/guile-boot.texi
 /doc/serveez-api.html
