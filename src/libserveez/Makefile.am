@@ -71,6 +71,7 @@ docable = \
 
 if !MINGW32
 docable += windoze.c
+EXTRA_DIST += windoze.h
 endif !MINGW32
 
 libserveez.tsar: $(docable)

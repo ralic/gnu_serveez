@@ -1,5 +1,14 @@
 2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[dist] Arrange to always distribute windoze.h.
+
+	Omission from 2012-11-03, "Use Automake
+	conditional to gate windoze.[hc]".
+
+	* Makefile.am (EXTRA_DIST): Add windoze.h ‘if !MINGW32’.
+
+2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Arrange to always docscan windoze.c.
 
 	Omission from 2012-11-03, "Use Automake
