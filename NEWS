@@ -6,6 +6,246 @@ This file lists user visible changes that were made between releases.  For
 more verbose descriptions of these and internal changes see the ChangeLog
 files.
 
+- 0.2.0 | NOT YET RELEASED
+
+  - license upgrade
+
+	The GNU Serveez software is now released under GPLv3+.
+	Its documentation is released under GFDL 1.3.
+
+  - C99 compiler required; configure fails if not found
+
+	The code actually does not require C99 yet, but probably will in
+	the near-to-middling future.  We impose this requirement now as
+	a way to probe for feedback from users on platforms w/o a proper
+	C99 compiler.  (If it turns out there are no such users, great!)
+
+  - bugfixes
+
+    - ensure "make uninstall" removes all Serveez-related dirs
+
+	It used to leave behind /usr/local/lib/libserveez et al, for
+	example.  If you want to uninstall a previous installation of
+	Serveez, try doing:
+
+	$ ./configure --enable-libserveez-install --prefix PREFIX
+	$ make all install uninstall
+
+	taking care to specify the same PREFIX as before.
+
+    - sloppy ‘sscanf’ (latent remote buffer overflow)
+
+    - SIGINT causes segfault (savannah support #107607)
+
+    - typo in ‘svz_portcfg_equal’ for protocol ‘pipe’
+
+    - scope error in DNS return
+
+    - detect ‘gettimeofday’ with #include <sys/time.h>
+
+    - don't drop subsequent "TCP final write" on previous write flush
+
+    - ensure current module for initialization is ‘(guile)’
+
+    - avoid double-free in HTTP server
+
+  - "native MSVC" port dropped
+
+	You can still (try to) build under cygwin or mingwin, however.
+	(Serveez maintainers don't personally subject themselves to
+	woe32, so code specific to these platforms is untested.)
+
+  - support dropped for doc integration w/ Guile help system
+
+	If there is demand, this may return later after things stabilize
+	a bit.  If there is no demand, that's fine too.
+
+  - manuals combined
+
+	The embedding manual is now embedded in the main manual.  To
+	distinguish between Scheme and C, we say "Scheme Procedure" and
+	"Function", respectively.
+
+  - libserveez API changes
+
+    - big pruning
+
+	A great many API elements have been internalized or outright
+	eliminated in an effort to gain implementation slack.  Among
+	those that might be missed are functions to create/manipulate
+	the "vector" and "sparse vector" data structures, and some
+	functions to manipulate the "hash" and "array" data structures.
+
+	Similarly, allocation functions for "permanent, untracked
+	memory space" are now no longer provided; for such allocation,
+	you should use the system ‘malloc’, ‘realloc’, ‘strdup’, ‘free’
+	directly.
+
+    - namespace hygiene: "svz_" or "SVZ_" prefix everywhere
+
+	If you detect an API element whose name does not begin with
+	"svz_" or "SVZ_", that's a bug; please report it.
+
+    - standard types
+
+	There is more use of ‘size_t’, ‘mode_t’, ‘uid_t’, ‘gid_t’,
+	‘in_addr_t’, ‘in_port_t’, uint{8,16,32}_t, etc.  Signal handlers
+	are assumed to return ‘void’.
+
+    - more ‘const’
+
+	Some pointer parameters now are declared ‘const’.  The API is
+	not yet fully vetted; there will probably be more in the future.
+
+    - monolithic libserveez.h
+
+	Previously libserveez.h simply ‘#include’d other files from
+	$(includedir)/libserveez/.  Now libserveez.h is generated from
+	those files at build time and is the only header installed
+	(should you choose, see ‘--enable-libserveez-install’ below).
+
+    - internals marked with GCC "hidden visibility attribute"
+
+	Non-static internal elements (shared between compilation units)
+	are now marked with a "hidden visibility attribute" if you use
+	GCC.
+
+	If you don't use GCC, you can tell if an element is internal if
+	it is undocumented (i.e., all publicly exported API elements are
+	documented -- in theory).
+
+	In case you didn't know, using internal elements is Not Cool.
+	Sometimes you may be tempted; contact Serveez hackers for help.
+
+    - new type: svz_address_t
+
+	Many functions that used to take, and structures that used to
+	hold, an ‘unsigned long’ value to specify an IPv4 address now
+	use instead a (pointer to) ‘svz_address_t’, which encapsulates
+	the family and bits of an IPv4 or IPv6 address.  There are new
+	functions to create/manipulate objects of this type.
+
+	Because we're lame, libserveez does not yet actually support
+	IPv6 internally (or maybe it does but we're too lame to know),
+	so for the time being, the family must always be specified as
+	‘AF_INET’ otherwise the process ‘abort’s.  You have been warned!
+
+    - new collection/type-specific iteration funcs
+
+	There are new funcs svz_foreach_COLLECTION to iterate through a
+	COLLECTION (one of: servertype, server, codec, socket, interface,
+	coserver), applying a callback (of type svz_COLLECTION_do_t) to
+	the object.  The callback also receives the opaque closure passed
+	to the iteration func.
+
+    - new "pp" funcs replace (some) "printf" funcs
+
+	These take a buffer and its size and pretty-print some object
+	into it.  Unlike the "printf" functions, they do not allocate
+	memory, themselves.  This is part of an ongoing effort to make
+	libserveez re-entrant.
+
+    - new func: svz_library_features
+
+	This is exposed to Scheme as ‘libserveez-features’.
+
+    - new func: svz_hash_configure
+
+	Previously, to override the default ‘keylen’, ‘code’ and ‘equal’
+	functions for a hash table, you would assign them directly to
+	the appropriate members of the hash-table structure.  Since that
+	struct is now internalized, this function serves the same
+	purpose.
+
+    - libtool-style versioning
+
+	Previous releases built and installed the shared object library
+	in a manner that ensured each such library was incompatible with
+	those from any other release.  Now, we maintain a Libtool-style
+	version triple to better indicate and track (in)compatability.
+	Please see (info "(libtool) Versioning") for details.
+
+	The triple, now "1:0:0", will be mentioned in NEWS henceforth.
+
+	You might want to avoid all this complication entirely; see new
+	configure option ‘--enable-libserveez-install’ below.
+
+  - scheme changes
+
+    - provide some funcs only if Guile doesn't
+
+	Newer versions of Guile provide: ‘htons’, ‘ntohs’, ‘htonl’,
+	‘ntohl’, ‘inet-aton’ and ‘inet-ntoa’.  If configuration detects
+	this, those procedures will not be built.  Furthermore, if they
+	are built, their names now lack the "svz:" prefix.  Those names
+	are no longer documented.
+
+    - convenience scheme promoted to built-in
+
+	Several procedures that used to require:
+	  (primitive-load "serveez.scm")
+	are now built-in.
+
+  - AWCS protocol / server dropped
+
+	This code is no longer useful.  See:
+	http://lists.gnu.org/archive/html/dev-serveez/2011-06/msg00001.html
+
+  - configuration changes
+
+    - dropped options: --enable-{warn,opt,ppro,486}, --with-opt
+
+	These are better expressed via env var ‘CFLAGS’; see manual.
+
+    - dropped option: --enable-thread-safety
+
+	The condition where "thread safety" is required is now detected
+	automatically by the configure script.
+
+    - dropped options: --with-guile, --with-guile-source
+
+	Configuration now relies solely on the ‘guile-config’ program,
+	included in a proper Guile installation.  See also README-cross.
+
+    - dropped option: --enable-awcs-proto
+
+    - new option: --enable-libserveez-install
+
+	As of this alpha release, and for all releases prior to 0.8.0
+	(i.e., the first beta), "make install" by default does NOT
+	install libserveez and its header.  To do so, specify option
+	‘--enable-libserveez-install’ to the configure script.  You need
+	to install libserveez and its header only if you want to link
+	your own program with it, of course.
+
+  - more coverage for "make check"
+
+	Previously, "make check" only tested the data structures.  Now
+	there are, in addition, tests for the passthrough server, the
+	SNTP server, the Guile server (running a simple echo service),
+	the HTTP CGI server, the binary objects support, and handling of
+	some misconfiguration scenarios.  If a particular server is
+	disabled, that test is skipped.
+
+  - improved portability to more recent Guile versions
+
+	This release was tested w/ Guile 1.8.7 and 2.0.6, the latter
+	under ‘GUILE_AUTO_COMPILE=0’.  Testing, bug reports, and bug
+	fixes w/ other Guile versions/configurations very welcome!
+
+  - prettier PDF output
+
+	In PDF output, C functions are displayed w/ a line break after
+	the return type, leaving only indentation before the name.  This
+	is achieved by ‘@set txideftypefnnl’ in the serveez.texi header.
+
+  - bootstrap tool versions
+    - GNU Autoconf 2.69
+    - GNU Libtool 2.4.2
+    - GNU Automake 1.12.4
+    - GNU Texinfo 4.13
+    - Guile-BAUX 20121026.1208.c21074a
+
 - 0.1.7 | 2009-06-20
 
   - minor bugfixes for newer GNU/Linux kernels
