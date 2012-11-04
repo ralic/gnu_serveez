@@ -69,5 +69,9 @@ docable = \
   coserver/coserver.c \
   $(libserveez_la_SOURCES)
 
+if !MINGW32
+docable += windoze.c
+endif !MINGW32
+
 libserveez.tsar: $(docable)
 	$(gx) s3as -o $@ $^
