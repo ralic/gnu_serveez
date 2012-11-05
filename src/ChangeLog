@@ -1,3 +1,10 @@
+2012-11-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Include package string in libserveez.h comments.
+
+	* Makefile.am (libserveez.h): Arrange to include
+	‘$(PACKAGE_STRING)’ in the header and "ends here" comments.
+
 2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[gi 2.x] Use ‘scm_c_private_lookup’.

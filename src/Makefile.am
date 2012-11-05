@@ -139,7 +139,10 @@ libserveez.h: $(hbits) svzconfig.h
 	         -e '/^SBO.*;$$/d'				\
 	         -e '/^SBO/,/;$$/d'				\
 	> $@T
-	$(SED) '/#define/r $@T' $(srcdir)/$@-TEMPLATE > $@
+	< $(srcdir)/$@-TEMPLATE					\
+	$(SED) -e '/libserveez.h/s//($(PACKAGE_STRING)) &/'	\
+	       -e '/#define/r $@T' 				\
+	> $@
 	rm -f $@T
 
 # NB: This means we need not mention those files in $(hbits) in the
