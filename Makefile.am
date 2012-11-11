@@ -48,3 +48,13 @@ dist-hook:
 
 uninstall-hook:
 	 rmdir "$(DESTDIR)$(pkgdatadir)"
+
+# FIXME: Can Automake be instructed to do this via "make check"?
+#        (We want to avoid stupidly doing ‘check-recursive’.)
+# According to the manual (info "(automake) Extending")
+# it should be sufficient to name this target ‘check-local’.
+# However, w/ Automake 1.12.4, that results in the normal
+# ‘check-recursive’ followed by the optimized test/-only check,
+# a pessimization!
+chk:
+	cd test && $(MAKE) check
