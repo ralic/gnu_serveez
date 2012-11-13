@@ -1,3 +1,12 @@
+2012-11-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Allow for coserver init w/o instances.
+
+	Suggested by Julian Graham.
+
+	* coserver/coserver.c (svz_updn_all_coservers):
+	If DIRECTION is negative, zero all ‘.instances’ in ‘svz_coservertypes’.
+
 2012-11-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[dist] Arrange to always distribute windoze.h.

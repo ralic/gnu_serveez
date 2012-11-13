@@ -1177,10 +1177,17 @@ svz_coserver_finalize (void)
 /**
  * If @var{direction} is non-zero, init coserver internals.
  * Otherwise, finalize them.  Return 0 if successful.
+ *
+ * If @var{direction} is positive, init also starts one instance each
+ * of the builtin servers.  If negative, it doesn't.
  */
 int
 svz_updn_all_coservers (int direction)
 {
+  if (0 > direction)
+    for (int i = 0; i < SVZ_MAX_COSERVER_TYPES; i++)
+      svz_coservertypes[i].instances = 0;
+
   return (direction
           ? svz_coserver_init
           : svz_coserver_finalize)
