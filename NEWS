@@ -66,6 +66,12 @@ files.
 	distinguish between Scheme and C, we say "Scheme Procedure" and
 	"Function", respectively.
 
+  - new command-line option: ‘--solitary’ (short form: ‘-s’)
+
+	Normally, serveez(1) starts some builtin coserver instances.
+	This flag inhibits that.  See related libserveez NEWS item
+	below.
+
   - libserveez API changes
 
     - big pruning
@@ -156,6 +162,13 @@ files.
 	the appropriate members of the hash-table structure.  Since that
 	struct is now internalized, this function serves the same
 	purpose.
+
+    - possible to "init" coservers w/o starting instances
+
+	You can now initialize the Serveez coserver internals w/o
+	starting any instances by passing a negative arg (say, -1) to
+	func ‘svz_updn_all_coservers’ (which is a combination of two
+	previously separate funcs, now "internalized").
 
     - libtool-style versioning
 
