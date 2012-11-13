@@ -45,6 +45,7 @@ typedef struct
   char *pass;      /* password */
 #endif
   int daemon;      /* start as daemon or not */
+  int coservers;   /* 1: start coserver instances; -1: do not */
 }
 option_t;
 

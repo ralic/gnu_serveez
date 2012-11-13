@@ -1,3 +1,15 @@
+2012-11-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Add option to inhibit coserver instances at startup.
+
+	* option.h (option_t): Add member ‘coservers’.
+	* option.c (serveez_options): Add ‘solitary’.
+	(SERVEEZ_OPTIONS): Add "s" to end.
+	(handle_options): Default ‘options.coservers’ to start instances;
+	if given ‘-s’, however, arrange to not start instances.
+	* serveez.c (guile_entry): Don't start coserver
+	instances unconditionally; instead, use ‘options->coservers’.
+
 2012-11-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Include package string in libserveez.h comments.

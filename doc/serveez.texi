@@ -337,6 +337,8 @@ Set the maximum number of socket descriptors.
 Start as daemon in background.
 @item -c, --stdin
 Use standard input as configuration file.
+@item -s, --solitary
+Do not start any builtin coserver instances.
 @end table
 
 @node The config file

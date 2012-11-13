@@ -108,7 +108,7 @@ guile_entry (UNUSED int argc, UNUSED char **argv)
            SVZ_RUNPARM (MAX_SOCKETS));
 
   /* Startup the internal coservers here.  */
-  if (svz_updn_all_coservers (1) == -1)
+  if (svz_updn_all_coservers (options->coservers) == -1)
     {
       exit (4);
     }

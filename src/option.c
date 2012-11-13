@@ -180,14 +180,15 @@ static struct option serveez_options[] = {
   {"password", required_argument, NULL, 'P'},
 #endif
   {"max-sockets", required_argument, NULL, 'm'},
+  {"solitary", no_argument, NULL, 's'},
   {NULL, 0, NULL, 0}
 };
 #endif /* HAVE_GETOPT_LONG */
 
 #if ENABLE_CONTROL_PROTO
-#define SERVEEZ_OPTIONS "l:hViv:f:P:m:dc"
+#define SERVEEZ_OPTIONS "l:hViv:f:P:m:dcs"
 #else
-#define SERVEEZ_OPTIONS "l:hViv:f:m:dc"
+#define SERVEEZ_OPTIONS "l:hViv:f:m:dcs"
 #endif
 
 static int
@@ -233,6 +234,7 @@ handle_options (int argc, char **argv)
 #endif
   options.daemon = 0;
   options.loghandle = NULL;
+  options.coservers = 1;
 
   /* go through the command line itself */
 #if HAVE_GETOPT_LONG
@@ -311,6 +313,10 @@ handle_options (int argc, char **argv)
 
         case 'd':
           options.daemon = 1;
+          break;
+
+        case 's':
+          options.coservers = -1;
           break;
 
         default:
