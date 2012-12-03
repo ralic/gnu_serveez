@@ -22,6 +22,15 @@
 #ifndef __SVZCONFIG_H__
 #define __SVZCONFIG_H__ 1
 
+/* Define to 1 if you have the <winsock2.h> header file.  */
+#undef HAVE_WINSOCK2_H
+
+/* Define to 1 if you have the <arpa/inet.h> header file.  */
+#undef HAVE_ARPA_INET_H
+
+/* Define to 1 if you have the <netinet/in.h> header file.  */
+#undef HAVE_NETINET_IN_H
+
 /* Define to 'int' if <winsock2.h> does not define 'HANDLE'.  */
 #undef svz_t_handle
 

@@ -350,6 +350,7 @@ AC_CHECK_HEADERS_ONCE([wait.h])
 AC_CHECK_HEADERS_ONCE([sys/utsname.h])
 
 AC_CHECK_HEADERS_ONCE([
+  netinet/in.h arpa/inet.h
   sys/time.h sys/poll.h pwd.h varargs.h
   getopt.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h
   ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h

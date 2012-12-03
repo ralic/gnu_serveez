@@ -23,6 +23,25 @@
 
 #include "svzconfig.h"  /* NB: See ../Makefile.am ‘install-data-hook’.  */
 
+/* System headers: standard ones unconditional;
+   the rest only ‘#ifdef HAVE_HEADER_H’ .. ‘#endif’.  */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h>
+#endif
+
 /* begin svzint */
 #if GCC_HAS_ATTRIBUTE_VISIBILITY
 #define DSOPRIVATE  __attribute__ ((__visibility__ ("hidden")))

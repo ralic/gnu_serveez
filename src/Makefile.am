@@ -131,8 +131,9 @@ libserveez.h: $(hbits) svzconfig.h
 	  printf '\f\n/* (%s) */' $$part ;			\
 	  $(SED) -e '1,/^#ifndef/d'				\
 	         -e '/_H__/d'					\
-	         -e '/^#include /d'				\
+	         -e '/^#include ".*"/d'				\
 	         -e '/ends here/d'				\
+	         -e 's/ HAVE_/ SVZ_HAVE_/g'			\
 	         $(srcdir)/$$f ;				\
 	done							\
 	| $(SED) -e '/begin svzint/,/end svzint/d'		\

@@ -1,3 +1,12 @@
+2012-12-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Arrange for libserveez.h to #include system headers.
+
+	* defines.h: #include <stdio.h>, <stdlib.h>, <stdint.h>.
+	[HAVE_WINSOCK2_H]: #include <winsock2.h>.
+	[HAVE_ARPA_INET_H]: #include <arpa/inet.h>.
+	[HAVE_NETINET_IN_H]: #include <netinet/in.h>.
+
 2012-11-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Allow for coserver init w/o instances.
