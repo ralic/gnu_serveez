@@ -13,12 +13,14 @@ files.
 	The GNU Serveez software is now released under GPLv3+.
 	Its documentation is released under GFDL 1.3.
 
+  - distribution now .tar.xz
+
+	If you have GNU tar, you can use "tar xf" and it will DTRT.
+	If not, you can use "xz -dc TARBALL | tar xf -" to unpack.
+
   - C99 compiler required; configure fails if not found
 
-	The code actually does not require C99 yet, but probably will in
-	the near-to-middling future.  We impose this requirement now as
-	a way to probe for feedback from users on platforms w/o a proper
-	C99 compiler.  (If it turns out there are no such users, great!)
+	In particular, libserveez.h does ‘#include <stdint.h>’.
 
   - bugfixes
 
@@ -255,9 +257,9 @@ files.
   - bootstrap tool versions
     - GNU Autoconf 2.69
     - GNU Libtool 2.4.2
-    - GNU Automake 1.12.4
+    - GNU Automake 1.12.5
     - GNU Texinfo 4.13
-    - Guile-BAUX 20121026.1208.c21074a
+    - Guile-BAUX 20121120.1242.e233fad
 
 - 0.1.7 | 2009-06-20
 
