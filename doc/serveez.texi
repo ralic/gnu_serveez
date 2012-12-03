@@ -23,8 +23,8 @@ Copyright @copyright{} 1999 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3
 or any later version published by the Free Software Foundation.
-A copy of the license is included in the section entitled "GNU
-Free Documentation License".
+A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
 @end quotation
 @end copying
 
@@ -499,7 +499,7 @@ i.e., PING).
 @item send-buffer-size (integer)
 The @code{send-buffer-size} configuration item defines the maximum number
 of bytes the send queue of a client is allowed to grow to.  The item
-influences the "send buffer overrun error condition".  For packet oriented
+influences the ``send buffer overrun error condition''.  For packet oriented
 protocols (UDP and ICMP) you need to specify at least the maximum number
 of bytes a single packets can have.  For UDP and ICMP this is 64 KByte.
 The value specified here is an initial value.  It is used unless the
@@ -508,13 +508,13 @@ server bound to this port changes it.
 @item recv-buffer-size (integer)
 The @code{recv-buffer-size} configuration item defines the maximum
 number of bytes the receive queue of a client is allowed to grow to.
-The item influences the "receive buffer underrun error condition".  The
+The item influences the ``receive buffer underrun error condition''.  The
 value specified here is an initial value.  It is used unless the server
 bound to this port changes it.
 
 @item connect-frequency (integer)
 This item determines the maximum number of connections per second the port
-will accept.  It is a kind of "hammer protection".  The item is evaluated
+will accept.  It is a kind of ``hammer protection''.  The item is evaluated
 for each remote client machine separately.  It applies to TCP ports.
 
 @item allow (list of strings)
@@ -530,7 +530,7 @@ be refused and shut down immediately.  It applies to TCP ports.
 @end table
 
 @subsubsection TCP port definition
-Definition of a TCP port configuration with the name "foo-tcp-port".  The
+Definition of a TCP port configuration with the name @code{foo-tcp-port}.  The
 enhanced settings are all optional including the @var{ipaddr} property
 which defaults to @samp{*}.  The @var{ipaddr} item can contain any form
 of a dotted decimal internet address, a @samp{*}, @samp{any} or an
@@ -559,7 +559,7 @@ interface description which you can obtain by running @samp{serveez -i}.
 @end example
 
 @subsubsection Pipe port definition
-Definition of a pipe port configuration with the name "foo-pipe-port".
+Definition of a pipe port configuration with the name @code{foo-pipe-port}.
 When bound to a server it creates the receiving end and listens on that.
 If some client accesses this named pipe the server opens the sending end
 which the client has to open for reading previously.
@@ -595,7 +595,7 @@ specify a user creating the named pipe (file ownership) use either the
 Define an ICMP port configuration which will accept connections from the
 network interface @samp{127.0.0.1} only and communicates via the message
 type 8 as described in the @ref{Tunnel Server} chapter.  The name of
-this port configuration is "foo-icmp-port".  When you are going to bind
+this port configuration is @code{foo-icmp-port}.  When you are going to bind
 some server to this kind of port you have to ensure root (or
 Administrator under Windows) privileges.
 
@@ -606,7 +606,7 @@ Administrator under Windows) privileges.
 @end example
 
 @subsubsection UDP port definition
-Simple definition of a UDP port configuration with the name "foo-udp-port".
+Simple definition of a UDP port configuration with the name @code{foo-udp-port}.
 
 @example
 (define-port! 'foo-udp-port `((proto . udp)
@@ -627,15 +627,15 @@ webserver on a different port publishing something else.  Every server
 has a unique name you assign to it.  The name of the server is later used
 to bind it to a port.
 
-The following example instantiates a server with the short name "foo".  Each
+The following example instantiates a server with the short name ``foo''.  Each
 server in Serveez has got a short name.  @xref{Existing servers}, for the
 details.  This example demonstrates everything which is possible in server
 configurations.  You start a definition of a server with the procedure
 @code{define-server!}.  The following argument specifies the name of the
-server instance (in this case "foo-server") which starts with the short
+server instance (in this case @code{foo-server}) which starts with the short
 name.  The second argument describes the server in detail.  Each
-configuration item is setup with a @code{(key . value)} pair where "key" is
-the name of the configuration item and "value" is the value which depends
+configuration item is setup with a @code{(key . value)} pair where @var{key} is
+the name of the configuration item and @var{value} is the value which depends
 on the type of the item.  @xref{Configuring servers}, for a detailed
 description of each type of value.
 
@@ -656,8 +656,8 @@ description of each type of value.
 
 Serveez provides a number of server types.  Each of them has a short name.
 The name of the server instance has to begin with this short name followed
-by a dash (-).  You can append any suffix then.  In the example above "foo"
-is the short name and "foo-server" the name of the server instance.
+by a dash (-).  You can append any suffix then.  In the example above ``foo''
+is the short name and @code{foo-server} the name of the server instance.
 
 @node Bind servers to ports
 @subsection Bind servers to ports
@@ -668,7 +668,8 @@ does so as soon as Serveez enters its main loop right after running the
 configuration file.  Serveez won't stop until you interrupt it (e.g., by
 pressing @key{^C} in the terminal you started it in).
 
-This example binds the server "foo-server" (s.a.) to the port "foo-tcp-port"
+This example binds the server @code{foo-server} (s.a.)
+to the port @code{foo-tcp-port}
 which was described above.  Therefore you need to call the procedure
 @code{bind-server!} which takes two arguments specifying the name of a port
 configuration and a server instance.  Both need to be defined before
@@ -728,8 +729,8 @@ Besides a wide variety of server capabilities, Serveez also contains
 some client functionality.  This may be necessary when a server is meant
 to establish a connection to another server in response to an incoming
 request.  For example, imagine a protocol where a client tells the
-server "Let me be the server.  Please connect to this @var{host} at this
-@var{port}.".  You are also able to implement pure clients.
+server, ``Let me be the server.  Please connect to this @var{host} at this
+@var{port}''.  You are also able to implement pure clients.
 
 @item platform portability@*
 When writing this software the authors were always mindful of platform
@@ -855,13 +856,13 @@ reads and handles this data.  For a large number of connections (say,
 90000) this results in temporary CPU load peaks even if there is no
 network traffic.
 
-Along with this behaviour comes the problem of "starving" connections.
+Along with this behaviour comes the problem of ``starving'' connections.
 Connections which reside at the beginning of the @code{select} set are
 processed immediately while those at the end are processed significantly
 later and may possibly die because of buffer overruns.  This is the
 reason why Serveez features priority connection: it serves listening
 sockets first and rolls the order of the remaining connections.  In this
-way, non-priority connections are handled in a "round robin" fashion.
+way, non-priority connections are handled in a ``round robin'' fashion.
 
 Other server implementations solve these problems differently.  Some
 start a new process for each connection (fully-threaded server) or split
@@ -894,7 +895,7 @@ possible to run multiple different servers on the same port.
 This chapter covers all questions about how to write your own Internet
 protocol server with this package.  Most of the common tasks of
 such a server have got a generic solution (default routines) which could be
-"overridden" by your own routines.  There are some examples within this
+``overridden'' by your own routines.  There are some examples within this
 package.  They are showing the possibilities with this package and how to
 implement servers.
 
@@ -1384,9 +1385,9 @@ hits/second        501  520  481  475  420  390   295
 @end example
 
 @item CGI
-The CGI test load consists of a trivial "hello world" C program.  I noticed
+The CGI test load consists of a trivial ``hello world'' C program.  I noticed
 GNU/Linux (2.2.17 in this case, probably others too) to throw
-"Resource temporarily unavailable" errors when @code{fork}ing very fast.  This
+``Resource temporarily unavailable'' errors when @code{fork}ing very fast.  This
 limits the test to about 200 concurrent fetches on the test system.
 
 @item Large files
@@ -1427,8 +1428,8 @@ The @code{cgi-dir} is the CGI document root (on the server).
 
 @item cgi-application (hash, default: empty)
 Within the MinGW32 port you can use this hash to associate
-certain file suffices with applications on your computer (e.g., "pl" with
-"perl").  This is necessary because there is no possibility to check whether
+certain file suffices with applications on your computer (e.g., @file{pl} with
+@file{perl}).  This is necessary because there is no possibility to check whether
 a file is executable on Win32.
 
 @item cache-size (integer, default: 200 kb)
@@ -1893,7 +1894,7 @@ Search lines are always matched case insensitive.
 
 @item search-limit (integer, default: 30)
 This limits how many results the Gnutella spider returns to other people
-searching your files.  This is for protection against "*" search requests.
+searching your files.  This is for protection against @code{*} search requests.
 
 @item max-ttl (integer, default: 5)
 Every Gnutella packet has got a TTL.  This is the maximum TTL allowed for
@@ -2103,7 +2104,7 @@ ident requests correctly.  (Or, of course, you are using windoze, need an
 ident response and do not have mIRC at hand.)
 
 This server has two modes of operation.  In one mode all requests get
-"ERROR : NO-USER" as response.  This is a valid but not very helpful response.
+@samp{ERROR : NO-USER} as response.  This is a valid but not very helpful response.
 The other mode makes the server send a valid and useful response.  It contains
 a system type and a username.  The system type is usually 'UNIX'.  Others are
 valid but never used (at least i have never seen something else).
@@ -2198,7 +2199,7 @@ application.  The reader will not see any occurrence of the networking API
 of Guile.
 
 It implements a protocol called @samp{dnc}.  @samp{dnc} - short for
-"Distributed Number Cruncher".  The Mandelbrot server manages the
+``Distributed Number Cruncher''.  The Mandelbrot server manages the
 computation of a graphic visualization of the Mandelbrot set fractal.
 Each client can connect to the server and ask for something to calculate
 and is meant to send its result back to the server.  Finally the server
@@ -2470,7 +2471,7 @@ and @file{wsock32.lib} and for version 2.2 it is @file{ws2_32.dll} and
 
 The Winsock API is still a bit buggy.  Connected datagram behaviors are
 not pertinent to any WinSock 2 features, but to generic WinSock.  On Win95
-it is possible to use @code{recvfrom}/@code{WSARecvFrom} on a "connected"
+it is possible to use @code{recvfrom}/@code{WSARecvFrom} on a ``connected''
 UDP socket, but on NT4 @code{recvfrom}/@code{WSARecvFrom} fail with 10056
 (@code{WSAEISCONN}).  NOTE: @code{sendto}/@code{WSASendTo} fail with
 @code{WSAEISCONN} on both (which I do not see any reason for, but
@@ -2487,7 +2488,7 @@ It seems like you cannot send ICMP or even raw packets from the userspace
 of Windows (except via the @file{ICMP.DLL} which is limited to echo
 requests).  We also noticed that you cannot receive any packets previously
 sent.  The only thing which works on all Windows systems (9x/ME/NT/2000/XP)
-is receiving packets the "kernel" itself generated (like echo replies).
+is receiving packets the ``kernel'' itself generated (like echo replies).
 One good thing we noticed about Windows 2000 is that the checksums of
 fragmented ICMP packets get correctly recalculated.  That is not the case
 in the current Linux kernels.

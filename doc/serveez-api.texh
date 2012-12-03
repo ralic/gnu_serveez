@@ -391,7 +391,7 @@ errors.  TCP does not preserve record boundaries.
 
 The pipe implementation supports both named and anonymous pipes.  Pipe
 servers are implemented as listeners on a file system FIFO on Unices or
-"Named Pipes" on Windows (can be shared over a Windows network).
+``Named Pipes'' on Windows (can be shared over a Windows network).
 
 A FIFO special file is similar to a pipe, except that it is created in a
 different way.  Instead of being an anonymous communications channel, a

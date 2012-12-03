@@ -1,3 +1,10 @@
+2012-12-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Avoid "this"; use ``this'' or @{code,samp,file,var}.
+
+	* serveez-api.texh: ...here.
+	* serveez.texi: Likewise.
+
 2012-11-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	Add option to inhibit coserver instances at startup.
