@@ -1,7 +1,7 @@
 /*
  * irc-event-1.c - IRC events -- Connection Registration
  *
- * Copyright (C) 2011, 2012 Thien-Thi Nguyen
+ * Copyright (C) 2011-2013 Thien-Thi Nguyen
  * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify

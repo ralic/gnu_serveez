@@ -1,6 +1,6 @@
 @c blurb.texi --- standard GNU Serveez description
 @c
-@c Copyright (C) 2011, 2012 Thien-Thi Nguyen
+@c Copyright (C) 2011-2013 Thien-Thi Nguyen
 @c Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 @c Copyright (C) 2000, 2001, 2002 Raimund Jacob <raimi@lkcc.org>
 @c Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>

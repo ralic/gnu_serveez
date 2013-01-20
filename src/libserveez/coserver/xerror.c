@@ -1,7 +1,7 @@
 /*
  * xerror.c --- return a string describing a name/addr translation failure
  *
- * Copyright (C) 2011, 2012 Thien-Thi Nguyen
+ * Copyright (C) 2011-2013 Thien-Thi Nguyen
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

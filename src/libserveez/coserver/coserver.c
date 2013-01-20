@@ -1,7 +1,7 @@
 /*
  * coserver.c - basic internal coserver routines
  *
- * Copyright (C) 2011, 2012 Thien-Thi Nguyen
+ * Copyright (C) 2011-2013 Thien-Thi Nguyen
  * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify

@@ -1,6 +1,6 @@
 ;;; guile-boot.scm --- high-level built-in functionality
 
-;; Copyright (C) 2011, 2012 Thien-Thi Nguyen
+;; Copyright (C) 2011-2013 Thien-Thi Nguyen
 ;; Copyright (C) 2001 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 ;;

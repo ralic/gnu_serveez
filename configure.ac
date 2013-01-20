@@ -1,6 +1,6 @@
 dnl configure.ac --- food for -*-autoconf-*- et al
 dnl
-dnl Copyright (C) 2011, 2012 Thien-Thi Nguyen
+dnl Copyright (C) 2011-2013 Thien-Thi Nguyen
 dnl Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
 dnl Copyright (C) 2000, 2001 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>

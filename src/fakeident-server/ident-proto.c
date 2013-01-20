@@ -1,7 +1,7 @@
 /*
  * ident-proto.c - fake ident server implementation
  *
- * Copyright (C) 2011, 2012 Thien-Thi Nguyen
+ * Copyright (C) 2011-2013 Thien-Thi Nguyen
  * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
  *

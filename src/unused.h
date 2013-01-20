@@ -1,6 +1,6 @@
 /* unused.h --- wrap the GCC ‘UNUSED’ attribute
  *
- * Copyright (C) 2012 Thien-Thi Nguyen
+ * Copyright (C) 2012, 2013 Thien-Thi Nguyen
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
