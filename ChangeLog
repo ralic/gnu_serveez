@@ -1,3 +1,10 @@
+2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[maint] Upgrade to Automake 1.13.1, but keep serial tests.
+
+	* configure.ac (AM_INIT_AUTOMAKE): Bump prereq to 1.12;
+	add option ‘serial-tests’.
+
 2012-12-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[dist] Create .xz tarball instead of .gz on "make dist".

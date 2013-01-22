@@ -38,6 +38,7 @@ Makefile.in
 /build-aux/ltmain.sh
 /build-aux/mdate-sh
 /build-aux/missing
+/build-aux/test-driver
 /build-aux/texinfo.tex
 
 /m4/libtool.m4
@@ -53,6 +54,7 @@ Makefile.in
 /doc/serveez-api.html
 /doc/serveez-api.texi
 /doc/serveez.html
+/doc/serveez.t2p
 /doc/snippets
 /doc/stage
 /doc/stamp-*
