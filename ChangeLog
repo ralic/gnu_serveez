@@ -1,5 +1,13 @@
 2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[maint] Import epsf.tex from Texinfo 4.13.94.
+
+	* build-aux/epsf.tex: New file.
+	* Makefile.am (EXTRA_DIST): Add build-aux/epsf.tex.
+	* AUTHORS: Add Tom Rokicki.
+
+2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[maint] Upgrade to Automake 1.13.1, but keep serial tests.
 
 	* configure.ac (AM_INIT_AUTOMAKE): Bump prereq to 1.12;

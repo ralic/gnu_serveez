@@ -30,6 +30,7 @@ SUBDIRS = src test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha README-cross
 EXTRA_DIST += build-aux/guile-baux
+EXTRA_DIST += build-aux/epsf.tex
 EXTRA_DIST += data
 
 CLEANFILES += *.rpm *.deb *.changes build-stamp
