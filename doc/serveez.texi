@@ -44,6 +44,10 @@ Scheme Procedure
 @title GNU Serveez
 @subtitle A server framework
 @subtitle Edition @value{EDITION}, @value{UPDATED}
+
+@vskip 0pt plus 1filll
+@center @image{logo}
+
 @author Stefan Jahn
 @author Raimund Jacob
 @author Thien-Thi Nguyen

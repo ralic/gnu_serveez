@@ -1,3 +1,9 @@
+2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[doc] Include logo on titlepage.
+
+	* serveez.texi <titlepage>: ...here, centered.
+
 2012-12-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc int] Do ‘s/@PROC{}/{@PROC{}}/’.
