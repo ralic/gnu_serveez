@@ -1,5 +1,11 @@
 2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	Release: 0.2.0
+
+	* configure.ac (AC_INIT): Bump version to "0.2.0" for release.
+
+2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[maint] Import epsf.tex from Texinfo 4.13.94.
 
 	* build-aux/epsf.tex: New file.

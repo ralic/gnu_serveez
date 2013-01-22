@@ -1,5 +1,9 @@
 2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	Release: 0.2.0
+
+2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[doc] Include logo on titlepage.
 
 	* serveez.texi <titlepage>: ...here, centered.
