@@ -1,3 +1,9 @@
+2013-02-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[dist] Create .lz tarball, too, on "make dist".
+
+	* configure.ac (AM_INIT_AUTOMAKE): Add option ‘dist-lzip’.
+
 2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.0
