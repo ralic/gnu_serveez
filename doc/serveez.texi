@@ -6,6 +6,7 @@
 @exampleindent 2
 @syncodeindex vr cp
 @syncodeindex fn cp
+@c 2014 TODO: Use ‘@deftypefnnewline on’ (Texinfo 5.0 or later), instead of:
 @set txideftypefnnl
 @c %** end of header
 
