@@ -335,10 +335,10 @@ See the end for copying conditions.
 
 	Note that the stylized example in the last pair uses globbing.
 
-*** public non-‘master’ branches in the repo
+*** repo branch discipline
 ***** ‘a’ -- "anchor", "asis", "already", "argh-just-leave-me-alone"
 This branch is for what was already released.  It will never be rebased.
-Its tip will always have a commit title starting with "Release".
+Its tip commit title has the form "Release: VERSION-NUMBER".
 ***** ‘next’ -- stuff for the next release
 This branch is work for the next release.  It will never be rebased.
 ***** q-TOPIC -- "questionably", "querulously"
