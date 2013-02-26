@@ -99,7 +99,7 @@
         (begin
           (let loop ((file (readdir dir)))
             (if (not (eof-object? file))
-                (let ((full (string-append directory "/" file)))
+                (let ((full (in-vicinity directory file)))
                   (if (icecast-is-subdirectory? full file)
                       ;; recurse into directories
                       (set! files (icecast-find-files full files))

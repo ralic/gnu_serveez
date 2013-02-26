@@ -1,3 +1,9 @@
+2013-02-26  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Use ‘in-vicinity’ more.
+
+	* guile-server/icecast-server.scm (icecast-find-files): Use ‘in-vicinity’.
+
 2013-01-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.0

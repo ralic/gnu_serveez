@@ -101,7 +101,7 @@
 
 (or VERBOSE? (set! fso (lambda x x)))
 
-(define BASE (string-append "/cgi-bin/" SCRIPT-NAME))
+(define BASE (in-vicinity "/cgi-bin/" SCRIPT-NAME))
 
 (let ((port (HEY #:try-connect 10 "127.0.0.1" 2000)))
 
