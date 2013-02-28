@@ -213,9 +213,13 @@ with shared memory arenas or any other underlying memory API.
 @tsin i "F svz_set_mm_funcs"
 
 @tsin i "F svz_malloc"
+
 @tsin i "F svz_calloc"
+
 @tsin i "F svz_realloc"
+
 @tsin i "F svz_free"
+
 @tsin i "F svz_strdup"
 
 @tsin i "F svz_get_curalloc"
@@ -244,12 +248,19 @@ which fits into the size of a pointer.  The array grows automatically if
 necessary.
 
 @tsin i "F svz_array_create"
+
 @tsin i "F svz_array_destroy"
+
 @tsin i "F svz_array_get"
+
 @tsin i "F svz_array_set"
+
 @tsin i "F svz_array_add"
+
 @tsin i "F svz_array_del"
+
 @tsin i "F svz_array_size"
+
 @tsin i "M svz_array_foreach"
 
 @node Hashtable
@@ -262,14 +273,23 @@ store two values associated with the same key.  The values can have any
 simple C types like integers or pointers.
 
 @tsin i "F svz_hash_create"
+
 @tsin i "F svz_hash_configure"
+
 @tsin i "F svz_hash_destroy"
+
 @tsin i "F svz_hash_delete"
+
 @tsin i "F svz_hash_put"
+
 @tsin i "F svz_hash_get"
+
 @tsin i "F svz_hash_foreach"
+
 @tsin i "F svz_hash_size"
+
 @tsin i "F svz_hash_contains"
+
 @tsin i "F svz_hash_exists"
 
 @node svz_address_t
@@ -291,14 +311,23 @@ deleted and the list returned by @code{svz_library_features} will
 include an appropriate indicator (@pxref{Library features}).
 
 @tsin i "F svz_address_make"
+
 @tsin i "F svz_address_family"
+
 @tsin i "F svz_address_to"
+
 @tsin i "F svz_address_same"
+
 @tsin i "F svz_pp_address"
+
 @tsin i "F svz_pp_addr_port"
+
 @tsin i "F svz_address_copy"
+
 @tsin i "M SVZ_SET_ADDR"
+
 @tsin i "M SVZ_PP_ADDR"
+
 @tsin i "M SVZ_PP_ADDR_PORT"
 
 @node Utility functions
@@ -308,15 +337,23 @@ Within this section you will find some miscellaneous functionality and
 left overs of the C API.
 
 @tsin i "F svz_log"
+
 @tsin i "F svz_log_setfile"
 
 @tsin i "F svz_hexdump"
+
 @tsin i "F svz_itoa"
+
 @tsin i "F svz_atoi"
+
 @tsin i "F svz_getcwd"
+
 @tsin i "F svz_openfiles"
+
 @tsin i "F svz_time"
+
 @tsin i "F svz_tolower"
+
 @tsin i "F svz_sys_version"
 
 @tsin i "F svz_socket_unavailable_error_p"
@@ -330,6 +367,7 @@ exceed 255 bytes.  The rest of the message comprises: colon, space,
 error description, newline.
 
 @tsin i "F svz_log_sys_error"
+
 @tsin i "F svz_log_net_error"
 
 @tsin i "F svz_mingw_at_least_nt4_p"
@@ -342,16 +380,27 @@ It encapsulates systems calls in a portable manner.  These functions
 should behave identically on Windows and Unices.
 
 @tsin i "F svz_inet_ntoa"
+
 @tsin i "F svz_inet_aton"
+
 @tsin i "F svz_closesocket"
+
 @tsin i "F svz_fd_cloexec"
+
 @tsin i "F svz_tcp_cork"
+
 @tsin i "F svz_tcp_nodelay"
+
 @tsin i "F svz_sendfile"
+
 @tsin i "F svz_open"
+
 @tsin i "F svz_close"
+
 @tsin i "F svz_fstat"
+
 @tsin i "F svz_fopen"
+
 @tsin i "F svz_fclose"
 
 @node Client connections
@@ -403,10 +452,15 @@ However, it has to be open at both ends simultaneously before you can
 proceed to do any input or output operations on it.
 
 @tsin i "F svz_pipe_create"
+
 @tsin i "F svz_pipe_create_pair"
+
 @tsin i "F svz_pipe_connect"
+
 @tsin i "F svz_invalid_handle_p"
+
 @tsin i "F svz_invalidate_handle"
+
 @tsin i "F svz_closehandle"
 
 @node UDP sockets
@@ -417,6 +471,7 @@ service.  Packets may be reordered or duplicated before they arrive.
 UDP generates and checks checksums to catch transmission errors.
 
 @tsin i "F svz_udp_connect"
+
 @tsin i "F svz_udp_write"
 
 @node ICMP sockets
@@ -433,7 +488,9 @@ packets are always processed by the kernel too, even when passed to a
 user socket.
 
 @tsin i "F svz_icmp_connect"
+
 @tsin i "F svz_icmp_send_control"
+
 @tsin i "F svz_icmp_write"
 
 @node Raw sockets
@@ -483,16 +540,23 @@ process can @code{send} and @code{recv} as usual.
 Relatedly, Windoze does not use @code{SIGCHLD} to inform the parent when
 a child dies, so for that platform, you should use the next function
 (which is not otherwise available):
+
 @tsin i "F svz_mingw_child_dead_p"
 
 On non-Windoze, this is the function you want to use:
+
 @tsin i "F svz_most_recent_dead_child_p"
 
 @tsin i "F svz_envblock_setup"
+
 @tsin i "F svz_envblock_create"
+
 @tsin i "F svz_envblock_default"
+
 @tsin i "F svz_envblock_add"
+
 @tsin i "F svz_envblock_destroy"
+
 @tsin i "F svz_envblock_get"
 
 @node Socket management
@@ -504,11 +568,17 @@ destruction and other simple operations on socket structures called
 on which kind of socket it can handle and what they are for.
 
 @tsin i "F svz_sock_nconnections"
+
 @tsin i "F svz_sock_write"
+
 @tsin i "F svz_sock_printf"
+
 @tsin i "F svz_sock_resize_buffers"
+
 @tsin i "F svz_sock_check_request"
+
 @tsin i "F svz_sock_reduce_recv"
+
 @tsin i "F svz_sock_reduce_send"
 
 @node Coserver functions
@@ -522,13 +592,19 @@ communicating over a simple text line protocol.  Each request/response
 is separated by a newline character.
 
 @tsin i "F svz_foreach_coserver"
+
 @tsin i "F svz_coserver_check"
+
 @tsin i "F svz_coserver_destroy"
+
 @tsin i "F svz_coserver_create"
+
 @tsin i "F svz_coserver_type_name"
 
 @tsin i "F svz_coserver_rdns_invoke"
+
 @tsin i "F svz_coserver_dns_invoke"
+
 @tsin i "F svz_coserver_ident_invoke"
 
 To make use of coservers, you need to start the coserver interface by
@@ -549,15 +625,25 @@ wrapper functions around the actual implementation to fulfill certain
 entry and exit semantics of this interface.
 
 @tsin i "F svz_foreach_codec"
+
 @tsin i "F svz_codec_get"
+
 @tsin i "F svz_codec_ratio"
+
 @tsin i "F svz_codec_register"
+
 @tsin i "F svz_codec_unregister"
+
 @tsin i "F svz_codec_sock_receive_setup"
+
 @tsin i "F svz_codec_sock_receive"
+
 @tsin i "F svz_codec_sock_send_setup"
+
 @tsin i "F svz_codec_sock_send"
+
 @tsin i "F svz_codec_sock_disconnect"
+
 @tsin i "F svz_codec_sock_detect"
 
 @node Server types
@@ -585,13 +671,21 @@ configuration of the server type.  These macros can be used to define
 such items.
 
 @tsin i "M SVZ_REGISTER_INT"
+
 @tsin i "M SVZ_REGISTER_BOOL"
+
 @tsin i "M SVZ_REGISTER_INTARRAY"
+
 @tsin i "M SVZ_REGISTER_STR"
+
 @tsin i "M SVZ_REGISTER_STRARRAY"
+
 @tsin i "M SVZ_REGISTER_HASH"
+
 @tsin i "M SVZ_REGISTER_PORTCFG"
+
 @tsin i "M SVZ_REGISTER_END"
+
 @tsin i "M SVZ_CONFIG_DEFINE"
 
 @node General server type functionality
@@ -602,8 +696,11 @@ server types in the Serveez core library.  Serveez itself uses some of
 these functions to register its builtin server types.
 
 @tsin i "F svz_foreach_servertype"
+
 @tsin i "F svz_servertype_add"
+
 @tsin i "F svz_servertype_get"
+
 @tsin i "F svz_servertype_find"
 
 @node Dynamic server loading
@@ -617,6 +714,7 @@ supported but yet untested.  Please tell us if you notice misbehaviour
 of any sort.
 
 @tsin i "F svz_dynload_path_set"
+
 @tsin i "F svz_dynload_path_get"
 
 @node Server functions
@@ -643,9 +741,13 @@ in the core library of Serveez, also with the basics like creation and
 destruction of such servers.
 
 @tsin i "F svz_foreach_server"
+
 @tsin i "F svz_server_find"
+
 @tsin i "F svz_server_clients"
+
 @tsin i "F svz_server_get"
+
 @tsin i "F svz_updn_all_servers"
 
 @node Server configuration
@@ -656,13 +758,18 @@ used to create and modify the default configuration of a server type in
 order to create a server configuration.
 
 @tsin i "F svz_config_type_instantiate"
+
 @tsin i "F svz_config_free"
+
 @tsin i "F svz_collect"
 
 @noindent
 Here are some convenience macros for @code{svz_collect}:
+
 @tsin i "M SVZ_COLLECT_INTARRAY"
+
 @tsin i "M SVZ_COLLECT_STRARRAY"
+
 @tsin i "M SVZ_COLLECT_STRHASH"
 
 @node Server binding
@@ -674,26 +781,40 @@ instances.  When binding a server to a specific port configuration the
 core library creates listeners as needed by itself.
 
 @tsin i "F svz_server_bind"
+
 @tsin i "F svz_server_portcfgs"
+
 @tsin i "F svz_server_listeners"
+
 @tsin i "F svz_sock_servers"
+
 @tsin i "F svz_binding_contains_server"
+
 @tsin i "F svz_pp_server_bindings"
 
 @node Server core
 @subsubsection Server core
 
 @tsin i "V svz_child_died"
+
 @tsin i "F svz_shutting_down_p"
 
 @tsin i "F svz_foreach_socket"
+
 @tsin i "F svz_sock_find"
+
 @tsin i "F svz_sock_schedule_for_shutdown"
+
 @tsin i "F svz_sock_enqueue"
+
 @tsin i "F svz_sock_setparent"
+
 @tsin i "F svz_sock_getparent"
+
 @tsin i "F svz_sock_setreferrer"
+
 @tsin i "F svz_sock_getreferrer"
+
 @tsin i "F svz_sock_portcfg"
 
 @node Server loop
@@ -709,8 +830,11 @@ functionality cannot be handled within the timers (notifiers) of servers
 and sockets.
 
 @tsin i "F svz_loop_pre"
+
 @tsin i "F svz_loop_post"
+
 @tsin i "F svz_loop"
+
 @tsin i "F svz_loop_one"
 
 @node Server socket
@@ -733,8 +857,11 @@ configurations: connection oriented (TCP and PIPE), and packet oriented
 (ICMP, UDP and RAW).
 
 @tsin i "F svz_portcfg_addr"
+
 @tsin i "F svz_portcfg_port"
+
 @tsin i "F svz_portcfg_ipaddr"
+
 @tsin i "F svz_portcfg_device"
 
 Serveez maintains an internal list of port configurations, with each
@@ -744,11 +871,17 @@ are two or more port configuration specifying the same network or file
 system configuration just a single one gets actually used.
 
 @tsin i "F svz_portcfg_create"
+
 @tsin i "F svz_portcfg_equal"
+
 @tsin i "F svz_portcfg_add"
+
 @tsin i "F svz_portcfg_get"
+
 @tsin i "F svz_portcfg_destroy"
+
 @tsin i "F svz_portcfg_mkaddr"
+
 @tsin i "F svz_portcfg_dup"
 
 @node Booting
@@ -758,7 +891,9 @@ The most important functions are @code{svz_boot} and @code{svz_halt}
 which must be the first and the last call to the core API.
 
 @tsin i "F svz_boot"
+
 @tsin i "F svz_uptime"
+
 @tsin i "F svz_halt"
 
 @subsubsection Runtime parameters
@@ -778,7 +913,9 @@ both of which accept @dfn{nick}, a C token without the prefix
 @samp{SVZ_RUNPARM_} (e.g., @code{VERBOSITY}).
 
 @tsin i "F svz_runparm"
+
 @tsin i "M SVZ_RUNPARM"
+
 @tsin i "M SVZ_RUNPARM_X"
 
 @node Interface
@@ -792,6 +929,7 @@ system is able to separate the traffic of different networks.  If set up
 correctly, Serveez can follow these rules.
 
 @tsin i "F svz_foreach_interface"
+
 @tsin i "F svz_interface_add"
 
 @node Windoze
@@ -803,5 +941,7 @@ implementation of the Serveez core API only.  They allow access to the
 Windows registry database and some other useful things.
 
 @tsin i "F svz_windoze_daemon_control"
+
 @tsin i "F svz_windoze_asc2uni"
+
 @tsin i "F svz_windoze_uni2asc"

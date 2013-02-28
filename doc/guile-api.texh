@@ -36,26 +36,45 @@ and Serveez.  There are some conversion procedures for strings and lists
 which help to process this binary data in a more complex (guile'ish) way.
 
 @tsin i binary->string
+
 @tsin i string->binary
+
 @tsin i binary?
+
 @tsin i list->binary
+
 @tsin i binary->list
+
 @tsin i binary-search
+
 @tsin i binary-set!
+
 @tsin i binary-ref
+
 @tsin i binary-length
+
 @tsin i binary-concat!
+
 @tsin i binary-subset
+
 @tsin i binary-reverse
+
 @tsin i binary-reverse!
 
 @tsin i binary-long-ref
+
 @tsin i binary-long-set!
+
 @tsin i binary-int-ref
+
 @tsin i binary-int-set!
+
 @tsin i binary-short-ref
+
 @tsin i binary-short-set!
+
 @tsin i binary-char-ref
+
 @tsin i binary-char-set!
 
 @subsubsection Server Definition
@@ -138,61 +157,109 @@ procedures.  Please have a look at the example Guile servers for the
 details.
 
 @tsin i svz:sock?
+
 @tsin i svz:sock:check-request
+
 @tsin i svz:sock:check-oob-request
+
 @tsin i svz:sock:send-oob
+
 @tsin i svz:sock:handle-request
+
 @tsin i svz:sock:boundary
+
 @tsin i svz:sock:floodprotect
+
 @tsin i svz:sock:print
+
 @tsin i svz:sock:final-print
+
 @tsin i svz:sock:no-delay
+
 @tsin i svz:sock:send-buffer
+
 @tsin i svz:sock:send-buffer-size
+
 @tsin i svz:sock:receive-buffer
+
 @tsin i svz:sock:receive-buffer-size
+
 @tsin i svz:sock:receive-buffer-reduce
+
 @tsin i svz:sock:connect
+
 @tsin i svz:sock:disconnected
+
 @tsin i svz:sock:kicked
+
 @tsin i svz:sock:trigger
+
 @tsin i svz:sock:trigger-condition
+
 @tsin i svz:sock:idle
+
 @tsin i svz:sock:idle-counter
+
 @tsin i svz:sock:data
+
 @tsin i svz:sock:parent
+
 @tsin i svz:sock:referrer
+
 @tsin i svz:sock:server
+
 @tsin i svz:sock:local-address
+
 @tsin i svz:sock:remote-address
+
 @tsin i svz:sock:find
+
 @tsin i svz:sock:ident
+
 @tsin i svz:sock:protocol
+
 @tsin i svz:read-file
 
 @tsin i svz:server?
+
 @tsin i svz:server:listeners
+
 @tsin i svz:server:clients
+
 @tsin i svz:server:config-ref
+
 @tsin i svz:server:state-set!
+
 @tsin i svz:server:state-ref
+
 @tsin i svz:server:state->hash
 
 @tsin i serveez-port?
+
 @tsin i serveez-server?
+
 @tsin i serveez-servertype?
+
 @tsin i serveez-exceptions
+
 @tsin i serveez-nuke
+
 @tsin i serveez-loadpath
+
 @tsin i serveez-interfaces
 
 @tsin i getrpc
+
 @tsin i setrpc
+
 @tsin i portmap
+
 @tsin i portmap-list
 
 @tsin i svz:coserver:dns
+
 @tsin i svz:coserver:reverse-dns
+
 @tsin i svz:coserver:ident
 
 @subsubsection Callback Prototypes

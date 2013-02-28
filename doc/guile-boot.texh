@@ -7,32 +7,45 @@
 @subsubsection output
 
 @tsin i println
+
 @tsin i printsln
 
 @subsubsection augmenting
 
 @tsin i interface-add!
+
 @tsin i loadpath-add!
+
 @tsin i serveez-load
 
 @subsubsection abstractions
 
 @tsin i bind-servers!
+
 @tsin i create-tcp-port!
+
 @tsin i bind-tcp-port-range!
+
 @tsin i create-udp-port!
+
 @tsin i bind-udp-port-range!
 
 @subsubsection rpc
 
 @tsin i getrpcent
+
 @tsin i getrpcbyname
+
 @tsin i getrpcbynumber
+
 @tsin i setrpcent
+
 @tsin i endrpcent
 
 @subsubsection misc
 
 @tsin i serveez-verbosity
+
 @tsin i serveez-maxsockets
+
 @tsin i serveez-passwd
