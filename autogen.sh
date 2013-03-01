@@ -29,7 +29,7 @@
 # - Guile-BAUX 20110309.1744.ad9085f
 # These are minimum versions; later versions are probably ok.
 for tool in autoconf libtool automake makeinfo guile-baux-tool ; do
-    echo using: $($tool --version | sed 1q)
+    $tool --version | sed 's/^/using: /;1q'
 done
 
 cd `dirname $0`
