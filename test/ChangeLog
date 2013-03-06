@@ -1,3 +1,10 @@
+2013-03-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[v] Add test for ‘guile-error’ w/ closed config file.
+
+	* t007: New file.  Suggested by Mike Gran.
+	* Makefile.am (TESTS): Add t007.
+
 2013-02-26  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Use ‘in-vicinity’ more.

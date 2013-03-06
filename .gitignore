@@ -79,6 +79,7 @@ Makefile.in
 /src/libserveez/libserveez.tsar
 /src/libserveez/svzpath.h
 
+/test/*.err
 /test/*.log
 /test/btdt
 /test/but-of-course
