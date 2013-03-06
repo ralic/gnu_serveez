@@ -185,7 +185,11 @@ guile_error (char *format, ...)
   va_list args;
   /* FIXME: Why is this port undefined in guile exceptions?  */
   SCM lp = guile_get_current_load_port ();
-  int lp_valid_p = !SCM_UNBNDP (lp) && SCM_PORTP (lp);
+  int lp_valid_p = !SCM_UNBNDP (lp)
+    /* TODO: Investigate why ‘SCM_PORTP’ is (was) sufficient for
+       Guile 1.8 but not 2.0 (which is succeptible to segv).
+       TODO: Do all validation in ‘guile_get_current_load_port’.  */
+    && SCM_OPINPORTP (lp);
   SCM filename = lp_valid_p ? SCM_FILENAME (lp) : SCM_BOOL_F;
   char file[1024];
 

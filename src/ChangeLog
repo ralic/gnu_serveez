@@ -1,3 +1,12 @@
+2013-03-06  Mike Gran  <spk121@yahoo.com>  (tiny change)
+
+	[slog] Protect against Guile 2.x segv in ‘guile_error’.
+
+	There is no XFAIL test as this is platform-specific.  Thread origin:
+	<http://lists.gnu.org/archive/html/bug-serveez/2013-02/msg00000.html>.
+
+	* guile.c (guile_error): Use ‘SCM_OPINPORTP’ for validity.
+
 2013-02-26  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Use ‘in-vicinity’ more.
