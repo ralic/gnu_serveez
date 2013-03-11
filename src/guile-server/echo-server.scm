@@ -63,9 +63,9 @@
   (let ((idx (binary-search request "quit")))
     (if (and idx (= idx 0))
         (set! ret -1)
-    (begin
-      (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))
-      (set! ret 0)))
+        (begin
+          (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))
+          (set! ret 0)))
     ret))
 
 (define (echo-connect-socket server sock)
