@@ -36,14 +36,11 @@
   (let* ((tokens '())
          (text (substring text 1 (- (string-length text) 3))))
     (let loop ((i 0))
-      (if (< i (string-length text))
-          (begin
-            (let* ((idx (string-index text #\: i))
-                   (end (if idx idx (string-length text))))
-              (set! tokens (append tokens `(,(substring text i end))))
-              (loop (1+ end))
-              ))
-          ))
+      (and (< i (string-length text))
+           (let* ((idx (string-index text #\: i))
+                  (end (if idx idx (string-length text))))
+             (set! tokens (append tokens `(,(substring text i end))))
+             (loop (1+ end)))))
     tokens))
 
 ;; prepare the given Serveez socket for our protocol

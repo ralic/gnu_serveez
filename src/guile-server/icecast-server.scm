@@ -19,7 +19,7 @@
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; compatibility stuff to make this server run with Guile 1.6 and later
-(if (not (defined? 'fseek))
+(or (defined? 'fseek)
     (define (fseek obj offset whence)
       (seek obj offset whence)))
 
@@ -93,23 +93,20 @@
 ;; recurse into directories and find mp3 files
 (define (icecast-find-files directory files)
   ;; open directory
-  (let ((dir (icecast-opendir directory)))
-    ;; collect files
-    (if dir
-        (begin
-          (let loop ((file (readdir dir)))
-            (if (not (eof-object? file))
-                (let ((full (in-vicinity directory file)))
-                  (if (icecast-is-subdirectory? full file)
-                      ;; recurse into directories
-                      (set! files (icecast-find-files full files))
-                      ;; filter MP3 files
-                      (if (icecast-is-file? file)
+  (and=> (icecast-opendir directory)
+         (lambda (dir)
+           (let loop ((file (readdir dir)))
+             (or (eof-object? file)
+                 (let ((full (in-vicinity directory file)))
+                   (cond ((icecast-is-subdirectory? full file)
+                          ;; recurse into directories
+                          (set! files (icecast-find-files full files)))
+                         ((icecast-is-file? file)
+                          ;; filter MP3 files
                           (set! files (cons full files))))
-                  (loop (readdir dir)))))
-
-          ;; close directory
-          (closedir dir))))
+                   (loop (readdir dir)))))
+           ;; close directory
+           (closedir dir)))
   files)
 
 ;; protocol detection
@@ -183,7 +180,7 @@
 ;; close the currently streamed file
 (define (icecast-close-file data)
   (let* ((port (hash-ref data "port")))
-    (if (input-port? port) (close port))
+    (and (input-port? port) (close port))
     (hash-remove! data "port")
     (hash-remove! data "file")))
 
@@ -207,20 +204,20 @@
            (lambda args
              (println "icecast: unable to open `" file "'")))
 
-    (if (input-port? port)
-        (let* ((user (hash-ref data "user"))
-               (host (hash-ref data "host"))
-               (addr (svz:sock:remote-address sock)))
-          (hash-set! data "file" file)
-          (hash-set! data "port" port)
-          (icecast-id3-tag data)
-          (if (not host)
-              (set! host (inet-ntoa (car addr))))
-          (if (and host user)
-              (set! host (string-append user "@" host)))
-          (println "icecast: uploading `" file "'"
-                   (if host
-                       (string-append " to " host) ""))))))
+    (and (input-port? port)
+         (let* ((user (hash-ref data "user"))
+                (host (hash-ref data "host"))
+                (addr (svz:sock:remote-address sock)))
+           (hash-set! data "file" file)
+           (hash-set! data "port" port)
+           (icecast-id3-tag data)
+           (or host
+               (set! host (inet-ntoa (car addr))))
+           (and host user
+                (set! host (string-append user "@" host)))
+           (println "icecast: uploading `" file "'"
+                    (if host
+                        (string-append " to " host) ""))))))
 
 ;; ensure the send buffer is filled
 (define (icecast-trigger-condition sock)
@@ -254,12 +251,12 @@
         (set! size (- size pos))
         (set! size (binary-length buffer)))
 
-    (if (> size 0)
-        (begin
-          (if (> (binary-length buffer) size)
-              (set! buffer (binary-subset buffer 0 (- size 1))))
-          (hash-set! data "position" (+ pos (binary-length buffer)))
-          (svz:sock:print sock buffer)))))
+    (and (> size 0)
+         (begin
+           (and (> (binary-length buffer) size)
+                (set! buffer (binary-subset buffer 0 (- size 1))))
+           (hash-set! data "position" (+ pos (binary-length buffer)))
+           (svz:sock:print sock buffer)))))
 
 ;; detect whether the given file contains ID3 tags
 (define (icecast-id3-tag data)
@@ -273,20 +270,22 @@
     (if (icecast-is-regular? file)
         (begin
           (set! size (stat:size (stat file)))
-          (if (> size 128)
-              (begin
-                ;; read the last 128 bytes
-                (fseek port -128 SEEK_END)
-                (set! buffer (svz:read-file port 128))
-                (fseek port 0 SEEK_SET))))
+          (and (> size 128)
+               (begin
+                 ;; read the last 128 bytes
+                 (fseek port -128 SEEK_END)
+                 (set! buffer (svz:read-file port 128))
+                 (fseek port 0 SEEK_SET))))
         (println "icecast: `" file "'is not a regular file"))
 
-    (if (and size buffer (= (binary-length buffer) 128))
-        (let ((found (binary-search buffer "TAG")))
-          (if (and found (= found 0))
-              (begin
-                (hash-set! data "size" (- size 128))
-                (println "icecast: stripping ID3 tag of `" file "'")))))))
+    (and size buffer
+         (= (binary-length buffer) 128)
+         (and=> (binary-search buffer "TAG")
+                (lambda (found)
+                  (and (= found 0)
+                       (begin
+                         (hash-set! data "size" (- size 128))
+                         (println "icecast: stripping ID3 tag of `" file "'"))))))))
 
 ;; server type definitions
 (define-servertype! `(

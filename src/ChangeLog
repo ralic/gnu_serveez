@@ -1,3 +1,22 @@
+2013-03-11  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Re-word one-armed ‘if’ expressions.
+
+	Use ‘or’, ‘and’, ‘cond’, ‘and=>’, etc.
+
+	* guile-boot.scm (create-tcp-port!, create-udp-port!): ...here.
+	* guile-server/icecast-server.scm <fseek check>: Likewise.
+	(icecast-find-files, icecast-close-file, icecast-next-file)
+	(icecast-send-buffer, icecast-id3-tag): Likewise.
+	* guile-server/inetd.scm (read-config, crop-spaces)
+	(string-split, get-rpc-service, create-rpc-server, rpc-ip-proto)
+	(run-rpc-portmapper, bind-rpc-service, protocol-port-string)
+	(create-server, translate-internal-server, create-bindings): Likewise.
+	* guile-server/mandel-server.scm (left-zeros, generate-ascii)
+	(mandel-palette, mandel-save-palette, save-point!, next-index!)
+	(mandel-finalize): Likewise.
+	* guile-server/mandel-shared.scm (mandel-split): Likewise.
+
 2013-03-06  Mike Gran  <spk121@yahoo.com>  (tiny change)
 
 	[slog] Protect against Guile 2.x segv in ‘guile_error’.

@@ -1,3 +1,13 @@
+2013-03-11  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Re-word one-armed ‘if’ expressions.
+
+	Use ‘or’, ‘and’, ‘cond’, ‘and=>’, etc.
+
+	* t005 <micro-version check>: ...here.
+	* t006 <micro-version check>: Likewise.
+	* test-suite.scm <micro-version check>: Likewise.
+
 2013-03-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[v] Add test for ‘guile-error’ w/ closed config file.

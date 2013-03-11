@@ -48,9 +48,9 @@
 ;; fill left side string with zeros
 (define (left-zeros text n)
   (let loop ((i (string-length text)))
-    (if (< i n) (begin
-                  (set! text (string-append "0" text))
-                  (loop (1+ i)))))
+    (and (< i n) (begin
+                   (set! text (string-append "0" text))
+                   (loop (1+ i)))))
   text)
 
 ;; create an ascii representation for the given index i, each character is
@@ -59,13 +59,13 @@
 (define (generate-ascii range bpp i)
   (let* ((ascii (make-string bpp #\space)))
     (let loop ((n 0) (i i))
-      (if (< n bpp)
-          (let ((c (integer->char (+ (modulo i range)
-                                     (char->integer #\space)))))
-            (if (equal? c #\")
-                (set! c (integer->char (+ range (char->integer #\space)))))
-            (string-set! ascii n c)
-            (loop (1+ n) (divide i range)))))
+      (and (< n bpp)
+           (let ((c (integer->char (+ (modulo i range)
+                                      (char->integer #\space)))))
+             (and (equal? c #\")
+                  (set! c (integer->char (+ range (char->integer #\space)))))
+             (string-set! ascii n c)
+             (loop (1+ n) (divide i range)))))
     ascii))
 
 ;; generate a colourful palette
@@ -74,19 +74,19 @@
          (rgb (cons (make-vector colors) (make-vector colors)))
          (bpp 1))
     (let loop ((i (1- colors)) (r 0) (g 0) (b 0))
-      (if (>= i 0)
-          (let* ((val 0)
-                 (char-range (- (char->integer #\~) (char->integer #\space))))
+      (and (>= i 0)
+           (let* ((val 0)
+                  (char-range (- (char->integer #\~) (char->integer #\space))))
 
-            (set! bpp (let loop ((n 1) (cols char-range))
-                        (if (>= cols colors) n
-                            (loop (1+ n) (* cols char-range)))))
-            (set! val (+ (inexact->exact (* 127 (- 1 (cos b))))
-                         (* 256 (inexact->exact (* 127 (- 1 (cos g)))))
-                         (* 256 256 (inexact->exact (* 127 (- 1 (cos r)))))))
-            (vector-set! (car rgb) i (generate-ascii char-range bpp i))
-            (vector-set! (cdr rgb) i (left-zeros (number->string val 16) 6))
-            (loop (1- i) (+ r 0.2) (+ g 0.02) (+ b 0.33)))))
+             (set! bpp (let loop ((n 1) (cols char-range))
+                         (if (>= cols colors) n
+                             (loop (1+ n) (* cols char-range)))))
+             (set! val (+ (inexact->exact (* 127 (- 1 (cos b))))
+                          (* 256 (inexact->exact (* 127 (- 1 (cos g)))))
+                          (* 256 256 (inexact->exact (* 127 (- 1 (cos r)))))))
+             (vector-set! (car rgb) i (generate-ascii char-range bpp i))
+             (vector-set! (cdr rgb) i (left-zeros (number->string val 16) 6))
+             (loop (1- i) (+ r 0.2) (+ g 0.02) (+ b 0.33)))))
     (svz:server:state-set! server "palette" rgb)
     (svz:server:state-set! server "bpp" (number->string bpp))))
 
@@ -95,15 +95,15 @@
   (let* ((rgb (svz:server:state-ref server "palette"))
          (size (vector-length (car rgb))))
     (let loop ((i 0))
-      (if (< i size)
-          (begin
-            (write-line (string-append "\""
-                                       (vector-ref (car rgb) i)
-                                       "\tc #"
-                                       (vector-ref (cdr rgb) i)
-                                       "\",")
-                        outfile)
-            (loop (1+ i)))))))
+      (and (< i size)
+           (begin
+             (write-line (string-append "\""
+                                        (vector-ref (car rgb) i)
+                                        "\tc #"
+                                        (vector-ref (cdr rgb) i)
+                                        "\",")
+                         outfile)
+             (loop (1+ i)))))))
 
 ;; write out a finished xpm picture
 (define (mandel-write server)
@@ -162,11 +162,11 @@
 
 ;; store a calculated point
 (define (save-point! server index value)
-  (if (< (vector-ref (svz:server:state-ref server "data") index) 0)
-      (begin
-        (vector-set! (svz:server:state-ref server "data") index value)
-        (svz:server:state-set! server "missing"
-                               (1- (svz:server:state-ref server "missing"))))))
+  (and (< (vector-ref (svz:server:state-ref server "data") index) 0)
+       (begin
+         (vector-set! (svz:server:state-ref server "data") index value)
+         (svz:server:state-set! server "missing"
+                                (1- (svz:server:state-ref server "missing"))))))
 
 ;; calculate the complex number at a given array index
 (define (index->z server index)
@@ -185,8 +185,8 @@
          (data (svz:server:state-ref server "data"))
          (size (vector-length data)))
     (set! index (let loop ((i index))
-                  (if (>= i size)
-                      (set! i 0))
+                  (and (>= i size)
+                       (set! i 0))
                   (if (< (vector-ref data i) 0) i (loop (1+ i)))))
     (svz:server:state-set! server "index" (1+ index))
     index))
@@ -222,11 +222,11 @@
 
 ;; server instance finalizer callback
 (define (mandel-finalize server)
-  (if (and (finished? server) (system))
-      (begin
-        (system (string-append (svz:server:config-ref server "viewer") " "
-                               (svz:server:config-ref server "outfile")))
-        )) 0)
+  (and (finished? server)
+       (system)
+       (system (string-append (svz:server:config-ref server "viewer") " "
+                              (svz:server:config-ref server "outfile"))))
+  0)
 
 ;; handle one request by a client
 (define (mandel-handle-request sock request len)

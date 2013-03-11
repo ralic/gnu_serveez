@@ -23,8 +23,8 @@
             pass-if
             pass-if-exception))
 
-(if (defined? 'micro-version)
-    (use-modules (guile-user)))
+(and (defined? 'micro-version)
+     (use-modules (guile-user)))
 
 (define VERBOSE? (equal? "1" (getenv "VERBOSE")))
 

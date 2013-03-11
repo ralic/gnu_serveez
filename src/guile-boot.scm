@@ -116,7 +116,7 @@
 ;;
 (define (create-tcp-port! basename port)
   (let ((portname (string-append basename (number->string port))))
-    (if (not (serveez-port? portname))
+    (or (serveez-port? portname)
         (define-port! portname
           `((proto . tcp)
             (port . ,port))))
@@ -140,7 +140,7 @@
 ;;
 (define (create-udp-port! basename port)
   (let ((portname (string-append basename (number->string port))))
-    (if (not (serveez-port? portname))
+    (or (serveez-port? portname)
         (define-port! portname
           `((proto . udp)
             (port . ,port))))

@@ -40,11 +40,11 @@
       (use-modules (test-suite))
 
       ;; This code exports the public symbols of the guile-user module.
-      (if (defined? 'micro-version)
-          (begin
-            (export serveez-verbosity)
-            (export serveez-exceptions)
-            (export serveez-nuke)))
+      (and (defined? 'micro-version)
+           (begin
+             (export serveez-verbosity)
+             (export serveez-exceptions)
+             (export serveez-nuke)))
 
       ;; Run the test suite for the server and port definitions used in serveez.
       ;; Right now it basically tests hopefully all of the error conditions.
@@ -423,11 +423,11 @@
       (use-modules (test-suite))
 
       ;; This code exports the public symbols of the guile-user module.
-      (if (defined? 'micro-version)
-          (begin
-            (export serveez-verbosity)
-            (export serveez-exceptions)
-            (export serveez-nuke)))
+      (and (defined? 'micro-version)
+           (begin
+             (export serveez-verbosity)
+             (export serveez-exceptions)
+             (export serveez-nuke)))
 
       ;; Run the test suite for the server and port definitions used in serveez.
       ;; Right now it basically tests hopefully all of the error conditions.

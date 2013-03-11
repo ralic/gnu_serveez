@@ -43,11 +43,11 @@
            (let* ((f (open-input-file file))
                   (lines '()))
              (let loop ((line (read-line f)))
-               (if (not (eof-object? line))
+               (or (eof-object? line)
                    (let ((n (string-index line #\#)))
-                     (if n (set! line (substring line 0 n)))
-                     (if (> (string-length line) 0)
-                         (set! lines (cons line lines)))
+                     (and n (set! line (substring line 0 n)))
+                     (and (> (string-length line) 0)
+                          (set! lines (cons line lines)))
                      (loop (read-line f)))))
              (close-input-port f)
              (reverse lines)))
@@ -69,13 +69,13 @@
 ;; removes leading white spaces from the given string and returns it
 (define (crop-spaces string)
   (let ((ret string))
-    (if (> (string-length string) 0)
-        (let loop ((c (string-ref string 0)))
-          (if (<= (char->integer c) (char->integer #\space))
-              (begin
-                (set! string (substring string 1))
-                (if (> (string-length string) 0)
-                    (loop (string-ref string 0)))))))
+    (and (> (string-length string) 0)
+         (let loop ((c (string-ref string 0)))
+           (and (<= (char->integer c) (char->integer #\space))
+                (begin
+                  (set! string (substring string 1))
+                  (and (> (string-length string) 0)
+                       (loop (string-ref string 0)))))))
     string))
 
 ;; returns the next position of a white space character in the given
@@ -107,8 +107,9 @@
         (if i
             (set! string (substring string i))
             (set! string ""))
-        (if (and i (or (not (pair? tokens)) (< n (1- (car tokens)))))
-            (loop (1+ n)))))
+        (and i (or (not (pair? tokens))
+                   (< n (1- (car tokens))))
+             (loop (1+ n)))))
     (if (pair? tokens)
         (vector-set! vector (car tokens) (string-split string))
         (set! vector (if (null? vector) #f (list->vector vector))))
@@ -135,7 +136,7 @@
                        (cons "1" "1")))
          (version-begin (car versions))
          (version-end (if (cdr versions) (cdr versions) version-begin)))
-    (if (not (cdr entry))
+    (or (cdr entry)
         (display (string-append "inetd: " name ": no rpc version\n")))
     (cons (lookup-rpc-service name)
           (cons (string->number version-begin)
@@ -171,14 +172,14 @@
     (set! server (cons (cons "single-threaded"
                              (equal? (car threads) "wait"))
                        server))
-    (if (cdr threads)
-        (set! server (cons (cons "thread-frequency"
-                                 (string->number (cdr threads)))
-                           server)))
-    (let ((argv (vector-ref line 6)))
-      (if argv
-          (set! server (cons (cons "argv" (vector->list argv))
-                             server))))
+    (and (cdr threads)
+         (set! server (cons (cons "thread-frequency"
+                                  (string->number (cdr threads)))
+                            server)))
+    (and=> (vector-ref line 6)
+           (lambda (argv)
+             (set! server (cons (cons "argv" (vector->list argv))
+                                server))))
     (set! name (string-append "prog-server-"
                               (protocol-rpc-string rpc proto)))
     (define-server! name server)
@@ -202,11 +203,10 @@
 (define (check-rpc-portmapper number version)
   (let ((mappings (portmap-list)))
     (let loop ((mapping mappings))
-      (if (null? mapping)
-          #f
-          (or (and (equal? (vector-ref (car mapping) 0) number)
-                   (equal? (vector-ref (car mapping) 1) version))
-              (loop (cdr mapping)))))))
+      (and (not (null? mapping))
+           (or (and (equal? (vector-ref (car mapping) 0) number)
+                    (equal? (vector-ref (car mapping) 1) version))
+               (loop (cdr mapping)))))))
 
 ;; this procedure registers the rpc service identified by the triplet
 ;; [number,version,protocol] at a network port system wide.  this
@@ -216,13 +216,13 @@
     ;; should the previous setting really be disabled ?
     (catch #t
            (lambda ()
-             (if (check-rpc-portmapper number version)
-                 (begin
-                   (if verbose
-                       (display
-                        (string-append "inetd: unregistering rpc service `"
-                                       name "'\n")))
-                   (portmap number version)))
+             (and (check-rpc-portmapper number version)
+                  (begin
+                    (and verbose
+                         (display
+                          (string-append "inetd: unregistering rpc service `"
+                                         name "'\n")))
+                    (portmap number version)))
              (set! result #t))
            (lambda key
              (display (string-append "inetd: portmapping for rpc service `"
@@ -244,39 +244,39 @@
   (let* ((service (get-rpc-service service-line))
          (rpc (car service))
          (versions (cdr service)))
-    (if rpc
-        ;; create port configuration and server
-        (let* ((name (vector-ref rpc 0))
-               (proto (rpc-protocol service-line))
-               (port (create-rpc-portcfg name proto))
-               (server (create-rpc-server service-line name proto)))
-          ;; bind the server to its port
-          (if verbose
-              (display (string-append "inetd: binding `"
-                                      server
-                                      "' to `"
-                                      port
-                                      "'\n")))
-          (bind-server! port server)
+    (and rpc
+         ;; create port configuration and server
+         (let* ((name (vector-ref rpc 0))
+                (proto (rpc-protocol service-line))
+                (port (create-rpc-portcfg name proto))
+                (server (create-rpc-server service-line name proto)))
+           ;; bind the server to its port
+           (and verbose
+                (display (string-append "inetd: binding `"
+                                        server
+                                        "' to `"
+                                        port
+                                        "'\n")))
+           (bind-server! port server)
 
-          ;; now go through each listening socket structure the server got
-          ;; finally bound to
-          (for-each (lambda (sock)
-                      ;; obtain the local network port
-                      (let ((port (cdr (svz:sock:local-address sock))))
-                        ;; for each version specified in the original
-                        ;; service line
-                        (do ((version (car versions) (+ version 1)))
-                            ((> version (cdr versions)))
-                          ;; create a port-mapping
-                          (run-rpc-portmapper (vector-ref rpc 0)
-                                              (vector-ref rpc 2) version
-                                              (rpc-ip-proto service-line)
-                                              (ntohs port)))
-                        ))
-                    ;; get the listening socket sructures
-                    (svz:server:listeners server))
-          ))))
+           ;; now go through each listening socket structure the server got
+           ;; finally bound to
+           (for-each (lambda (sock)
+                       ;; obtain the local network port
+                       (let ((port (cdr (svz:sock:local-address sock))))
+                         ;; for each version specified in the original
+                         ;; service line
+                         (do ((version (car versions) (+ version 1)))
+                             ((> version (cdr versions)))
+                           ;; create a port-mapping
+                           (run-rpc-portmapper (vector-ref rpc 0)
+                                               (vector-ref rpc 2) version
+                                               (rpc-ip-proto service-line)
+                                               (ntohs port)))
+                         ))
+                     ;; get the listening socket sructures
+                     (svz:server:listeners server))
+           ))))
 
 ;; this checks if the given service line specifies a rpc service or not
 (define (rpc-service? service-line)
@@ -320,16 +320,15 @@
 (define (create-portcfg line)
   (let* ((service (lookup-service line))
          (port '()) (name "undefined"))
-    (if service
-        (begin
-          (set! port (cons (cons "proto" (vector-ref service 3)) port))
-          (set! port (cons (cons "ipaddr" ip-address) port))
-          (set! port (cons (cons "port" (vector-ref service 2)) port))
-          (set! name (string-append "inetd-port-"
-                                    (protocol-port-string service)))
-          (define-port! name port)
-          name)
-        #f)))
+    (and service
+         (begin
+           (set! port (cons (cons "proto" (vector-ref service 3)) port))
+           (set! port (cons (cons "ipaddr" ip-address) port))
+           (set! port (cons (cons "port" (vector-ref service 2)) port))
+           (set! name (string-append "inetd-port-"
+                                     (protocol-port-string service)))
+           (define-port! name port)
+           name))))
 
 ;; creates a program passthrough server for Serveez, returns the name of
 ;; the new server or #f on failure
@@ -338,32 +337,31 @@
          (server '())
          (name "undefined")
          (threads (split-tuple (vector-ref line 3))))
-    (if service
-        (begin
-          (if (equal? (service-binary line) "internal")
-              (set! name (translate-internal-server line service))
-              (begin
-                (set! server (cons (cons "binary" (service-binary line))
-                                   server))
-                (set! server (cons (cons "directory" directory) server))
-                (set! server (cons (cons "user" (vector-ref line 4)) server))
-                (set! server (cons (cons "do-fork" do-fork) server))
-                (set! server (cons (cons "single-threaded"
-                                         (equal? (car threads) "wait"))
-                                   server))
-                (if (cdr threads)
-                    (set! server (cons (cons "thread-frequency"
-                                             (string->number (cdr threads)))
-                                       server)))
-                (let ((argv (vector-ref line 6)))
-                  (if argv
-                      (set! server (cons (cons "argv" (vector->list argv))
-                                         server))))
-                (set! name (string-append "prog-server-"
-                                          (protocol-port-string service)))
-                (define-server! name server)))
-          name)
-        #f)))
+    (and service
+         (begin
+           (if (equal? (service-binary line) "internal")
+               (set! name (translate-internal-server line service))
+               (begin
+                 (set! server (cons (cons "binary" (service-binary line))
+                                    server))
+                 (set! server (cons (cons "directory" directory) server))
+                 (set! server (cons (cons "user" (vector-ref line 4)) server))
+                 (set! server (cons (cons "do-fork" do-fork) server))
+                 (set! server (cons (cons "single-threaded"
+                                          (equal? (car threads) "wait"))
+                                    server))
+                 (and (cdr threads)
+                      (set! server (cons (cons "thread-frequency"
+                                               (string->number (cdr threads)))
+                                         server)))
+                 (and=> (vector-ref line 6)
+                        (lambda (argv)
+                          (set! server (cons (cons "argv" (vector->list argv))
+                                             server))))
+                 (set! name (string-append "prog-server-"
+                                           (protocol-port-string service)))
+                 (define-server! name server)))
+           name))))
 
 ;; translates the inetd servers marked with `internal' into Serveez
 ;; servers if possible
@@ -371,18 +369,18 @@
   (let* ((server '())
          (name (vector-ref service 0))
          (threads (split-tuple (vector-ref line 3))))
-    (if verbose
-        (display (string-append "inetd: translating internal `"
-                                name "' server\n")))
+    (and verbose
+         (display (string-append "inetd: translating internal `"
+                                 name "' server\n")))
     (cond
      ;; timeserver
      ((equal? name "time")
-      (if (serveez-servertype? "sntp")
-          (begin
-            (set! name (string-append "sntp-server-"
-                                      (protocol-port-string service)))
-            (define-server! name server)
-            name)))
+      (and (serveez-servertype? "sntp")
+           (begin
+             (set! name (string-append "sntp-server-"
+                                       (protocol-port-string service)))
+             (define-server! name server)
+             name)))
      ;; echo
      ((equal? name "echo")
       #f)
@@ -409,21 +407,21 @@
   (for-each
    (lambda (line)
      (let ((service (string-split line 6)))
-       (if (not (service-disabled? service))
+       (or (service-disabled? service)
            (if (rpc-service? service)
                (bind-rpc-service service)
                (begin
                  (let* ((port (create-portcfg service))
                         (server (create-server service)))
-                   (if (and port server)
-                       (begin
-                         (if verbose
-                             (display (string-append "inetd: binding `"
-                                                     server
-                                                     "' to `"
-                                                     port
-                                                     "'\n")))
-                         (bind-server! port server)))))))))
+                   (and port server
+                        (begin
+                          (and verbose
+                               (display (string-append "inetd: binding `"
+                                                       server
+                                                       "' to `"
+                                                       port
+                                                       "'\n")))
+                          (bind-server! port server)))))))))
    lines))
 
 ;; main program entry point
