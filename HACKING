@@ -5,15 +5,20 @@ It lives in the repo but is not included in the distribution.
 See the end for copying conditions.
 
 * next
-*** TODO Also distribute .lz tarball.
+*** DONE Also distribute .lz tarball.
 *** TODO Fix bugs.
-***** TODO segfault in ‘guile_error’ if config file already closed
+***** DONE (Guile 2) segfault in ‘guile_error’ if config file already closed
+***** DONE (maint) Bump Automake min vers to 1.12.2.
+***** TODO Finalize [[file:BUGS::B0018][B0018]].
+***** TODO Finalize [[file:BUGS::B0012][B0012]].
 *** Modernize Scheme code.
-***** TODO (string-append DIR FILE) => in-vicinity
-***** TODO use ‘cond’ more; audit rewrite one-armed ‘if’ expressions
+***** DONE (string-append DIR FILE) => in-vicinity
+***** TODO use ‘cond’ more; audit/rewrite one-armed ‘if’ expressions
 ***** TODO use ‘reverse!’ instead of ‘reverse’
 ***** TODO use ‘fs’, ‘fso’, etc.
 ***** TODO use (widely available) SRFI and ice-9 modules
+*** TODO Update manpage; include release info.
+*** TODO Bump earliest-supported Guile to 1.4.
 
 * other stuff to do
 *** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
