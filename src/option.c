@@ -123,6 +123,26 @@ version (void)
            PACKAGE_NAME, PACKAGE_VERSION);
 }
 
+#ifdef HAVE_GETOPT_LONG
+#define LONGOPTS  1
+
+static struct option serveez_options[];
+
+static const char *
+longname (char letter)
+{
+  struct option *o = serveez_options;
+
+  while (o->val != letter)
+    o++;
+
+  return o->name;
+}
+
+#else  /* !defined HAVE_GETOPT_LONG */
+#define LONGOPTS  0
+#endif  /* !deifned HAVE_GETOPT_LONG */
+
 /*
  * Display program command line options.
  * Then @code{exit} with @var{exitval}.
@@ -130,35 +150,62 @@ version (void)
 static void
 usage (int exitval)
 {
-  fprintf (stdout, "Usage: serveez [OPTION]...\n\n"
-#if HAVE_GETOPT_LONG
- "  -h, --help               display this help and exit\n"
- "  -V, --version            display version information and exit\n"
- "  -i, --iflist             list local network interfaces and exit\n"
- "  -f, --cfg-file=FILENAME  file to use as configuration file (serveez.cfg)\n"
- "  -v, --verbose=LEVEL      set level of verbosity\n"
- "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
+  struct human {
+    char letter;
+    char *arg;
+    char *description;
+  } all[] = {
+    {'h', NULL, "display this help and exit"},
+    {'V', NULL, "display version information and exit"},
+    {'i', NULL, "list local network interfaces and exit"},
+    {'f', "FILENAME", "file to use as configuration file (serveez.cfg)"},
+    {'v', "LEVEL", "set level of verbosity"},
+    {'l', "FILENAME", "use FILENAME for logging (default is stderr)"},
 #if ENABLE_CONTROL_PROTO
- "  -P, --password=STRING    set the password for control connections\n"
+    {'P', "STRING", "set the password for control connections"},
 #endif
- "  -m, --max-sockets=COUNT  set the max. number of socket descriptors\n"
- "  -d, --daemon             start as daemon in background\n"
- "  -c, --stdin              use standard input as configuration file\n"
-#else /* not HAVE_GETOPT_LONG */
- "  -h           display this help and exit\n"
- "  -V           display version information and exit\n"
- "  -i           list local network interfaces and exit\n"
- "  -f FILENAME  file to use as configuration file (serveez.cfg)\n"
- "  -v LEVEL     set level of verbosity\n"
- "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
-#if ENABLE_CONTROL_PROTO
- "  -P STRING    set the password for control connections\n"
-#endif
- "  -m COUNT     set the max. number of socket descriptors\n"
- "  -d           start as daemon in background\n"
- "  -c           use standard input as configuration file\n"
-#endif /* not HAVE_GETOPT_LONG */
- "\nReport bugs to <" PACKAGE_BUGREPORT ">.\n");
+    {'m', "COUNT", "set the max. number of socket descriptors"},
+    {'d', NULL, "start as daemon in background"},
+    {'c', NULL, "use standard input as configuration file"}
+  };
+  int const count = sizeof (all) / sizeof (struct human);
+  int width = 0;
+  int one;
+  struct human *h;
+
+  for (h = all; h < all + count; h++)
+    {
+      one = (LONGOPTS ? strlen (longname (h->letter)) : 0)
+        + (h->arg ? strlen (h->arg) : 0);
+      if (width < one)
+        width = one;
+    }
+  width += 3;
+
+  printf ("Usage: serveez [OPTION...]\n\n");
+  for (h = all; h < all + count; h++)
+    {
+      one = 0;
+      printf ("  -%c", h->letter);
+      if (LONGOPTS)
+        {
+          const char *name = longname (h->letter);
+
+          printf (", --%s", name);
+          one += strlen (name);
+        }
+      if (h->arg)
+        {
+          /* NB: This doesn't handle the ‘optional_argument’ case,
+             which should be displayed as "[=ARG]" or " [ARG]".  */
+          printf ("%c%s",
+                  LONGOPTS ? '=' : ' ',
+                  h->arg);
+          one += 1 + strlen (h->arg);
+        }
+      printf ("%*s%s\n", width - one, "", h->description);
+    }
+  fprintf (stdout, "\nReport bugs to <" PACKAGE_BUGREPORT ">.\n");
 
   exit (exitval);
 }

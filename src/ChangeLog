@@ -1,5 +1,14 @@
 2013-03-12  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[int] Rewrite func ‘usage’ to use a data table.
+
+	* option.c (LONGOPTS): New #define.
+	(serveez_options) [LONGOPTS]: New forward decl.
+	(longame) [LONGOPTS]: New static func.
+	(usage): Rewrite.
+
+2013-03-12  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[int] Use ‘PACKAGE_BUGREPORT’ more.
 
 	* option.c (usage): ...here.
