@@ -353,39 +353,6 @@ to be ephemeral, undergoing rebase, amendment, and ultimately removal.
 ***** update every year, unconditionally
 ***** (if (< 2 (- END BEGIN)) RANGE INDIVIDUAL)
 
-* release process
-*** Ensure the release is complete.
-    - Update libserveez interface version in [[file:configure.ac::LIBSERVEEZ_INTERFACE][configure.ac]].
-      (info "(libtool) Versioning")
-    - Check the [[next]] and [[other stuff to do]] lists and the
-      [[file:NEWS][NEWS]] and [[file:BUGS][BUGS]] files for pending or completed tasks.
-    - Are the M$-Windows files up to date (*.dsp, *.dsw)?
-    - Compile, run and test it on M$-Windows (MinGW32, Cygwin).
-    - Make sure [[file:THANKS][THANKS]] and README-* are up to date.
-
-*** Test build and packaging.
-    - Run [[shell:make%20distclean][make distclean]]; [[shell:sh%20autogen.sh][sh autogen.sh]]; configure script; [[shell:make%20all][make all]].
-    - Check if the binaries work properly.
-    - Run [[shell:make%20distcheck][make distcheck]].
-    - Tag HEAD in the repository (format "X.Y.Z", title "%F %T" UTC).
-    - Run [[shell:make%20dist][make dist]].
-    - Run [[shell:make%20-C%20doc%20stage][make -C doc stage]] and check the [[elisp:(dired%20"doc/stage")][result]] into the savannah web repo.
-    - Create a binary package for M$-Windows.
-
-*** Bump up version.
-    - Add a ChangeLog entry in toplevel directory.
-    - Add new section in NEWS.
-    - Bump up version number in [[file:configure.ac][configure.ac]].
-    - Check into repo.
-
-*** Distribute the package.
-    - Upload the package to <www.lkcc.org>.
-    - Release at SourceForge.
-    - Announce the release at Freshmeat.
-    - Send an announcement to <help-serveez@gnu.org> and <info-gnu@gnu.org>.
-    - Update documentation on <www.gnu.org> and <serveez.sourceforge.net>.
-    - Update the Guile project entry <guile-projects@glug.org>.
-    - Update the GNU directory entry <bug-directory@gnu.org>.
 
 * etc
 #+STARTUP: odd
