@@ -158,7 +158,7 @@ usage (int exitval)
  "  -d           start as daemon in background\n"
  "  -c           use standard input as configuration file\n"
 #endif /* not HAVE_GETOPT_LONG */
- "\nReport bugs to <bug-serveez@gnu.org>.\n");
+ "\nReport bugs to <" PACKAGE_BUGREPORT ">.\n");
 
   exit (exitval);
 }

@@ -154,7 +154,7 @@ svz_shutting_down_p (void)
 #ifdef SIGSEGV
 #define SIGSEGV_TEXT                                                          \
   "\nFatal error (access violation)."                                         \
-  "\nPlease report this bug to <bug-serveez@gnu.org>."                        \
+  "\nPlease report this bug to <" PACKAGE_BUGREPORT ">."                      \
   "\nIf possible, please try to obtain a C stack backtrace via\n"             \
   "\n  $ gdb %s core"                                                         \
   "\n  $ (gdb) where\n"                                                       \
