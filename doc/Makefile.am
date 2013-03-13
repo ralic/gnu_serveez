@@ -46,6 +46,32 @@ MANUAL_FILES = \
 MAINTAINERCLEANFILES += $(gen)
 EXTRA_DIST += $(gen) $(gen:%.texi=%.texh)
 
+if MAINTAINER_MODE
+# "mb" stands for "manpage bits" (ugh).
+BUILT_SOURCES = mb-rel mb-blurb
+endif MAINTAINER_MODE
+
+mb-rel: $(top_srcdir)/configure
+	@{ echo '.ds SZ $(PACKAGE_NAME)' ;		\
+	   echo '.ds Rv $(PACKAGE_VERSION)' ;		\
+	   date -u +'.ds Dt %Y-%m-%d' -r $< ; } > $@t ;	\
+	if [ -f $@ ] && cmp -s $@t $@ ;			\
+	  then rm -f $@t ;				\
+	  else mv $@t $@ ; echo Created $@ ;		\
+	fi
+
+mb-blurb: blurb.texi
+	< $<					\
+	$(SED) -e '/^@c/d'			\
+               -e 's/^GNU Serveez/\\fB&\\fR/'	\
+	       -e 's/^$$/.PP/'			\
+	> $@
+
+.1in.1:
+	$(SOELIM) -r $< | $(SED) '/^\.\\"/d' > $@
+
+EXTRA_DIST += mb-tail serveez.1in serveez-config.1in
+
 clean-local:
 	rm -rf stage
 

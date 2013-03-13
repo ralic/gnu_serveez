@@ -234,9 +234,12 @@ dnl ----------------------------------------------------------------------
 dnl checks for programs
 
 AC_PROG_INSTALL
+AC_PROG_GREP
 AC_PROG_SED
 AC_PROG_AWK
 AM_PROG_AR
+AC_CHECK_PROG([SOELIM],[soelim],[soelim],
+  [\${top_builddir}/build-aux/fake-soelim])
 AC_CHECK_PROG([WINDRES],[windres],[windres],[:])
 
 dnl
@@ -630,6 +633,7 @@ AC_SUBST([SERVEEZ_CONFIG_LDFLAGS])
 dnl
 dnl Output files.
 dnl
+AC_CONFIG_FILES([build-aux/fake-soelim],[chmod +x build-aux/fake-soelim])
 AC_CONFIG_FILES([
     Makefile src/Makefile src/libserveez/Makefile
     src/libserveez/coserver/Makefile

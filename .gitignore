@@ -32,6 +32,7 @@ Makefile.in
 /build-aux/config.guess
 /build-aux/config.sub
 /build-aux/depcomp
+/build-aux/fake-soelim
 /build-aux/guile-baux
 /build-aux/guile-baux.state
 /build-aux/install-sh
@@ -47,10 +48,13 @@ Makefile.in
 /m4/ltversion.m4
 /m4/lt~obsolete.m4
 
+/doc/*.1
 /doc/*.info
 /doc/*.pdf
 /doc/guile-api.texi
 /doc/guile-boot.texi
+/doc/mb-blurb
+/doc/mb-rel
 /doc/serveez-api.html
 /doc/serveez-api.texi
 /doc/serveez.html

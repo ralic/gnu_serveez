@@ -1,3 +1,12 @@
+2013-03-13  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[doc] Revamp manpages; include release info.
+
+	* build-aux/fake-soelim.in: New file.
+	* configure.ac (AC_PROG_GREP): New macro call.
+	(SOELIM): New AC_CHECK_PROG.
+	(AC_CONFIG_FILES): Add build-aux/fake-soelim; chmod +x it.
+
 2013-03-08  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[boot] Bump Automake min vers to 1.12.2.

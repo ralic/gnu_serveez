@@ -1,3 +1,15 @@
+2013-03-13  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[doc] Revamp manpages; include release info.
+
+	* mb-tail: New file.
+	* serveez-config.1in: Rename from serveez-config.1; revamp.
+	* serveez.1in: Rename from serveez.1; revamp.
+	* Makefile.am (BUILT_SOURCES) [MAINTAINER_MODE]: Add mb-rel, mb-blurb.
+	(mb-rel, mb-blurb): New targets.
+	(.1in.1): New pattern rule.
+	(EXTRA_DIST): Add mb-tail, serveez.1in, serveez-config.1in.
+
 2013-02-28  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[doc slog] Add blank lines around @tsin directives.
