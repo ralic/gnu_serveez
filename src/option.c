@@ -166,7 +166,8 @@ usage (int exitval)
 #endif
     {'m', "COUNT", "set the max. number of socket descriptors"},
     {'d', NULL, "start as daemon in background"},
-    {'c', NULL, "use standard input as configuration file"}
+    {'c', NULL, "use standard input as configuration file"},
+    {'s', NULL, "don't start any coservers"}
   };
   int const count = sizeof (all) / sizeof (struct human);
   int width = 0;

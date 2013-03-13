@@ -1,3 +1,9 @@
+2013-03-13  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Fix bug: Mention ‘--solitary’ in ‘serveez --help’ output.
+
+	* option.c (usage): Add entry for ‘solitary’ to table.
+
 2013-03-12  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[int] Rewrite func ‘usage’ to use a data table.
