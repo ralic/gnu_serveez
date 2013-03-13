@@ -1,5 +1,11 @@
 2013-03-13  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[doc] Fix bug: Mention ‘--solitary’ in serveez(1).
+
+	* serveez.1in: ...here.
+
+2013-03-13  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[doc] Revamp manpages; include release info.
 
 	* mb-tail: New file.
