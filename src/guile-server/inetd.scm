@@ -149,40 +149,44 @@
 ;; creates and defines a rpc port configuration.  the network port is set
 ;; to zero in order to let the system choose one
 (define (create-rpc-portcfg rpc proto)
-  (let* ((port '())
-         (name "undefined"))
-    (set! port (cons (cons "proto" proto) port))
-    (set! port (cons (cons "ipaddr" ip-address) port))
-    (set! port (cons (cons "port" 0) port))
-    (set! name (string-append "inetd-port-"
-                              (protocol-rpc-string rpc proto)))
-    (define-port! name port)
+  (let ((name "undefined"))
+    (define-port! name
+      `((,name
+         . ,(string-append "inetd-port-" (protocol-rpc-string rpc proto)))
+        ("port" .
+         0)
+        ("ipaddr" .
+         ,ip-address)
+        ("proto" .
+         ,proto)))
     name))
 
 ;; creates and defines a rpc server instance from the given splitted service
 ;; line.
 (define (create-rpc-server line rpc proto)
-  (let* ((server '())
-         (name "undefined")
-         (threads (split-tuple (vector-ref line 3))))
-    (set! server (cons (cons "binary" (service-binary line)) server))
-    (set! server (cons (cons "directory" directory) server))
-    (set! server (cons (cons "user" (vector-ref line 4)) server))
-    (set! server (cons (cons "do-fork" do-fork) server))
-    (set! server (cons (cons "single-threaded"
-                             (equal? (car threads) "wait"))
-                       server))
-    (and (cdr threads)
-         (set! server (cons (cons "thread-frequency"
-                                  (string->number (cdr threads)))
-                            server)))
-    (and=> (vector-ref line 6)
-           (lambda (argv)
-             (set! server (cons (cons "argv" (vector->list argv))
-                                server))))
-    (set! name (string-append "prog-server-"
-                              (protocol-rpc-string rpc proto)))
-    (define-server! name server)
+  (let ((name (string-append "prog-server-" (protocol-rpc-string rpc proto)))
+        (threads (split-tuple (vector-ref line 3))))
+    (define-server! name
+      `(,@(cond ((vector-ref line 6)
+                 => (lambda (argv)
+                      `(("argv" .
+                         ,(vector->list argv)))))
+                (else '()))
+        ,@(cond ((cdr threads)
+                 => (lambda (freq)
+                      `(("thread-frequency" .
+                         ,(string->number freq)))))
+                (else '()))
+        ("single-threaded" .
+         ,(equal? "wait" (car threads)))
+        ("do-fork" .
+         ,do-fork)
+        ("user" .
+         ,(vector-ref line 4))
+        ("directory" .
+         ,directory)
+        ("binary" .
+         ,(service-binary line))))
     name))
 
 ;; returns either "tcp" or "udp" needed to determine the kind of port
@@ -318,50 +322,50 @@
 ;; creates a port configuration for Serveez, returns the name of the new
 ;; port or #f on failure
 (define (create-portcfg line)
-  (let* ((service (lookup-service line))
-         (port '()) (name "undefined"))
-    (and service
-         (begin
-           (set! port (cons (cons "proto" (vector-ref service 3)) port))
-           (set! port (cons (cons "ipaddr" ip-address) port))
-           (set! port (cons (cons "port" (vector-ref service 2)) port))
-           (set! name (string-append "inetd-port-"
-                                     (protocol-port-string service)))
-           (define-port! name port)
-           name))))
+  (and=> (lookup-service line)
+         (lambda (service)
+           (let ((name (string-append "inetd-port-"
+                                      (protocol-port-string service))))
+             (define-port! name
+               `(("port" .
+                  ,(vector-ref service 2))
+                 ("ipaddr" .
+                  ,ip-address)
+                 ("proto" .
+                  ,(vector-ref service 3))))
+             name))))
 
 ;; creates a program passthrough server for Serveez, returns the name of
 ;; the new server or #f on failure
 (define (create-server line)
-  (let* ((service (lookup-service line))
-         (server '())
-         (name "undefined")
-         (threads (split-tuple (vector-ref line 3))))
-    (and service
-         (begin
-           (if (equal? (service-binary line) "internal")
-               (set! name (translate-internal-server line service))
-               (begin
-                 (set! server (cons (cons "binary" (service-binary line))
-                                    server))
-                 (set! server (cons (cons "directory" directory) server))
-                 (set! server (cons (cons "user" (vector-ref line 4)) server))
-                 (set! server (cons (cons "do-fork" do-fork) server))
-                 (set! server (cons (cons "single-threaded"
-                                          (equal? (car threads) "wait"))
-                                    server))
-                 (and (cdr threads)
-                      (set! server (cons (cons "thread-frequency"
-                                               (string->number (cdr threads)))
-                                         server)))
-                 (and=> (vector-ref line 6)
-                        (lambda (argv)
-                          (set! server (cons (cons "argv" (vector->list argv))
-                                             server))))
-                 (set! name (string-append "prog-server-"
-                                           (protocol-port-string service)))
-                 (define-server! name server)))
-           name))))
+  (and=> (lookup-service line)
+         (lambda (service)
+           (if (equal? "internal" (service-binary line))
+               (translate-internal-server line service)
+               (let ((threads (split-tuple (vector-ref line 3)))
+                     (name (string-append "prog-server-"
+                                          (protocol-port-string service))))
+                 (define-server! name
+                   `(,@(cond ((vector-ref line 6)
+                              => (lambda (argv)
+                                   `(("argv" .
+                                      ,(vector->list argv))))))
+                     ("single-threaded" .
+                      ,(equal? "wait" (car threads)))
+                     ,@(cond ((cdr threads)
+                              => (lambda (freq)
+                                   `(("thread-frequency" .
+                                      ,(string->number freq)))))
+                             (else '()))
+                     ("do-fork" .
+                      ,do-fork)
+                     ("user" .
+                      ,(vector-ref line 4))
+                     ("directory" .
+                      ,directory)
+                     ("binary" .
+                      ,(service-binary line))))
+                 name)))))
 
 ;; translates the inetd servers marked with `internal' into Serveez
 ;; servers if possible

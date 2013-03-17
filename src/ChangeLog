@@ -1,5 +1,12 @@
 2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Replace ‘(cons (cons ...))’ chains w/ quasiquote form.
+
+	* guile-server/inetd.scm (create-rpc-portcfg): ...here.
+	(create-rpc-server, create-portcfg, create-server): Likewise.
+
+2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Use ‘case’ more.
 
 	* guile-server/mandel-client.scm (mandel-handle-request): ...here.
