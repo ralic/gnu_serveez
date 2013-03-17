@@ -39,9 +39,7 @@
   1)
 
 (define (echo-info-server server)
-  (define ret '())
   (println "Running echo server info " server ".")
-  (set! ret " This is the echo server.")
   (println " echo-integer: "
            (svz:server:config-ref server "echo-integer"))
   (println " echo-integer-array: "
@@ -56,24 +54,21 @@
            (svz:server:config-ref server "echo-port"))
   (println " echo-boolean: "
            (svz:server:config-ref server "echo-boolean"))
-  ret)
+  " This is the echo server.")
 
 (define (echo-handle-request sock request len)
-  (define ret '())
   (let ((idx (binary-search request "quit")))
     (if (and idx (= idx 0))
-        (set! ret -1)
+        -1
         (begin
           (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))
-          (set! ret 0)))
-    ret))
+          0))))
 
 (define (echo-connect-socket server sock)
-  (define hello "Hello, type `quit' to end the connection.\r\n")
   (println "Running connect socket.")
   (svz:sock:boundary sock "\n")
   (svz:sock:handle-request sock echo-handle-request)
-  (svz:sock:print sock hello)
+  (svz:sock:print sock "Hello, type `quit' to end the connection.\r\n")
   0)
 
 ;; Port configuration.

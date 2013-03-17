@@ -1,3 +1,11 @@
+2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Elide ‘ret’ local var.
+
+	* guile-server/echo-server.scm (echo-info-server): ...here.
+	(echo-handle-request): Likewise.
+	(echo-connect-socket): Likewise, for var ‘hello’.
+
 2013-03-13  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Fix bug: Mention ‘--solitary’ in ‘serveez --help’ output.
