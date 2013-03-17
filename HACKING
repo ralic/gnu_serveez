@@ -15,7 +15,7 @@ See the end for copying conditions.
 *** Modernize Scheme code.
 ***** DONE (string-append DIR FILE) => in-vicinity
 ***** DONE audit/rewrite one-armed ‘if’ expressions
-***** TODO use ‘reverse!’ instead of ‘reverse’
+***** DONE use ‘reverse!’ instead of ‘reverse’
 ***** TODO use ‘fs’, ‘fso’, etc.
 ***** TODO use (widely available) SRFI and ice-9 modules
 *** DONE Update manpages; include release info.
