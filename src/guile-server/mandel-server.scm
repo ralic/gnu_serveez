@@ -232,7 +232,7 @@
 (define (mandel-handle-request sock request len)
   (let* ((server (svz:sock:server sock))
          (colors (svz:server:config-ref server "colors"))
-         (tokens (mandel-split (binary->string request)))
+         (tokens (mandel-tokenize request))
          (command (list-ref tokens 1)))
 
     (cond

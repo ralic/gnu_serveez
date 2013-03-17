@@ -43,7 +43,7 @@
 
 ;; handle one line sent by the server
 (define (mandel-handle-request sock request len)
-  (let* ((tokens (mandel-split (binary->string request)))
+  (let* ((tokens (mandel-tokenize request))
          (command (list-ref tokens 1))
          (todo (hash-ref (svz:sock:data sock) "todo")))
 

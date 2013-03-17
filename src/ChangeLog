@@ -1,5 +1,16 @@
 2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Replace ‘mandel-split’ w/ ‘mandel-tokenize’.
+
+	* guile-server/mandel-shared.scm: Import SRFI 13, 14 procs.
+	(mandel-tokenize): New proc.
+	(mandel-split): Delete proc.
+	* guile-server/mandel-client.scm (mandel-handle-request)
+	* guile-server/mandel-server.scm (mandel-handle-request):
+	Use ‘mandel-tokenize’.
+
+2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Elide ‘ret’ local var.
 
 	* guile-server/echo-server.scm (echo-info-server): ...here.

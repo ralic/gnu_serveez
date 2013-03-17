@@ -31,17 +31,23 @@
 ;; to calculate and is meant to send its result back to the server.
 ;;
 
-;; splits mandel protocol text into tokens, returns list of tokens
-(define (mandel-split text)
-  (let* ((tokens '())
-         (text (substring text 1 (- (string-length text) 3))))
-    (let loop ((i 0))
-      (and (< i (string-length text))
-           (let* ((idx (string-index text #\: i))
-                  (end (if idx idx (string-length text))))
-             (set! tokens (append tokens `(,(substring text i end))))
-             (loop (1+ end)))))
-    tokens))
+(use-modules
+ ((srfi srfi-13) #:select (string-tokenize))
+ ((srfi srfi-14) #:select (char-set-complement
+                           char-set)))
+
+;; Split mandel protocol request into tokens.
+;;
+(define mandel-tokenize
+  (let ((ok (char-set-complement (char-set #\:))))
+    ;; mandel-tokenize
+    (lambda (request)
+      (let ((full (binary->string request)))
+        (string-tokenize full ok
+                         ;; Extract from "(" TEXT ")" CR LF.
+                         1
+                         (- (string-length full)
+                            3))))))
 
 ;; prepare the given Serveez socket for our protocol
 (define (mandel-prepare-sock sock)
