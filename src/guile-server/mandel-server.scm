@@ -235,41 +235,38 @@
          (tokens (mandel-tokenize request))
          (command (list-ref tokens 1)))
 
-    (cond
-     ;; client wants to disconnect
-     ((equal? command "bye")
-      -1
-      )
-     ;; client awaits new input data
-     ((equal? command "request")
-      (if (finished? server)
-          -1
-          (let* ((index (next-index! server))
-                 (z (index->z server index))
-                 (answer (string-append "(dnc:value:"
-                                        (number->string z)
-                                        ":"
-                                        (number->string index)
-                                        ":"
-                                        (number->string colors)
-                                        ")\r\n")))
-            (svz:sock:print sock answer)
-            0)
-          ))
-     ;; client has some result
-     ((equal? command "value")
-      (save-point! server
-                   (string->number (list-ref tokens 3))
-                   (string->number (list-ref tokens 4)))
-      (if (finished? server)
-          (begin
-            (mandel-write server)
-            (serveez-nuke)
-            -1)
-          0))
-     ;; invalid protocol
-     (else -1))
-    ))
+    (case (string->symbol command)
+      ;; client wants to disconnect
+      ((bye)
+       -1)
+      ;; client awaits new input data
+      ((request)
+       (if (finished? server)
+           -1
+           (let* ((index (next-index! server))
+                  (z (index->z server index))
+                  (answer (string-append "(dnc:value:"
+                                         (number->string z)
+                                         ":"
+                                         (number->string index)
+                                         ":"
+                                         (number->string colors)
+                                         ")\r\n")))
+             (svz:sock:print sock answer)
+             0)))
+      ;; client has some result
+      ((value)
+       (save-point! server
+                    (string->number (list-ref tokens 3))
+                    (string->number (list-ref tokens 4)))
+       (if (finished? server)
+           (begin
+             (mandel-write server)
+             (serveez-nuke)
+             -1)
+           0))
+      ;; invalid protocol
+      (else -1))))
 
 ;; now make Serveez recognize this as a new server
 (define-servertype! '(

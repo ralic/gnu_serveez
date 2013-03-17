@@ -47,46 +47,44 @@
          (command (list-ref tokens 1))
          (todo (hash-ref (svz:sock:data sock) "todo")))
 
-    (cond
-     ;; server accepted us
-     ((equal? command "welcome")
-      (svz:sock:print sock "(dnc:request)\r\n")
-      0)
-     ;; server told us to quit
-     ((equal? command "bye")
-      -1)
-     ;; server gave us something to compute
-     ((equal? command "value")
-      (let* ((max-iteration (string->number (list-ref tokens 4)))
-             (result (iterate-mandel (string->number (list-ref tokens 2))
-                                     max-iteration)))
+    (case (string->symbol command)
+      ;; server accepted us
+      ((welcome)
+       (svz:sock:print sock "(dnc:request)\r\n")
+       0)
+      ;; server told us to quit
+      ((bye)
+       -1)
+      ;; server gave us something to compute
+      ((value)
+       (let* ((max-iteration (string->number (list-ref tokens 4)))
+              (result (iterate-mandel (string->number (list-ref tokens 2))
+                                      max-iteration)))
 
-        (display (string-append "*** Calculating point "
-                                (list-ref tokens 3)
-                                " -> "
-                                (number->string result)
-                                "\n"))
-        (svz:sock:print sock
-                        (string-append "(dnc:value:"
-                                       (list-ref tokens 2)
-                                       ":"
-                                       (list-ref tokens 3)
-                                       ":"
-                                       (number->string result)
-                                       ")\r\n"))
-        (if (= 0 (1- todo))
-            (begin
-              (svz:sock:final-print sock)
-              (svz:sock:print sock "(dnc:bye)\r\n")
-              0)
-            (begin
-              (hash-set! (svz:sock:data sock) "todo" (1- todo))
-              (svz:sock:print sock "(dnc:request)\r\n")
-              0))
-        ))
-     ;; invalid server request
-     (else -1))
-    ))
+         (display (string-append "*** Calculating point "
+                                 (list-ref tokens 3)
+                                 " -> "
+                                 (number->string result)
+                                 "\n"))
+         (svz:sock:print sock
+                         (string-append "(dnc:value:"
+                                        (list-ref tokens 2)
+                                        ":"
+                                        (list-ref tokens 3)
+                                        ":"
+                                        (number->string result)
+                                        ")\r\n"))
+         (if (= 0 (1- todo))
+             (begin
+               (svz:sock:final-print sock)
+               (svz:sock:print sock "(dnc:bye)\r\n")
+               0)
+             (begin
+               (hash-set! (svz:sock:data sock) "todo" (1- todo))
+               (svz:sock:print sock "(dnc:request)\r\n")
+               0))))
+      ;; invalid server request
+      (else -1))))
 
 ;; disconnected callback
 (define (mandel-disconnected sock)
