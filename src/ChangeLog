@@ -1,5 +1,12 @@
 2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Avoid ‘set!’.
+
+	* guile-server/inetd.scm: Import ‘(ice-9 rdelim) read-line’.
+	(read-config): ...here, by rewriting the main loop.
+
+2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Replace ‘(cons (cons ...))’ chains w/ quasiquote form.
 
 	* guile-server/inetd.scm (create-rpc-portcfg): ...here.

@@ -18,6 +18,9 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
+(use-modules
+ ((ice-9 rdelim) #:select (read-line)))
+
 ;; the inetd configuration file
 (define config-file "/etc/inetd.conf")
 
@@ -40,17 +43,24 @@
 (define (read-config file)
   (catch #t
          (lambda ()
-           (let* ((f (open-input-file file))
-                  (lines '()))
-             (let loop ((line (read-line f)))
-               (or (eof-object? line)
-                   (let ((n (string-index line #\#)))
-                     (and n (set! line (substring line 0 n)))
-                     (and (> (string-length line) 0)
-                          (set! lines (cons line lines)))
-                     (loop (read-line f)))))
-             (close-input-port f)
-             (reverse lines)))
+           (call-with-input-file file
+             (lambda (port)
+               (let loop ((lines '()))
+
+                 (define (try s)
+                   (loop (if (string-null? s)
+                             lines
+                             (cons s lines))))
+
+                 (let ((line (read-line port)))
+                   (cond ((eof-object? line)
+                          ;; rv
+                          (reverse! lines))
+                         ((string-index line #\#)
+                          => (lambda (hash)
+                               (try (substring line 0 hash))))
+                         (else
+                          (try line))))))))
          (lambda args
            (display (string-append "inetd: unable to parse `"
                                    file "'\n"))
