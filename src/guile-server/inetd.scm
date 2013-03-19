@@ -158,8 +158,8 @@
                 (string->number version-end)))))
 
 ;; creates a unique name suffix for rpc servers and port configurations
-(define (protocol-rpc-string rpc proto)
-  (string-append proto "-" rpc))
+(define (protocol-rpc-string prefix rpc proto)
+  (fs "~A-~A-~A" prefix proto rpc))
 
 ;; creates and defines a rpc port configuration.  the network port is set
 ;; to zero in order to let the system choose one
@@ -167,7 +167,7 @@
   (let ((name "undefined"))
     (define-port! name
       `((,name
-         . ,(string-append "inetd-port-" (protocol-rpc-string rpc proto)))
+         . ,(protocol-rpc-string "inetd-port" rpc proto))
         ("port" .
          0)
         ("ipaddr" .
@@ -179,7 +179,7 @@
 ;; creates and defines a rpc server instance from the given splitted service
 ;; line.
 (define (create-rpc-server line rpc proto)
-  (let ((name (string-append "prog-server-" (protocol-rpc-string rpc proto)))
+  (let ((name (protocol-rpc-string "prog-server" rpc proto))
         (threads (split-tuple (vector-ref line 3))))
     (define-server! name
       `(,@(cond ((vector-ref line 6)
@@ -321,18 +321,18 @@
 
 ;; creates a "protocol-port" text representation from a service vector
 ;; returned by (lookup-service)
-(define (protocol-port-string service)
-  (string-append (vector-ref service 3)
-                 "-"
-                 (number->string (vector-ref service 2))))
+(define (protocol-port-string prefix service)
+  (fs "~A-~A-~A"
+      prefix
+      (vector-ref service 3)
+      (vector-ref service 2)))
 
 ;; creates a port configuration for Serveez, returns the name of the new
 ;; port or #f on failure
 (define (create-portcfg line)
   (and=> (lookup-service line)
          (lambda (service)
-           (let ((name (string-append "inetd-port-"
-                                      (protocol-port-string service))))
+           (let ((name (protocol-port-string "inetd-port" service)))
              (define-port! name
                `(("port" .
                   ,(vector-ref service 2))
@@ -350,8 +350,7 @@
            (if (equal? "internal" (service-binary line))
                (translate-internal-server line service)
                (let ((threads (split-tuple (vector-ref line 3)))
-                     (name (string-append "prog-server-"
-                                          (protocol-port-string service))))
+                     (name (protocol-port-string "prog-server" service)))
                  (define-server! name
                    `(,@(cond ((vector-ref line 6)
                               => (lambda (argv)
@@ -387,8 +386,7 @@
      ((equal? name "time")
       (and (serveez-servertype? "sntp")
            (begin
-             (set! name (string-append "sntp-server-"
-                                       (protocol-port-string service)))
+             (set! name (protocol-port-string "sntp-server" service))
              (define-server! name server)
              name)))
      ;; echo

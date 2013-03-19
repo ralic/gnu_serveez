@@ -1,5 +1,17 @@
 2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Take prefix for protocol-{rpc,port}-string.
+
+	U ≡ "Take PREFIX; prepend it along with a hyphen to the returned value".
+	* guile-server/inetd.scm (protocol-rpc-string): U.
+	(create-rpc-portcfg, create-rpc-server):
+	Update calls to ‘protocol-rpc-string’.
+	(protocol-port-string): U.
+	(create-portcfg, create-server, translate-internal-server):
+	Update calls to ‘protocol-port-string’.
+
+2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Add abstraction: hey
 
 	* guile-server/inetd.scm (hey): New proc.
