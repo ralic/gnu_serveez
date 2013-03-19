@@ -6,6 +6,8 @@
 
 @subsubsection output
 
+@tsin i fs
+
 @tsin i println
 
 @tsin i printsln

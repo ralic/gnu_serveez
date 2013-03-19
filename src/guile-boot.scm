@@ -47,6 +47,17 @@
                        (list filename)
                        (map under (serveez-loadpath))))))
 
+;; Return a string made by applying @code{simple-format #f}
+;; to @var{s} and @var{args}.  For example:
+;;
+;; @example
+;; (fs "~A-~S" 'foo 42)
+;; @result{} "foo-42"
+;; @end example
+;;
+(define (fs s . args)
+  (apply simple-format #f s args))
+
 ;; Do @code{display} on each @var{object}.
 ;; Then, output a newline.
 ;;

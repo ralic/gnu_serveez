@@ -1,3 +1,9 @@
+2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile] New built-in: fs
+
+	* guile-boot.scm (fs): New proc.
+
 2013-03-17  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Avoid ‘set!’.
