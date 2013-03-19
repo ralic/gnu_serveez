@@ -37,6 +37,12 @@
 ;; (define ip-address "*")
 (define ip-address "any")
 
+;; displays a daemon-specific message to stdout, followed by newline
+(define (hey s . args)
+  (display "inetd: ")
+  (display (apply fs s args))
+  (newline))
+
 ;; opens a configuration file, reads each line and uncomments them,
 ;; comments are marked with a leading '#', returns a list of non-empty
 ;; lines
@@ -62,8 +68,7 @@
                          (else
                           (try line))))))))
          (lambda args
-           (display (string-append "inetd: unable to parse `"
-                                   file "'\n"))
+           (hey "unable to parse `~A'" file)
            '())))
 
 ;; splits a string in the format "string1.string2" into a pair.  if
@@ -132,7 +137,7 @@
          (lambda ()
            (getrpc name))
          (lambda key
-           (display (string-append "inetd: no such rpc service `" name "'\n"))
+           (hey "no such rpc service `~A'" name)
            #f)))
 
 ;; this procedure translates a given service line into a pair containing
@@ -147,7 +152,7 @@
          (version-begin (car versions))
          (version-end (if (cdr versions) (cdr versions) version-begin)))
     (or (cdr entry)
-        (display (string-append "inetd: " name ": no rpc version\n")))
+        (hey "~A: no rpc version" name))
     (cons (lookup-rpc-service name)
           (cons (string->number version-begin)
                 (string->number version-end)))))
@@ -233,14 +238,12 @@
              (and (check-rpc-portmapper number version)
                   (begin
                     (and verbose
-                         (display
-                          (string-append "inetd: unregistering rpc service `"
-                                         name "'\n")))
+                         (hey "unregistering rpc service `~A'" name))
                     (portmap number version)))
              (set! result #t))
            (lambda key
-             (display (string-append "inetd: portmapping for rpc service `"
-                                     name "' cannot be unregistered\n"))
+             (hey "portmapping for rpc service `~A' cannot be unregistered"
+                  name)
              (set! result #f)))
 
     (catch #t
@@ -248,8 +251,8 @@
              (portmap number version protocol port)
              #t)
            (lambda key
-             (display (string-append "inetd: portmapper for rpc service `"
-                                     name "' failed\n"))
+             (hey "portmapper for rpc service `~A' failed"
+                  name)
              #f))))
 
 ;; when the inetd determines a valid rpc line in its configuration file
@@ -266,11 +269,7 @@
                 (server (create-rpc-server service-line name proto)))
            ;; bind the server to its port
            (and verbose
-                (display (string-append "inetd: binding `"
-                                        server
-                                        "' to `"
-                                        port
-                                        "'\n")))
+                (hey "binding `~A' to `~A'" server port))
            (bind-server! port server)
 
            ;; now go through each listening socket structure the server got
@@ -305,11 +304,9 @@
            (getservbyname (vector-ref service-line 0)
                           (vector-ref service-line 2)))
          (lambda key
-           (display (string-append "inetd: no such service `"
-                                   (vector-ref service-line 0)
-                                   "', protocol `"
-                                   (vector-ref service-line 2)
-                                   "'\n"))
+           (hey "no such service `~A', protocol `~A'"
+                (vector-ref service-line 0)
+                (vector-ref service-line 2))
            #f)))
 
 ;; returns the name of the program which is meant to be started for a given
@@ -384,8 +381,7 @@
          (name (vector-ref service 0))
          (threads (split-tuple (vector-ref line 3))))
     (and verbose
-         (display (string-append "inetd: translating internal `"
-                                 name "' server\n")))
+         (hey "translating internal `~A' server" name))
     (cond
      ;; timeserver
      ((equal? name "time")
@@ -430,11 +426,7 @@
                    (and port server
                         (begin
                           (and verbose
-                               (display (string-append "inetd: binding `"
-                                                       server
-                                                       "' to `"
-                                                       port
-                                                       "'\n")))
+                               (hey "binding `~A' to `~A'" server port))
                           (bind-server! port server)))))))))
    lines))
 

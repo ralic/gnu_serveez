@@ -1,5 +1,14 @@
 2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Add abstraction: hey
+
+	* guile-server/inetd.scm (hey): New proc.
+	(read-config, lookup-rpc-service, get-rpc-service)
+	(run-rpc-portmapper, bind-rpc-service, lookup-service)
+	(translate-internal-server, create-bindings): Use ‘hey’.
+
+2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile] New built-in: fs
 
 	* guile-boot.scm (fs): New proc.
