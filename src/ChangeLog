@@ -1,5 +1,12 @@
 2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Rewrite ‘left-zeros’.
+
+	* guile-server/mandel-server.scm (left-zeros):
+	...here, to avoid iteration.
+
+2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Take prefix for protocol-{rpc,port}-string.
 
 	U ≡ "Take PREFIX; prepend it along with a hyphen to the returned value".

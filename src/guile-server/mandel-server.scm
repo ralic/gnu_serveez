@@ -47,11 +47,10 @@
 
 ;; fill left side string with zeros
 (define (left-zeros text n)
-  (let loop ((i (string-length text)))
-    (and (< i n) (begin
-                   (set! text (string-append "0" text))
-                   (loop (1+ i)))))
-  text)
+  (let ((need (- n (string-length text))))
+    (if (positive? need)
+        (string-append (make-string need #\0) text)
+        text)))
 
 ;; create an ascii representation for the given index i, each character is
 ;; limited to a certain range, creates a string with bpp (bytes per pixel)
