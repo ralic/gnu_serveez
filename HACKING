@@ -10,16 +10,16 @@ See the end for copying conditions.
 ***** DONE (Guile 2) segfault in ‘guile_error’ if config file already closed
 ***** DONE (maint) Bump Automake min vers to 1.12.2.
 ***** DONE Add ‘--solitary’ to ‘serveez --help’ output, serveez(1).
+***** DONE (Guile 1.8) Import ‘(ice-9 rdelim) write-line’.
 ***** TODO Finalize [[file:BUGS::B0018][B0018]].
 ***** TODO Finalize [[file:BUGS::B0012][B0012]].
 *** Modernize Scheme code.
 ***** DONE (string-append DIR FILE) => in-vicinity
 ***** DONE audit/rewrite one-armed ‘if’ expressions
 ***** DONE use ‘reverse!’ instead of ‘reverse’
-***** TODO use ‘fs’, ‘fso’, etc.
-***** TODO use (widely available) SRFI and ice-9 modules
+***** DONE use ‘fs’, (widely available) SRFI and ice-9 modules
 *** DONE Update manpages; include release info.
-*** TODO Bump earliest-supported Guile to 1.4.
+*** DONE Announce planned retirement of Guile 1.3.4 support.
 
 * other stuff to do
 *** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
