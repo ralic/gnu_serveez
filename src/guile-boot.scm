@@ -126,7 +126,7 @@
 ;; @var{basename} and @var{port}.  Return the new name.
 ;;
 (define (create-tcp-port! basename port)
-  (let ((portname (string-append basename (number->string port))))
+  (let ((portname (fs "~A~A" basename port)))
     (or (serveez-port? portname)
         (define-port! portname
           `((proto . tcp)
@@ -150,7 +150,7 @@
 ;; @var{basename} and @var{port}.  Return the new name.
 ;;
 (define (create-udp-port! basename port)
-  (let ((portname (string-append basename (number->string port))))
+  (let ((portname (fs "~A~A" basename port)))
     (or (serveez-port? portname)
         (define-port! portname
           `((proto . udp)

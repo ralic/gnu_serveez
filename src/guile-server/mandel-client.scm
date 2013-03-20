@@ -61,19 +61,14 @@
               (result (iterate-mandel (string->number (list-ref tokens 2))
                                       max-iteration)))
 
-         (display (string-append "*** Calculating point "
-                                 (list-ref tokens 3)
-                                 " -> "
-                                 (number->string result)
-                                 "\n"))
+         (display (fs "*** Calculating point ~S -> ~S\n"
+                      (list-ref tokens 3)
+                      (number->string result)))
          (svz:sock:print sock
-                         (string-append "(dnc:value:"
-                                        (list-ref tokens 2)
-                                        ":"
-                                        (list-ref tokens 3)
-                                        ":"
-                                        (number->string result)
-                                        ")\r\n"))
+                         (fs "(dnc:value:~S:~S:~S)\r\n"
+                             (list-ref tokens 2)
+                             (list-ref tokens 3)
+                             (number->string result)))
          (if (= 0 (1- todo))
              (begin
                (svz:sock:final-print sock)

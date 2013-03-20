@@ -214,10 +214,11 @@
            (or host
                (set! host (inet-ntoa (car addr))))
            (and host user
-                (set! host (string-append user "@" host)))
+                (set! host (fs "~A@~A" user host)))
            (println "icecast: uploading `" file "'"
                     (if host
-                        (string-append " to " host) ""))))))
+                        (fs " to ~A" host)
+                        ""))))))
 
 ;; ensure the send buffer is filled
 (define (icecast-trigger-condition sock)

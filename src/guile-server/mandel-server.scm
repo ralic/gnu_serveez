@@ -96,11 +96,9 @@
     (let loop ((i 0))
       (and (< i size)
            (begin
-             (write-line (string-append "\""
-                                        (vector-ref (car rgb) i)
-                                        "\tc #"
-                                        (vector-ref (cdr rgb) i)
-                                        "\",")
+             (write-line (fs "\"~A\tc #~A\","
+                             (vector-ref (car rgb) i)
+                             (vector-ref (cdr rgb) i))
                          outfile)
              (loop (1+ i)))))))
 
@@ -113,9 +111,8 @@
          (outfile (open-output-file (svz:server:config-ref server "outfile")))
          (cols '()))
 
-    (display (string-append "*** Generating \""
-                            (svz:server:config-ref server "outfile")
-                            "\" ... "))
+    (display (fs "*** Generating \"~A\" ... "
+                 (svz:server:config-ref server "outfile")))
 
     ;; create color palette
     (mandel-palette server)
@@ -124,15 +121,11 @@
     ;; create header
     (write-line "/* XPM */" outfile)
     (write-line "static char * mandel_xpm[] = {" outfile)
-    (write-line (string-append "\""
-                               (number->string x-res)
-                               " "
-                               (number->string y-res)
-                               " "
-                               (number->string colors)
-                               " "
-                               (svz:server:state-ref server "bpp")
-                               "\",")
+    (write-line (fs "\"~A ~A ~A ~A\","
+                    (number->string x-res)
+                    (number->string y-res)
+                    (number->string colors)
+                    (svz:server:state-ref server "bpp"))
                 outfile)
 
     ;; write palette information
@@ -200,12 +193,12 @@
 
 ;; server information callback for the control protocol
 (define (mandel-info server)
-  (string-append
-   " Mandelbrot calculation server.\r\n"
-   " Points given for calculation: "
-   (number->string (svz:server:state-ref server "index")) "\r\n"
-   " Missing points: "
-   (number->string (svz:server:state-ref server "missing"))))
+  (fs " ~A\r\n ~A: ~A\r\n ~A: ~A"
+      "Mandelbrot calculation server."
+      "Points given for calculation"
+      (svz:server:state-ref server "index")
+      "Missing points"
+      (svz:server:state-ref server "missing")))
 
 ;; connect a new client
 (define (mandel-connect server sock)
@@ -222,8 +215,9 @@
 (define (mandel-finalize server)
   (and (finished? server)
        (system)
-       (system (string-append (svz:server:config-ref server "viewer") " "
-                              (svz:server:config-ref server "outfile"))))
+       (system (fs "~A ~A"
+                   (svz:server:config-ref server "viewer")
+                   (svz:server:config-ref server "outfile"))))
   0)
 
 ;; handle one request by a client
@@ -243,13 +237,8 @@
            -1
            (let* ((index (next-index! server))
                   (z (index->z server index))
-                  (answer (string-append "(dnc:value:"
-                                         (number->string z)
-                                         ":"
-                                         (number->string index)
-                                         ":"
-                                         (number->string colors)
-                                         ")\r\n")))
+                  (answer (fs "(dnc:value:~S:~S:~S)\r\n"
+                              z index colors)))
              (svz:sock:print sock answer)
              0)))
       ;; client has some result

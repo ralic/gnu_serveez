@@ -67,26 +67,23 @@
                                 (binary->string request) read)))
                      (let ((res (eval expr safe-module)))
                        (svz:sock:print sock
-                         (string-append "=> "
-                           (object->string res)
-                           "\r\n"
-                           (svz:server:config-ref sock "prompt"))))))
+                         (fs "=> ~S\r\n~A"
+                             (object->string res)
+                             (svz:server:config-ref sock "prompt"))))))
                  (lambda args
                    (svz:sock:print sock
-                     (string-append "Exception: "
-                       (apply simple-format #f (caddr args) (cadddr args))
-                       "\r\n"
-                       (svz:server:config-ref sock "prompt")))))
+                     (fs "Exception: ~A\r\n~A"
+                         (apply fs (caddr args) (cadddr args))
+                         (svz:server:config-ref sock "prompt")))))
           0))))
 
 (define (eval-connect-socket server sock)
   (println "Running connect socket.")
   (svz:sock:boundary sock "\n")
   (svz:sock:handle-request sock eval-handle-request)
-  (svz:sock:print sock (string-append
-                        (svz:server:config-ref server "greeting")
-                        "\r\n"
-                        (svz:server:config-ref server "prompt")))
+  (svz:sock:print sock (fs "~A\r\n~A"
+                           (svz:server:config-ref server "greeting")
+                           (svz:server:config-ref server "prompt")))
   0)
 
 ;; Port configuration.
