@@ -1,5 +1,13 @@
 2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Add abstraction: out!
+
+	* guile-server/eval-server.scm (eval-handle-request out!):
+	New proc.
+	(eval-handle-request): Use ‘out!’.
+
+2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[slog] Import ‘(ice-9 rdelim)’ for ‘write-line’.
 
 	* guile-server/mandel-server.scm: Import ‘(ice-9 rdelim) write-line’.

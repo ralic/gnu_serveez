@@ -57,6 +57,10 @@
   " This is the eval server.")
 
 (define (eval-handle-request sock request len)
+
+  (define (out! s . args)
+    (svz:sock:print sock (apply fs s args)))
+
   (let ((idx (binary-search request (svz:server:config-ref sock "quit"))))
     (if (and idx (= idx 0))
         -1
@@ -66,15 +70,13 @@
                    (let ((expr (call-with-input-string
                                 (binary->string request) read)))
                      (let ((res (eval expr safe-module)))
-                       (svz:sock:print sock
-                         (fs "=> ~S\r\n~A"
-                             (object->string res)
-                             (svz:server:config-ref sock "prompt"))))))
+                       (out! "=> ~S\r\n~A"
+                             res
+                             (svz:server:config-ref sock "prompt")))))
                  (lambda args
-                   (svz:sock:print sock
-                     (fs "Exception: ~A\r\n~A"
+                   (out! "Exception: ~A\r\n~A"
                          (apply fs (caddr args) (cadddr args))
-                         (svz:server:config-ref sock "prompt")))))
+                         (svz:server:config-ref sock "prompt"))))
           0))))
 
 (define (eval-connect-socket server sock)
