@@ -140,17 +140,16 @@
 
     ;; output picture data
     (do ((y 0 (1+ y))) ((>= y y-res))
-      (let ((line "\""))
-        (do ((x 0 (1+ x))) ((>= x x-res))
-          (set! line
-                (string-append line (vector-ref
-                                     cols
-                                     (vector-ref data (+ x (* y x-res)))))))
-        (set! line (string-append line "\""))
-        (if (not (= y (1- y-res)))
-            (set! line (string-append line ","))
-            (set! line (string-append line "};")))
-        (write-line line outfile)))
+      (write-line
+       (fs "\"~A\"~A"
+           (string-concatenate
+            (map (lambda (x)
+                   (vector-ref cols (vector-ref data (+ x (* y x-res)))))
+                 (iota x-res)))
+           (if (not (= y (1- y-res)))
+               ","
+               "};"))
+       outfile))
 
     (close-output-port outfile)
     (display "done.\n")))

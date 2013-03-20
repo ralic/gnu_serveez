@@ -1,3 +1,11 @@
+2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Rewrite mandel "output picture data" routine.
+
+	* guile-server/mandel-shared.scm: Import SRFI 13 ‘string-concatenate’.
+	* guile-server/mandel-server.scm (mandel-write)
+	<output picture data>: Use ‘fs’, ‘string-concatenate’.
+
 2013-03-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Rewrite ‘left-zeros’.

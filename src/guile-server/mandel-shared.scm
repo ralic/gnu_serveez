@@ -32,7 +32,8 @@
 ;;
 
 (use-modules
- ((srfi srfi-13) #:select (string-tokenize))
+ ((srfi srfi-13) #:select (string-tokenize
+                           string-concatenate))
  ((srfi srfi-14) #:select (char-set-complement
                            char-set)))
 
