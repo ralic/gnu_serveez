@@ -21,6 +21,8 @@
 
 ;; load shared functionality
 (serveez-load "mandel-shared.scm")
+(use-modules
+ ((ice-9 rdelim) #:select (write-line)))
 
 ;; initialize the server state by calculating values from the configuration
 (define (mandel-init server)
