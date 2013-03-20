@@ -58,7 +58,7 @@
 
 (define (echo-handle-request sock request len)
   (let ((idx (binary-search request "quit")))
-    (if (and idx (= idx 0))
+    (if (and idx (zero? idx))
         -1
         (begin
           (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))

@@ -113,7 +113,7 @@
 (define (icecast-detect-proto server sock)
   (let ((idx (binary-search (svz:sock:receive-buffer sock) "GET "))
         (addr (svz:sock:remote-address sock)))
-    (if (and idx (= idx 0))
+    (if (and idx (zero? idx))
         (begin
           (println "icecast: client detected at " (inet-ntoa (car addr)))
           -1)
@@ -283,7 +283,7 @@
          (= (binary-length buffer) 128)
          (and=> (binary-search buffer "TAG")
                 (lambda (found)
-                  (and (= found 0)
+                  (and (zero? found)
                        (begin
                          (hash-set! data "size" (- size 128))
                          (println "icecast: stripping ID3 tag of `" file "'"))))))))

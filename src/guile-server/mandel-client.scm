@@ -69,7 +69,7 @@
                              (list-ref tokens 2)
                              (list-ref tokens 3)
                              (number->string result)))
-         (if (= 0 (1- todo))
+         (if (zero? (1- todo))
              (begin
                (svz:sock:final-print sock)
                (svz:sock:print sock "(dnc:bye)\r\n")

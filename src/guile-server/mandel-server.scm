@@ -187,7 +187,7 @@
 ;; detect our client with a magic string
 (define (mandel-detect-proto server sock)
   (let ((idx (binary-search (svz:sock:receive-buffer sock) mandel-magic)))
-    (if (and idx (= idx 0))
+    (if (and idx (zero? idx))
         (begin
           (svz:sock:receive-buffer-reduce sock (string-length mandel-magic))
           -1)

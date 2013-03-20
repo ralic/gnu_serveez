@@ -62,7 +62,7 @@
     (svz:sock:print sock (apply fs s args)))
 
   (let ((idx (binary-search request (svz:server:config-ref sock "quit"))))
-    (if (and idx (= idx 0))
+    (if (and idx (zero? idx))
         -1
         (let ((safe-module (make-safe-module)))
           (catch #t

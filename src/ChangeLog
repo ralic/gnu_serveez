@@ -1,5 +1,16 @@
 2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Use ‘zero?’ more.
+
+	* guile-server/echo-server.scm (echo-handle-request): ...here.
+	* guile-server/eval-server.scm (eval-handle-request): Likewise.
+	* guile-server/icecast-server.scm
+	(icecast-detect-proto, icecast-id3-tag): Likewise.
+	* guile-server/mandel-client.scm (mandel-handle-request): Likewise.
+	* guile-server/mandel-server.scm (mandel-detect-proto): Likewise.
+
+2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Revamp inetd ‘string-split’ and subroutines.
 
 	* guile-server/inetd.scm: Import SRFI 13, 14 procs.

@@ -1,3 +1,9 @@
+2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Use ‘zero?’ more.
+
+	* t003 <write-config!> (echo-handle-request): ...here.
+
 2013-03-11  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Re-word one-armed ‘if’ expressions.
