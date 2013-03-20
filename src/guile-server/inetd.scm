@@ -23,6 +23,7 @@
                            string-index
                            string-take))
  ((srfi srfi-14) #:select (ucs-range->char-set))
+ ((ice-9 and-let-star) #:select (and-let*))
  ((ice-9 rdelim) #:select (read-line)))
 
 ;; the inetd configuration file
@@ -251,38 +252,35 @@
 ;; when the inetd determines a valid rpc line in its configuration file
 ;; this procedure is called.
 (define (bind-rpc-service service-line)
-  (let* ((service (get-rpc-service service-line))
-         (rpc (car service))
-         (versions (cdr service)))
-    (and rpc
-         ;; create port configuration and server
-         (let* ((name (vector-ref rpc 0))
-                (proto (rpc-protocol service-line))
-                (port (create-rpc-portcfg name proto))
-                (server (create-rpc-server service-line name proto)))
-           ;; bind the server to its port
-           (and verbose
-                (hey "binding `~A' to `~A'" server port))
-           (bind-server! port server)
+  (and-let* ((service (get-rpc-service service-line))
+             (rpc (car service)))
+    (let* ((versions (cdr service))
+           ;; create port configuration and server
+           (name (vector-ref rpc 0))
+           (proto (rpc-protocol service-line))
+           (port (create-rpc-portcfg name proto))
+           (server (create-rpc-server service-line name proto)))
+      ;; bind the server to its port
+      (and verbose
+           (hey "binding `~A' to `~A'" server port))
+      (bind-server! port server)
 
-           ;; now go through each listening socket structure the server got
-           ;; finally bound to
-           (for-each (lambda (sock)
-                       ;; obtain the local network port
-                       (let ((port (cdr (svz:sock:local-address sock))))
-                         ;; for each version specified in the original
-                         ;; service line
-                         (do ((version (car versions) (+ version 1)))
-                             ((> version (cdr versions)))
-                           ;; create a port-mapping
-                           (run-rpc-portmapper (vector-ref rpc 0)
-                                               (vector-ref rpc 2) version
-                                               (rpc-ip-proto service-line)
-                                               (ntohs port)))
-                         ))
-                     ;; get the listening socket sructures
-                     (svz:server:listeners server))
-           ))))
+      ;; now go through each listening socket structure the server got
+      ;; finally bound to
+      (for-each (lambda (sock)
+                  ;; obtain the local network port
+                  (let ((port (cdr (svz:sock:local-address sock))))
+                    ;; for each version specified in the original
+                    ;; service line
+                    (do ((version (car versions) (+ version 1)))
+                        ((> version (cdr versions)))
+                      ;; create a port-mapping
+                      (run-rpc-portmapper (vector-ref rpc 0)
+                                          (vector-ref rpc 2) version
+                                          (rpc-ip-proto service-line)
+                                          (ntohs port)))))
+                ;; get the listening socket sructures
+                (svz:server:listeners server)))))
 
 ;; this checks if the given service line specifies a rpc service or not
 (define (rpc-service? service-line)
@@ -323,48 +321,46 @@
 ;; creates a port configuration for Serveez, returns the name of the new
 ;; port or #f on failure
 (define (create-portcfg line)
-  (and=> (lookup-service line)
-         (lambda (service)
-           (let ((name (protocol-port-string "inetd-port" service)))
-             (define-port! name
-               `(("port" .
-                  ,(vector-ref service 2))
-                 ("ipaddr" .
-                  ,ip-address)
-                 ("proto" .
-                  ,(vector-ref service 3))))
-             name))))
+  (and-let* ((service (lookup-service line))
+             (name (protocol-port-string "inetd-port" service)))
+    (define-port! name
+      `(("port" .
+         ,(vector-ref service 2))
+        ("ipaddr" .
+         ,ip-address)
+        ("proto" .
+         ,(vector-ref service 3))))
+    name))
 
 ;; creates a program passthrough server for Serveez, returns the name of
 ;; the new server or #f on failure
 (define (create-server line)
-  (and=> (lookup-service line)
-         (lambda (service)
-           (if (equal? "internal" (service-binary line))
-               (translate-internal-server line service)
-               (let ((threads (split-tuple (vector-ref line 3)))
-                     (name (protocol-port-string "prog-server" service)))
-                 (define-server! name
-                   `(,@(cond ((vector-ref line 6)
-                              => (lambda (argv)
-                                   `(("argv" .
-                                      ,(vector->list argv))))))
-                     ("single-threaded" .
-                      ,(equal? "wait" (car threads)))
-                     ,@(cond ((cdr threads)
-                              => (lambda (freq)
-                                   `(("thread-frequency" .
-                                      ,(string->number freq)))))
-                             (else '()))
-                     ("do-fork" .
-                      ,do-fork)
-                     ("user" .
-                      ,(vector-ref line 4))
-                     ("directory" .
-                      ,directory)
-                     ("binary" .
-                      ,(service-binary line))))
-                 name)))))
+  (and-let* ((service (lookup-service line)))
+    (if (equal? "internal" (service-binary line))
+        (translate-internal-server line service)
+        (let ((threads (split-tuple (vector-ref line 3)))
+              (name (protocol-port-string "prog-server" service)))
+          (define-server! name
+            `(,@(cond ((vector-ref line 6)
+                       => (lambda (argv)
+                            `(("argv" .
+                               ,(vector->list argv))))))
+              ("single-threaded" .
+               ,(equal? "wait" (car threads)))
+              ,@(cond ((cdr threads)
+                       => (lambda (freq)
+                            `(("thread-frequency" .
+                               ,(string->number freq)))))
+                      (else '()))
+              ("do-fork" .
+               ,do-fork)
+              ("user" .
+               ,(vector-ref line 4))
+              ("directory" .
+               ,directory)
+              ("binary" .
+               ,(service-binary line))))
+          name))))
 
 ;; translates the inetd servers marked with `internal' into Serveez
 ;; servers if possible
@@ -414,11 +410,10 @@
                (begin
                  (let* ((port (create-portcfg service))
                         (server (create-server service)))
-                   (and port server
-                        (begin
-                          (and verbose
-                               (hey "binding `~A' to `~A'" server port))
-                          (bind-server! port server)))))))))
+                   (and-let* (port server)
+                     (and verbose
+                          (hey "binding `~A' to `~A'" server port))
+                     (bind-server! port server))))))))
    lines))
 
 ;; main program entry point

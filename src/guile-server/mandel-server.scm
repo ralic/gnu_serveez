@@ -22,6 +22,7 @@
 ;; load shared functionality
 (serveez-load "mandel-shared.scm")
 (use-modules
+ ((ice-9 and-let-star) #:select (and-let*))
  ((ice-9 rdelim) #:select (write-line)))
 
 ;; initialize the server state by calculating values from the configuration
@@ -155,11 +156,11 @@
 
 ;; store a calculated point
 (define (save-point! server index value)
-  (and (< (vector-ref (svz:server:state-ref server "data") index) 0)
-       (begin
-         (vector-set! (svz:server:state-ref server "data") index value)
-         (svz:server:state-set! server "missing"
-                                (1- (svz:server:state-ref server "missing"))))))
+  (and-let* ((data (svz:server:state-ref server "data"))
+             ((< (vector-ref data index) 0)))
+    (vector-set! data index value)
+    (svz:server:state-set! server "missing"
+                           (1- (svz:server:state-ref server "missing")))))
 
 ;; calculate the complex number at a given array index
 (define (index->z server index)
@@ -186,12 +187,12 @@
 
 ;; detect our client with a magic string
 (define (mandel-detect-proto server sock)
-  (let ((idx (binary-search (svz:sock:receive-buffer sock) mandel-magic)))
-    (if (and idx (zero? idx))
-        (begin
-          (svz:sock:receive-buffer-reduce sock (string-length mandel-magic))
-          -1)
-        0)))
+  (or (and-let* ((idx (binary-search (svz:sock:receive-buffer sock)
+                                     mandel-magic))
+                 ((zero? idx)))
+        (svz:sock:receive-buffer-reduce sock (string-length mandel-magic))
+        -1)
+      0))
 
 ;; server information callback for the control protocol
 (define (mandel-info server)

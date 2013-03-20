@@ -32,6 +32,9 @@
         (format #f "~S" obj))
       (define (make-safe-module) #t)))
 
+(use-modules
+ ((ice-9 and-let-star) #:select (and-let*)))
+
 (define (eval-global-init servertype)
   (println "Running eval global init " servertype ".")
   0)
@@ -61,23 +64,23 @@
   (define (out! s . args)
     (svz:sock:print sock (apply fs s args)))
 
-  (let ((idx (binary-search request (svz:server:config-ref sock "quit"))))
-    (if (and idx (zero? idx))
-        -1
-        (let ((safe-module (make-safe-module)))
-          (catch #t
-                 (lambda ()
-                   (let ((expr (call-with-input-string
-                                (binary->string request) read)))
-                     (let ((res (eval expr safe-module)))
-                       (out! "=> ~S\r\n~A"
-                             res
-                             (svz:server:config-ref sock "prompt")))))
-                 (lambda args
-                   (out! "Exception: ~A\r\n~A"
-                         (apply fs (caddr args) (cadddr args))
-                         (svz:server:config-ref sock "prompt"))))
-          0))))
+  (or (and-let* ((idx (binary-search request (svz:server:config-ref sock "quit")))
+                 ((zero? idx)))
+        -1)
+      (let ((safe-module (make-safe-module)))
+        (catch #t
+               (lambda ()
+                 (let ((expr (call-with-input-string
+                              (binary->string request) read)))
+                   (let ((res (eval expr safe-module)))
+                     (out! "=> ~S\r\n~A"
+                           res
+                           (svz:server:config-ref sock "prompt")))))
+               (lambda args
+                 (out! "Exception: ~A\r\n~A"
+                       (apply fs (caddr args) (cadddr args))
+                       (svz:server:config-ref sock "prompt"))))
+        0)))
 
 (define (eval-connect-socket server sock)
   (println "Running connect socket.")

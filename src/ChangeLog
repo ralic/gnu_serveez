@@ -1,5 +1,19 @@
 2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme int] Use ‘(ice-9 and-let-star) and-let*’ more.
+
+	Implicit ∀ files: "Import ‘(ice-9 and-let-star) and-let*’".
+	* guile-server/echo-server.scm (echo-handle-request): Use ‘and-let*’.
+	* guile-server/eval-server.scm (eval-handle-request): Likewise.
+	* guile-server/icecast-server.scm (icecast-find-files)
+	(icecast-detect-proto, icecast-connect-socket, icecast-id3-tag): Likewise.
+	* guile-server/inetd.scm (bind-rpc-service)
+	(create-portcfg, create-server, create-bindings): Likewise.
+	* guile-server/mandel-server.scm
+	(save-point!, mandel-detect-proto): Likewise.
+
+2013-03-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[Scheme int] Use ‘zero?’ more.
 
 	* guile-server/echo-server.scm (echo-handle-request): ...here.

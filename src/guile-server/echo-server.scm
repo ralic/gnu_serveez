@@ -18,6 +18,9 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
+(use-modules
+ ((ice-9 and-let-star) #:select (and-let*)))
+
 (define (echo-global-init servertype)
   (println "Running echo global init " servertype ".")
   0)
@@ -57,12 +60,12 @@
   " This is the echo server.")
 
 (define (echo-handle-request sock request len)
-  (let ((idx (binary-search request "quit")))
-    (if (and idx (zero? idx))
-        -1
-        (begin
-          (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))
-          0))))
+  (or (and-let* ((idx (binary-search request "quit"))
+                 ((zero? idx)))
+        -1)
+      (begin
+        (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))
+        0)))
 
 (define (echo-connect-socket server sock)
   (println "Running connect socket.")

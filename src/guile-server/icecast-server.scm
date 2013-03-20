@@ -23,6 +23,9 @@
     (define (fseek obj offset whence)
       (seek obj offset whence)))
 
+(use-modules
+ ((ice-9 and-let-star) #:select (and-let*)))
+
 ;; server reset callback
 (define (icecast-reset server)
   (println "icecast: resetting server")
@@ -93,31 +96,29 @@
 ;; recurse into directories and find mp3 files
 (define (icecast-find-files directory files)
   ;; open directory
-  (and=> (icecast-opendir directory)
-         (lambda (dir)
-           (let loop ((file (readdir dir)))
-             (or (eof-object? file)
-                 (let ((full (in-vicinity directory file)))
-                   (cond ((icecast-is-subdirectory? full file)
-                          ;; recurse into directories
-                          (set! files (icecast-find-files full files)))
-                         ((icecast-is-file? file)
-                          ;; filter MP3 files
-                          (set! files (cons full files))))
-                   (loop (readdir dir)))))
-           ;; close directory
-           (closedir dir)))
+  (and-let* ((dir (icecast-opendir directory)))
+    (let loop ((file (readdir dir)))
+      (or (eof-object? file)
+          (let ((full (in-vicinity directory file)))
+            (cond ((icecast-is-subdirectory? full file)
+                   ;; recurse into directories
+                   (set! files (icecast-find-files full files)))
+                  ((icecast-is-file? file)
+                   ;; filter MP3 files
+                   (set! files (cons full files))))
+            (loop (readdir dir)))))
+    ;; close directory
+    (closedir dir))
   files)
 
 ;; protocol detection
 (define (icecast-detect-proto server sock)
-  (let ((idx (binary-search (svz:sock:receive-buffer sock) "GET "))
-        (addr (svz:sock:remote-address sock)))
-    (if (and idx (zero? idx))
-        (begin
-          (println "icecast: client detected at " (inet-ntoa (car addr)))
-          -1)
-        0)))
+  (or (and-let* ((idx (binary-search (svz:sock:receive-buffer sock) "GET "))
+                 ((zero? idx)))
+        (println "icecast: client detected at "
+                 (inet-ntoa (car (svz:sock:remote-address sock))))
+        -1)
+      0))
 
 ;; connecting a client
 (define (icecast-connect-socket server sock)
@@ -144,9 +145,8 @@
     (let ((ident (svz:sock:ident sock)))
 
       (define ((save! k) v)
-        (and=> (svz:sock:find ident)
-               (lambda (sock)
-                 (hash-set! (svz:sock:data sock) k v))))
+        (and-let* ((sock (svz:sock:find ident)))
+          (hash-set! (svz:sock:data sock) k v)))
 
       (define (kick! key input coserver)
         (coserver input (save! key)))
@@ -279,14 +279,13 @@
                  (fseek port 0 SEEK_SET))))
         (println "icecast: `" file "'is not a regular file"))
 
-    (and size buffer
-         (= (binary-length buffer) 128)
-         (and=> (binary-search buffer "TAG")
-                (lambda (found)
-                  (and (zero? found)
-                       (begin
-                         (hash-set! data "size" (- size 128))
-                         (println "icecast: stripping ID3 tag of `" file "'"))))))))
+    (and-let* (size
+               buffer
+               ((= 128 (binary-length buffer)))
+               (found (binary-search buffer "TAG"))
+               ((zero? found)))
+      (hash-set! data "size" (- size 128))
+      (println "icecast: stripping ID3 tag of `" file "'"))))
 
 ;; server type definitions
 (define-servertype! `(
