@@ -19,6 +19,10 @@
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
 (use-modules
+ ((srfi srfi-13) #:select (string-trim
+                           string-index
+                           string-take))
+ ((srfi srfi-14) #:select (ucs-range->char-set))
  ((ice-9 rdelim) #:select (read-line)))
 
 ;; the inetd configuration file
@@ -64,7 +68,7 @@
                           (reverse! lines))
                          ((string-index line #\#)
                           => (lambda (hash)
-                               (try (substring line 0 hash))))
+                               (try (string-take line hash))))
                          (else
                           (try line))))))))
          (lambda args
@@ -78,57 +82,46 @@
   (let* ((c (if (pair? c) (car c) #\.))
          (i (string-index string c)))
     (if i
-        (cons (substring string 0 i) (substring string (1+ i)))
+        (cons (string-take string i) (substring string (1+ i)))
         (cons string #f))))
-
-;; removes leading white spaces from the given string and returns it
-(define (crop-spaces string)
-  (let ((ret string))
-    (and (> (string-length string) 0)
-         (let loop ((c (string-ref string 0)))
-           (and (<= (char->integer c) (char->integer #\space))
-                (begin
-                  (set! string (substring string 1))
-                  (and (> (string-length string) 0)
-                       (loop (string-ref string 0)))))))
-    string))
 
 ;; returns the next position of a white space character in the given
 ;; string or #f if there is no further space or the string was empty
-(define (next-space-position string)
-  (let ((i 0))
-    (let loop ((i 0))
-      (if (< i (string-length string))
-          (if (<= (char->integer (string-ref string i))
-                  (char->integer #\space))
-              i
-              (loop (1+ i)))
-          #f))))
+(define next-space-position
+  (let ((cs (ucs-range->char-set 0 (1+ (char->integer #\space)))))
+    ;; next-space-position
+    (lambda (string)
+      (string-index string cs))))
 
 ;; tokenizes a given string into a vector, if TOKENS is a number the
 ;; procedure parses this number of tokens and stores the remaining tokens as
 ;; a variable length vector in the last element of the returned vector,
 ;; otherwise it returns a variable length vector
 (define (string-split string . tokens)
-  (let* ((vector (if (pair? tokens) (make-vector (1+ (car tokens))) '())))
-    (define (next-token string i)
-      (if i (substring string 0 i) string))
-    (let loop ((n 0))
-      (set! string (crop-spaces string))
-      (let* ((i (next-space-position string)))
-        (if (pair? tokens)
-            (vector-set! vector n (next-token string i))
-            (set! vector (append vector `(,(next-token string i)))))
-        (if i
-            (set! string (substring string i))
-            (set! string ""))
-        (and i (or (not (pair? tokens))
-                   (< n (1- (car tokens))))
-             (loop (1+ n)))))
-    (if (pair? tokens)
-        (vector-set! vector (car tokens) (string-split string))
-        (set! vector (if (null? vector) #f (list->vector vector))))
-    vector))
+  (let loop ((acc '()) (stop (and (pair? tokens)
+                                  (1- (car tokens)))))
+    (set! string (string-trim string))
+    (let* ((i (next-space-position string))
+           (full (cons (if i
+                           (string-take string i)
+                           string)
+                       acc)))
+
+      (define (vec<- . last)
+        (list->vector (reverse! (append last full))))
+
+      (set! string (if i
+                       (substring string i)
+                       ""))
+      (cond ((and i (or (not stop)
+                        (positive? stop)))
+             (loop full (and stop (1- stop))))
+            (stop
+             (vec<- (string-split string)))
+            ((null? acc)
+             #f)
+            (else
+             (vec<-))))))
 
 ;; returns the full rpc entry for a given service name or #f if there is
 ;; no such service found in the file `/etc/rpc'
