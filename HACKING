@@ -6,13 +6,13 @@ See the end for copying conditions.
 
 * next
 *** DONE Also distribute .lz tarball.
-*** TODO Fix bugs.
+*** DONE Fix bugs.
 ***** DONE (Guile 2) segfault in ‘guile_error’ if config file already closed
 ***** DONE (maint) Bump Automake min vers to 1.12.2.
 ***** DONE Add ‘--solitary’ to ‘serveez --help’ output, serveez(1).
 ***** DONE (Guile 1.8) Import ‘(ice-9 rdelim) write-line’.
-***** TODO Finalize [[file:BUGS::B0018][B0018]].
-***** TODO Finalize [[file:BUGS::B0012][B0012]].
+***** DONE Finalize [[file:BUGS::B0018][B0018]] => cant-reproduce-wont-fix.
+***** DONE Finalize [[file:BUGS::B0012][B0012]] => cant-reproduce-wont-fix.
 *** Modernize Scheme code.
 ***** DONE (string-append DIR FILE) => in-vicinity
 ***** DONE audit/rewrite one-armed ‘if’ expressions

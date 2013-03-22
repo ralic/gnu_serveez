@@ -25,7 +25,7 @@ Fix:	     When POLLPRI has been detected you are meant to
 
 Bug:	     B0018
 From:	     Stefan Jahn <stefan@lkcc.org>
-State:       unfixed
+State:       cant-reproduce-wont-fix
 Date:	     2000-07-01
 Description: Cannot recompute the Linux kernel's checksums of larger (larger
 	     than a single MTU, fragmented) ICMP packets.  It seems like the
@@ -82,7 +82,7 @@ Fix:	     Pipes have been done non-blocking via PeekNamedPipe() in the
 
 Bug:	     B0012
 From:	     Stefan Jahn <stefan@lkcc.org>
-State:       unfixed
+State:       cant-reproduce-wont-fix
 Date:	     2000-09-12
 Description: If the server has many open connections with much traffic
 	     Linux starts deadlocking for some reason.  This corresponds
