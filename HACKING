@@ -232,7 +232,10 @@ See the end for copying conditions.
   working. (1999-10-21/mgrabmue)
 *** Check whether libnsl is needed (like on Solaris). (1999-10-21/mgrabmue)
 
-* bootstrap: see [[file:autogen.sh][autogen.sh]]
+* bootstrap tools (see also [[file:autogen.sh][autogen.sh]])
+*** usual GNU stuff: Libtool, Autoconf, Automake
+*** Unofficial Guile (1.4.x) or GNU Guile (1.8.x or later)
+*** [[http://www.gnuvola.org/software/guile-baux/][Guile-BAUX]]
 
 * coding standards
 *** no trailing whitespace, no leading tabs

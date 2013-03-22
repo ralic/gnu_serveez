@@ -18,16 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
-#-----------------------------------------------------------------------
-# Usage: ./autogen.sh
-#
-# Prerequisite tools:
-# - GNU Autoconf 2.64
-# - GNU Libtool 2.4
-# - GNU Automake 1.10
-# - GNU Texinfo 4.11
-# - Guile-BAUX 20110309.1744.ad9085f
-# These are minimum versions; later versions are probably ok.
 for tool in autoconf libtool automake makeinfo guile-baux-tool ; do
     $tool --version | sed 's/^/using: /;1q'
 done
