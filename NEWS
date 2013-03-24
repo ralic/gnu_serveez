@@ -2,6 +2,56 @@ NEWS for GNU Serveez
 See end for copying conditions.
 
 
+- 0.2.1 | 2013-03-24
+
+  - planned retirement: Guile 1.3.4 support
+
+	Unless there is a major outcry from users (unlikely), the next
+	release will drop (all pretense of) support for Guile 1.3.4.
+	The earliest supported version will then be Guile 1.4.x.
+
+  - distribution now also includes .tar.lz
+
+	If you have GNU tar, you can use "tar xf" and it will DTRT.
+	If not, you can use "lzip -dc TARBALL | tar xf -" to unpack.
+
+  - bugfixes
+
+    - (Guile 2) segfault in ‘guile_error’
+
+	Under Guile 2, serveez(1) segfaults if the config file is closed
+	at the time ‘guile_error’ is called.  Although this has been
+	addressed (the fix "works for me"), it is still not entirely
+	satisfying.  See comments in func ‘guile_error’ (src/guile.c),
+	and also test/t007.
+
+    - ‘serveez --solitary’ mentioned in more places
+
+	Specifically, in ‘serveez --help’ output, and in serveez(1).
+
+    - (Guile 1.8) ‘write-line’ imported
+
+	Scheme code that uses ‘write-line’ now explicitly imports module
+	‘(ice-9 rdelim)’.  Apparently, Guile 1.8 does not autoload it.
+
+  - new built-in proc: ‘fs’
+
+	This is a convenience interface for ‘simple-format’.
+
+  - Scheme code modernized
+
+	Much of src/guile-server/*.scm was modernized: one-armed-‘if’
+	elimination, replacing homegrown procs w/ SRFIs where possible,
+	using higher abstractions, etc.
+
+  - manpages spiffed
+
+	Both serveez(1) and serveez-config(1) now include release
+	information and updated refs.
+
+  - bootstrap tool updated: makeinfo (GNU Texinfo) 5.1
+
+
 - 0.2.0 | 2013-01-22
 
   - license upgrade
@@ -410,3 +460,9 @@ Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 
 Copying and distribution of this file, with or without modification,
 are permitted provided the copyright notice and this notice are preserved.
+
+______________________________________________
+	Local Variables:
+	mode: outline
+	outline-regexp: "\\([ ][ ]\\)*- "
+	End:

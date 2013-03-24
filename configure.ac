@@ -23,7 +23,7 @@ dnl ----------------------------------------------------------------------
 dnl init
 
 AC_PREREQ([2.64])
-AC_INIT([GNU Serveez],[0.2.0],[bug-serveez@gnu.org])
+AC_INIT([GNU Serveez],[0.2.1],[bug-serveez@gnu.org])
 AC_CONFIG_HEADERS([src/config.h src/svzconfig.h src/guile-missing.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
