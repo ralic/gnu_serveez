@@ -1,3 +1,10 @@
+2013-03-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[v int] Add abstraction: oneshot-loopback-datagram
+
+	* common (oneshot-loopback-datagram): New proc.
+	* t007 (zow!): Use ‘oneshot-loopback-datagram’.
+
 2013-03-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.1

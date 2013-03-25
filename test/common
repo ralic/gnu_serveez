@@ -145,6 +145,23 @@
              (else (error "bad command:" command)))
            args)))
 
+(define (oneshot-loopback-datagram port msg)
+  (let* ((sent (sendto
+                ;; oneshot
+                (socket PF_INET SOCK_DGRAM 0)
+                msg
+                ;; loopback
+                AF_INET (logior (ash 127 24) 1)
+                port))
+         (ok? (equal? (string-length msg)
+                      sent)))
+    (and (or VERBOSE? (not ok?))
+         (fse "~A: ~A: sendto rv: ~S~%"
+              TESTBASE
+              (if ok? 'INFO 'ERROR)
+              sent))
+    ok?))
+
 (define (bud!)
   (let ((pid (primitive-fork)))
     (if (zero? pid)
