@@ -5,21 +5,9 @@ It lives in the repo but is not included in the distribution.
 See the end for copying conditions.
 
 * next
-*** DONE Also distribute .lz tarball.
-*** DONE Fix bugs.
-***** DONE (Guile 2) segfault in ‘guile_error’ if config file already closed
-***** DONE (maint) Bump Automake min vers to 1.12.2.
-***** DONE Add ‘--solitary’ to ‘serveez --help’ output, serveez(1).
-***** DONE (Guile 1.8) Import ‘(ice-9 rdelim) write-line’.
-***** DONE Finalize [[file:BUGS::B0018][B0018]] => cant-reproduce-wont-fix.
-***** DONE Finalize [[file:BUGS::B0012][B0012]] => cant-reproduce-wont-fix.
-*** Modernize Scheme code.
-***** DONE (string-append DIR FILE) => in-vicinity
-***** DONE audit/rewrite one-armed ‘if’ expressions
-***** DONE use ‘reverse!’ instead of ‘reverse’
-***** DONE use ‘fs’, (widely available) SRFI and ice-9 modules
-*** DONE Update manpages; include release info.
-*** DONE Announce planned retirement of Guile 1.3.4 support.
+*** TODO bugfixes
+***** TODO ([[file:BUGS::B0020][B0020]]) cache ‘svz_socket_t *’ SMOB
+*** TODO retirement of Guile 1.3.4 support
 
 * other stuff to do
 *** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
@@ -48,6 +36,21 @@ See the end for copying conditions.
 *** Serveez on HURD.
 
 * stuff that is already done
+*** Also distribute .lz tarball.
+*** Fix bugs.
+***** (Guile 2) segfault in ‘guile_error’ if config file already closed
+***** (maint) Bump Automake min vers to 1.12.2.
+***** Add ‘--solitary’ to ‘serveez --help’ output, serveez(1).
+***** (Guile 1.8) Import ‘(ice-9 rdelim) write-line’.
+***** Finalize [[file:BUGS::B0018][B0018]] => cant-reproduce-wont-fix.
+***** Finalize [[file:BUGS::B0012][B0012]] => cant-reproduce-wont-fix.
+*** Modernize Scheme code.
+***** (string-append DIR FILE) => in-vicinity
+***** audit/rewrite one-armed ‘if’ expressions
+***** use ‘reverse!’ instead of ‘reverse’
+***** use ‘fs’, (widely available) SRFI and ice-9 modules
+*** Update manpages; include release info.
+*** Announce planned retirement of Guile 1.3.4 support.
 *** Move to GPLv3+.
 *** Fix bugs.
 ***** incomplete "make uninstall"
