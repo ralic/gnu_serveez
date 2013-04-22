@@ -6,6 +6,14 @@ This file is intended to collect all known bugs (fixed or unfixed) in
 this package.  We will consider fixing these sooner or later.  Please
 send Serveez bug reports to <bug-serveez@gnu.org>.
 
+Bug          B0020
+From:        Mike Gran
+State:       unfixed
+Date:        2013-03-25
+Description: From Guile, the ‘svz_socket_t *’ SMOBs fail to retain object
+             properties set on them since they are constructed on demand.
+Fix:         Construct and cache on first access.  Finalize "appropriately".
+
 Bug:	     B0019
 From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed
