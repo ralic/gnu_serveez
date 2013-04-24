@@ -1,5 +1,13 @@
 2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	Avoid ‘svz:sock:data’ in Mandelbrot client.
+
+	* mandel-client.scm (todo): New top-level var.
+	(mandel-handle-request): Access/update top-level ‘todo’ directly.
+	(mandel-main): Rename arg to ‘max-todo’; init ‘todo’ w/ it.
+
+2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	Avoid ‘svz:sock:data’ in Icecast server.
 
 	* icecast-server.scm (interesting, bye-bye): New procs.

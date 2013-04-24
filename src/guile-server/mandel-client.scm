@@ -41,11 +41,12 @@
             ((> (magnitude z) 2) i)
             (else (loop (1+ i) (+ z-first (* z z)) z))))))
 
+(define todo #f)
+
 ;; handle one line sent by the server
 (define (mandel-handle-request sock request len)
   (let* ((tokens (mandel-tokenize request))
-         (command (list-ref tokens 1))
-         (todo (hash-ref (svz:sock:data sock) "todo")))
+         (command (list-ref tokens 1)))
 
     (case (string->symbol command)
       ;; server accepted us
@@ -75,7 +76,7 @@
                (svz:sock:print sock "(dnc:bye)\r\n")
                0)
              (begin
-               (hash-set! (svz:sock:data sock) "todo" (1- todo))
+               (set! todo (1- todo))
                (svz:sock:print sock "(dnc:request)\r\n")
                0))))
       ;; invalid server request
@@ -87,13 +88,10 @@
   0)
 
 ;; main program entry point
-(define (mandel-main todo)
-  (let* ((sock (svz:sock:connect "127.0.0.1" PROTO_TCP 1025))
-         (state (make-hash-table 3)))
-
+(define (mandel-main max-todo)
+  (set! todo max-todo)
+  (let ((sock (svz:sock:connect "127.0.0.1" PROTO_TCP 1025)))
     (mandel-prepare-sock sock)
-    (hash-set! state "todo" todo)
-    (svz:sock:data sock state)
     (svz:sock:handle-request sock mandel-handle-request)
     (svz:sock:disconnected sock mandel-disconnected)
     (svz:sock:print sock mandel-magic)
