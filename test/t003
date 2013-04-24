@@ -63,6 +63,13 @@
                                    request))
              0))))
 
+   (define (bye-bye action . reason)
+     (lambda (sock)
+       (println "Socket " sock " " action
+                (if (null? reason)
+                    ""
+                    (fs " (~A)" (car reason))))))
+
    (define (echo-connect-socket server sock)
      (define (hello)
        "Hello, type `quit' to end the connection.\r\n")
@@ -70,6 +77,8 @@
      (svz:sock:boundary sock "\n")
      (svz:sock:handle-request sock echo-handle-request)
      (svz:sock:print sock (hello))
+     (svz:sock:disconnected sock (bye-bye "disconnected"))
+     (svz:sock:kicked sock (bye-bye "kicked"))
      0)
 
    ;; Port configuration.
