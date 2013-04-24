@@ -120,6 +120,23 @@
         -1)
       0))
 
+;; per-socket data
+(define interesting
+  ;; TODO: when B0020 is fixed, this can be simply ‘(make-object-property)’.
+  (let ((ht (make-hash-table)))
+    ;; interesting
+    (lambda (sock . rest)
+      (let ((key (svz:sock:ident sock)))
+      (if (null? rest)
+          (hash-ref ht key)
+          (case (car rest)
+            ((put) (hash-set! ht key (cadr rest)))
+            ((forget) (hash-remove! ht key))))))))
+
+(define (bye-bye sock . reason)
+  (interesting sock 'forget)
+  0)
+
 ;; connecting a client
 (define (icecast-connect-socket server sock)
   (let* ((reply (string-append
@@ -135,7 +152,11 @@
 
     ;; save state in socket
     (hash-set! data "seed" (seed->random-state (current-time)))
-    (svz:sock:data sock data)
+    ;; TODO: When B0020 is fixed, change to: ‘(set! (interesting sock) data)’
+    ;;       and don't bother setting "disconnected" and "kicked" callbacks.
+    (interesting sock 'put data)
+    (svz:sock:disconnected sock bye-bye)
+    (svz:sock:kicked sock bye-bye)
 
     ;; resize send buffer
     (svz:sock:send-buffer-size sock
@@ -146,7 +167,7 @@
 
       (define ((save! k) v)
         (and-let* ((sock (svz:sock:find ident)))
-          (hash-set! (svz:sock:data sock) k v)))
+          (hash-set! (interesting sock) k v)))
 
       (define (kick! key input coserver)
         (coserver input (save! key)))
@@ -187,7 +208,7 @@
 ;; choose next mpeg file in stream
 (define (icecast-next-file sock)
   (let* ((server (svz:sock:server sock))
-         (data (svz:sock:data sock))
+         (data (interesting sock))
          (seed (hash-ref data "seed"))
          (files (svz:server:state-ref server "files"))
          (n (random (length files) seed))
@@ -228,7 +249,7 @@
 
 ;; stream mpeg file data
 (define (icecast-trigger sock)
-  (let* ((data (svz:sock:data sock))
+  (let* ((data (interesting sock))
          (size (svz:sock:send-buffer-size sock))
          (read-bytes (- (car size) (cdr size))))
 
@@ -244,7 +265,7 @@
 
 ;; send mp3 data only, strip ID3 tag
 (define (icecast-send-buffer sock buffer)
-  (let* ((data (svz:sock:data sock))
+  (let* ((data (interesting sock))
          (pos (hash-ref data "position"))
          (size (hash-ref data "size")))
 
