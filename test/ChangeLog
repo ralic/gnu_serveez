@@ -1,5 +1,12 @@
 2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[v] Add test for disappearing obj prop on socket; mark xfail.
+
+	* t008: New file.
+	* Makefile.am (XFAIL_TESTS, TESTS): Add t008.
+
+2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[v] Specify disconnected and kicked for the echo server test.
 
 	* t003 <write-config> (bye-bye): New proc.
