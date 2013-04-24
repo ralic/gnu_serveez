@@ -1,0 +1,16 @@
+2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Avoid ‘svz:sock:data’ in Icecast server.
+
+	* icecast-server.scm (interesting, bye-bye): New procs.
+	(icecast-connect-socket): Don't use ‘svz:sock:data’;
+	instead, save and access the ‘data’ hash table via ‘interesting’;
+	and specify ‘bye-bye’ for the "disconnected" and "kicked' callbacks.
+	(icecast-next-file, icecast-trigger, icecast-send-buffer):
+	Access the ‘data’ hash table via ‘interesting’.
+
+
+Copyright (C) 2013 Thien-Thi Nguyen
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.

@@ -1,14 +1,3 @@
-2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
-
-	Avoid ‘svz:sock:data’ in Icecast server.
-
-	* guile-server/icecast-server.scm (interesting, bye-bye): New procs.
-	(icecast-connect-socket): Don't use ‘svz:sock:data’;
-	instead, save and access the ‘data’ hash table via ‘interesting’;
-	and specify ‘bye-bye’ for the "disconnected" and "kicked' callbacks.
-	(icecast-next-file, icecast-trigger, icecast-send-buffer):
-	Access the ‘data’ hash table via ‘interesting’.
-
 2013-03-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.1
