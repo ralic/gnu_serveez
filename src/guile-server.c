@@ -957,39 +957,6 @@ Return @code{#t} on success and @code{#f} on failure.  */)
 #undef FUNC_NAME
 }
 
-SCM_DEFINE
-(guile_sock_data,
- "svz:sock:data", 1, 1, 0,
- (SCM sock, SCM data),
- doc: /***********
-Associate any kind of data (any object) given in the argument
-@var{data} with the socket @var{sock}.  The @var{data} argument is
-optional.  Return a previously stored value or an empty list.
-[Do not use; will be deleted; use object properties, instead.  --ttn]  */)
-{
-#define FUNC_NAME s_guile_sock_data
-  svz_socket_t *xsock;
-  SCM ret = SCM_EOL;
-
-  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-
-  /* Save return value here.  */
-  if (xsock->data != NULL)
-    ret = (SCM) SVZ_PTR2NUM (xsock->data);
-
-  /* Replace associated guile cell and unprotect previously stored cell
-     if necessary.  */
-  if (!SCM_UNBNDP (data))
-    {
-      if (xsock->data != NULL)
-        gi_gc_unprotect (ret);
-      xsock->data = SVZ_NUM2PTR (data);
-      gi_gc_protect (data);
-    }
-  return ret;
-#undef FUNC_NAME
-}
-
 /*
  * Convert the given value at @var{address} of the the type @var{type} into
  * a scheme cell.

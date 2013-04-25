@@ -200,8 +200,6 @@ details.
 
 @tsin i svz:sock:idle-counter
 
-@tsin i svz:sock:data
-
 @tsin i svz:sock:parent
 
 @tsin i svz:sock:referrer

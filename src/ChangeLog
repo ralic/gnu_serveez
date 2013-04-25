@@ -1,3 +1,9 @@
+2013-04-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme] Remove proc: svz:sock:data
+
+	* guile-server.c (guile_sock_data): Delete func.
+
 2013-03-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.1
