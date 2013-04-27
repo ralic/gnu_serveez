@@ -91,21 +91,6 @@ svz_array_destroy (svz_array_t *array)
     }
 }
 
-/*
- * Check if the given @var{size} argument supersedes the capacity of the
- * array @var{array} and reallocate the array if necessary.
- */
-static void
-svz_array_ensure_capacity (svz_array_t *array, size_t size)
-{
-  if (size > array->capacity)
-    {
-      array->capacity = array->capacity * 3 / 2 + 1;
-      array->data = svz_realloc (array->data, sizeof (void *) *
-                                 array->capacity);
-    }
-}
-
 /**
  * Return the array element at the position @var{index} of the array
  * @var{array} if the index is within the array range.  Return @code{NULL}
@@ -147,8 +132,16 @@ svz_array_add (svz_array_t *array, void *value)
 {
   if (array)
     {
-      svz_array_ensure_capacity (array, array->size + 1);
-      array->data[array->size++] = value;
+      size_t bigger = 1 + array->size;
+
+      if (bigger > array->capacity)
+        {
+          array->capacity = array->capacity * 3 / 2 + 1;
+          array->data = svz_realloc (array->data, sizeof (void *) *
+                                     array->capacity);
+        }
+      array->data[array->size] = value;
+      array->size = bigger;
     }
 }
 
