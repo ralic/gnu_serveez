@@ -1,0 +1,17 @@
+Ever since the beginning (Serveez 0.0.17, 2000-07-28), the libserveez
+socket structure includes member ‘data’ (a terribly ambiguous name).
+
+Probably this ambiguity played a large part in enabling the
+long-standing bug whereby libserveez internally(?) uses ‘sock->data’ to
+hold an array of server instances (i.e., bindings), while advertizing
+to libserveez clients its availability for client-directed per-socket
+storage.
+
+Even if a client does not write to ‘sock->data’, there is a violation
+of encapsulation -- it's possible for one network client to find
+information about other network clients.  For this reason, we cannot
+label this bug "latent" and must consider a solution that *might*
+involve some redesign.  (Everything depends on whether or not the
+bindings array usage is fully internal.  If so, we can cede ‘data’ to
+libserveez clients (as advertized), internalizing the bindings array
+manipulation.  If not, well...)
