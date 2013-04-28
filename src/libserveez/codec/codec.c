@@ -46,7 +46,7 @@
 
 /* Collection of available encoder and decoder provided by the libcodec
    archive or by external (shared) libraries.  */
-static svz_array_t *svz_codecs = NULL;
+static svz_array_t *codecs = NULL;
 
 /**
  * Call @var{func} for each codec, passing additionally the second arg
@@ -60,7 +60,7 @@ svz_foreach_codec (svz_codec_do_t *func, void *closure)
   int rv;
   svz_codec_t *codec;
 
-  svz_array_foreach (svz_codecs, codec, i)
+  svz_array_foreach (codecs, codec, i)
     {
       if (0 > (rv = func (codec, closure)))
         return rv;
@@ -82,7 +82,7 @@ svz_codec_get (char *description, int type)
   if (description == NULL)
     return NULL;
 
-  svz_array_foreach (svz_codecs, codec, i)
+  svz_array_foreach (codecs, codec, i)
     {
       if (strcmp (description, codec->description) == 0 &&
           type == codec->type)
@@ -93,7 +93,7 @@ svz_codec_get (char *description, int type)
 
 /* This routine registers the builtin codecs.  */
 static int
-svz_codec_init (void)
+init (void)
 {
 #if HAVE_LIBZ && HAVE_ZLIB_H
   svz_codec_register (&zlib_encoder);
@@ -108,19 +108,19 @@ svz_codec_init (void)
 
 /* This routine destroys the list of known codecs.  */
 static int
-svz_codec_finalize (void)
+finalize (void)
 {
-  if (svz_codecs)
+  if (codecs)
     {
-      svz_array_destroy (svz_codecs);
-      svz_codecs = NULL;
+      svz_array_destroy (codecs);
+      codecs = NULL;
     }
   return 0;
 }
 
 /* Checks the given codec for validity.  Return zero on success.  */
 static int
-svz_codec_check (svz_codec_t *codec)
+check_codec (svz_codec_t *codec)
 {
   if (codec == NULL || codec->description == NULL ||
       (codec->type != SVZ_CODEC_DECODER && codec->type != SVZ_CODEC_ENCODER))
@@ -139,14 +139,14 @@ svz_codec_register (svz_codec_t *codec)
   size_t i;
 
   /* Check validity of the codec.  */
-  if (svz_codec_check (codec))
+  if (check_codec (codec))
     {
       svz_log (SVZ_LOG_ERROR, "cannot register invalid codec\n");
       return -1;
     }
 
   /* Check for duplicate codecs.  */
-  svz_array_foreach (svz_codecs, c, i)
+  svz_array_foreach (codecs, c, i)
     {
       if (strcmp (c->description, codec->description) == 0 &&
           c->type == codec->type)
@@ -158,9 +158,9 @@ svz_codec_register (svz_codec_t *codec)
     }
 
   /* Add this codec to the list of known codecs.  */
-  if (svz_codecs == NULL)
-    svz_codecs = svz_array_create (2, NULL);
-  svz_array_add (svz_codecs, codec);
+  if (codecs == NULL)
+    codecs = svz_array_create (2, NULL);
+  svz_array_add (codecs, codec);
   svz_log (SVZ_LOG_NOTICE, "registered `%s' %s\n", codec->description,
            SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
@@ -177,19 +177,19 @@ svz_codec_unregister (svz_codec_t *codec)
   size_t i;
 
   /* Check validity of the codec.  */
-  if (svz_codec_check (codec))
+  if (check_codec (codec))
     {
       svz_log (SVZ_LOG_ERROR, "cannot unregister invalid codec\n");
       return -1;
     }
 
   /* Find codec within the list of known codecs.  */
-  svz_array_foreach (svz_codecs, c, i)
+  svz_array_foreach (codecs, c, i)
     {
       if (strcmp (c->description, codec->description) == 0 &&
           c->type == codec->type)
         {
-          svz_array_del (svz_codecs, i);
+          svz_array_del (codecs, i);
           svz_log (SVZ_LOG_NOTICE, "unregistered `%s' %s\n", codec->description,
                    SVZ_CODEC_TYPE_TEXT (codec));
           return 0;
@@ -258,7 +258,7 @@ svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
 
 /* Reverts the changes made in @code{svz_codec_sock_receive_setup}.  */
 static void
-svz_codec_sock_recv_revert (svz_socket_t *sock)
+recv_revert (svz_socket_t *sock)
 {
   svz_codec_data_t *data = (svz_codec_data_t *) sock->recv_codec;
 
@@ -314,7 +314,7 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
     {
       svz_log (SVZ_LOG_ERROR, "%s: init: %s\n",
                codec->description, codec->error (data));
-      svz_codec_sock_recv_revert (sock);
+      recv_revert (sock);
       return -1;
     }
   data->state |= SVZ_CODEC_READY;
@@ -444,7 +444,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
 
 /* Reverts the changes made in @code{svz_codec_sock_send_setup}.  */
 static void
-svz_codec_sock_send_revert (svz_socket_t *sock)
+send_revert (svz_socket_t *sock)
 {
   svz_codec_data_t *data = (svz_codec_data_t *) sock->send_codec;
 
@@ -501,7 +501,7 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
     {
       svz_log (SVZ_LOG_ERROR, "%s: init: %s\n",
                codec->description, codec->error (data));
-      svz_codec_sock_send_revert (sock);
+      send_revert (sock);
       return -1;
     }
   data->state |= SVZ_CODEC_READY;
@@ -620,7 +620,7 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
       disconnected = data->disconnected_socket;
       if (data->state & SVZ_CODEC_READY)
         data->codec->finalize (data);
-      svz_codec_sock_recv_revert (sock);
+      recv_revert (sock);
     }
   /* Check and release sending codec.  */
   if ((data = (svz_codec_data_t *) sock->send_codec) != NULL)
@@ -628,7 +628,7 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
       disconnected = data->disconnected_socket;
       if (data->state & SVZ_CODEC_READY)
         data->codec->finalize (data);
-      svz_codec_sock_send_revert (sock);
+      send_revert (sock);
     }
 
   /* Run old @code{disconnected_socket} callback.  */
@@ -647,7 +647,7 @@ svz_codec_sock_detect (svz_socket_t *sock)
   svz_codec_t *codec;
   size_t i;
 
-  svz_array_foreach (svz_codecs, codec, i)
+  svz_array_foreach (codecs, codec, i)
     {
       if (codec->detection_size > 0 &&
           sock->recv_buffer_fill >= codec->detection_size)
@@ -669,7 +669,7 @@ void
 svz__codec_updn (int direction)
 {
   (direction
-   ? svz_codec_init
-   : svz_codec_finalize)
+   ? init
+   : finalize)
     ();
 }

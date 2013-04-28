@@ -62,7 +62,7 @@ no_ip_p (const char *addr)
  * This hash holds all port configurations created by the configuration
  * file.
  */
-static svz_hash_t *svz_portcfgs = NULL;
+static svz_hash_t *portcfgs = NULL;
 
 /**
  * Return the pointer of the @code{sockaddr_in} structure of the given
@@ -288,23 +288,23 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
     return NULL;
 
   /* Check if the port configuration hash is inited.  */
-  if (svz_portcfgs == NULL)
+  if (portcfgs == NULL)
     {
-      if ((svz_portcfgs = svz_hash_create (4, (svz_free_func_t)
+      if ((portcfgs = svz_hash_create (4, (svz_free_func_t)
                                            svz_portcfg_free)) == NULL)
         return NULL;
     }
 
   /* Try adding a new port configuration.  */
-  if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
+  if ((replace = svz_hash_get (portcfgs, name)) != NULL)
     {
 #if ENABLE_DEBUG
       svz_log (SVZ_LOG_DEBUG, "portcfg `%s' already registered\n", name);
 #endif
-      svz_hash_put (svz_portcfgs, name, port);
+      svz_hash_put (portcfgs, name, port);
       return replace;
     }
-  svz_hash_put (svz_portcfgs, name, port);
+  svz_hash_put (portcfgs, name, port);
   return port;
 }
 
@@ -314,7 +314,7 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
  * (@var{ipaddr}).  Returns zero on success, non-zero otherwise.
  */
 static int
-svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
+set_ipaddr (svz_portcfg_t *this, char *ipaddr)
 {
   if (!this || !ipaddr)
     return -1;
@@ -359,7 +359,7 @@ expand_internal (const svz_interface_t *ifc, void *closure)
 
   svz_address_to (&ipaddr, ifc->addr);
   addr->sin_addr.s_addr = ipaddr;
-  svz_portcfg_set_ipaddr (port, svz_strdup (svz_inet_ntoa (ipaddr)));
+  set_ipaddr (port, svz_strdup (svz_inet_ntoa (ipaddr)));
   svz_array_add (x->ports, port);
   return 0;
 }
@@ -523,8 +523,8 @@ svz_portcfg_destroy (svz_portcfg_t *port)
     return;
 
   /* Delete from port configuration hash if necessary.  */
-  if (svz_portcfgs && (name = svz_hash_contains (svz_portcfgs, port)) != NULL)
-    svz_hash_delete (svz_portcfgs, name);
+  if (portcfgs && (name = svz_hash_contains (portcfgs, port)) != NULL)
+    svz_hash_delete (portcfgs, name);
 
   /* Free the port configuration.  */
   svz_portcfg_free (port);
@@ -538,10 +538,10 @@ svz_portcfg_t *
 svz_portcfg_get (char *name)
 {
   /* Do not handle invalid arguments.  */
-  if (name == NULL || svz_portcfgs == NULL)
+  if (name == NULL || portcfgs == NULL)
     return NULL;
 
-  return svz_hash_get (svz_portcfgs, name);
+  return svz_hash_get (portcfgs, name);
 }
 
 /*
@@ -551,10 +551,10 @@ svz_portcfg_get (char *name)
 void
 svz_portcfg_finalize (void)
 {
-  if (svz_portcfgs != NULL)
+  if (portcfgs != NULL)
     {
-      svz_hash_destroy (svz_portcfgs);
-      svz_portcfgs = NULL;
+      svz_hash_destroy (portcfgs);
+      portcfgs = NULL;
     }
 }
 
@@ -564,7 +564,7 @@ svz_portcfg_finalize (void)
  * @code{sockaddr_in.sin_addr.s_addr} field.  Return zero on success.
  */
 static int
-svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
+convert_addr (char *str, struct sockaddr_in *addr)
 {
   svz_interface_t *ifc;
 
@@ -624,7 +624,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else
         {
-          err = svz_portcfg_convert_addr (ip, sa);
+          err = convert_addr (ip, sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
@@ -665,7 +665,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else
         {
-          err = svz_portcfg_convert_addr (ip, sa);
+          err = convert_addr (ip, sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
@@ -689,7 +689,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else
         {
-          err = svz_portcfg_convert_addr (ip, sa);
+          err = convert_addr (ip, sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
@@ -712,7 +712,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else
         {
-          err = svz_portcfg_convert_addr (SVZ_CFG_RAW (this, ipaddr), sa);
+          err = convert_addr (SVZ_CFG_RAW (this, ipaddr), sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
@@ -816,7 +816,7 @@ svz_portcfg_prepare (svz_portcfg_t *port)
  * address or the appropiate device into a text representation.
  */
 static char *
-svz_portcfg_addr_text (svz_portcfg_t *port, struct sockaddr_in *addr)
+text_from_addr (svz_portcfg_t *port, struct sockaddr_in *addr)
 {
   if (port->flags & PORTCFG_FLAG_DEVICE)
     return svz_portcfg_device (port);
@@ -843,7 +843,7 @@ svz_pp_portcfg (char *buf, size_t size, svz_portcfg_t *port)
       addr = svz_portcfg_addr (port);
       len = snprintf (buf, size, "%s:[%s:%d]",
                       (port->proto & SVZ_PROTO_TCP) ? "TCP" : "UDP",
-                      svz_portcfg_addr_text (port, addr),
+                      text_from_addr (port, addr),
                       ntohs (addr->sin_port));
     }
   /* RAW and ICMP */
@@ -854,7 +854,7 @@ svz_pp_portcfg (char *buf, size_t size, svz_portcfg_t *port)
       addr = svz_portcfg_addr (port);
       len = snprintf (buf, size, "%s:[%s%s%s]",
                       (port->proto & SVZ_PROTO_RAW) ? "RAW" : "ICMP",
-                      svz_portcfg_addr_text (port, addr),
+                      text_from_addr (port, addr),
                       icmp_p ? "/" : "",
                       icmp_p ? svz_itoa (SVZ_CFG_ICMP (port, type)) : "");
     }

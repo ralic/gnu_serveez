@@ -62,7 +62,7 @@
 /*
  * The available interface list.
  */
-static svz_array_t *svz_interfaces;
+static svz_array_t *interfaces;
 
 /**
  * Call @var{func} for each interface, passing additionally the second arg
@@ -76,7 +76,7 @@ svz_foreach_interface (svz_interface_do_t *func, void *closure)
   int rv;
   svz_interface_t *ifc;
 
-  svz_array_foreach (svz_interfaces, ifc, n)
+  svz_array_foreach (interfaces, ifc, n)
     {
       if (0 > (rv = func (ifc, closure)))
         return rv;
@@ -119,7 +119,7 @@ print_foo_error (int sys_p, char const *prefix)
 #define print_net_error(prefix)  print_foo_error (0, prefix)
 
 static void
-svz_interface_collect (void)
+collect (void)
 {
   int result = 0;
   HMODULE WSockHandle;
@@ -346,9 +346,9 @@ svz_interface_collect (void)
                     {
                       memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
 
-                      for (k = 0; k < svz_array_size (svz_interfaces); k++)
+                      for (k = 0; k < svz_array_size (interfaces); k++)
                         {
-                          ifc = svz_array_get (svz_interfaces, k);
+                          ifc = svz_array_get (interfaces, k);
                           if (ifc->index == ipAddrEntry[n].iae_index)
                             ifc->ipaddr = addr;
                         }
@@ -442,13 +442,13 @@ svz_interface_collect (void)
 
 /*
  * Collect all available network interfaces and put them into the list
- * @var{svz_interfaces}.  This is useful in order to @code{bind} server
+ * @var{interfaces}.  This is useful in order to @code{bind} server
  * sockets to specific network interfaces.  Thus you can make certain
  * services accessible from "outside" or "inside" a network installation
  * only.
  */
 static void
-svz_interface_collect (void)
+collect (void)
 {
   int numreqs = 16;
   struct ifconf ifc;
@@ -552,7 +552,7 @@ svz_interface_collect (void)
 #else /* not ENABLE_IFLIST */
 
 static void
-svz_interface_collect (void)
+collect (void)
 {
   printf ("\n"
           "Sorry, the list of local interfaces is not available. If you\n"
@@ -595,13 +595,13 @@ svz_interface_add (size_t index, char *desc,
   STILL_NO_V6_DAMMIT (addr);
 
   /* Check if there is such an interface already.  */
-  if (svz_interfaces == NULL)
+  if (interfaces == NULL)
     {
-      svz_interfaces = svz_array_create (1, destroy_ifc);
+      interfaces = svz_array_create (1, destroy_ifc);
     }
   else
     {
-      svz_array_foreach (svz_interfaces, ifc, n)
+      svz_array_foreach (interfaces, ifc, n)
         {
           if (svz_address_same (ifc->addr, addr))
             {
@@ -624,7 +624,7 @@ svz_interface_add (size_t index, char *desc,
          (*p == '\n' || *p == '\r' || *p == '\t' || *p == ' '))
     *p-- = '\0';
 
-  svz_array_add (svz_interfaces, ifc);
+  svz_array_add (interfaces, ifc);
   return 0;
 }
 
@@ -633,12 +633,12 @@ svz_interface_add (size_t index, char *desc,
  * @var{addr} if any.  Returns @code{NULL} otherwise.
  */
 static svz_interface_t *
-svz_interface_get (svz_address_t *addr)
+by_address (svz_address_t *addr)
 {
   svz_interface_t *ifc;
   size_t n;
 
-  svz_array_foreach (svz_interfaces, ifc, n)
+  svz_array_foreach (interfaces, ifc, n)
     {
       if (svz_address_same (ifc->addr, addr))
         return ifc;
@@ -657,7 +657,7 @@ svz_interface_search (char *desc)
   svz_interface_t *ifc;
   size_t n;
 
-  svz_array_foreach (svz_interfaces, ifc, n)
+  svz_array_foreach (interfaces, ifc, n)
     if (!strcmp (ifc->description, desc))
       return ifc;
   return NULL;
@@ -667,12 +667,12 @@ svz_interface_search (char *desc)
  * Free the network interface list.
  */
 static void
-svz_interface_free (void)
+discard (void)
 {
-  if (svz_interfaces)
+  if (interfaces)
     {
-      svz_array_destroy (svz_interfaces);
-      svz_interfaces = NULL;
+      svz_array_destroy (interfaces);
+      interfaces = NULL;
     }
 }
 
@@ -691,17 +691,17 @@ svz_interface_check (void)
   int found, changes = 0;
   char buf[64];
 
-  if (svz_interfaces)
+  if (interfaces)
     {
       /* Save old interface list.  */
-      was = svz_interfaces;
-      svz_interfaces = NULL;
-      svz_interface_collect ();
+      was = interfaces;
+      interfaces = NULL;
+      collect ();
 
       /* Look for removed network interfaces.  */
       svz_array_foreach (was, ifc, n)
         {
-          if (svz_interface_get (ifc->addr) == NULL)
+          if (by_address (ifc->addr) == NULL)
             {
               in_addr_t v4addr;
 
@@ -722,7 +722,7 @@ svz_interface_check (void)
         }
 
       /* Look for new network interfaces.  */
-      svz_array_foreach (svz_interfaces, ifc, n)
+      svz_array_foreach (interfaces, ifc, n)
         {
           found = 0;
           svz_array_foreach (was, ofc, o)
@@ -754,7 +754,7 @@ void
 svz__interface_updn (int direction)
 {
   (direction
-   ? svz_interface_collect
-   : svz_interface_free)
+   ? collect
+   : discard)
     ();
 }

@@ -96,7 +96,7 @@ static char log_level[][16] = {
  * call to @code{svz_log_setfile}.  By default, all log messages are written
  * to @code{stderr}.
  */
-static FILE *svz_logfile = NULL;
+static FILE *logfile = NULL;
 
 /* The logging mutex is necessary only if stdio doesn't do locking.  */
 #ifdef ENABLE_LOG_MUTEX
@@ -148,8 +148,8 @@ svz_log (int level, const char *format, ...)
   time_t tm;
   struct tm *t;
 
-  if (level > SVZ_RUNPARM (VERBOSITY) || svz_logfile == NULL ||
-      feof (svz_logfile) || ferror (svz_logfile))
+  if (level > SVZ_RUNPARM (VERBOSITY) || logfile == NULL ||
+      feof (logfile) || ferror (logfile))
     return;
 
   tm = time (NULL);
@@ -172,8 +172,8 @@ svz_log (int level, const char *format, ...)
 
   /* Write it out.  */
   LOCK_LOG_MUTEX ();
-  fwrite (buf, 1, w, svz_logfile);
-  fflush (svz_logfile);
+  fwrite (buf, 1, w, logfile);
+  fflush (logfile);
   UNLOCK_LOG_MUTEX ();
 }
 
@@ -184,7 +184,7 @@ svz_log (int level, const char *format, ...)
 void
 svz_log_setfile (FILE * file)
 {
-  svz_logfile = file;
+  logfile = file;
 }
 
 int
@@ -336,7 +336,7 @@ int svz_errno = 0;
  * Win32.  That is why we translate it by hand.
  */
 static char *
-svz_neterror (int error)
+neterror (int error)
 {
   static char message[MESSAGE_BUF_SIZE];
 
@@ -439,7 +439,7 @@ svz_neterror (int error)
  * get a valid error code.
  */
 static char *
-svz_syserror (int nr)
+syserror (int nr)
 {
   static char message[MESSAGE_BUF_SIZE];
 
@@ -448,7 +448,7 @@ svz_syserror (int nr)
 
   /* return a net error if necessary */
   if (nr >= WSABASEERR)
-    return svz_neterror (nr);
+    return neterror (nr);
 
   /*
    * if the error is not valid (GetLastError returned zero)
@@ -479,7 +479,7 @@ svz_syserror (int nr)
  * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
  * Windows 2000, @code{WinXP} for Windows XP and @code{WinME} for Windows ME.
  */
-static int svz_os_version;
+static int os_version;
 #define Win32s  0
 #define Win95   1
 #define Win98   2
@@ -498,7 +498,7 @@ const char *
 svz_sys_strerror (void)
 {
 #ifdef __MINGW32__
-  return svz_syserror (GetLastError ());
+  return syserror (GetLastError ());
 #else
   return strerror (errno);
 #endif
@@ -511,7 +511,7 @@ const char *
 svz_net_strerror (void)
 {
 #ifdef __MINGW32__
-  return svz_syserror (WSAGetLastError ());
+  return syserror (WSAGetLastError ());
 #else
   return strerror (errno);
 #endif
@@ -566,13 +566,13 @@ svz_sys_version (void)
         {
         case VER_PLATFORM_WIN32_NT: /* NT, Windows 2000 or Windows XP */
           if (osver.dwMajorVersion == 4)
-            svz_os_version = WinNT4x;
+            os_version = WinNT4x;
           else if (osver.dwMajorVersion <= 3)
-            svz_os_version = WinNT3x;
+            os_version = WinNT3x;
           else if (osver.dwMajorVersion == 5 && osver.dwMinorVersion < 1)
-            svz_os_version = Win2k;
+            os_version = Win2k;
           else if (osver.dwMajorVersion >= 5)
-            svz_os_version = WinXP;
+            os_version = WinXP;
           break;
 
         case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
@@ -580,21 +580,21 @@ svz_sys_version (void)
               ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
             {
               if (osver.dwMinorVersion >= 90)
-                svz_os_version = WinME;
+                os_version = WinME;
               else
-                svz_os_version = Win98;
+                os_version = Win98;
             }
           else
-            svz_os_version = Win95;
+            os_version = Win95;
           break;
 
         case VER_PLATFORM_WIN32s: /* Windows 3.x */
-          svz_os_version = Win32s;
+          os_version = Win32s;
           break;
         }
 
       sprintf (os, "Windows%s %ld.%02ld %s%s(Build %ld)",
-               ver[svz_os_version],
+               ver[os_version],
                osver.dwMajorVersion, osver.dwMinorVersion,
                osver.szCSDVersion, osver.szCSDVersion[0] ? " " : "",
                osver.dwBuildNumber & 0xFFFF);
@@ -615,7 +615,7 @@ int
 svz_mingw_at_least_nt4_p (void)
 {
 #ifdef __MINGW32__
-  return WinNT4x <= svz_os_version;
+  return WinNT4x <= os_version;
 #else
   return 0;
 #endif
@@ -741,10 +741,10 @@ svz_openfiles (int max_sockets)
 
   unsigned sockets = 100;
 
-  if (svz_os_version == Win95 ||
-      svz_os_version == Win98 || svz_os_version == WinME)
+  if (os_version == Win95 ||
+      os_version == Win98 || os_version == WinME)
     {
-      if (svz_os_version == Win95)
+      if (os_version == Win95)
         sockets = svz_windoze_get_reg_unsigned (MaxSocketKey,
                                                 MaxSocketSubKey,
                                                 MaxSocketSubSubKey, sockets);
@@ -760,7 +760,7 @@ svz_openfiles (int max_sockets)
         {
           sockets = max_sockets;
 
-          if (svz_os_version == Win95)
+          if (os_version == Win95)
             svz_windoze_set_reg_unsigned (MaxSocketKey,
                                           MaxSocketSubKey,
                                           MaxSocketSubSubKey, sockets);

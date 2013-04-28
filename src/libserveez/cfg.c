@@ -36,7 +36,7 @@
  * is @code{NULL} too.
  */
 static svz_array_t *
-svz_config_intarray_dup (svz_array_t *intarray)
+intarray_dup (svz_array_t *intarray)
 {
   svz_array_t *array = NULL;
 
@@ -52,7 +52,7 @@ svz_config_intarray_dup (svz_array_t *intarray)
  * if @var{strarray} equals @code{NULL}.
  */
 static svz_array_t *
-svz_config_strarray_dup (svz_array_t *strarray)
+strarray_dup (svz_array_t *strarray)
 {
   svz_array_t *array = NULL;
 
@@ -75,7 +75,7 @@ accumulate (void *k, void *v, void *to)
  * @code{NULL} too.
  */
 static svz_hash_t *
-svz_config_hash_dup (svz_hash_t *strhash)
+hash_dup (svz_hash_t *strhash)
 {
   svz_hash_t *hash = NULL;
 
@@ -147,7 +147,7 @@ svz_config_free (svz_config_prototype_t *prototype, void *cfg)
  * the default configuration.
  */
 static void
-svz_config_clobber (svz_config_prototype_t *prototype, void *cfg)
+clobber (svz_config_prototype_t *prototype, void *cfg)
 {
   int n;
   void **target;
@@ -207,7 +207,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
 
   /* Clear all prototype configuration items which are pointers.  Thus we
      are able to reverse the changes below.  */
-  svz_config_clobber (prototype, cfg);
+  clobber (prototype, cfg);
 
   /* Go through list of configuration items.  */
   for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
@@ -336,7 +336,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
 
             case SVZ_ITEM_INTARRAY: /* Integer array.  */
               *(svz_array_t **) target =
-                svz_config_intarray_dup (*(svz_array_t **) def);
+                intarray_dup (*(svz_array_t **) def);
               break;
 
             case SVZ_ITEM_STR: /* Character string.  */
@@ -345,12 +345,12 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
 
             case SVZ_ITEM_STRARRAY: /* Array of strings.  */
               *(svz_array_t **) target =
-                svz_config_strarray_dup (*(svz_array_t **) def);
+                strarray_dup (*(svz_array_t **) def);
               break;
 
             case SVZ_ITEM_HASH: /* Hash table.  */
               *(svz_hash_t **) target =
-                svz_config_hash_dup (*(svz_hash_t **) def);
+                hash_dup (*(svz_hash_t **) def);
               break;
 
             case SVZ_ITEM_PORTCFG: /* Port configuration.  */
@@ -402,16 +402,16 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
   return cfg;
 }
 
-static svz_hash_t *svz_config_types = NULL;
+static svz_hash_t *config_types = NULL;
 
 /*
  * Add the configurable type described by @var{type} to the list of
  * known configurable types.
  */
 static void
-svz_config_type_add (svz_config_type_t *type)
+add_type (svz_config_type_t *type)
 {
-  svz_hash_put (svz_config_types, type->name, type);
+  svz_hash_put (config_types, type->name, type);
 }
 
 /**
@@ -427,7 +427,7 @@ svz_config_type_instantiate (char *type, char *name, char *instance,
 {
   svz_config_type_t *cfgtype;
 
-  cfgtype = svz_hash_get (svz_config_types, type);
+  cfgtype = svz_hash_get (config_types, type);
   if (cfgtype == NULL)
     {
       snprintf (ebuf, ebufsz, "No such configurable type `%s'", type);
@@ -441,21 +441,21 @@ svz_config_type_instantiate (char *type, char *name, char *instance,
  * Adds the configurable types of Serveez.
  */
 static void
-svz_config_type_init (void)
+type_init (void)
 {
-  svz_config_types = svz_hash_create (4, NULL);
+  config_types = svz_hash_create (4, NULL);
 
   /* add the configurable types of Serveez */
-  svz_config_type_add (&svz_servertype_definition);
+  add_type (&svz_servertype_definition);
 }
 
 /*
  * Removes the list of known configurable types.
  */
 static void
-svz_config_type_finalize (void)
+type_finalize (void)
 {
-  svz_hash_destroy (svz_config_types);
+  svz_hash_destroy (config_types);
 }
 
 /**
@@ -522,7 +522,7 @@ void
 svz__config_type_updn (int direction)
 {
   (direction
-   ? svz_config_type_init
-   : svz_config_type_finalize)
+   ? type_init
+   : type_finalize)
     ();
 }

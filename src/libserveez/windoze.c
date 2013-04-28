@@ -244,7 +244,7 @@ windoze_thread (char *prog)
  * Start the windows daemon thread and detach from the current console.
  */
 static int
-svz_windoze_start_daemon (char *prog)
+start_daemon (char *prog)
 {
   /* start message loop */
   if ((windoze_daemon_handle = CreateThread (
@@ -273,7 +273,7 @@ svz_windoze_start_daemon (char *prog)
  * Stop the windows daemon thread.
  */
 static int
-svz_windoze_stop_daemon (void)
+stop_daemon (void)
 {
   DWORD ret;
 
@@ -313,8 +313,8 @@ int
 svz_windoze_daemon_control (char *prog)
 {
   return prog
-    ? svz_windoze_start_daemon (prog)
-    : svz_windoze_stop_daemon ();
+    ? start_daemon (prog)
+    : stop_daemon ();
 }
 
 /*

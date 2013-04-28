@@ -94,7 +94,7 @@ SBO void svz_icmp_cleanup (void);
  * serveez core library functions.
  */
 static int
-svz_net_startup (void)
+net_startup (void)
 {
 #ifdef __MINGW32__
   WSADATA WSAData;
@@ -119,7 +119,7 @@ svz_net_startup (void)
  * Shutdown the serveez core library.
  */
 static int
-svz_net_cleanup (void)
+net_cleanup (void)
 {
 #ifdef __MINGW32__
   /* Shutdown IP services.  */
@@ -141,8 +141,8 @@ static void
 svz__net_updn (int direction)
 {
   (direction
-   ? svz_net_startup
-   : svz_net_cleanup)
+   ? net_startup
+   : net_cleanup)
     ();
 }
 

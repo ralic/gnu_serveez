@@ -54,7 +54,7 @@ typedef struct
 }
 reverse_dns_cache_t;
 
-static reverse_dns_cache_t reverse_dns_cache;
+static reverse_dns_cache_t cache;
 
 /*
  * Initialize the cache structure.
@@ -62,7 +62,7 @@ static reverse_dns_cache_t reverse_dns_cache;
 void
 reverse_dns_init (void)
 {
-  reverse_dns_cache.entries = 0;
+  cache.entries = 0;
 }
 
 #define MAX_IP_STRING_LENGTH  15        /* www.xxx.yyy.zzz */
@@ -87,11 +87,11 @@ reverse_dns_handle_request (char *inbuf)
       /*
        * look up the ip->host cache first
        */
-      for (n = 0; n < reverse_dns_cache.entries; n++)
+      for (n = 0; n < cache.entries; n++)
         {
-          if (reverse_dns_cache.ip[n] == addr[0])
+          if (cache.ip[n] == addr[0])
             {
-              sprintf (resolved, "%s", reverse_dns_cache.resolved[n]);
+              sprintf (resolved, "%s", cache.resolved[n]);
               return resolved;
             }
         }
@@ -107,9 +107,9 @@ reverse_dns_handle_request (char *inbuf)
         {
           if (n < MAX_CACHE_ENTRIES)
             {
-              strcpy (reverse_dns_cache.resolved[n], host->h_name);
-              reverse_dns_cache.ip[n] = addr[0];
-              reverse_dns_cache.entries++;
+              strcpy (cache.resolved[n], host->h_name);
+              cache.ip[n] = addr[0];
+              cache.entries++;
             }
 
 #if ENABLE_DEBUG

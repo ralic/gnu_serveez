@@ -83,13 +83,13 @@ svz_coservertype_t;
  * Both of these variables are for storing the given callbacks which get
  * called when the coservers delivered some result.
  */
-static unsigned svz_coserver_callback_id = 1;
-static svz_hash_t *svz_coserver_callbacks = NULL;
+static unsigned callback_id = 1;
+static svz_hash_t *callbacks = NULL;
 
 /*
  * Internal coserver instances.
  */
-static svz_array_t *svz_coservers = NULL;
+static svz_array_t *coservers = NULL;
 
 /*
  * Invoke a @var{request} for one of the running internal coservers
@@ -97,9 +97,9 @@ static svz_array_t *svz_coservers = NULL;
  * should happen if the coserver delivers a result.
  */
 static void
-svz_coserver_send_request (int type, const char *request,
-                           svz_coserver_handle_result_t handle_result,
-                           void *closure)
+send_request (int type, const char *request,
+              svz_coserver_handle_result_t handle_result,
+              void *closure)
 {
   size_t n;
   int busy;
@@ -111,7 +111,7 @@ svz_coserver_send_request (int type, const char *request,
    * type TYPE is the least busiest.
    */
   coserver = NULL;
-  svz_array_foreach (svz_coservers, current, n)
+  svz_array_foreach (coservers, current, n)
     {
       if (current->type == type)
         {
@@ -138,22 +138,22 @@ svz_coserver_send_request (int type, const char *request,
       cb = svz_malloc (sizeof (svz_coserver_callback_t));
       cb->handle_result = handle_result;
       cb->closure = closure;
-      svz_hash_put (svz_coserver_callbacks,
-                    svz_itoa (svz_coserver_callback_id), cb);
+      svz_hash_put (callbacks,
+                    svz_itoa (callback_id), cb);
 
       coserver->busy++;
 #ifdef __MINGW32__
       EnterCriticalSection (&coserver->sync);
 #endif /* __MINGW32__ */
       if (svz_sock_printf (coserver->sock, "%u:%s\n",
-                           svz_coserver_callback_id, request))
+                           callback_id, request))
         {
           svz_sock_schedule_for_shutdown (coserver->sock);
         }
-      svz_coserver_callback_id++;
+      callback_id++;
 #ifdef __MINGW32__
       LeaveCriticalSection (&coserver->sync);
-      svz_coserver_activate (coserver->type);
+      coserver_activate (coserver->type);
 #endif /* __MINGW32__ */
     }
 }
@@ -185,9 +185,9 @@ svz_coserver_rdns_invoke (svz_address_t *addr,
   char buf[64];
 
   STILL_NO_V6_DAMMIT (addr);
-  svz_coserver_send_request (SVZ_COSERVER_REVERSE_DNS,
-                             SVZ_PP_ADDR (buf, addr),
-                             cb, closure);
+  send_request (SVZ_COSERVER_REVERSE_DNS,
+                SVZ_PP_ADDR (buf, addr),
+                cb, closure);
 }
 
 /**
@@ -201,7 +201,7 @@ svz_coserver_dns_invoke (char *host,
                          svz_coserver_handle_result_t cb,
                          void *closure)
 {
-  svz_coserver_send_request (SVZ_COSERVER_DNS, host, cb, closure);
+  send_request (SVZ_COSERVER_DNS, host, cb, closure);
 }
 
 /**
@@ -220,14 +220,14 @@ svz_coserver_ident_invoke (svz_socket_t *sock,
   snprintf (buffer, COSERVER_BUFSIZE, "%s:%u",
             SVZ_PP_ADDR_PORT (addrbuf, sock->remote_addr, sock->remote_port),
             ntohs (sock->local_port));
-  svz_coserver_send_request (SVZ_COSERVER_IDENT, buffer, cb, closure);
+  send_request (SVZ_COSERVER_IDENT, buffer, cb, closure);
 }
 
 /*
  * This static array contains the coserver structure for each type of
  * internal coserver the core library provides.
  */
-static svz_coservertype_t svz_coservertypes[] =
+static svz_coservertype_t coservertypes[] =
 {
   /* coserver-TODO:
      place coserver callbacks and identification here */
@@ -254,7 +254,7 @@ svz_foreach_coserver (svz_coserver_do_t *func, void *closure)
   int rv;
   const svz_coserver_t *coserver;
 
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
       if (0 > (rv = func (coserver, closure)))
         return rv;
@@ -267,7 +267,7 @@ svz_foreach_coserver (svz_coserver_do_t *func, void *closure)
  * cuts it from the given response buffer.
  */
 static unsigned
-svz_coserver_get_id (char *response)
+get_id (char *response)
 {
   char *p = response;
   unsigned id = 0;
@@ -298,7 +298,7 @@ svz_coserver_get_id (char *response)
  * This function adds a given coserver hash id to the response.
  */
 static void
-svz_coserver_put_id (unsigned id, char *response)
+put_id (unsigned id, char *response)
 {
   char buffer[COSERVER_BUFSIZE];
 
@@ -312,7 +312,7 @@ svz_coserver_put_id (unsigned id, char *response)
 
 /*
  * Win32:
- * ‘svz_coserver_loop’ is the actual thread routine being an infinite loop.
+ * ‘big_loop’ is the actual thread routine being an infinite loop.
  * It MUST be resumed via ‘ResumeThread’ by the server.
  * When running it first checks if there is any request lingering
  * in the client structure "sock", reads it out, processes it
@@ -320,7 +320,7 @@ svz_coserver_put_id (unsigned id, char *response)
  * server.
  *
  * Unices:
- * ‘svz_coserver_loop’ is a infinite loop in a separate process.  It reads
+ * ‘big_loop’ is a infinite loop in a separate process.  It reads
  * blocking from a receive pipe, processes the request and puts the
  * result to a sending pipe to the server.
  *
@@ -331,7 +331,7 @@ svz_coserver_put_id (unsigned id, char *response)
 #if ENABLE_DEBUG
 # define COSERVER_REQUEST_INFO() \
   svz_log (SVZ_LOG_DEBUG, "%s: coserver request occurred\n",   \
-           svz_coservertypes[coserver->type].name);
+           coservertypes[coserver->type].name);
 #else
 # define COSERVER_REQUEST_INFO()
 #endif
@@ -340,7 +340,7 @@ svz_coserver_put_id (unsigned id, char *response)
 #if ENABLE_DEBUG
 # define COSERVER_RESULT() \
   svz_log (SVZ_LOG_DEBUG, "%s: coserver request processed\n", \
-           svz_coservertypes[coserver->type].name);
+           coservertypes[coserver->type].name);
 #else
 # define COSERVER_RESULT()
 #endif
@@ -349,20 +349,20 @@ svz_coserver_put_id (unsigned id, char *response)
 #define COSERVER_REQUEST()                                   \
   COSERVER_REQUEST_INFO ();                                  \
   /* Process the request here.  Might be blocking indeed!  */ \
-  if ((id = svz_coserver_get_id (request)) != 0)             \
+  if ((id = get_id (request)) != 0)                          \
     {                                                        \
       if ((result = coserver->callback (request)) == NULL)   \
         {                                                    \
           result = request;                                  \
           *result = '\0';                                    \
         }                                                    \
-      svz_coserver_put_id (id, result);                      \
+      put_id (id, result);                                   \
     }                                                        \
 
 
 #ifdef __MINGW32__
 static void
-svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
+big_loop (svz_coserver_t *coserver, svz_socket_t *sock)
 {
   char *p;
   int len;
@@ -423,7 +423,7 @@ svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
 #else /* not __MINGW32__ */
 
 static void
-svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
+big_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 {
   FILE *in, *out;
   char request[COSERVER_BUFSIZE];
@@ -475,12 +475,12 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
  * only a single argument to a thread routine.
  */
 static DWORD WINAPI
-svz_coserver_thread (LPVOID thread)
+coserver_thread (LPVOID thread)
 {
   svz_coserver_t *coserver;
 
   coserver = (svz_coserver_t *) thread;
-  svz_coserver_loop (coserver, coserver->sock);
+  big_loop (coserver, coserver->sock);
   ExitThread (0);
 
   return 0;
@@ -491,14 +491,14 @@ svz_coserver_thread (LPVOID thread)
  * you have to call this if you want the coserver start working.
  */
 static void
-svz_coserver_activate (int type)
+coserver_activate (int type)
 {
   size_t n;
   int count = 0, res;
   svz_coserver_t *coserver;
 
   /* go through all internal coserver threads */
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
       /* is this structure of the requested type?  */
       if (coserver->type == type)
@@ -512,7 +512,7 @@ svz_coserver_activate (int type)
 
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_DEBUG, "%d internal %s coserver activated\n",
-           count, svz_coservertypes[type].name);
+           count, coservertypes[type].name);
 #endif /* ENABLE_DEBUG */
 }
 
@@ -522,13 +522,13 @@ svz_coserver_activate (int type)
  * Return the number of currently running coservers with the type @var{type}.
  */
 static int
-svz_coserver_count (int type)
+count_type (int type)
 {
   size_t n;
   int count = 0;
   svz_coserver_t *coserver;
 
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     if (coserver->type == type)
       count++;
   return count;
@@ -538,19 +538,19 @@ svz_coserver_count (int type)
  * Delete the n'th internal coserver from coserver array.
  */
 static void
-svz_coserver_delete (size_t n)
+delete_nth (size_t n)
 {
   svz_coserver_t *coserver;
 
-  if ((coserver = svz_array_get (svz_coservers, n)) != NULL)
+  if ((coserver = svz_array_get (coservers, n)) != NULL)
     {
       svz_free (coserver);
-      svz_array_del (svz_coservers, n);
+      svz_array_del (coservers, n);
     }
-  if (svz_array_size (svz_coservers) == 0)
+  if (svz_array_size (coservers) == 0)
     {
-      svz_array_destroy (svz_coservers);
-      svz_coservers = NULL;
+      svz_array_destroy (coservers);
+      coservers = NULL;
     }
 }
 
@@ -560,19 +560,19 @@ svz_coserver_delete (size_t n)
  * socket structure entry `disconnected_socket'.
  */
 static int
-svz_coserver_disconnect (svz_socket_t *sock)
+disconnect (svz_socket_t *sock)
 {
   size_t n;
   svz_coserver_t *coserver;
 
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
       if (coserver->sock == sock)
         {
 #if ENABLE_DEBUG
           svz_log (SVZ_LOG_DEBUG,
                    "%s: killing coserver pid %d\n",
-                   svz_coservertypes[coserver->type].name, coserver->pid);
+                   coservertypes[coserver->type].name, coserver->pid);
 #endif /* ENABLE_DEBUG */
           if (kill (coserver->pid, SIGKILL) == -1)
             svz_log_sys_error ("kill");
@@ -582,7 +582,7 @@ svz_coserver_disconnect (svz_socket_t *sock)
             svz_log_sys_error ("waitpid");
 #endif /* HAVE_WAITPID */
           /* re-arrange the internal coserver array */
-          svz_coserver_delete (n);
+          delete_nth (n);
           break;
         }
     }
@@ -596,7 +596,7 @@ svz_coserver_disconnect (svz_socket_t *sock)
  * lines (trailing '\n').
  */
 static int
-svz_coserver_check_request (svz_socket_t *sock)
+check_request (svz_socket_t *sock)
 {
   char *packet = sock->recv_buffer;
   char *p = packet;
@@ -628,7 +628,7 @@ svz_coserver_check_request (svz_socket_t *sock)
 
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_DEBUG, "%s: %d byte response\n",
-           svz_coservertypes[coserver->type].name, len);
+           coservertypes[coserver->type].name, len);
 #endif
 
   /* remove data from receive buffer if necessary */
@@ -646,8 +646,7 @@ svz_coserver_check_request (svz_socket_t *sock)
  * the standard @code{check_request} detected a full packet by any coserver.
  */
 static int
-svz_coserver_handle_request (UNUSED svz_socket_t *sock,
-                             char *request, int len)
+handle_request (UNUSED svz_socket_t *sock, char *request, int len)
 {
   int ret;
   unsigned id;
@@ -689,7 +688,7 @@ svz_coserver_handle_request (UNUSED svz_socket_t *sock,
   *p = '\0';
 
   /* Have a look at the coserver callback hash.  */
-  if (NULL == (cb = svz_hash_get (svz_coserver_callbacks, svz_itoa (id))))
+  if (NULL == (cb = svz_hash_get (callbacks, svz_itoa (id))))
     {
       svz_log (SVZ_LOG_ERROR, "coserver: invalid callback for id %u\n", id);
       return -1;
@@ -701,7 +700,7 @@ svz_coserver_handle_request (UNUSED svz_socket_t *sock,
    * callback structure and delete it from the coserver callback hash.
    */
   ret = cb->handle_result (*data ? data : NULL, cb->closure);
-  svz_hash_delete (svz_coserver_callbacks, svz_itoa (id));
+  svz_hash_delete (callbacks, svz_itoa (id));
   svz_free (cb);
 
   return ret;
@@ -716,13 +715,13 @@ svz_coserver_handle_request (UNUSED svz_socket_t *sock,
  * should not access these pipes we are closing them.
  */
 static void
-svz_coserver_close_pipes (svz_coserver_t *self)
+close_pipes (svz_coserver_t *self)
 {
   size_t n;
   svz_coserver_t *coserver;
 
   /* go through all coservers except itself */
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
       if (coserver != self)
         {
@@ -740,7 +739,7 @@ svz_coserver_close_pipes (svz_coserver_t *self)
  *       that they may get cloned.  We therefore waste memory in the coservers.
  */
 static void
-svz_coserver_closeall (svz_socket_t *self)
+close_all (svz_socket_t *self)
 {
   svz_socket_t *sock, *next;
 
@@ -775,7 +774,7 @@ svz_coserver_closeall (svz_socket_t *self)
  * children.
  */
 static void
-svz_coserver_signals (void)
+setup_signals (void)
 {
 #ifdef SIGTERM
   signal (SIGTERM, SIG_IGN);
@@ -807,7 +806,7 @@ svz_coserver_destroy (int type)
   int count = 0;
   svz_coserver_t *coserver;
 
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
       if (coserver->type == type)
         {
@@ -830,7 +829,7 @@ svz_coserver_destroy (int type)
             svz_log_sys_error ("waitpid");
 #endif /* HAVE_WAITPID */
 #endif /* not __MINGW32__ */
-          svz_coserver_delete (n);
+          delete_nth (n);
           n--;
           count++;
         }
@@ -840,7 +839,7 @@ svz_coserver_destroy (int type)
   if (count > 0)
     {
       svz_log (SVZ_LOG_DEBUG, "%d internal %s coserver destroyed\n",
-               count, svz_coservertypes[type].name);
+               count, coservertypes[type].name);
     }
 #endif /* ENABLE_DEBUG */
 }
@@ -851,7 +850,7 @@ svz_coserver_destroy (int type)
 const char *
 svz_coserver_type_name (const svz_coserver_t *coserver)
 {
-  return svz_coservertypes[coserver->type].name;
+  return coservertypes[coserver->type].name;
 }
 
 /*
@@ -860,7 +859,7 @@ svz_coserver_type_name (const svz_coserver_t *coserver)
  * a thread gets started.
  */
 static svz_socket_t *
-svz_coserver_start (int type)
+start (int type)
 {
   svz_socket_t *sock;
   svz_coserver_t *coserver;
@@ -875,19 +874,19 @@ svz_coserver_start (int type)
 #endif /* not __MINGW32__ */
 
   svz_log (SVZ_LOG_NOTICE, "starting internal %s coserver\n",
-           svz_coservertypes[type].name);
+           coservertypes[type].name);
 
   coserver = svz_malloc (sizeof (svz_coserver_t));
   coserver->type = type;
   coserver->busy = 0;
   coserver->sock = NULL;
 
-  if (svz_coservers == NULL)
-    svz_coservers = svz_array_create (SVZ_MAX_COSERVER_TYPES, NULL);
-  svz_array_add (svz_coservers, coserver);
+  if (coservers == NULL)
+    coservers = svz_array_create (SVZ_MAX_COSERVER_TYPES, NULL);
+  svz_array_add (coservers, coserver);
 
   /* fill in the actual coserver callback */
-  coserver->callback = svz_coservertypes[type].callback;
+  coserver->callback = coservertypes[type].callback;
 
 #ifdef __MINGW32__
   if ((sock = svz_sock_alloc ()) == NULL)
@@ -903,7 +902,7 @@ svz_coserver_start (int type)
       (thread = CreateThread(
       (LPSECURITY_ATTRIBUTES) NULL, /* ignore security attributes */
       (DWORD) 0,                    /* default stack size */
-      (LPTHREAD_START_ROUTINE) svz_coserver_thread, /* thread routine */
+      (LPTHREAD_START_ROUTINE) coserver_thread, /* thread routine */
       (LPVOID) coserver,            /* thread argument */
       (DWORD) CREATE_SUSPENDED,     /* creation flags */
       (LPDWORD) &tid)))             /* thread id */
@@ -932,7 +931,7 @@ svz_coserver_start (int type)
   if (pipe (s2c) < 0)
     {
       svz_log_sys_error ("pipe server-coserver");
-      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
+      delete_nth (svz_array_size (coservers) - 1);
       return NULL;
     }
   if (pipe (c2s) < 0)
@@ -940,7 +939,7 @@ svz_coserver_start (int type)
       close (s2c[SVZ_READ]);
       close (s2c[SVZ_WRITE]);
       svz_log_sys_error ("pipe coserver-server");
-      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
+      delete_nth (svz_array_size (coservers) - 1);
       return NULL;
     }
 
@@ -985,12 +984,12 @@ svz_coserver_start (int type)
         }
 
       /* close all other coserver pipes except its own */
-      svz_coserver_close_pipes (coserver);
-      svz_coserver_closeall (coserver->sock);
-      svz_coserver_signals ();
+      close_pipes (coserver);
+      close_all (coserver->sock);
+      setup_signals ();
 
       /* start the internal coserver */
-      svz_coserver_loop (coserver, in, out);
+      big_loop (coserver, in, out);
       exit (EXIT_SUCCESS);
     }
   else if (pid == -1)
@@ -1000,7 +999,7 @@ svz_coserver_start (int type)
       close (s2c[SVZ_WRITE]);
       close (c2s[SVZ_READ]);
       close (c2s[SVZ_WRITE]);
-      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
+      delete_nth (svz_array_size (coservers) - 1);
       return NULL;
     }
 
@@ -1022,23 +1021,23 @@ svz_coserver_start (int type)
         svz_log_sys_error ("close");
       if (close (s2c[SVZ_WRITE]) < 0)
         svz_log_sys_error ("close");
-      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
+      delete_nth (svz_array_size (coservers) - 1);
       return NULL;
     }
 
   coserver->pid = pid;
   coserver->sock = sock;
-  sock->disconnected_socket = svz_coserver_disconnect;
+  sock->disconnected_socket = disconnect;
   sock->write_socket = svz_pipe_write_socket;
   sock->read_socket = svz_pipe_read_socket;
   svz_sock_enqueue (sock);
 
 #endif /* __MINGW32__ and Unices */
 
-  svz_coservertypes[coserver->type].last_start = (long) time (NULL);
+  coservertypes[coserver->type].last_start = (long) time (NULL);
   sock->data = coserver;
-  sock->check_request = svz_coserver_check_request;
-  sock->handle_request = svz_coserver_handle_request;
+  sock->check_request = check_request;
+  sock->handle_request = handle_request;
   sock->flags |= (SVZ_SOFLG_NOFLOOD | SVZ_SOFLG_COSERVER);
   return sock;
 }
@@ -1062,14 +1061,14 @@ svz_coserver_check (void)
 
 #ifdef __MINGW32__
   /* go through all coservers */
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
       sock = coserver->sock;
       while (sock->recv_buffer_fill > 0)
         {
 #if ENABLE_DEBUG
           svz_log (SVZ_LOG_DEBUG, "%s: coserver response detected\n",
-                   svz_coservertypes[coserver->type].name);
+                   coservertypes[coserver->type].name);
 #endif
           /* find a full response within the receive buffer */
           if (sock->check_request)
@@ -1085,22 +1084,22 @@ svz_coserver_check (void)
   /* check the number of coserver instances of each coserver type */
   for (n = 0; n < SVZ_MAX_COSERVER_TYPES; n++)
     {
-      ctype = &svz_coservertypes[n];
-      if (svz_coserver_count (ctype->type) < ctype->instances &&
+      ctype = &coservertypes[n];
+      if (count_type (ctype->type) < ctype->instances &&
           ((long) time (NULL)) - ctype->last_start >= 3)
-        svz_coserver_start (ctype->type);
+        start (ctype->type);
     }
 
   /* restart coserver instances if buffer overrun is in sight (send buffer
      fill >= 75 percent) */
-  svz_array_foreach (svz_coservers, coserver, n)
+  svz_array_foreach (coservers, coserver, n)
     {
-      ctype = &svz_coservertypes[coserver->type];
+      ctype = &coservertypes[coserver->type];
       sock = coserver->sock;
       if (sock->send_buffer_fill * 100 / sock->send_buffer_size >= 75 &&
           ((long) time (NULL)) - ctype->last_start >= 3 &&
-          svz_coserver_count (ctype->type) <= ctype->instances)
-        svz_coserver_start (coserver->type);
+          count_type (ctype->type) <= ctype->instances)
+        start (coserver->type);
     }
 }
 
@@ -1113,10 +1112,10 @@ svz_coserver_create (int type)
   size_t n;
   svz_coserver_t *coserver = NULL;
 
-  if (svz_coservertypes[type].init)
-    svz_coservertypes[type].init ();
-  svz_coserver_start (type);
-  svz_array_foreach (svz_coservers, coserver, n)
+  if (coservertypes[type].init)
+    coservertypes[type].init ();
+  start (type);
+  svz_array_foreach (coservers, coserver, n)
     {
       if (type == coserver->type)
         break;
@@ -1129,21 +1128,21 @@ svz_coserver_create (int type)
  * coservers you want to use later.
  */
 static int
-svz_coserver_init (void)
+init (void)
 {
   int i, n;
   svz_coservertype_t *coserver;
 
-  svz_coserver_callbacks = svz_hash_create (4, svz_free);
-  svz_coserver_callback_id = 1;
+  callbacks = svz_hash_create (4, svz_free);
+  callback_id = 1;
 
   for (n = 0; n < SVZ_MAX_COSERVER_TYPES; n++)
     {
-      coserver = &svz_coservertypes[n];
+      coserver = &coservertypes[n];
       if (coserver->init)
         coserver->init ();
       for (i = 0; i < coserver->instances; i++)
-        svz_coserver_start (coserver->type);
+        start (coserver->type);
     }
 
   return 0;
@@ -1153,24 +1152,24 @@ svz_coserver_init (void)
  * Global coserver finalization.
  */
 static int
-svz_coserver_finalize (void)
+finalize (void)
 {
   int n;
   svz_coservertype_t *coserver;
 
   for (n = 0; n < SVZ_MAX_COSERVER_TYPES; n++)
     {
-      coserver = &svz_coservertypes[n];
+      coserver = &coservertypes[n];
       svz_coserver_destroy (coserver->type);
     }
 
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_DEBUG, "coserver: %d callback(s) left\n",
-           svz_hash_size (svz_coserver_callbacks));
+           svz_hash_size (callbacks));
 #endif
 
   /* Destroy all callbacks left so far.  */
-  svz_hash_destroy (svz_coserver_callbacks);
+  svz_hash_destroy (callbacks);
   return 0;
 }
 
@@ -1186,10 +1185,10 @@ svz_updn_all_coservers (int direction)
 {
   if (0 > direction)
     for (int i = 0; i < SVZ_MAX_COSERVER_TYPES; i++)
-      svz_coservertypes[i].instances = 0;
+      coservertypes[i].instances = 0;
 
   return (direction
-          ? svz_coserver_init
-          : svz_coserver_finalize)
+          ? init
+          : finalize)
     ();
 }

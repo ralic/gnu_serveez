@@ -416,7 +416,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
  * all libraries no matter if referenced or not.
  */
 static void
-svz_dynload_finalize (void)
+dynload_finalize (void)
 {
   while (dyn_libraries)
     {
@@ -429,10 +429,10 @@ svz_dynload_finalize (void)
  * Initialize the shared library interface of the core library.
  */
 static void
-svz_dynload_init (void)
+dynload_init (void)
 {
   if (dyn_libraries)
-    svz_dynload_finalize ();
+    dynload_finalize ();
   dyn_libraries = 0;
   dyn_library = NULL;
 }
@@ -505,7 +505,7 @@ void
 svz__dynload_updn (int direction)
 {
   (direction
-   ? svz_dynload_init
-   : svz_dynload_finalize)
+   ? dynload_init
+   : dynload_finalize)
     ();
 }

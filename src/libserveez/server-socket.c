@@ -62,7 +62,7 @@
  * them by return a non-zero value.
  */
 static int
-svz_sock_idle_protect (svz_socket_t *sock)
+idle_protect (svz_socket_t *sock)
 {
   svz_portcfg_t *port = svz_sock_portcfg (sock);
 
@@ -79,7 +79,7 @@ svz_sock_idle_protect (svz_socket_t *sock)
 }
 
 /* This is 1 if ‘time_t’ cannot be cast into a ‘void *’.  If that's the
-   case, ‘svz_sock_check_frequency’ stores pointers to ‘svz_malloc’d
+   case, ‘check_frequency’ stores pointers to ‘svz_malloc’d
    values in the array (arranging to ‘svz_free’ them when done).  */
 #define TIME_T_TOO_FAT  (SIZEOF_VOID_P < sizeof (time_t))
 
@@ -90,7 +90,7 @@ svz_sock_idle_protect (svz_socket_t *sock)
  * otherwise non-zero.
  */
 static int
-svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
+check_frequency (svz_socket_t *parent, svz_socket_t *child)
 {
   svz_portcfg_t *port = parent->port;
   char ip[64];
@@ -148,7 +148,7 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
  * for @code{read_socket} for listening tcp sockets.
  */
 static int
-svz_tcp_accept (svz_socket_t *server_sock)
+tcp_accept (svz_socket_t *server_sock)
 {
   svz_t_socket client_socket;   /* socket to accept clients on */
   struct sockaddr_in client;    /* address of connecting clients */
@@ -210,7 +210,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
       sock->flags |= SVZ_SOFLG_CONNECTED;
       sock->data = server_sock->data;
       sock->check_request = server_sock->check_request;
-      sock->idle_func = svz_sock_idle_protect;
+      sock->idle_func = idle_protect;
       sock->idle_counter = 1;
 
       svz_sock_resize_buffers (sock, port->send_buffer_size,
@@ -222,7 +222,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
 
       /* Check access and connect frequency here.  */
       if (svz_sock_check_access (server_sock, sock) < 0 ||
-          svz_sock_check_frequency (server_sock, sock) < 0)
+          check_frequency (server_sock, sock) < 0)
         svz_sock_schedule_for_shutdown (sock);
 
       /*
@@ -244,7 +244,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
  * @code{idle_func} for listening pipe sockets.
  */
 static int
-svz_pipe_accept (svz_socket_t *server_sock)
+pipe_accept (svz_socket_t *server_sock)
 {
 #ifdef __MINGW32__
   DWORD connect;
@@ -402,7 +402,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
-  sock->idle_func = svz_sock_idle_protect;
+  sock->idle_func = idle_protect;
   sock->idle_counter = 1;
   svz_sock_resize_buffers (sock, port->send_buffer_size,
                            port->recv_buffer_size);
@@ -578,7 +578,7 @@ svz_server_create (svz_portcfg_t *port)
 
   if (port->proto & SVZ_PROTO_PIPE)
     {
-      sock->read_socket = svz_pipe_accept;
+      sock->read_socket = pipe_accept;
       if (svz_pipe_listener (sock,
                              &SVZ_CFG_PIPE (port, recv),
                              &SVZ_CFG_PIPE (port, send)) == -1)
@@ -591,7 +591,7 @@ svz_server_create (svz_portcfg_t *port)
     {
       if (port->proto & SVZ_PROTO_TCP)
         {
-          sock->read_socket = svz_tcp_accept;
+          sock->read_socket = tcp_accept;
         }
       else if (port->proto & SVZ_PROTO_UDP)
         {

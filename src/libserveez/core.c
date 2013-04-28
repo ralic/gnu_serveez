@@ -575,36 +575,36 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
 #ifndef __MINGW32__
 
 /* List for file descriptors.  */
-static svz_array_t *svz_files = NULL;
+static svz_array_t *files = NULL;
 
 /* Add a file descriptor to the list.  */
 static void
-svz_file_add (int fd)
+add_file (int fd)
 {
-  if (svz_files == NULL)
-    svz_files = svz_array_create (1, NULL);
-  svz_array_add (svz_files, SVZ_NUM2PTR (fd));
+  if (files == NULL)
+    files = svz_array_create (1, NULL);
+  svz_array_add (files, SVZ_NUM2PTR (fd));
 }
 
 /* Delete a file descriptor from the list.  */
 static void
-svz_file_del (int fd)
+remove_file (int fd)
 {
   void *val;
   size_t n;
 
-  svz_array_foreach (svz_files, val, n)
+  svz_array_foreach (files, val, n)
     {
       if (val == SVZ_NUM2PTR (fd))
         {
-          svz_array_del (svz_files, n);
+          svz_array_del (files, n);
           break;
         }
     }
-  if (svz_array_size (svz_files) == 0)
+  if (svz_array_size (files) == 0)
     {
-      svz_array_destroy (svz_files);
-      svz_files = NULL;
+      svz_array_destroy (files);
+      files = NULL;
     }
 }
 
@@ -619,7 +619,7 @@ svz_file_closeall (void)
   void *fd;
   size_t n;
 
-  svz_array_foreach (svz_files, fd, n)
+  svz_array_foreach (files, fd, n)
     close ((int) SVZ_PTR2NUM (fd));
 }
 #endif /* not __MINGW32__ */
@@ -645,7 +645,7 @@ svz_open (const char *file, int flags, mode_t mode)
       close (fd);
       return -1;
     }
-  svz_file_add (fd);
+  add_file (fd);
   return fd;
 
 #else /* __MINGW32__ */
@@ -703,7 +703,7 @@ svz_close (int fd)
       svz_log_sys_error ("close");
       return -1;
     }
-  svz_file_del (fd);
+  remove_file (fd);
 #else /* __MINGW32__ */
   if (!CloseHandle ((svz_t_handle) fd))
     {
@@ -793,7 +793,7 @@ svz_fopen (const char *file, const char *mode)
       fclose (f);
       return NULL;
     }
-  svz_file_add (fileno (f));
+  add_file (fileno (f));
 #endif /* __MINGW32__ */
   return f;
 }
@@ -805,7 +805,7 @@ int
 svz_fclose (FILE *f)
 {
 #ifndef __MINGW32__
-  svz_file_del (fileno (f));
+  remove_file (fileno (f));
 #endif
   if (fclose (f) < 0)
     {

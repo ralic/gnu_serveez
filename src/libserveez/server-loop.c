@@ -89,7 +89,7 @@
  * the result to the log file.
  */
 static int
-svz_sock_error_info (svz_socket_t *sock)
+error_info (svz_socket_t *sock)
 {
   int error;
   socklen_t optlen = sizeof (int);
@@ -120,7 +120,7 @@ svz_sock_error_info (svz_socket_t *sock)
  * and data, and process outgoing data.
  */
 static int
-svz_check_sockets_select (void)
+check_sockets_select (void)
 {
   int nfds;                     /* count of file descriptors to check */
   fd_set read_fds;              /* bitmasks for file descriptors to check */
@@ -307,7 +307,7 @@ svz_check_sockets_select (void)
                 {
                   svz_log (SVZ_LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
-                  svz_sock_error_info (sock);
+                  error_info (sock);
                   svz_sock_schedule_for_shutdown (sock);
                   continue;
                 }
@@ -419,7 +419,7 @@ svz_check_sockets_select (void)
  * available under Win32.
  */
 static int
-svz_check_sockets_poll (void)
+check_sockets_poll (void)
 {
   static unsigned int max_nfds = 0;   /* maximum number of file descriptors */
   unsigned int nfds, fd;              /* number of fds */
@@ -609,7 +609,7 @@ svz_check_sockets_poll (void)
                   svz_log (SVZ_LOG_ERROR, "exception on socket %d\n",
                            sock->sock_desc);
                 }
-              svz_sock_error_info (sock);
+              error_info (sock);
               svz_sock_schedule_for_shutdown (sock);
             }
           if (sock->flags & SVZ_SOFLG_RECV_PIPE)
@@ -644,7 +644,7 @@ svz_check_sockets_poll (void)
  * This is the specialized routine for this Win32 port.
  */
 static int
-svz_check_sockets_MinGW (void)
+check_sockets_mingw (void)
 {
   int nfds;                     /* count of file descriptors to check */
   fd_set read_fds;              /* bitmasks for file descriptors to check */
@@ -800,7 +800,7 @@ svz_check_sockets_MinGW (void)
                 {
                   svz_log (SVZ_LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
-                  svz_sock_error_info (sock);
+                  error_info (sock);
                   svz_sock_schedule_for_shutdown (sock);
                   continue;
                 }
@@ -876,10 +876,10 @@ int
 svz_check_sockets (void)
 {
 #if USE_POLL
-  return svz_check_sockets_poll ();
+  return check_sockets_poll ();
 #elif defined (__MINGW32__)
-  return svz_check_sockets_MinGW ();
+  return check_sockets_mingw ();
 #else
-  return svz_check_sockets_select ();
+  return check_sockets_select ();
 #endif
 }

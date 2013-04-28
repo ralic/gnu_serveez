@@ -56,7 +56,7 @@
  * @code{sock->recv_buffer}.
  */
 static int
-svz_udp_read_socket (svz_socket_t *sock)
+udp_read_socket (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG
   char buf[64];
@@ -134,7 +134,7 @@ svz_udp_read_socket (svz_socket_t *sock)
 /*
  * This routine is the default reader for UDP server sockets.  It allocates
  * necessary buffers (that's why it's called lazy) and reverts to the default
- * @code{svz_udp_read_socket}.
+ * @code{udp_read_socket}.
  */
 int
 svz_udp_lazy_read_socket (svz_socket_t *sock)
@@ -143,7 +143,7 @@ svz_udp_lazy_read_socket (svz_socket_t *sock)
 
   svz_sock_resize_buffers (sock, port->send_buffer_size,
                            port->recv_buffer_size);
-  sock->read_socket = svz_udp_read_socket;
+  sock->read_socket = udp_read_socket;
 
   return sock->read_socket (sock);
 }
@@ -381,7 +381,7 @@ svz_udp_connect (svz_address_t *host, in_port_t port)
   svz_sock_enqueue (sock);
   svz_sock_intern_connection_info (sock);
 
-  sock->read_socket = svz_udp_read_socket;
+  sock->read_socket = udp_read_socket;
   sock->write_socket = svz_udp_write_socket;
   sock->check_request = svz_udp_check_request;
 

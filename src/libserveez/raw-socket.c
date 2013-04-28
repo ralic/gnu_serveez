@@ -80,7 +80,7 @@ svz_ip_header_t;
  * Get IP header from plain data.
  */
 static svz_ip_header_t *
-svz_raw_get_ip_header (uint8_t *data)
+unpack_header (uint8_t *data)
 {
   static svz_ip_header_t hdr;
   uint16_t uint16;
@@ -155,7 +155,7 @@ svz_raw_check_ip_header (uint8_t *data, int len)
   svz_ip_header_t *ip_header;
 
   /* get the IP header and reject the checksum within plain data */
-  ip_header = svz_raw_get_ip_header (data);
+  ip_header = unpack_header (data);
   data[IP_CHECKSUM_OFS] = 0;
   data[IP_CHECKSUM_OFS + 1] = 0;
 

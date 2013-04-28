@@ -72,7 +72,7 @@ struct svz_hash_bucket
  * callback for any newly created hash table.
  */
 static unsigned long
-svz_hash_code (const char *key)
+hash_code (const char *key)
 {
   unsigned long code = 0;
   const char *p = key;
@@ -92,7 +92,7 @@ svz_hash_code (const char *key)
  * strings are equal, otherwise non-zero.
  */
 static int
-svz_hash_key_equals (const char *key1, const char *key2)
+hash_equal (const char *key1, const char *key2)
 {
   const char *p1, *p2;
 
@@ -122,7 +122,7 @@ svz_hash_key_equals (const char *key1, const char *key2)
  * key length of the given key @var{key}.
  */
 static size_t
-svz_hash_key_length (const char *key)
+hash_key_length (const char *key)
 {
   size_t len = 0;
 
@@ -140,7 +140,7 @@ svz_hash_key_length (const char *key)
  * purposes only and should not go into distributions.
  */
 static void
-svz_hash_analyse (svz_hash_t *hash)
+display_analysis (svz_hash_t *hash)
 {
   svz_hash_bucket_t *bucket;
   int n, e, buckets, depth, entries;
@@ -197,9 +197,9 @@ svz_hash_create (size_t size, svz_free_func_t destroy)
   hash->buckets = size;
   hash->fill = 0;
   hash->keys = 0;
-  hash->code = svz_hash_code;
-  hash->equals = svz_hash_key_equals;
-  hash->keylen = svz_hash_key_length;
+  hash->code = hash_code;
+  hash->equals = hash_equal;
+  hash->keylen = hash_key_length;
   hash->destroy = destroy;
 
   /* allocate space for the hash table and initialize it */
@@ -282,14 +282,14 @@ svz_hash_destroy (svz_hash_t *hash)
  * be placed somewhere else.
  */
 static void
-svz_hash_rehash (svz_hash_t *hash, int type)
+rehash (svz_hash_t *hash, int type)
 {
   size_t n;
   int e;
   svz_hash_bucket_t *bucket, *next_bucket;
 
 #if ENABLE_HASH_ANALYSE
-  svz_hash_analyse (hash);
+  display_analysis (hash);
 #endif
 
   if (type == SVZ_HASH_EXPAND)
@@ -377,7 +377,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
     }
 
 #if ENABLE_HASH_ANALYSE
-  svz_hash_analyse (hash);
+  display_analysis (hash);
 #endif
 }
 
@@ -430,7 +430,7 @@ svz_hash_put (svz_hash_t *hash, const char *key, void *value)
       hash->fill++;
       if (hash->fill > HASH_EXPAND_LIMIT (hash))
         {
-          svz_hash_rehash (hash, SVZ_HASH_EXPAND);
+          rehash (hash, SVZ_HASH_EXPAND);
         }
     }
   return NULL;
@@ -474,7 +474,7 @@ svz_hash_delete (svz_hash_t *hash, const char *key)
               hash->fill--;
               if (hash->fill < HASH_SHRINK_LIMIT (hash))
                 {
-                  svz_hash_rehash (hash, SVZ_HASH_SHRINK);
+                  rehash (hash, SVZ_HASH_SHRINK);
                 }
             }
           hash->keys--;

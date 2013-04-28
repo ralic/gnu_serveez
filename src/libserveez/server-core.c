@@ -88,13 +88,13 @@ int svz_nuke_happened = 0;
  * will try to re-initialize itself on the next execution of the main
  * loop.
  */
-static int svz_reset_happened;
+static int reset_happened;
 
 /*
  * Set to a non-zero value whenever
  * the server receives a SIGPIPE signal.
  */
-static int svz_pipe_broke;
+static int pipe_broke;
 
 /**
  * Set to a non-zero value whenever the server
@@ -106,13 +106,13 @@ svz_t_handle svz_child_died;
  * Set to a value greater or
  * equal zero when the server receives a signal which is not handled.
  */
-static int svz_uncaught_signal = -1;
+static int uncaught_signal = -1;
 
 /*
  * Set to a value greater or equal
  * zero for every received signal.
  */
-static int svz_signal = -1;
+static int signo = -1;
 
 /*
  * This holds the time on which the next call to @code{svz_periodic_tasks}
@@ -130,16 +130,16 @@ svz_socket_t *svz_sock_root = NULL;
  * Points to the last structure in the socket queue,
  * or @var{NULL} when the queue is empty.
  */
-static svz_socket_t *svz_sock_last = NULL;
+static svz_socket_t *last_socket = NULL;
 
 /*
  * Array used to speed up references to
  * socket structures by socket's id.
  */
-static svz_socket_t **svz_sock_lookup_table = NULL;
-static int svz_sock_id = 0;
-static int svz_sock_version = 0;
-static int svz_sock_limit = 1024;       /* Must be binary size!  */
+static svz_socket_t **socktab = NULL;
+static int sock_id = 0;
+static int sock_version = 0;
+static int sock_limit = 1024;       /* Must be binary size!  */
 
 /**
  * Return non-zero if the core is in the process of shutting down
@@ -168,7 +168,7 @@ svz_shutting_down_p (void)
  * Segmentation fault exception handler.
  */
 static void
-svz_segfault_exception (int sig)
+handle_segv (int sig)
 {
 #if HAVE_GETRLIMIT
   struct rlimit rlim;
@@ -190,20 +190,20 @@ svz_segfault_exception (int sig)
  * user (SIGINT, SIGTERM).
  */
 static void
-svz_signal_handler (int sig)
+handle_signal (int sig)
 {
   switch (sig)
     {
 #ifdef SIGHUP
     case SIGHUP:
-      svz_reset_happened = 1;
-      signal (SIGHUP, svz_signal_handler);
+      reset_happened = 1;
+      signal (SIGHUP, handle_signal);
       break;
 #endif
 #ifdef SIGPIPE
     case SIGPIPE:
-      svz_pipe_broke = 1;
-      signal (SIGPIPE, svz_signal_handler);
+      pipe_broke = 1;
+      signal (SIGPIPE, handle_signal);
       break;
 #endif
 #ifdef SIGCHLD
@@ -222,7 +222,7 @@ svz_signal_handler (int sig)
       if ((svz_child_died = wait (NULL)) == -1)
         svz_child_died = 0;
 #endif /* not HAVE_WAITPID */
-      signal (SIGCHLD, svz_signal_handler);
+      signal (SIGCHLD, handle_signal);
       break;
 #endif
 #ifdef SIGBREAK
@@ -254,19 +254,19 @@ svz_signal_handler (int sig)
       break;
 #endif
     default:
-      svz_uncaught_signal = sig;
+      uncaught_signal = sig;
       break;
     }
 
   /* save current signal */
-  svz_signal = sig;
+  signo = sig;
 }
 
 /* 65 is hopefully a safe bet, kill(1) accepts 0..64, *sigh* */
 #define SVZ_NUMBER_OF_SIGNALS 65
 
 /* Cached results of strsignal calls.  */
-static svz_array_t *svz_signal_strings = NULL;
+static svz_array_t *signal_blurbs = NULL;
 
 /* On some platforms ‘strsignal’ can be resolved but is nowhere declared.  */
 #if defined (HAVE_STRSIGNAL) && !HAVE_DECL_STRSIGNAL
@@ -277,16 +277,16 @@ extern char * strsignal (int);
  * Prepare library so that @code{svz_strsignal} works.
  */
 static void
-svz_strsignal_init (void)
+strsignal_init (void)
 {
   int i;
   char *str;
   const char *format = "Signal %d";
 
-  if (svz_signal_strings != NULL)
+  if (signal_blurbs != NULL)
     return;
 
-  svz_signal_strings = svz_array_create (SVZ_NUMBER_OF_SIGNALS, svz_free);
+  signal_blurbs = svz_array_create (SVZ_NUMBER_OF_SIGNALS, svz_free);
   for (i = 0; i < SVZ_NUMBER_OF_SIGNALS; i++)
     {
 #if HAVE_STRSIGNAL
@@ -294,17 +294,17 @@ svz_strsignal_init (void)
         {
           str = svz_malloc (128);
           snprintf (str, 128, format, i);
-          svz_array_add (svz_signal_strings, svz_strdup (str));
+          svz_array_add (signal_blurbs, svz_strdup (str));
           svz_free (str);
         }
       else
         {
-          svz_array_add (svz_signal_strings, svz_strdup (str));
+          svz_array_add (signal_blurbs, svz_strdup (str));
         }
 #else /* not HAVE_STRSIGNAL */
       str = svz_malloc (128);
       snprintf (str, 128, format, i);
-      svz_array_add (svz_signal_strings, svz_strdup (str));
+      svz_array_add (signal_blurbs, svz_strdup (str));
       svz_free (str);
 #endif /* HAVE_STRSIGNAL */
     }
@@ -314,10 +314,10 @@ svz_strsignal_init (void)
  * The function @code{svz_strsignal} does not work afterwards anymore.
  */
 static void
-svz_strsignal_destroy (void)
+strsignal_destroy (void)
 {
-  svz_array_destroy (svz_signal_strings);
-  svz_signal_strings = NULL;
+  svz_array_destroy (signal_blurbs);
+  signal_blurbs = NULL;
 }
 
 /*
@@ -329,12 +329,12 @@ svz_strsignal_destroy (void)
  * destroys the reentrance, of course) [who cares :-].
  */
 static char *
-svz_strsignal (int sig)
+signal_blurb (int sig)
 {
   static char fallback[128];
 
   if (sig >= 0 && sig < SVZ_NUMBER_OF_SIGNALS)
-    return (char *) svz_array_get (svz_signal_strings, sig);
+    return (char *) svz_array_get (signal_blurbs, sig);
   else
     {
       snprintf (fallback, 128, "No such signal %d", sig);
@@ -346,7 +346,7 @@ svz_strsignal (int sig)
  * Abort the process, printing the error message @var{msg} first.
  */
 static int
-svz_abort (char *msg)
+do_abort (char *msg)
 {
   svz_log (SVZ_LOG_FATAL, "list validation failed: %s\n", msg);
   abort ();
@@ -380,7 +380,7 @@ svz_foreach_socket (svz_socket_do_t *func, void *closure)
  * not.
  */
 static int
-svz_sock_valid (svz_socket_t *sock)
+validate_sock (svz_socket_t *sock)
 {
   if (!(sock->flags & (SVZ_SOFLG_LISTENING |
                        SVZ_SOFLG_CONNECTED | SVZ_SOFLG_CONNECTING)))
@@ -397,7 +397,7 @@ svz_sock_valid (svz_socket_t *sock)
  * Abort the program with an error message, if it is not.
  */
 static int
-svz_sock_validate_list (void)
+validate_list_of_socks (void)
 {
   svz_socket_t *sock, *prev;
 
@@ -407,7 +407,7 @@ svz_sock_validate_list (void)
     {
       fprintf (stdout, "id: %04d, sock: %p == %p, prev: %p, next: %p\n",
                sock->id, (void *) sock,
-               (void *) svz_sock_lookup_table[sock->id],
+               (void *) socktab[sock->id],
                (void *) sock->prev, (void *) sock->next);
       sock = sock->next;
     }
@@ -421,35 +421,35 @@ svz_sock_validate_list (void)
       /* check if the descriptors are valid */
       if (sock->flags & SVZ_SOFLG_SOCK)
         {
-          if (svz_sock_valid (sock) == -1)
+          if (validate_sock (sock) == -1)
             {
-              svz_abort ("invalid socket descriptor");
+              do_abort ("invalid socket descriptor");
             }
         }
       if (sock->flags & SVZ_SOFLG_PIPE)
         {
           if (svz_pipe_valid (sock) == -1)
             {
-              svz_abort ("invalid pipe descriptor");
+              do_abort ("invalid pipe descriptor");
             }
         }
 
       /* check socket list structure */
-      if (svz_sock_lookup_table[sock->id] != sock)
+      if (socktab[sock->id] != sock)
         {
-          svz_abort ("lookup table corrupted");
+          do_abort ("lookup table corrupted");
         }
       if (prev != sock->prev)
         {
-          svz_abort ("list structure invalid (sock->prev)");
+          do_abort ("list structure invalid (sock->prev)");
         }
       prev = sock;
       sock = sock->next;
     }
 
-  if (prev != svz_sock_last)
+  if (prev != last_socket)
     {
-      svz_abort ("list structure invalid (last socket)");
+      do_abort ("list structure invalid (last socket)");
     }
   return 0;
 }
@@ -462,13 +462,13 @@ svz_sock_validate_list (void)
  * chain anyway.
  */
 static void
-svz_sock_rechain_list (void)
+rechain_list_of_socks (void)
 {
   svz_socket_t *sock;
   svz_socket_t *last_listen;
   svz_socket_t *end_socket;
 
-  sock = svz_sock_last;
+  sock = last_socket;
   if (sock && sock->prev)
     {
       end_socket = sock->prev;
@@ -509,7 +509,7 @@ svz_sock_rechain_list (void)
 
       /* mark the new end of chain */
       end_socket->next = NULL;
-      svz_sock_last = end_socket;
+      last_socket = end_socket;
     }
 }
 
@@ -533,7 +533,7 @@ svz_sock_enqueue (svz_socket_t *sock)
   /* check for validity of socket descriptors */
   if (sock->flags & SVZ_SOFLG_SOCK)
     {
-      if (svz_sock_valid (sock) == -1)
+      if (validate_sock (sock) == -1)
         {
           svz_log (SVZ_LOG_FATAL, "cannot enqueue invalid socket\n");
           return -1;
@@ -541,7 +541,7 @@ svz_sock_enqueue (svz_socket_t *sock)
     }
 
   /* check lookup table */
-  if (svz_sock_lookup_table[sock->id] || sock->flags & SVZ_SOFLG_ENQUEUED)
+  if (socktab[sock->id] || sock->flags & SVZ_SOFLG_ENQUEUED)
     {
       svz_log (SVZ_LOG_FATAL, "socket id %d has been already enqueued\n",
                sock->id);
@@ -557,13 +557,13 @@ svz_sock_enqueue (svz_socket_t *sock)
     }
   else
     {
-      svz_sock_last->next = sock;
-      sock->prev = svz_sock_last;
+      last_socket->next = sock;
+      sock->prev = last_socket;
     }
 
-  svz_sock_last = sock;
+  last_socket = sock;
   sock->flags |= SVZ_SOFLG_ENQUEUED;
-  svz_sock_lookup_table[sock->id] = sock;
+  socktab[sock->id] = sock;
 
   return 0;
 }
@@ -573,7 +573,7 @@ svz_sock_enqueue (svz_socket_t *sock)
  * the server loop.
  */
 static int
-svz_sock_dequeue (svz_socket_t *sock)
+dequeue (svz_socket_t *sock)
 {
   /* check for validity of pipe descriptors */
   if (sock->flags & SVZ_SOFLG_PIPE)
@@ -588,7 +588,7 @@ svz_sock_dequeue (svz_socket_t *sock)
   /* check for validity of socket descriptors */
   if (sock->flags & SVZ_SOFLG_SOCK)
     {
-      if (svz_sock_valid (sock) == -1)
+      if (validate_sock (sock) == -1)
         {
           svz_log (SVZ_LOG_FATAL, "cannot dequeue invalid socket\n");
           return -1;
@@ -596,7 +596,7 @@ svz_sock_dequeue (svz_socket_t *sock)
     }
 
   /* check lookup table */
-  if (!svz_sock_lookup_table[sock->id] || !(sock->flags & SVZ_SOFLG_ENQUEUED))
+  if (!socktab[sock->id] || !(sock->flags & SVZ_SOFLG_ENQUEUED))
     {
       svz_log (SVZ_LOG_FATAL, "socket id %d has been already dequeued\n",
                sock->id);
@@ -607,7 +607,7 @@ svz_sock_dequeue (svz_socket_t *sock)
   if (sock->next)
     sock->next->prev = sock->prev;
   else
-    svz_sock_last = sock->prev;
+    last_socket = sock->prev;
 
   if (sock->prev)
     sock->prev->next = sock->next;
@@ -615,7 +615,7 @@ svz_sock_dequeue (svz_socket_t *sock)
     svz_sock_root = sock->next;
 
   sock->flags &= ~SVZ_SOFLG_ENQUEUED;
-  svz_sock_lookup_table[sock->id] = NULL;
+  socktab[sock->id] = NULL;
 
   return 0;
 }
@@ -764,13 +764,13 @@ svz_sock_find (int id, int version)
 {
   svz_socket_t *sock;
 
-  if (id & ~(svz_sock_limit - 1))
+  if (id & ~(sock_limit - 1))
     {
       svz_log (SVZ_LOG_WARNING, "socket id %d is invalid\n", id);
       return NULL;
     }
 
-  sock = svz_sock_lookup_table[id];
+  sock = socktab[id];
   if (version != -1 && sock && sock->version != version)
     {
       svz_log (SVZ_LOG_WARNING, "socket version %d (id %d) is invalid\n",
@@ -778,26 +778,25 @@ svz_sock_find (int id, int version)
       return NULL;
     }
 
-  return svz_sock_lookup_table[id];
+  return socktab[id];
 }
 
 /*
  * Create the socket lookup table initially.
  */
 static void
-svz_sock_table_create (void)
+table_create (void)
 {
-  svz_sock_lookup_table = svz_calloc (svz_sock_limit *
-                                      sizeof (svz_socket_t *));
+  socktab = svz_calloc (sock_limit * sizeof (svz_socket_t *));
 }
 
 /*
  * Destroy the socket lookup table finally.
  */
 static void
-svz_sock_table_destroy (void)
+table_destroy (void)
 {
-  svz_free_and_zero (svz_sock_lookup_table);
+  svz_free_and_zero (socktab);
 }
 
 /*
@@ -810,32 +809,31 @@ svz_sock_unique_id (svz_socket_t *sock)
 {
   int i;
 
-  for (i = 0; i < svz_sock_limit; i++)
+  for (i = 0; i < sock_limit; i++)
     {
-      svz_sock_id++;
-      svz_sock_id &= (svz_sock_limit - 1);
+      sock_id++;
+      sock_id &= (sock_limit - 1);
 
-      if (NULL == svz_sock_lookup_table[svz_sock_id])
+      if (NULL == socktab[sock_id])
         break;
     }
 
   /* ensure global limit, resize the lookup table if necessary */
-  if (i == svz_sock_limit)
+  if (i == sock_limit)
     {
-      svz_sock_lookup_table = svz_realloc (svz_sock_lookup_table,
-                                           svz_sock_limit * 2 *
-                                           sizeof (svz_socket_t *));
-      memset (&svz_sock_lookup_table[svz_sock_limit], 0,
-              svz_sock_limit * sizeof (svz_socket_t *));
-      svz_sock_id = svz_sock_limit;
-      svz_sock_limit *= 2;
-      svz_log (SVZ_LOG_NOTICE, "lookup table enlarged to %d\n", svz_sock_limit);
+      socktab = svz_realloc (socktab, sock_limit * 2
+                             * sizeof (svz_socket_t *));
+      memset (&socktab[sock_limit], 0,
+              sock_limit * sizeof (svz_socket_t *));
+      sock_id = sock_limit;
+      sock_limit *= 2;
+      svz_log (SVZ_LOG_NOTICE, "lookup table enlarged to %d\n", sock_limit);
     }
 
-  sock->id = svz_sock_id;
-  sock->version = svz_sock_version++;
+  sock->id = sock_id;
+  sock->version = sock_version++;
 
-  return svz_sock_id;
+  return sock_id;
 }
 
 static void
@@ -850,7 +848,7 @@ reset_internal (svz_server_t *server, UNUSED void *closure)
  * that the server should be reset.
  */
 static int
-svz_reset (void)
+reset (void)
 {
   svz_foreach_server (reset_internal, NULL);
   svz_interface_check ();
@@ -873,7 +871,7 @@ svz_sock_shutdown (svz_socket_t *sock)
   if (sock->disconnected_socket)
     sock->disconnected_socket (sock);
 
-  svz_sock_dequeue (sock);
+  dequeue (sock);
 
   if (sock->flags & SVZ_SOFLG_SOCK)
     svz_sock_disconnect (sock);
@@ -1026,34 +1024,34 @@ svz_sock_check_bogus (void)
  * Setup signaling for the core library.
  */
 static void
-svz_signal_up (void)
+signals_up (void)
 {
 #ifdef SIGTERM
-  signal (SIGTERM, svz_signal_handler);
+  signal (SIGTERM, handle_signal);
 #endif
 #ifdef SIGQUIT
-  signal (SIGQUIT, svz_signal_handler);
+  signal (SIGQUIT, handle_signal);
 #endif
 #ifdef SIGINT
-  signal (SIGINT, svz_signal_handler);
+  signal (SIGINT, handle_signal);
 #endif
 #ifdef SIGBREAK
-  signal (SIGBREAK, svz_signal_handler);
+  signal (SIGBREAK, handle_signal);
 #endif
 #ifdef SIGCHLD
-  signal (SIGCHLD, svz_signal_handler);
+  signal (SIGCHLD, handle_signal);
 #endif
 #ifdef SIGHUP
-  signal (SIGHUP, svz_signal_handler);
+  signal (SIGHUP, handle_signal);
 #endif
 #ifdef SIGPIPE
-  signal (SIGPIPE, svz_signal_handler);
+  signal (SIGPIPE, handle_signal);
 #endif
 #ifdef SIGURG
-  signal (SIGURG, svz_signal_handler);
+  signal (SIGURG, handle_signal);
 #endif
 #ifdef SIGSEGV
-  signal (SIGSEGV, svz_segfault_exception);
+  signal (SIGSEGV, handle_segv);
 #endif
 }
 
@@ -1061,7 +1059,7 @@ svz_signal_up (void)
  * Deinstall signaling for the core library.
  */
 static void
-svz_signal_dn (void)
+signals_dn (void)
 {
 #ifdef SIGTERM
   signal (SIGTERM, SIG_DFL);
@@ -1098,7 +1096,7 @@ svz_signal_dn (void)
  * returns zero if so, otherwise (when the child process died) non-zero.
  */
 static int
-svz_sock_child_died (svz_socket_t *sock)
+check_child_died (svz_socket_t *sock)
 {
 #ifdef __MINGW32__
 
@@ -1138,12 +1136,12 @@ svz_sock_child_died (svz_socket_t *sock)
  * the appropriate socket structure gets scheduled for shutdown.
  */
 static void
-svz_sock_check_children (void)
+check_children (void)
 {
   svz_socket_t *sock;
 
   svz_sock_foreach (sock)
-    if (! svz_invalid_handle_p (sock->pid) && svz_sock_child_died (sock))
+    if (! svz_invalid_handle_p (sock->pid) && check_child_died (sock))
       {
         svz_invalidate_handle (&sock->pid);
 #if ENABLE_DEBUG
@@ -1173,22 +1171,22 @@ svz_loop_one (void)
    * FIXME: Remove this once the server is stable.
    */
 #if ENABLE_DEBUG
-  svz_sock_validate_list ();
+  validate_list_of_socks ();
 #endif /* ENABLE_DEBUG */
 
-  if (svz_reset_happened)
+  if (reset_happened)
     {
       /* SIGHUP received.  */
       svz_log (SVZ_LOG_NOTICE, "resetting server\n");
-      svz_reset ();
-      svz_reset_happened = 0;
+      reset ();
+      reset_happened = 0;
     }
 
-  if (svz_pipe_broke)
+  if (pipe_broke)
     {
       /* SIGPIPE received.  */
       svz_log (SVZ_LOG_ERROR, "broken pipe, continuing\n");
-      svz_pipe_broke = 0;
+      pipe_broke = 0;
     }
 
   /*
@@ -1198,7 +1196,7 @@ svz_loop_one (void)
   svz_check_sockets ();
 
   /* Check if a child died.  Checks all socket structures.  */
-  svz_sock_check_children ();
+  check_children ();
 
   if (svz_child_died)
     {
@@ -1207,18 +1205,18 @@ svz_loop_one (void)
       svz_child_died = 0;
     }
 
-  if (svz_signal != -1)
+  if (signo != -1)
     {
       /* Log the current signal.  */
-      svz_log (SVZ_LOG_WARNING, "signal: %s\n", svz_strsignal (svz_signal));
-      svz_signal = -1;
+      svz_log (SVZ_LOG_WARNING, "signal: %s\n", signal_blurb (signo));
+      signo = -1;
     }
 
-  if (svz_uncaught_signal != -1)
+  if (uncaught_signal != -1)
     {
       /* Uncaught signal received.  */
-      svz_log (SVZ_LOG_DEBUG, "uncaught signal %d\n", svz_uncaught_signal);
-      svz_uncaught_signal = -1;
+      svz_log (SVZ_LOG_DEBUG, "uncaught signal %d\n", uncaught_signal);
+      uncaught_signal = -1;
     }
 
   /*
@@ -1226,7 +1224,7 @@ svz_loop_one (void)
    * every time for performance reasons.
    */
   if (rechain++ & 16)
-    svz_sock_rechain_list ();
+    rechain_list_of_socks ();
 
   /*
    * Shut down all sockets that have been scheduled for closing.
@@ -1253,9 +1251,9 @@ svz_loop_pre (void)
    * Setting up control variables.  These get set either in the signal
    * handler or from a command processing routine.
    */
-  svz_reset_happened = 0;
+  reset_happened = 0;
   svz_child_died = 0;
-  svz_pipe_broke = 0;
+  pipe_broke = 0;
   svz_notify = time (NULL);
 
   /* Run the server loop.  */
@@ -1275,7 +1273,7 @@ svz_loop_post (void)
   /* Shutdown all socket structures.  */
   while (svz_sock_root)
     svz_sock_shutdown (svz_sock_root);
-  svz_sock_last = NULL;
+  last_socket = NULL;
 }
 
 /**
@@ -1298,8 +1296,8 @@ void
 svz__strsignal_updn (int direction)
 {
   (direction
-   ? svz_strsignal_init
-   : svz_strsignal_destroy)
+   ? strsignal_init
+   : strsignal_destroy)
     ();
 }
 
@@ -1307,8 +1305,8 @@ void
 svz__sock_table_updn (int direction)
 {
   (direction
-   ? svz_sock_table_create
-   : svz_sock_table_destroy)
+   ? table_create
+   : table_destroy)
     ();
 }
 
@@ -1316,7 +1314,7 @@ void
 svz__signal_updn (int direction)
 {
   (direction
-   ? svz_signal_up
-   : svz_signal_dn)
+   ? signals_up
+   : signals_dn)
     ();
 }

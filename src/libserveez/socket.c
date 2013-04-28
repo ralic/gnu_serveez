@@ -106,7 +106,7 @@ svz_sock_flood_protect (svz_socket_t *sock, int num_read)
  * its socket.  @var{sock} is the socket which was closed.
  */
 static int
-svz_sock_default_disconnect (svz_socket_t *sock)
+maybe_log_disconnect (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_DEBUG, "socket id %d disconnected\n", sock->id);
@@ -195,7 +195,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
  * explicitly with the packet length inclusive the packet boundary.
  */
 static int
-svz_sock_check_request_array (svz_socket_t *sock)
+split_packet_and_dispatch (svz_socket_t *sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -237,7 +237,7 @@ svz_sock_check_request_array (svz_socket_t *sock)
  * packet delimiters.
  */
 static int
-svz_sock_check_request_byte (svz_socket_t *sock)
+split_packet_unibyte_and_dispatch (svz_socket_t *sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -281,7 +281,7 @@ svz_sock_check_request_byte (svz_socket_t *sock)
  * @code{handle_request} callback dynamically.
  */
 static int
-svz_sock_check_request_size (svz_socket_t *sock)
+split_packet_fixed_and_dispatch (svz_socket_t *sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -327,11 +327,11 @@ svz_sock_check_request (svz_socket_t *sock)
     }
 
   if (sock->boundary == NULL)
-    sock->check_request = svz_sock_check_request_size;
+    sock->check_request = split_packet_fixed_and_dispatch;
   else if (sock->boundary_size > 1)
-    sock->check_request = svz_sock_check_request_array;
+    sock->check_request = split_packet_and_dispatch;
   else
-    sock->check_request = svz_sock_check_request_byte;
+    sock->check_request = split_packet_unibyte_and_dispatch;
 
   return sock->check_request (sock);
 }
@@ -365,7 +365,7 @@ svz_sock_alloc (void)
   sock->read_socket_oob = svz_tcp_recv_oob;
   sock->write_socket = svz_tcp_write_socket;
   sock->check_request = svz_sock_detect_proto;
-  sock->disconnected_socket = svz_sock_default_disconnect;
+  sock->disconnected_socket = maybe_log_disconnect;
 
   sock->recv_buffer = in;
   sock->recv_buffer_size = RECV_BUF_SIZE;
@@ -700,4 +700,3 @@ svz_sock_reduce_send (svz_socket_t *sock, int len)
              sock->send_buffer_fill - len);
   sock->send_buffer_fill -= len;
 }
-

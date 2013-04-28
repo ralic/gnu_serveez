@@ -63,7 +63,7 @@ static HANDLE Kernel32Handle = NULL;
  * success.
  */
 static int
-svz_pipe_startup (void)
+startup (void)
 {
 #ifdef __MINGW32__
   if ((Kernel32Handle = LoadLibrary ("KERNEL32.DLL")) == NULL)
@@ -90,7 +90,7 @@ svz_pipe_startup (void)
  * success.
  */
 static int
-svz_pipe_cleanup (void)
+cleanup (void)
 {
 #ifdef __MINGW32__
   if (Kernel32Handle != NULL)
@@ -398,7 +398,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 
 /* Print text representation of given overlapped I/O structure.  */
 static void
-svz_pipe_overlap (LPOVERLAPPED overlap)
+display_overlap (LPOVERLAPPED overlap)
 {
   if (overlap)
     {
@@ -743,7 +743,7 @@ svz_pipe_create_pair (svz_t_handle pipe_desc[2])
  * @var{mask}, @var{uid} and @var{gid}.
  */
 static void
-svz_pipe_save_state (mode_t *mask, uid_t *uid, gid_t *gid)
+save_state (mode_t *mask, uid_t *uid, gid_t *gid)
 {
   *mask = umask (0);
   *uid = GETUID ();
@@ -755,7 +755,7 @@ svz_pipe_save_state (mode_t *mask, uid_t *uid, gid_t *gid)
  * group id @var{gid}.  Returns zero on success, non-zero otherwise.
  */
 static int
-svz_pipe_set_state (mode_t mask, uid_t uid, gid_t gid)
+set_state (mode_t mask, uid_t uid, gid_t gid)
 {
   umask (mask);
   if (SETUID (uid) < 0)
@@ -776,7 +776,7 @@ svz_pipe_set_state (mode_t mask, uid_t uid, gid_t gid)
  * zero on success and non-zero on errors.
  */
 static int
-svz_pipe_try_state (svz_pipe_t *pipe)
+try_state (svz_pipe_t *pipe)
 {
   /* umask value */
   if (pipe->perm != (mode_t) -1)
@@ -807,7 +807,7 @@ svz_pipe_try_state (svz_pipe_t *pipe)
  * the receiving end and @var{send} for the sending end of a pipe socket.
  */
 static void
-svz_pipe_set_files (svz_socket_t *sock, char *recv, char *send)
+set_files (svz_socket_t *sock, char *recv, char *send)
 {
   if (sock->recv_pipe)
     svz_free (sock->recv_pipe);
@@ -853,7 +853,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
     return NULL;
 
   /* create pipe file text representation */
-  svz_pipe_set_files (sock, recv->name, send->name);
+  set_files (sock, recv->name, send->name);
 
 #ifndef __MINGW32__
   /* is receive pipe such a?  */
@@ -874,10 +874,10 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 
   /* save the current process's permission state and set the new state
      for the receive pipe if necessary and possible */
-  svz_pipe_save_state (&mask, &uid, &gid);
-  if (svz_pipe_try_state (recv) < 0)
+  save_state (&mask, &uid, &gid);
+  if (try_state (recv) < 0)
     {
-      svz_pipe_set_state (mask, uid, gid);
+      set_state (mask, uid, gid);
       svz_sock_free (sock);
       return NULL;
     }
@@ -887,20 +887,20 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
     {
       svz_log_sys_error ("pipe: open");
       svz_sock_free (sock);
-      svz_pipe_set_state (mask, uid, gid);
+      set_state (mask, uid, gid);
       return NULL;
     }
 
   /* restore the current process's permission state */
-  svz_pipe_set_state (mask, uid, gid);
+  set_state (mask, uid, gid);
 
   /* save the current process's permission state and set the new state
      for the send pipe if necessary and possible */
-  svz_pipe_save_state (&mask, &uid, &gid);
-  if (svz_pipe_try_state (send) < 0)
+  save_state (&mask, &uid, &gid);
+  if (try_state (send) < 0)
     {
       close (recv_pipe);
-      svz_pipe_set_state (mask, uid, gid);
+      set_state (mask, uid, gid);
       svz_sock_free (sock);
       return NULL;
     }
@@ -911,12 +911,12 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
       svz_log_sys_error ("pipe: open");
       close (recv_pipe);
       svz_sock_free (sock);
-      svz_pipe_set_state (mask, uid, gid);
+      set_state (mask, uid, gid);
       return NULL;
     }
 
   /* restore the current process's permission state */
-  svz_pipe_set_state (mask, uid, gid);
+  set_state (mask, uid, gid);
 
   /* set send pipe to non-blocking mode and do not inherit the created
      pipe descriptors */
@@ -1008,7 +1008,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   svz_t_handle recv_pipe;
 
   /* Setup the text representation of the fifo names.  */
-  svz_pipe_set_files (sock, recv->name, send->name);
+  set_files (sock, recv->name, send->name);
 
   /* Pipe requested via port configuration?  */
   if (!sock->recv_pipe || !sock->send_pipe)
@@ -1021,17 +1021,17 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   if (stat (sock->recv_pipe, &buf) == -1)
     {
       /* Save old permissions and set new ones.  */
-      svz_pipe_save_state (&mask, &uid, &gid);
-      if (svz_pipe_try_state (recv) < 0)
+      save_state (&mask, &uid, &gid);
+      if (try_state (recv) < 0)
         {
-          svz_pipe_set_state (mask, uid, gid);
+          set_state (mask, uid, gid);
           return -1;
         }
       /* Create fifo locally.  */
       if (MKFIFO (sock->recv_pipe, 0666) != 0)
         {
           svz_log_sys_error ("pipe: %s", MKFIFO_FUNC);
-          svz_pipe_set_state (mask, uid, gid);
+          set_state (mask, uid, gid);
           return -1;
         }
       /* Check if that was successful.  */
@@ -1039,35 +1039,35 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
         {
           svz_log (SVZ_LOG_ERROR,
                    "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
-          svz_pipe_set_state (mask, uid, gid);
+          set_state (mask, uid, gid);
           return -1;
         }
       /* Restore old permissions.  */
-      svz_pipe_set_state (mask, uid, gid);
+      set_state (mask, uid, gid);
     }
 
   if (stat (sock->send_pipe, &buf) == -1)
     {
-      svz_pipe_save_state (&mask, &uid, &gid);
-      if (svz_pipe_try_state (send) < 0)
+      save_state (&mask, &uid, &gid);
+      if (try_state (send) < 0)
         {
-          svz_pipe_set_state (mask, uid, gid);
+          set_state (mask, uid, gid);
           return -1;
         }
       if (MKFIFO (sock->send_pipe, 0666) != 0)
         {
           svz_log_sys_error ("pipe: %s", MKFIFO_FUNC);
-          svz_pipe_set_state (mask, uid, gid);
+          set_state (mask, uid, gid);
           return -1;
         }
       if (stat (sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
         {
           svz_log (SVZ_LOG_ERROR,
                    "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
-          svz_pipe_set_state (mask, uid, gid);
+          set_state (mask, uid, gid);
           return -1;
         }
-      svz_pipe_set_state (mask, uid, gid);
+      set_state (mask, uid, gid);
     }
 
   /* Try opening the server's read pipe.  Should always be possible.  */
@@ -1161,7 +1161,7 @@ void
 svz__pipe_updn (int direction)
 {
   (direction
-   ? svz_pipe_startup
-   : svz_pipe_cleanup)
+   ? startup
+   : cleanup)
     ();
 }

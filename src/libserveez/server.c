@@ -44,13 +44,13 @@
 /*
  * The list of registered servers.  Feel free to add yours.
  */
-static svz_array_t *svz_servertypes = NULL;
+static svz_array_t *servertypes = NULL;
 
 /*
  * This is the list of actually instantiated servers.  The hash table
  * associates the servers' names with the server instances.
  */
-static svz_hash_t *svz_servers = NULL;
+static svz_hash_t *servers = NULL;
 
 /**
  * Call @var{func} for each servertype, passing additionally the second arg
@@ -64,7 +64,7 @@ svz_foreach_servertype (svz_servertype_do_t *func, void *closure)
   int rv;
   svz_servertype_t *stype;
 
-  svz_array_foreach (svz_servertypes, stype, i)
+  svz_array_foreach (servertypes, stype, i)
     {
       if (0 > (rv = func (stype, closure)))
         return rv;
@@ -93,11 +93,11 @@ foreach_server_internal (UNUSED void *k, void *v, void *closure)
 void
 svz_foreach_server (svz_server_do_t *func, void *closure)
 {
-  if (svz_servers)
+  if (servers)
     {
       struct foreach_server_closure x = { func, closure };
 
-      svz_hash_foreach (foreach_server_internal, svz_servers, &x);
+      svz_hash_foreach (foreach_server_internal, servers, &x);
     }
 }
 
@@ -118,7 +118,7 @@ svz_servertype_add (svz_servertype_t *server)
     }
 
   /* Check if the server is already registered.  */
-  svz_array_foreach (svz_servertypes, stype, n)
+  svz_array_foreach (servertypes, stype, n)
     {
       if (!strcmp (server->prefix, stype->prefix))
         {
@@ -138,10 +138,10 @@ svz_servertype_add (svz_servertype_t *server)
       }
 
   /* Add this definition to the registered servers.  */
-  if (svz_servertypes == NULL)
-    if ((svz_servertypes = svz_array_create (1, NULL)) == NULL)
+  if (servertypes == NULL)
+    if ((servertypes = svz_array_create (1, NULL)) == NULL)
       return;
-  svz_array_add (svz_servertypes, server);
+  svz_array_add (servertypes, server);
 }
 
 /*
@@ -150,7 +150,7 @@ svz_servertype_add (svz_servertype_t *server)
  * configuration.
  */
 static void
-svz_server_free (svz_server_t *server)
+server_free (svz_server_t *server)
 {
   svz_config_free (&server->type->config_prototype, server->cfg);
   svz_free (server->name);
@@ -163,7 +163,7 @@ svz_server_free (svz_server_t *server)
  * to the socket structure.
  */
 static size_t
-svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
+delete_server (svz_socket_t *sock, svz_server_t *server)
 {
   svz_binding_t *binding;
   size_t i;
@@ -185,7 +185,7 @@ svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
  * on the other hand.
  */
 static void
-svz_server_unbind (svz_server_t *server)
+server_unbind (svz_server_t *server)
 {
   svz_socket_t *sock, *parent;
 
@@ -209,7 +209,7 @@ svz_server_unbind (svz_server_t *server)
     {
       /* Delete the server and shutdown the socket structure if
          there are no more servers left.  */
-      if (svz_sock_del_server (sock, server) == 0)
+      if (delete_server (sock, server) == 0)
         svz_sock_schedule_for_shutdown (sock);
     }
 }
@@ -227,7 +227,7 @@ svz_servertype_get (char *name, int dynamic)
   size_t n;
 
   /* first, try with already loaded ones */
-  svz_array_foreach (svz_servertypes, stype, n)
+  svz_array_foreach (servertypes, stype, n)
     {
       if (!strcmp (name, stype->prefix))
         return stype;
@@ -251,23 +251,23 @@ svz_servertype_get (char *name, int dynamic)
  * types.
  */
 static void
-svz_servertype_finalize (void)
+servertype_finalize (void)
 {
   size_t i;
   svz_servertype_t *stype;
 
   svz_log (SVZ_LOG_NOTICE, "running global server type finalizers\n");
-  svz_array_foreach (svz_servertypes, stype, i)
+  svz_array_foreach (servertypes, stype, i)
     {
       if (stype->global_finalize != NULL)
         if (stype->global_finalize (stype) < 0)
           svz_log (SVZ_LOG_ERROR, "error running global finalizer for `%s'\n",
                    stype->description);
     }
-  if (svz_servertypes != NULL)
+  if (servertypes != NULL)
     {
-      svz_array_destroy (svz_servertypes);
-      svz_servertypes = NULL;
+      svz_array_destroy (servertypes);
+      servertypes = NULL;
     }
 }
 
@@ -341,9 +341,9 @@ svz_server_clients (svz_server_t *server)
 svz_server_t *
 svz_server_get (char *name)
 {
-  if (svz_servers == NULL || name == NULL)
+  if (servers == NULL || name == NULL)
     return NULL;
-  return svz_hash_get (svz_servers, name);
+  return svz_hash_get (servers, name);
 }
 
 /*
@@ -351,7 +351,7 @@ svz_server_get (char *name)
  * instance name @var{name}.
  */
 static svz_server_t *
-svz_server_instantiate (svz_servertype_t *stype, char *name)
+instantiate_server (svz_servertype_t *stype, char *name)
 {
   svz_server_t *server;
 
@@ -387,8 +387,8 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
  * errors.
  */
 static void *
-svz_server_configure (svz_servertype_t *server, char *name, void *arg,
-                      svz_config_accessor_t *configure)
+configure_server (svz_servertype_t *server, char *name, void *arg,
+                  svz_config_accessor_t *configure)
 {
   void *cfg;
 
@@ -403,7 +403,7 @@ svz_server_configure (svz_servertype_t *server, char *name, void *arg,
  * message and returns non-zero.
  */
 static int
-svz_server_init (svz_server_t *server)
+init_server (svz_server_t *server)
 {
   if (server)
     if (server->init != NULL)
@@ -420,7 +420,7 @@ init_all_internal (svz_server_t *server, void *closure)
 {
   int *errneous = closure;
 
-  if (svz_server_init (server) < 0)
+  if (init_server (server) < 0)
     *errneous = -1;
 }
 
@@ -429,7 +429,7 @@ init_all_internal (svz_server_t *server, void *closure)
  * think it is a good idea to run.
  */
 static int
-svz_server_init_all (void)
+init_all (void)
 {
   int errneous = 0;
 
@@ -444,15 +444,15 @@ svz_server_init_all (void)
  * the server instance.
  */
 static void
-svz_server_finalize (svz_server_t *server)
+finalize_server (svz_server_t *server)
 {
   if (server)
     {
       if (server->finalize != NULL)
         if (server->finalize (server) < 0)
           svz_log (SVZ_LOG_ERROR, "error finalizing `%s'\n", server->name);
-      svz_server_unbind (server);
-      svz_server_free (server);
+      server_unbind (server);
+      server_free (server);
     }
 }
 
@@ -460,12 +460,12 @@ svz_server_finalize (svz_server_t *server)
  * Run the local finalizers for all server instances.
  */
 static int
-svz_server_finalize_all (void)
+finalize_all (void)
 {
   svz_log (SVZ_LOG_NOTICE, "running all server finalizers\n");
-  svz_hash_destroy (svz_servers);
-  svz_servers = NULL;
-  svz_servertype_finalize ();
+  svz_hash_destroy (servers);
+  servers = NULL;
+  servertype_finalize ();
   return 0;
 }
 
@@ -479,8 +479,8 @@ int
 svz_updn_all_servers (int direction)
 {
   return (direction
-          ? svz_server_init_all
-          : svz_server_finalize_all)
+          ? init_all
+          : finalize_all)
     ();
 }
 
@@ -488,13 +488,13 @@ svz_updn_all_servers (int direction)
  * This routine is the instantiating callback for a servertype as a
  * configurable type named @var{type}.  The @var{name} argument will
  * be the new servers instance name.  The @var{accessor} and
- * @var{options} arguments are passed to @code{svz_server_configure}
+ * @var{options} arguments are passed to @code{configure_server}
  * without modifications.
  */
 static int
-svz_servertype_instantiate (char *type, char *name, void *options,
-                            svz_config_accessor_t *accessor,
-                            size_t ebufsz, char *ebuf)
+instantiate_servertype (char *type, char *name, void *options,
+                        svz_config_accessor_t *accessor,
+                        size_t ebufsz, char *ebuf)
 {
   svz_servertype_t *stype;
   svz_server_t *server;
@@ -507,11 +507,11 @@ svz_servertype_instantiate (char *type, char *name, void *options,
     }
 
   /* Instantiate and configure this server.  */
-  server = svz_server_instantiate (stype, name);
-  server->cfg = svz_server_configure (stype, name, options, accessor);
+  server = instantiate_server (stype, name);
+  server->cfg = configure_server (stype, name, options, accessor);
   if (NULL == server->cfg && stype->config_prototype.size)
     {
-      svz_server_free (server);
+      server_free (server);
       return -1;                /* Messages emitted by callbacks.  */
     }
 
@@ -519,12 +519,12 @@ svz_servertype_instantiate (char *type, char *name, void *options,
   if (svz_server_get (name) != NULL)
     {
       snprintf (ebuf, ebufsz, "Duplicate server definition: `%s'", name);
-      svz_server_free (server);
+      server_free (server);
       return -1;
     }
-  if (svz_servers == NULL)
-    svz_servers = svz_hash_create (4, (svz_free_func_t) svz_server_finalize);
-  svz_hash_put (svz_servers, server->name, server);
+  if (servers == NULL)
+    servers = svz_hash_create (4, (svz_free_func_t) finalize_server);
+  svz_hash_put (servers, server->name, server);
 
   return 0;
 }
@@ -535,5 +535,5 @@ svz_servertype_instantiate (char *type, char *name, void *options,
 svz_config_type_t svz_servertype_definition =
 {
   "server",
-  svz_servertype_instantiate
+  instantiate_servertype
 };

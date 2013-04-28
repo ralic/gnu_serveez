@@ -277,7 +277,7 @@ svz_tcp_send_oob (svz_socket_t *sock)
  * check for network errors,
  */
 static int
-svz_tcp_default_connect (svz_socket_t *sock)
+tcp_default_connect (svz_socket_t *sock)
 {
   int error;
   socklen_t optlen = sizeof (int);
@@ -352,7 +352,7 @@ svz_tcp_connect (svz_address_t *host, in_port_t port)
   sock->sock_desc = sockfd;
   sock->proto = SVZ_PROTO_TCP;
   sock->flags |= (SVZ_SOFLG_SOCK | SVZ_SOFLG_CONNECTING);
-  sock->connected_socket = svz_tcp_default_connect;
+  sock->connected_socket = tcp_default_connect;
   sock->check_request = NULL;
   svz_sock_enqueue (sock);
 

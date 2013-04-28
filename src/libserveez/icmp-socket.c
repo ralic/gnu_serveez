@@ -70,7 +70,7 @@
 #define ICMP_MAX_TYPE           18
 
 /* Text representation of ICMP type codes.  */
-static char *svz_icmp_request[] = {
+static char *icmp_request[] = {
   "echo reply",
   NULL,
   NULL,
@@ -270,13 +270,13 @@ svz_icmp_cleanup (void)
 #endif /* __MINGW32__ */
 
 /* Static buffer for ip packets.  */
-static char svz_icmp_buffer[IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_MSG_SIZE];
+static char icmp_buffer[IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_MSG_SIZE];
 
 /*
  * Get ICMP header from plain data.
  */
 static svz_icmp_header_t *
-svz_icmp_get_header (uint8_t *data)
+unpack_header (uint8_t *data)
 {
   static svz_icmp_header_t hdr;
   uint16_t uint16;
@@ -302,7 +302,7 @@ svz_icmp_get_header (uint8_t *data)
  * Create ICMP header (data block) from given structure.
  */
 static uint8_t *
-svz_icmp_put_header (svz_icmp_header_t *hdr)
+pack_header (svz_icmp_header_t *hdr)
 {
   static uint8_t buffer[ICMP_HEADER_SIZE];
   uint8_t *data = buffer;
@@ -334,7 +334,7 @@ svz_icmp_put_header (svz_icmp_header_t *hdr)
  * ICMP_DISCONNECT when we received an disconnection signal.
  */
 static int
-svz_icmp_check_packet (svz_socket_t *sock, uint8_t *data, int len)
+check_packet (svz_socket_t *sock, uint8_t *data, int len)
 {
   int length;
   uint8_t *p = data;
@@ -345,7 +345,7 @@ svz_icmp_check_packet (svz_socket_t *sock, uint8_t *data, int len)
     return ICMP_ERROR;
 
   /* Get the actual ICMP header.  */
-  header = svz_icmp_get_header (p + length);
+  header = unpack_header (p + length);
   p += length + ICMP_HEADER_SIZE;
   len -= length + ICMP_HEADER_SIZE;
 
@@ -386,9 +386,9 @@ svz_icmp_check_packet (svz_socket_t *sock, uint8_t *data, int len)
 #if ENABLE_DEBUG
   else if (header->type <= ICMP_MAX_TYPE)
     {
-      if (svz_icmp_request[header->type])
+      if (icmp_request[header->type])
         svz_log (SVZ_LOG_DEBUG, "icmp: %s received\n",
-                 svz_icmp_request[header->type]);
+                 icmp_request[header->type]);
       else
         svz_log (SVZ_LOG_DEBUG, "unsupported protocol 0x%02X received\n",
                  header->type);
@@ -426,7 +426,7 @@ svz_icmp_check_packet (svz_socket_t *sock, uint8_t *data, int len)
  * @code{sock->remote_addr} and @code{sock->remote_port} afterwards.
  */
 static int
-svz_icmp_read_socket (svz_socket_t *sock)
+read_socket (svz_socket_t *sock)
 {
   int num_read;
   socklen_t len;
@@ -438,14 +438,14 @@ svz_icmp_read_socket (svz_socket_t *sock)
   /* Receive data.  */
   if (!(sock->flags & SVZ_SOFLG_CONNECTED))
     {
-      num_read = recvfrom (sock->sock_desc, svz_icmp_buffer,
-                           sizeof (svz_icmp_buffer), 0,
+      num_read = recvfrom (sock->sock_desc, icmp_buffer,
+                           sizeof (icmp_buffer), 0,
                            (struct sockaddr *) &sender, &len);
     }
   else
     {
-      num_read = recv (sock->sock_desc, svz_icmp_buffer,
-                       sizeof (svz_icmp_buffer), 0);
+      num_read = recv (sock->sock_desc, icmp_buffer,
+                       sizeof (icmp_buffer), 0);
     }
 
   /* Valid packet data arrived.  */
@@ -453,7 +453,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
     {
 #if 0
       svz_hexdump (stdout, "icmp packet received", sock->sock_desc,
-                   svz_icmp_buffer, num_read, 0);
+                   icmp_buffer, num_read, 0);
 #endif
       sock->last_recv = time (NULL);
       if (!(sock->flags & SVZ_SOFLG_FIXED))
@@ -472,8 +472,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
        * Check the ICMP packet and put the packet load only into the
        * receive buffer of the socket structure.
        */
-      trunc = svz_icmp_check_packet (sock, (uint8_t *) svz_icmp_buffer,
-                                     num_read);
+      trunc = check_packet (sock, (uint8_t *) icmp_buffer, num_read);
       if (trunc >= 0)
         {
           num_read -= trunc;
@@ -486,7 +485,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
             }
 
           memcpy (sock->recv_buffer + sock->recv_buffer_fill,
-                  svz_icmp_buffer + trunc, num_read);
+                  icmp_buffer + trunc, num_read);
           sock->recv_buffer_fill += num_read;
 
           /* Check access lists.  */
@@ -515,7 +514,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
 
 /*
  * Default reader for ICMP server sockets.  Allocates necessary buffers and
- * reverts to @code{svz_icmp_read_socket}.
+ * reverts to @code{read_socket}.
  */
 int
 svz_icmp_lazy_read_socket (svz_socket_t *sock)
@@ -524,7 +523,7 @@ svz_icmp_lazy_read_socket (svz_socket_t *sock)
 
   svz_sock_resize_buffers (sock, port->send_buffer_size,
                            port->recv_buffer_size);
-  sock->read_socket = svz_icmp_read_socket;
+  sock->read_socket = read_socket;
 
   return sock->read_socket (sock);
 }
@@ -613,7 +612,7 @@ svz_icmp_write_socket (svz_socket_t *sock)
 int
 svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
 {
-  static char *buffer = svz_icmp_buffer;
+  static char *buffer = icmp_buffer;
   svz_icmp_header_t hdr;
   unsigned len;
   int ret = 0;
@@ -630,7 +629,7 @@ svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
   hdr.ident = (uint16_t) (getpid () + sock->id);
   hdr.sequence = sock->send_seq;
   hdr.port = sock->remote_port;
-  memcpy (&buffer[len], svz_icmp_put_header (&hdr), ICMP_HEADER_SIZE);
+  memcpy (&buffer[len], pack_header (&hdr), ICMP_HEADER_SIZE);
   len += ICMP_HEADER_SIZE;
   memcpy (buffer, &len, sizeof (len));
 
@@ -649,7 +648,7 @@ svz_icmp_send_control (svz_socket_t *sock, uint8_t type)
 int
 svz_icmp_write (svz_socket_t *sock, char *buf, int length)
 {
-  static char *buffer = svz_icmp_buffer;
+  static char *buffer = icmp_buffer;
   svz_icmp_header_t hdr;
   unsigned len, size;
   int ret = 0;
@@ -679,7 +678,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
       hdr.ident = (uint16_t) (getpid () + sock->id);
       hdr.sequence = sock->send_seq++;
       hdr.port = sock->remote_port;
-      memcpy (&buffer[len], svz_icmp_put_header (&hdr), ICMP_HEADER_SIZE);
+      memcpy (&buffer[len], pack_header (&hdr), ICMP_HEADER_SIZE);
       len += ICMP_HEADER_SIZE;
 
       /* Copy the given buffer.  */
@@ -804,7 +803,7 @@ svz_icmp_connect (svz_address_t *host, in_port_t port, uint8_t type)
   sock->remote_addr = svz_address_copy (host);
   sock->remote_port = sock->id;
 
-  sock->read_socket = svz_icmp_read_socket;
+  sock->read_socket = read_socket;
   sock->write_socket = svz_icmp_write_socket;
   sock->check_request = svz_icmp_check_request;
 

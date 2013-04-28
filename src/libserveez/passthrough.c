@@ -94,7 +94,7 @@ extern char **environ;
  * application using the Serveez core API.  It must be setup via the macro
  * @code{svz_envblock_setup}.
  */
-static char **svz_environ = NULL;
+static char **environment = NULL;
 
 /**
  * Set up internal tables for environment block wrangling.
@@ -106,7 +106,7 @@ static char **svz_environ = NULL;
 void
 svz_envblock_setup (void)
 {
-  svz_environ = environ;
+  environment = environ;
 }
 
 /*
@@ -116,7 +116,7 @@ svz_envblock_setup (void)
  * otherwise.
  */
 static int
-svz_process_check_executable (char *file, char **app)
+check_executable (char *file, char **app)
 {
   struct stat buf;
 
@@ -178,7 +178,7 @@ svz_process_check_executable (char *file, char **app)
  * connection for shutdown if necessary and possible.
  */
 static int
-svz_process_disconnect_passthrough (svz_socket_t *sock)
+disconnect_passthrough (svz_socket_t *sock)
 {
   svz_socket_t *xsock;
 
@@ -210,7 +210,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
  * failed to determine a referrer.
  */
 static int
-svz_process_send_update (svz_socket_t *sock, int set)
+send_switch_buffers (svz_socket_t *sock, int set)
 {
   svz_socket_t *xsock;
 
@@ -239,12 +239,12 @@ svz_process_send_update (svz_socket_t *sock, int set)
  * passthrough connection.
  */
 static int
-svz_process_send_socket (svz_socket_t *sock)
+send_socket (svz_socket_t *sock)
 {
   int num_written, do_write;
 
   /* update send buffer depending on receive buffer of referrer */
-  if (svz_process_send_update (sock, 1))
+  if (send_switch_buffers (sock, 1))
     return -1;
 
   /* return here if there is nothing to do */
@@ -262,7 +262,7 @@ svz_process_send_socket (svz_socket_t *sock)
     {
       sock->last_send = time (NULL);
       svz_sock_reduce_send (sock, num_written);
-      svz_process_send_update (sock, 0);
+      send_switch_buffers (sock, 0);
     }
 
   return (num_written >= 0) ? 0 : -1;
@@ -275,7 +275,7 @@ svz_process_send_socket (svz_socket_t *sock)
  * to find a referring socket.
  */
 static int
-svz_process_recv_update (svz_socket_t *sock, int set)
+recv_switch_buffers (svz_socket_t *sock, int set)
 {
   svz_socket_t *xsock;
 
@@ -304,12 +304,12 @@ svz_process_recv_update (svz_socket_t *sock, int set)
  * original passthrough connection.
  */
 static int
-svz_process_recv_socket (svz_socket_t *sock)
+recv_socket (svz_socket_t *sock)
 {
   int num_read, do_read;
 
   /* update receive buffer depending on send buffer of referrer */
-  if (svz_process_recv_update (sock, 1))
+  if (recv_switch_buffers (sock, 1))
     return -1;
 
   /* return here if there is nothing to do */
@@ -328,7 +328,7 @@ svz_process_recv_socket (svz_socket_t *sock)
     {
       sock->last_recv = time (NULL);
       sock->recv_buffer_fill += num_read;
-      svz_process_recv_update (sock, 0);
+      recv_switch_buffers (sock, 0);
     }
   else
     svz_log (SVZ_LOG_ERROR, "passthrough: recv: no data on socket %d\n",
@@ -343,12 +343,12 @@ svz_process_recv_socket (svz_socket_t *sock)
  * buffer of the referring socket structure.  Returns non-zero on errors.
  */
 static int
-svz_process_send_pipe (svz_socket_t *sock)
+send_pipe (svz_socket_t *sock)
 {
   int num_written, do_write;
 
   /* update send buffer depending on receive buffer of referrer */
-  if (svz_process_send_update (sock, 1))
+  if (send_switch_buffers (sock, 1))
     return -1;
 
   /* return here if there is nothing to do */
@@ -376,7 +376,7 @@ svz_process_send_pipe (svz_socket_t *sock)
     {
       sock->last_send = time (NULL);
       svz_sock_reduce_send (sock, num_written);
-      svz_process_send_update (sock, 0);
+      send_switch_buffers (sock, 0);
     }
 
   return (num_written >= 0) ? 0 : -1;
@@ -389,12 +389,12 @@ svz_process_send_pipe (svz_socket_t *sock)
  * from.
  */
 static int
-svz_process_recv_pipe (svz_socket_t *sock)
+recv_pipe (svz_socket_t *sock)
 {
   int num_read, do_read;
 
   /* update receive buffer depending on send buffer of referrer */
-  if (svz_process_recv_update (sock, 1))
+  if (recv_switch_buffers (sock, 1))
     return -1;
 
   /* return here if there is nothing to do */
@@ -432,7 +432,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
     {
       sock->last_recv = time (NULL);
       sock->recv_buffer_fill += num_read;
-      svz_process_recv_update (sock, 0);
+      recv_switch_buffers (sock, 0);
     }
 
   return (num_read > 0) ? 0 : -1;
@@ -444,7 +444,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
  * socket structure which gets also scheduled for shutdown if possible.
  */
 static int
-svz_process_disconnect (svz_socket_t *sock)
+shut_down_referrer (svz_socket_t *sock)
 {
   svz_socket_t *xsock;
 
@@ -467,7 +467,7 @@ svz_process_disconnect (svz_socket_t *sock)
  * is the passthrough connection in order to schedule it for sending.
  */
 static int
-svz_process_check_request (svz_socket_t *sock)
+check_request (svz_socket_t *sock)
 {
   svz_socket_t *xsock;
 
@@ -529,7 +529,7 @@ svz_most_recent_dead_child_p (svz_t_handle pid)
  * once a second.
  */
 static int
-svz_process_idle (svz_socket_t *sock)
+mind_children (svz_socket_t *sock)
 {
 #ifndef __MINGW32__
 
@@ -555,8 +555,8 @@ svz_process_idle (svz_socket_t *sock)
   return 0;
 }
 
-/* A forward declaration for the benefit of ‘svz_process_shuffle’.  */
-static int svz_process_create_child (svz_process_t *proc);
+/* A forward declaration for the benefit of ‘shuffle’.  */
+static int create_child (svz_process_t *proc);
 
 /*
  * Creates two pairs of pipes in order to passthrough the transactions of
@@ -567,7 +567,7 @@ static int svz_process_create_child (svz_process_t *proc);
  * new child's process id otherwise.
  */
 static int
-svz_process_shuffle (svz_process_t *proc)
+shuffle (svz_process_t *proc)
 {
   svz_t_socket pair[2];
   svz_t_handle process_to_serveez[2] = { 0 };
@@ -605,16 +605,16 @@ svz_process_shuffle (svz_process_t *proc)
 
   /* prepare everything for the pipe handling */
   xsock->cfg = proc->sock->cfg;
-  xsock->disconnected_socket = svz_process_disconnect_passthrough;
+  xsock->disconnected_socket = disconnect_passthrough;
   if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
     {
-      xsock->write_socket = svz_process_send_socket;
-      xsock->read_socket = svz_process_recv_socket;
+      xsock->write_socket = send_socket;
+      xsock->read_socket = recv_socket;
     }
   else
     {
-      xsock->write_socket = svz_process_send_pipe;
-      xsock->read_socket = svz_process_recv_pipe;
+      xsock->write_socket = send_pipe;
+      xsock->read_socket = recv_pipe;
     }
 
   /* release receive and send buffers of the new socket structure */
@@ -628,8 +628,8 @@ svz_process_shuffle (svz_process_t *proc)
   svz_sock_setreferrer (xsock, proc->sock);
 
   /* setup original socket structure */
-  proc->sock->disconnected_socket = svz_process_disconnect;
-  proc->sock->check_request = svz_process_check_request;
+  proc->sock->disconnected_socket = shut_down_referrer;
+  proc->sock->check_request = check_request;
 
   /* enqueue the new passthrough pipe socket */
   if (svz_sock_enqueue (xsock) < 0)
@@ -647,7 +647,7 @@ svz_process_shuffle (svz_process_t *proc)
 #ifndef __MINGW32__
   if ((pid = fork ()) == 0)
     {
-      svz_process_create_child (proc);
+      create_child (proc);
       exit (EXIT_SUCCESS);
     }
   else if (pid == -1)
@@ -656,7 +656,7 @@ svz_process_shuffle (svz_process_t *proc)
       return -1;
     }
 #else /* __MINGW32__ */
-  pid = svz_process_create_child (proc);
+  pid = create_child (proc);
   if (proc->envp)
     svz_envblock_destroy (proc->envp);
 #endif /*  __MINGW32__ */
@@ -668,7 +668,7 @@ svz_process_shuffle (svz_process_t *proc)
 
   /* setup child checking callback */
   xsock->pid = (svz_t_handle) pid;
-  xsock->idle_func = svz_process_idle;
+  xsock->idle_func = mind_children;
   xsock->idle_counter = 1;
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
@@ -686,18 +686,18 @@ svz_process_shuffle (svz_process_t *proc)
  * process id on success.
  */
 static int
-svz_process_fork (svz_process_t *proc)
+via_fork (svz_process_t *proc)
 {
   int pid;
 
 #ifdef __MINGW32__
-  pid = svz_process_create_child (proc);
+  pid = create_child (proc);
   if (proc->envp)
     svz_envblock_destroy (proc->envp);
 #else /* __MINGW32__ */
   if ((pid = fork ()) == 0)
     {
-      svz_process_create_child (proc);
+      create_child (proc);
       exit (EXIT_SUCCESS);
     }
   else if (pid == -1)
@@ -767,7 +767,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
     }
 
   /* Check executable.  */
-  if (svz_process_check_executable (bin, &proc.app) < 0)
+  if (check_executable (bin, &proc.app) < 0)
     return -1;
 
   /* Fill in rest of process structure.  */
@@ -792,11 +792,11 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
   switch (proc.flag)
     {
     case SVZ_PROCESS_FORK:
-      ret = svz_process_fork (&proc);
+      ret = via_fork (&proc);
       break;
     case SVZ_PROCESS_SHUFFLE_SOCK:
     case SVZ_PROCESS_SHUFFLE_PIPE:
-      ret = svz_process_shuffle (&proc);
+      ret = shuffle (&proc);
       break;
     }
 
@@ -811,7 +811,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
  * argument specifies if it is a socket or pipe handle.
  */
 static svz_t_handle
-svz_process_duplicate (svz_t_handle handle, int proto)
+duplicate_handle (svz_t_handle handle, int proto)
 {
   svz_t_handle duphandle;
   svz_t_socket dupsock;
@@ -859,7 +859,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
  * given arguments have been invalid.
  */
 static int
-svz_process_split_usergroup (char *str, char **user, char **group)
+split_usergroup (char *str, char **user, char **group)
 {
   static char copy[128], *p;
 
@@ -889,7 +889,7 @@ svz_process_split_usergroup (char *str, char **user, char **group)
  * on success, non-zero otherwise.
  */
 static int
-svz_process_check_access (char *file, char *user)
+check_access (char *file, char *user)
 {
   struct stat buf;
 
@@ -922,7 +922,7 @@ svz_process_check_access (char *file, char *user)
       struct passwd *u = NULL;
       struct group *g = NULL;
 
-      svz_process_split_usergroup (user, &_user, &_group);
+      split_usergroup (user, &_user, &_group);
 
       /* Group name specified?  */
       if (_group != NULL)
@@ -976,7 +976,7 @@ svz_process_check_access (char *file, char *user)
  * returns -1 on failure, otherwise the new child program's process id.
  */
 static int
-svz_process_create_child (svz_process_t *proc)
+create_child (svz_process_t *proc)
 {
 #ifndef __MINGW32__
   /* Change directory, make descriptors blocking, setup environment,
@@ -998,7 +998,7 @@ svz_process_create_child (svz_process_t *proc)
       return -1;
     }
 
-  if (svz_process_check_access (proc->bin, proc->user) < 0)
+  if (check_access (proc->bin, proc->user) < 0)
     return -1;
 
   /* Check the environment and create a default one if necessary.  */
@@ -1046,14 +1046,14 @@ svz_process_create_child (svz_process_t *proc)
       if (proc->in != proc->out)
         {
           /* Create an inheritable receive pipe and replace it.  */
-          fd = svz_process_duplicate (proc->in, proc->sock->proto);
+          fd = duplicate_handle (proc->in, proc->sock->proto);
           if (svz_invalid_handle_p (fd))
             return -1;
           svz_closehandle (proc->sock->pipe_desc[SVZ_READ]);
           proc->in = proc->sock->pipe_desc[SVZ_READ] = fd;
 
           /* Create an inheritable send pipe and replace it.  */
-          fd = svz_process_duplicate (proc->out, proc->sock->proto);
+          fd = duplicate_handle (proc->out, proc->sock->proto);
           if (svz_invalid_handle_p (fd))
             return -1;
           svz_closehandle (proc->sock->pipe_desc[SVZ_WRITE]);
@@ -1062,7 +1062,7 @@ svz_process_create_child (svz_process_t *proc)
       else
         {
           /* Create an inheritable socket and replace it.  */
-          fd = svz_process_duplicate (proc->in, proc->sock->proto);
+          fd = duplicate_handle (proc->in, proc->sock->proto);
           if (svz_invalid_handle_p (fd))
             return -1;
           proc->in = proc->out = fd;
@@ -1087,7 +1087,7 @@ svz_process_create_child (svz_process_t *proc)
     }
 
   /* Check the access to the file.  */
-  if (svz_process_check_access (proc->bin, proc->user) < 0)
+  if (check_access (proc->bin, proc->user) < 0)
     {
       chdir (savedir);
       svz_free (savedir);
@@ -1184,7 +1184,7 @@ svz_envblock_create (void)
  * by @code{svz_envblock_create} afterwards.
  */
 static int
-svz_envblock_free (svz_envblock_t *env)
+envblock_free (svz_envblock_t *env)
 {
   int n;
 
@@ -1210,14 +1210,14 @@ svz_envblock_default (svz_envblock_t *env)
   if (env == NULL)
     return -1;
   if (env->size)
-    svz_envblock_free (env);
+    envblock_free (env);
 
-  for (n = 0; svz_environ != NULL && svz_environ[n] != NULL; n++)
+  for (n = 0; environment != NULL && environment[n] != NULL; n++)
     {
       env->size++;
       env->entry = svz_realloc (env->entry,
                                 sizeof (char *) * (env->size + 1));
-      env->entry[env->size - 1] = svz_strdup (svz_environ[n]);
+      env->entry[env->size - 1] = svz_strdup (environment[n]);
     }
 
   env->entry[env->size] = NULL;
@@ -1266,7 +1266,7 @@ svz_envblock_add (svz_envblock_t *env, char *format, ...)
  * routine is the comparison routine for the @code{qsort} call.
  */
 static int
-svz_envblock_sort (const void *data1, const void *data2)
+envblock_sort (const void *data1, const void *data2)
 {
   char *entry1 = * (char **) data1;
   char *entry2 = * (char **) data2;
@@ -1302,7 +1302,7 @@ svz_envblock_get (svz_envblock_t *env)
   svz_free (dir);
 
 #ifdef __MINGW32__
-  qsort ((void *) env->entry, env->size, sizeof (char *), svz_envblock_sort);
+  qsort ((void *) env->entry, env->size, sizeof (char *), envblock_sort);
   for (size = 1, n = 0; n < env->size; n++)
     {
       len = strlen (env->entry[n]) + 1;
@@ -1327,6 +1327,6 @@ svz_envblock_get (svz_envblock_t *env)
 void
 svz_envblock_destroy (svz_envblock_t *env)
 {
-  svz_envblock_free (env);
+  envblock_free (env);
   svz_free (env);
 }
