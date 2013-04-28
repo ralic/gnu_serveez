@@ -685,7 +685,7 @@ svz_interface_free (void)
 void
 svz_interface_check (void)
 {
-  svz_array_t *interfaces = NULL;
+  svz_array_t *was = NULL;
   svz_interface_t *ofc, *ifc;
   size_t n, o;
   int found, changes = 0;
@@ -694,12 +694,12 @@ svz_interface_check (void)
   if (svz_interfaces)
     {
       /* Save old interface list.  */
-      interfaces = svz_interfaces;
+      was = svz_interfaces;
       svz_interfaces = NULL;
       svz_interface_collect ();
 
       /* Look for removed network interfaces.  */
-      svz_array_foreach (interfaces, ifc, n)
+      svz_array_foreach (was, ifc, n)
         {
           if (svz_interface_get (ifc->addr) == NULL)
             {
@@ -725,7 +725,7 @@ svz_interface_check (void)
       svz_array_foreach (svz_interfaces, ifc, n)
         {
           found = 0;
-          svz_array_foreach (interfaces, ofc, o)
+          svz_array_foreach (was, ofc, o)
             {
               if (svz_address_same (ofc->addr, ifc->addr))
                 found++;
@@ -739,7 +739,7 @@ svz_interface_check (void)
         }
 
       /* Destroy old interface list and apply new interface list.  */
-      svz_array_destroy (interfaces);
+      svz_array_destroy (was);
     }
 
   /* Print a notification message if no changes occurred.  */
