@@ -1,3 +1,13 @@
+2013-04-28  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[maint] Add GNUmakefile for maintainer convenience.
+
+	This replaces "make chk" with "make CHECK" and adds
+	"make ALL" and "make AC" support.
+
+	* GNUmakefile: New file.
+	* Makefile.am (chk): Delete target.
+
 2013-03-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.1
