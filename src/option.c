@@ -143,6 +143,15 @@ longname (char letter)
 #define LONGOPTS  0
 #endif  /* !deifned HAVE_GETOPT_LONG */
 
+#define AB(blurb,uri)    blurb ": <" uri ">\n"
+#define GNU(blurb,rest)  AB (blurb, "http://www.gnu.org/" rest)
+
+#define BUGME                                           \
+  ("\n"                                                 \
+   AB ("Report bugs to", PACKAGE_BUGREPORT)             \
+   GNU ("Serveez home page", "software/serveez/")       \
+   GNU ("General help using GNU software", "gethelp/"))
+
 /*
  * Display program command line options.
  * Then @code{exit} with @var{exitval}.
@@ -206,7 +215,7 @@ usage (int exitval)
         }
       printf ("%*s%s\n", width - one, "", h->description);
     }
-  fprintf (stdout, "\nReport bugs to <" PACKAGE_BUGREPORT ">.\n");
+  fprintf (stdout, "%s", BUGME);
 
   exit (exitval);
 }

@@ -1,3 +1,11 @@
+2013-08-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Add homepage / "gethelp" to ‘--help’ output.
+
+	* option.c (AB, GNU): New macros.
+	(BUGME): New #define.
+	(usage): Use ‘BUGME’.
+
 2013-04-25  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme] Remove proc: svz:sock:data
