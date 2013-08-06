@@ -119,7 +119,15 @@ getopt (int argc, char * const argv[], const char *optstring)
 static void
 version (void)
 {
-  fprintf (stdout, "serveez (%s) %s\n",
+  fprintf (stdout, "serveez (%s) %s\n"
+           "Copyright (C) 2011-2013 Thien-Thi Nguyen\n"
+           "Copyright (C) 2000-2009 Martin Grabmueller,"
+           " Stefan Jahn, Raimund Jacob, Andreas Rottmann\n"
+           "License GPLv3+: GNU GPL version 3 or later"
+           " <http://gnu.org/licenses/gpl.html>\n"
+           "This is free software: you are free"
+           " to change and redistribute it.\n"
+           "There is NO WARRANTY, to the extent permitted by law.\n",
            PACKAGE_NAME, PACKAGE_VERSION);
 }
 

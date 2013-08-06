@@ -1,5 +1,11 @@
 2013-08-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	Add copyright notice / license info to ‘--version’ output.
+
+	* option.c (version): ...here.
+
+2013-08-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	Add homepage / "gethelp" to ‘--help’ output.
 
 	* option.c (AB, GNU): New macros.
