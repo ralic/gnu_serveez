@@ -34,6 +34,15 @@
 #include "option.h"
 #include "unused.h"
 
+#define PROGRAM_VERSION  "1.3"
+/* History (reconstructed, roughly --ttn)
+   ----    -------------------------------------------------------
+   1.3  -- new option: --solitary
+   1.2  -- new option: --daemon
+   1.1  -- drop option: --port PORT
+   1.0  -- initial revision
+*/
+
 #ifndef HAVE_GETOPT
 /*
  * Lousy implementation of @code{getopt}.
@@ -128,7 +137,7 @@ version (void)
            "This is free software: you are free"
            " to change and redistribute it.\n"
            "There is NO WARRANTY, to the extent permitted by law.\n",
-           PACKAGE_NAME, PACKAGE_VERSION);
+           PACKAGE_STRING, PROGRAM_VERSION);
 }
 
 #ifdef HAVE_GETOPT_LONG

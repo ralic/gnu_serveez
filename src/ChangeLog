@@ -1,5 +1,12 @@
 2013-08-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	Assign version "1.3" to serveez(1).
+
+	* option.c (PROGRAM_VERSION): New #define.
+	(version): Use ‘PACKAGE_STRING’, ‘PROGRAM_VERSION’.
+
+2013-08-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	Add copyright notice / license info to ‘--version’ output.
 
 	* option.c (version): ...here.
