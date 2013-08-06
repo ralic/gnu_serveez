@@ -241,6 +241,9 @@ See the end for copying conditions.
 *** [[http://www.gnuvola.org/software/guile-baux/][Guile-BAUX]]
 
 * coding standards
+*** versioning
+***** libserveez -- (info "(libtool) Libtool versioning")
+***** serveez(1) -- MAJOR.MINOR -- bump MAJOR on backward incompat
 *** no trailing whitespace, no leading tabs
     ;; one time: (untabify (point-min) (point-max))
     (add-hook 'before-save-hook 'delete-trailing-whitespace)
