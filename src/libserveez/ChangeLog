@@ -1,3 +1,10 @@
+2013-09-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[C int] Consolidate two ‘if’ CONDITIONs w/ identical BODY.
+
+	* coserver/coserver.c (send_request): ...here, in
+	initial "find least busy" server; also, elide useless local var.
+
 2013-04-28  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib int] Rename static vars/funcs.

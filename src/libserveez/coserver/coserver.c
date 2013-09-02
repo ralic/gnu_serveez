@@ -102,7 +102,6 @@ send_request (int type, const char *request,
               void *closure)
 {
   size_t n;
-  int busy;
   svz_coserver_t *coserver, *current;
   svz_coserver_callback_t *cb;
 
@@ -115,16 +114,9 @@ send_request (int type, const char *request,
     {
       if (current->type == type)
         {
-          if (coserver == NULL)
-            {
-              coserver = current;
-              busy = coserver->busy;
-            }
-          else if (current->busy <= coserver->busy)
-            {
-              coserver = current;
-              busy = coserver->busy;
-            }
+          if (coserver == NULL
+              || current->busy <= coserver->busy)
+            coserver = current;
         }
     }
 
