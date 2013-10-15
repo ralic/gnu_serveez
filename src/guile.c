@@ -1069,7 +1069,7 @@ in case of any error.  */)
      [rotty] */
   int err = 0;
   char servername[64], *servertype = NULL, *p = NULL;
-  SCM retval = SCM_BOOL_F;
+  SCM retval;
 
   GUILE_PRECALL ();
 
@@ -1101,7 +1101,7 @@ in case of any error.  */)
  out:
   svz_free (servertype);
 
-  return retval;
+  return err ? SCM_BOOL_F : retval;
 #undef FUNC_NAME
 }
 
