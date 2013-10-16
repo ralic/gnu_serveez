@@ -36,6 +36,8 @@
  * Numeric Replies: ERR_NONICKNAMEGIVEN ERR_WASNOSUCHNICK
  *                  RPL_WHOWASUSER      RPL_WHOISSERVER
  *                  RPL_ENDOFWHOWAS
+ *
+ * [NB: <server> handling not implemented. --ttn]
  */
 int
 irc_whowas_callback (svz_socket_t *sock,
@@ -43,7 +45,7 @@ irc_whowas_callback (svz_socket_t *sock,
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_history_t *cl;
-  char *nick, *server;
+  char *nick;
   int n, i, found;
 
   /* check if there is a nick given */
@@ -55,12 +57,6 @@ irc_whowas_callback (svz_socket_t *sock,
 
   nick = request->para[0];
   n = atoi (request->para[1]);
-
-  /* is there a server para given?  */
-  if (request->paras > 2)
-    {
-      server = request->para[2];
-    }
 
   /* look through the history list */
   cl = NULL;
@@ -196,7 +192,7 @@ irc_whois_callback (svz_socket_t *sock,
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t **cl, *rclient;
-  char *nick, *chan;
+  char *nick;
   int n;
 
   /* enough paras?  */
@@ -211,7 +207,6 @@ irc_whois_callback (svz_socket_t *sock,
   for (n = 0; n < request->targets; n++)
     {
       nick = request->target[n].nick;
-      chan = request->target[n].channel;
 
       /* nick Mask?  */
       if (strstr (nick, "*") || strstr (nick, "?"))

@@ -1,3 +1,13 @@
+2013-10-16  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[C int] Decruft: Drop "set but not used" local vars.
+
+	* irc-server/irc-event-5.c (irc_whowas_callback):
+	Delete local var ‘server’ and the code that sets it.
+	(irc_whois_callback): Likewise for ‘chan’.
+	* nut-server/nut-request.c
+	(nut_reply, nut_pong): Likewise for ‘xsock’.
+
 2013-10-15  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[int] Use local variable ‘err’.

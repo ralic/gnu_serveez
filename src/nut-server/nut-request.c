@@ -46,7 +46,6 @@ int
 nut_reply (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
-  svz_socket_t *xsock;
   nut_packet_t *pkt;
   nut_record_t *record;
   nut_client_t *client = sock->data;
@@ -73,7 +72,6 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
   /* is that query hit (reply) an answer to my own request?  */
   if (pkt != NULL)
     {
-      xsock = pkt->sock;
       p = (char *) packet + SIZEOF_NUT_REPLY;
       end = (char *) packet + hdr->length - NUT_GUID_SIZE;
       memcpy (reply->id, id, NUT_GUID_SIZE);
@@ -339,7 +337,6 @@ int
 nut_pong (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
-  svz_socket_t *xsock;
   nut_packet_t *pkt;
   nut_pong_t *reply;
   nut_client_t *client = sock->data;
@@ -352,7 +349,6 @@ nut_pong (svz_socket_t *sock, nut_header_t *hdr, uint8_t *packet)
   /* is this a reply to my own gnutella packet?  */
   if (pkt != NULL)
     {
-      xsock = pkt->sock;
 #if 0
       printf ("port    : %u\n", ntohs (reply->port));
       printf ("ip      : %s\n", svz_inet_ntoa (reply->ip));
