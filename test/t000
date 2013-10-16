@@ -18,7 +18,7 @@
 (define (sysok? command)
   (zero? (system (string-append "./btdt " command))))
 
-(exit (and-map sysok? '("array 5 10000"
+(exit (and-map sysok? '("array 10000"
                         "hash 10000")))
 
 ;;; Local variables:

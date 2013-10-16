@@ -1,3 +1,12 @@
+2013-10-16  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[v] Drop "set but not used" local var.
+
+	Omission from 2011-04-07, "[lib] Drop func: svz_array_ins".
+
+	* btdt.c (array_main): No longer expect/take arg GAP.
+	* t000: Don't specify GAP in ‘btdt array’ invocation.
+
 2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[v] Add test for disappearing obj prop on socket; mark xfail.

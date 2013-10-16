@@ -162,7 +162,7 @@ array_popcount (svz_array_t *array, void *value)
 int
 array_main (int argc, char **argv)
 {
-  size_t gap, repeat;
+  size_t repeat;
   int result = 0;
   svz_array_t *array;
   size_t n;
@@ -170,9 +170,8 @@ array_main (int argc, char **argv)
   void *value;
   size_t cur[2];
 
-  check_nargs (argc, 2, "GAP REPEAT (both integers)");
-  gap = atoi (argv[1]);
-  repeat = atoi (argv[2]);
+  check_nargs (argc, 1, "REPEAT (integer)");
+  repeat = atoi (argv[1]);
 
   test_init ();
   test_print ("array function test suite\n");
