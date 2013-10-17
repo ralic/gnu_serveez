@@ -223,7 +223,7 @@ See end for copying conditions.
       Previous releases built and installed the shared object library
       in a manner that ensured each such library was incompatible with
       those from any other release.  Now, we maintain a Libtool-style
-      version triple to better indicate and track (in)compatability.
+      version triple to better indicate and track (in)compatibility.
       Please see (info "(libtool) Versioning") for details.
 
       The triple, now "1:0:0", will be mentioned in NEWS henceforth.
