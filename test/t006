@@ -18,8 +18,8 @@
 
 ;;; Code:
 
-(primitive-load "but-of-course")
-(load (in-vicinity (getenv "srcdir") "common"))
+(primitive-load-path "but-of-course")
+(primitive-load-path "common")
 (set! TESTBASE "t006")
 
 (push-dot-on-load-path!)

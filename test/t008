@@ -21,8 +21,8 @@
  (ice-9 rdelim)
  (srfi srfi-13))
 
-(primitive-load "but-of-course")
-(load (in-vicinity (getenv "srcdir") "common"))
+(primitive-load-path "but-of-course")
+(primitive-load-path "common")
 (set! TESTBASE "t008")
 
 (push-dot-on-load-path!)

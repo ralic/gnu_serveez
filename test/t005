@@ -18,7 +18,7 @@
 
 ;;; Code:
 
-(load (in-vicinity (getenv "srcdir") "common"))
+(primitive-load-path "common")
 (set! TESTBASE "t005")
 
 (write-config!

@@ -18,11 +18,11 @@
 ;;; Code:
 
 ;; Skip this test if the HTTP server is not enabled.
-(primitive-load "but-of-course")
+(primitive-load-path "but-of-course")
 (or (boc? 'ENABLE_HTTP_PROTO)
     (exit 77))
 
-(load (in-vicinity (getenv "srcdir") "common"))
+(primitive-load-path "common")
 (set! TESTBASE "t004")
 
 (define SCRIPT-NAME (string-append TESTBASE ".cgi"))

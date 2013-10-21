@@ -18,13 +18,13 @@
 ;;; Code:
 
 ;; Skip this test if the SNTP server is not enabled.
-(primitive-load "but-of-course")
+(primitive-load-path "but-of-course")
 (or (boc? 'ENABLE_SNTP_PROTO)
     (exit 77))
 (define EXPECT-8? (and-map boc? '(HAVE_DECL_GETTIMEOFDAY
                                   HAVE_SYS_TIME_H)))
 
-(load (in-vicinity (getenv "srcdir") "common"))
+(primitive-load-path "common")
 (set! TESTBASE "t002")
 
 (define UNIX-EPOCH-OFFSET 2208988800)   ; per RFC 868
