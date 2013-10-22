@@ -1,5 +1,12 @@
 2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstraction: servertype_smob
+
+	* guile-server.c (servertype_smob): New static func.
+	(guile_func_global_init, guile_func_global_finalize): Use it.
+
+2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: socket_smob
 
 	* guile-server.c (socket_smob): New static func.

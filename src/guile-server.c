@@ -124,6 +124,12 @@ socket_smob (svz_socket_t *orig)
   return MAKE_SMOB (socket, orig);
 }
 
+static SCM
+servertype_smob (svz_servertype_t *orig)
+{
+  return MAKE_SMOB (servertype, orig);
+}
+
 /* This macro creates a the body of socket callback getter/setter for
    use from Scheme code.  The procedure returns any previously set
    callback or an undefined value.  */
@@ -452,7 +458,7 @@ guile_func_global_init (svz_servertype_t *stype)
 
   if (!SCM_UNBNDP (global_init))
     {
-      ret = guile_call (global_init, 1, MAKE_SMOB (servertype, stype));
+      ret = guile_call (global_init, 1, servertype_smob (stype));
       return integer_else (ret, -1);
     }
   return 0;
@@ -615,7 +621,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
 
   if (!SCM_UNBNDP (global_finalize))
     {
-      ret = guile_call (global_finalize, 1, MAKE_SMOB (servertype, stype));
+      ret = guile_call (global_finalize, 1, servertype_smob (stype));
       return integer_else (ret, -1);
     }
   return 0;
