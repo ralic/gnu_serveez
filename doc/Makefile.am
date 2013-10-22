@@ -35,13 +35,10 @@ if COURAGEOUS
 man_MANS += serveez-config.1
 endif COURAGEOUS
 
-EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
+EXTRA_DIST = $(man_MANS) \
 	logo.jpg logosmall.jpg mandel.jpg
 CLEANFILES += stamp-vti*
 DISTCLEANFILES = stamp-*
-
-MANUAL_FILES = \
-  $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 
 MAINTAINERCLEANFILES += $(gen)
 EXTRA_DIST += $(gen) $(gen:%.texi=%.texh)
@@ -87,22 +84,3 @@ $(gen) : snippets
 .texh.texi:
 	$(gx) tsin -f snippets -c utf-8 $<
 endif
-
-genhtml = serveez.html
-
-sednow = $(SED) "s/LAST-MODIFIED/$$(date -u +'%Y-%m-%d %T UTC')/"
-
-stage: $(genhtml)
-	rm -rf $@
-	m=$@/manual; $(MKDIR_P) $$m;				\
-	for d in $(genhtml);					\
-	do cp -rp $$d $$m/$$(basename $$d .html); done;		\
-	cp -p logosmall.jpg mandel.jpg $(MANUAL_FILES) $$m;	\
-	$(SED) -e '/^>BLURB</{'					\
-	       -e ' s/.*//'					\
-	       -e ' r blurb.texi'				\
-	       -e '}'						\
-	  $(top_srcdir)/README | $(SED) '/^@c/d' > $$m/README;	\
-	$(sednow) index.html > $$m/index.html;			\
-	cp -p logo.jpg $@;					\
-	$(sednow) serveez.en.html > $@/serveez.en.html

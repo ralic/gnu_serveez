@@ -1,3 +1,15 @@
+2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[maint] Decruft: Remove "make stage" support.
+
+	The web pages are now maintained elsewhere.
+
+	* index.html: Delete file.
+	* serveez.en.html: Likewise.
+	* Makefile.am (EXTRA_DIST): Remove index.html, serveez.en.html.
+	(MANUAL_FILES, genhtml, sednow): Delete vars.
+	(stage): Delete target.
+
 2013-04-25  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme] Remove proc: svz:sock:data
