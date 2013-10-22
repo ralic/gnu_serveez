@@ -535,7 +535,7 @@ returned socket object part of a server.  */)
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xserver = svz_server_find (xsock->cfg)) != NULL)
-    oserver = MAKE_SMOB (server, xserver);
+    oserver = server_smob (xserver);
   if (!SCM_UNBNDP (server))
     {
       CHECK_SMOB_ARG (server, server, SCM_ARG2, "svz-server", xserver);

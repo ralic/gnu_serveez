@@ -125,6 +125,12 @@ socket_smob (svz_socket_t *orig)
 }
 
 static SCM
+server_smob (svz_server_t *orig)
+{
+  return MAKE_SMOB (server, orig);
+}
+
+static SCM
 servertype_smob (svz_servertype_t *orig)
 {
   return MAKE_SMOB (servertype, orig);
@@ -477,7 +483,7 @@ guile_func_init (svz_server_t *server)
 
   if (!SCM_UNBNDP (init))
     {
-      ret = guile_call (init, 1, MAKE_SMOB (server, server));
+      ret = guile_call (init, 1, server_smob (server));
       return integer_else (ret, -1);
     }
   return 0;
@@ -495,7 +501,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
 
   if (!SCM_UNBNDP (detect_proto))
     {
-      ret = guile_call (detect_proto, 2, MAKE_SMOB (server, server),
+      ret = guile_call (detect_proto, 2, server_smob (server),
                         socket_smob (sock));
       return integer_else (ret, 0);
     }
@@ -576,7 +582,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
 
   if (!SCM_UNBNDP (connect_socket))
     {
-      ret = guile_call (connect_socket, 2, MAKE_SMOB (server, server),
+      ret = guile_call (connect_socket, 2, server_smob (server),
                         socket_smob (sock));
       return integer_else (ret, 0);
     }
@@ -596,7 +602,7 @@ guile_func_finalize (svz_server_t *server)
 
   if (!SCM_UNBNDP (finalize))
     {
-      ret = guile_call (finalize, 1, MAKE_SMOB (server, server));
+      ret = guile_call (finalize, 1, server_smob (server));
       retval = integer_else (ret, -1);
     }
 
@@ -644,7 +650,7 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 
   if (!SCM_UNBNDP (info_client))
     {
-      ret = guile_call (info_client, 2, MAKE_SMOB (server, server),
+      ret = guile_call (info_client, 2, server_smob (server),
                         socket_smob (sock));
       if (GI_GET_XREP_MAYBE (text, ret))
         return text;
@@ -665,7 +671,7 @@ guile_func_info_server (svz_server_t *server)
 
   if (!SCM_UNBNDP (info_server))
     {
-      ret = guile_call (info_server, 1, MAKE_SMOB (server, server));
+      ret = guile_call (info_server, 1, server_smob (server));
       if (GI_GET_XREP_MAYBE (text, ret))
         return text;
     }
@@ -683,7 +689,7 @@ guile_func_notify (svz_server_t *server)
 
   if (!SCM_UNBNDP (notify))
     {
-      ret = guile_call (notify, 1, MAKE_SMOB (server, server));
+      ret = guile_call (notify, 1, server_smob (server));
       return integer_else (ret, -1);
     }
   return -1;
@@ -700,7 +706,7 @@ guile_func_reset (svz_server_t *server)
 
   if (!SCM_UNBNDP (reset))
     {
-      ret = guile_call (reset, 1, MAKE_SMOB (server, server));
+      ret = guile_call (reset, 1, server_smob (server));
       return integer_else (ret, -1);
     }
   return -1;
