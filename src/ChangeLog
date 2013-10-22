@@ -1,3 +1,11 @@
+2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile] Drop some Guile 1.3.4 compatibility macros.
+
+	* guile-api.h (SCM_ASSERT_TYPE, scm_wrong_type_arg_msg)
+	(scm_out_of_range_pos): Delete macros, and surrounding
+	‘#ifndef SCM_ASSERT_TYPE’..‘#endif’.
+
 2013-10-16  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[C int] Decruft: Drop "set but not used" local vars.

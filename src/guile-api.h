@@ -21,16 +21,6 @@
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
 
-/* Some definitions for backward compatibility with Guile 1.3.4.  */
-#ifndef SCM_ASSERT_TYPE
-#define SCM_ASSERT_TYPE(_cond, _arg, _pos, _subr, _msg) \
-    SCM_ASSERT (_cond, _arg, _pos, _subr)
-#define scm_wrong_type_arg_msg(_subr, _pos, _bad, _msg) \
-    scm_wrong_type_arg (_subr, _pos, _bad)
-#define scm_out_of_range_pos(_subr, _bad, _pos) \
-    scm_out_of_range (_subr, _bad)
-#endif /* not SCM_ASSERT_TYPE */
-
 /* Compatibility definitions for various Guile versions.  These definitions
    are mainly due to the fact that the gh interface is deprecated in newer
    versions.  */
