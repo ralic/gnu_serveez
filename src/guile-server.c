@@ -118,6 +118,12 @@ MAKE_SMOB_DEFINITION (socket)
 MAKE_SMOB_DEFINITION (server)
 MAKE_SMOB_DEFINITION (servertype)
 
+static SCM
+socket_smob (svz_socket_t *orig)
+{
+  return MAKE_SMOB (socket, orig);
+}
+
 /* This macro creates a the body of socket callback getter/setter for
    use from Scheme code.  The procedure returns any previously set
    callback or an undefined value.  */
@@ -484,7 +490,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
   if (!SCM_UNBNDP (detect_proto))
     {
       ret = guile_call (detect_proto, 2, MAKE_SMOB (server, server),
-                        MAKE_SMOB (socket, sock));
+                        socket_smob (sock));
       return integer_else (ret, 0);
     }
   return 0;
@@ -514,7 +520,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   /* First call the guile callback if necessary.  */
   if (!SCM_UNBNDP (disconnected))
     {
-      ret = guile_call (disconnected, 1, MAKE_SMOB (socket, sock));
+      ret = guile_call (disconnected, 1, socket_smob (sock));
       retval = integer_else (ret, -1);
     }
 
@@ -542,7 +548,7 @@ guile_func_kicked_socket (svz_socket_t *sock, int reason)
 
   if (!SCM_UNBNDP (kicked))
     {
-      ret = guile_call (kicked, 2, MAKE_SMOB (socket, sock),
+      ret = guile_call (kicked, 2, socket_smob (sock),
                         gi_integer2scm (reason));
       return integer_else (ret, -1);
     }
@@ -565,7 +571,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
   if (!SCM_UNBNDP (connect_socket))
     {
       ret = guile_call (connect_socket, 2, MAKE_SMOB (server, server),
-                        MAKE_SMOB (socket, sock));
+                        socket_smob (sock));
       return integer_else (ret, 0);
     }
   return 0;
@@ -633,7 +639,7 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
   if (!SCM_UNBNDP (info_client))
     {
       ret = guile_call (info_client, 2, MAKE_SMOB (server, server),
-                        MAKE_SMOB (socket, sock));
+                        socket_smob (sock));
       if (GI_GET_XREP_MAYBE (text, ret))
         return text;
     }
@@ -705,7 +711,7 @@ guile_func_check_request (svz_socket_t *sock)
 
   if (!SCM_UNBNDP (check_request))
     {
-      ret = guile_call (check_request, 1, MAKE_SMOB (socket, sock));
+      ret = guile_call (check_request, 1, socket_smob (sock));
       return integer_else (ret, -1);
     }
   return -1;
@@ -732,7 +738,7 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 
   if (!SCM_UNBNDP (handle_request))
     {
-      ret = guile_call (handle_request, 3, MAKE_SMOB (socket, sock),
+      ret = guile_call (handle_request, 3, socket_smob (sock),
                         guile_data_to_bin (request, len), gi_integer2scm (len));
       return integer_else (ret, -1);
     }
@@ -749,7 +755,7 @@ guile_func_idle_func (svz_socket_t *sock)
 
   if (!SCM_UNBNDP (idle_func))
     {
-      ret = guile_call (idle_func, 1, MAKE_SMOB (socket, sock));
+      ret = guile_call (idle_func, 1, socket_smob (sock));
       return integer_else (ret, -1);
     }
   return 0;
@@ -765,7 +771,7 @@ guile_func_trigger_cond (svz_socket_t *sock)
 
   if (!SCM_UNBNDP (trigger_cond))
     {
-      ret = guile_call (trigger_cond, 1, MAKE_SMOB (socket, sock));
+      ret = guile_call (trigger_cond, 1, socket_smob (sock));
       return gi_nfalsep (ret);
     }
   return 0;
@@ -781,7 +787,7 @@ guile_func_trigger_func (svz_socket_t *sock)
 
   if (!SCM_UNBNDP (trigger_func))
     {
-      ret = guile_call (trigger_func, 1, MAKE_SMOB (socket, sock));
+      ret = guile_call (trigger_func, 1, socket_smob (sock));
       return integer_else (ret, -1);
     }
   return 0;
@@ -798,7 +804,7 @@ guile_func_check_request_oob (svz_socket_t *sock)
 
   if (!SCM_UNBNDP (check_request_oob))
     {
-      ret = guile_call (check_request_oob, 2, MAKE_SMOB (socket, sock),
+      ret = guile_call (check_request_oob, 2, socket_smob (sock),
                         gi_integer2scm (sock->oob));
       return integer_else (ret, -1);
     }

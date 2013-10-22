@@ -166,7 +166,7 @@ or @code{#f} on failure.  */)
     return ret;
 
   sock->disconnected_socket = guile_func_disconnected_socket;
-  return MAKE_SMOB (socket, sock);
+  return socket_smob (sock);
 #undef FUNC_NAME
 }
 
@@ -480,7 +480,7 @@ socket @var{parent}.  Return either a valid
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xparent = svz_sock_getparent (xsock)) != NULL)
-    oparent = MAKE_SMOB (socket, xparent);
+    oparent = socket_smob (xparent);
   if (!SCM_UNBNDP (parent))
     {
       CHECK_SMOB_ARG (socket, parent, SCM_ARG2, "svz-socket", xparent);
@@ -505,7 +505,7 @@ socket @var{referrer}.  Return either a valid
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xreferrer = svz_sock_getreferrer (xsock)) != NULL)
-    oreferrer = MAKE_SMOB (socket, xreferrer);
+    oreferrer = socket_smob (xreferrer);
   if (!SCM_UNBNDP (referrer))
     {
       CHECK_SMOB_ARG (socket, referrer, SCM_ARG2, "svz-socket", xreferrer);
@@ -794,8 +794,8 @@ if there is no such binding yet.  */)
   if ((listeners = svz_server_listeners (xserver)) != NULL)
     {
       for (i = 0; i < svz_array_size (listeners); i++)
-        list = scm_cons (MAKE_SMOB (socket, (svz_socket_t *)
-                                    svz_array_get (listeners, i)),
+        list = scm_cons (socket_smob ((svz_socket_t *)
+                                      svz_array_get (listeners, i)),
                          list);
       svz_array_destroy (listeners);
     }
@@ -823,7 +823,7 @@ empty list if there is no such client.  */)
   if ((clients = svz_server_clients (xserver)) != NULL)
     {
       svz_array_foreach (clients, sock, i)
-        list = scm_cons (MAKE_SMOB (socket, sock), list);
+        list = scm_cons (socket_smob (sock), list);
       svz_array_destroy (clients);
     }
   return list;
@@ -1153,7 +1153,7 @@ If that socket no longer exists, return @code{#f}.  */)
   id = gi_scm2int (SCM_CAR (ident));
   version = gi_scm2int (SCM_CDR (ident));
   if ((sock = svz_sock_find (id, version)) != NULL)
-    return MAKE_SMOB (socket, sock);
+    return socket_smob (sock);
   return SCM_BOOL_F;
 #undef FUNC_NAME
 }

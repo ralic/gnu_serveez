@@ -1,5 +1,20 @@
 2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstraction: socket_smob
+
+	* guile-server.c (socket_smob): New static func.
+	(guile_func_detect_proto, guile_func_disconnected_socket)
+	(guile_func_kicked_socket, guile_func_connect_socket)
+	(guile_func_info_client, guile_func_check_request)
+	(guile_func_handle_request, guile_func_idle_func)
+	(guile_func_trigger_cond, guile_func_trigger_func)
+	(guile_func_check_request_oob): Use ‘socket_smob’.
+	* guile-api.c (guile_sock_connect, guile_sock_parent)
+	(guile_sock_referrer, guile_server_listeners)
+	(guile_server_clients, guile_sock_find): Likewise.
+
+2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile] Drop some Guile 1.3.4 compatibility macros.
 
 	* guile-api.h (SCM_ASSERT_TYPE, scm_wrong_type_arg_msg)
