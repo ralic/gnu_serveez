@@ -6,6 +6,14 @@ This file is intended to collect all known bugs (fixed or unfixed) in
 this package.  We will consider fixing these sooner or later.  Please
 send Serveez bug reports to <bug-serveez@gnu.org>.
 
+Bug          B0021
+From:        Eric Bavier
+State:       fixed
+Date:        2013-10-19
+Description: "make check" fails for VPATH build.
+Fix:         Jam ‘GUILE_LOAD_PATH’ in ‘TESTS_ENVIRONMENT’ and
+	     use ‘primitive-load-path’ everywhere.
+
 Bug          B0020
 From:        Mike Gran
 State:       unfixed

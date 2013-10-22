@@ -7,6 +7,7 @@ See the end for copying conditions.
 * next
 *** TODO bugfixes
 ***** TODO ([[file:BUGS::B0020][B0020]]) cache ‘svz_socket_t *’ SMOB
+***** DONE ([[file:BUGS::B0021][B0021]]) support VPATH "make check"
 *** TODO retirement of Guile 1.3.4 support
 
 * other stuff to do
