@@ -46,12 +46,6 @@
     (lambda ()
       (for-each write config))))
 
-(define (push-dot-on-load-path!)
-  (setenv "GUILE_LOAD_PATH" (fs ".~A" (cond ((getenv "GUILE_LOAD_PATH")
-                                             => (lambda (s)
-                                                  (fs ":~A" s)))
-                                            (else "")))))
-
 (define (the-serveez-binary)
   (or (getenv "SERVEEZ_BINARY")
       "../src/serveez"))

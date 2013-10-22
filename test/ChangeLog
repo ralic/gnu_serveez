@@ -1,3 +1,15 @@
+2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[v int] Decruft: Don't push ‘.’ on ‘%load-path’ twice.
+
+	The Makefile.am var ‘TESTS_ENVIRONMENT’ now DTRT for all tests.
+
+	* t005: Don't call ‘push-dot-on-load-path!’.
+	* t006: Likewise.
+	* t007: Likewise.
+	* t008: Likewise.
+	* common (push-dot-on-load-path!): Delete proc.
+
 2013-10-21  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[v] Fix bug: Support VPATH "make check".

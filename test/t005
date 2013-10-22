@@ -198,7 +198,6 @@
     ;; TODO: Guile 2.x bytevectors.
     )))
 
-(push-dot-on-load-path!)
 (exit (let ((exit-value (zero? (system (simple-serveez-invocation)))))
         (delete-file (config-filename))
         exit-value))

@@ -25,8 +25,6 @@
 (primitive-load-path "common")
 (set! TESTBASE "t007")
 
-(push-dot-on-load-path!)
-
 (or (boc? 'ENABLE_GUILE_SERVER)
     (exit #t))
 

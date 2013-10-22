@@ -22,8 +22,6 @@
 (primitive-load-path "common")
 (set! TESTBASE "t006")
 
-(push-dot-on-load-path!)
-
 (define (!! name configuration)
   (write-config! configuration)
   (let ((rv (system ((if VERBOSE?
