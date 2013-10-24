@@ -31,7 +31,7 @@ typedef struct svz_hash svz_hash_t;
 /* begin svzint */
 /*
  * This structure keeps information of a specific hash table.
- * It's here (rather than in .c) for the benefit of ‘svz_config_hash_dup’.
+ * It's here (rather than in .c) for the benefit of cfg.c ‘hash_dup’.
  */
 struct svz_hash
 {
