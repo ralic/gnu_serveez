@@ -1,3 +1,14 @@
+2013-10-28  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile] Fix bug: GC-protect saved load-port object.
+
+	* guile.c (guile_load_port): Delete var.
+	(load_port_box): New static var.
+	(stashed_load_port): New macro.
+	(guile_set_current_load_port): Mutate ‘load_port_box’ cdr.
+	(guile_get_current_load_port): Use ‘stashed_load_port’.
+	(guile_init): Init ‘load_port_box’.
+
 2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile int] Add abstraction: server_smob

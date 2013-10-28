@@ -87,7 +87,8 @@ int guile_global_error = 0;
  * Global variable containing the current load port in exceptions.
  * FIXME: Where should I aquire it?  In each procedure?
  */
-static SCM guile_load_port = SCM_UNDEFINED;
+static SCM load_port_box;
+#define stashed_load_port()  (SCM_CDR (load_port_box))
 #define GUILE_PRECALL() guile_set_current_load_port()
 
 /*
@@ -155,7 +156,7 @@ guile_set_current_load_port (void)
 {
   SCM p = scm_current_load_port ();
   if (SCM_PORTP (p))
-    guile_load_port = p;
+    scm_set_cdr_x (load_port_box, p);
 }
 
 /*
@@ -169,8 +170,9 @@ guile_get_current_load_port (void)
   SCM p = scm_current_load_port ();
   if (!SCM_FALSEP (p) && SCM_PORTP (p))
     return p;
-  if (!SCM_UNBNDP (guile_load_port) && SCM_PORTP (guile_load_port))
-    return guile_load_port;
+  p = stashed_load_port ();
+  if (!SCM_UNBNDP (p) && SCM_PORTP (p))
+    return p;
   return SCM_UNDEFINED;
 }
 
@@ -1772,6 +1774,9 @@ guile_exception (UNUSED void *data, SCM tag, SCM args)
 static void
 guile_init (void)
 {
+  load_port_box = scm_permanent_object
+    (scm_cons (SCM_BOOL_F, SCM_UNDEFINED));
+
   /* The default module changed after Guile 1.3.4 from (guile) to
      (guile-user).  Set it back explicitly, until the time when we
      can arrange to define the primitives in (serveez) proper.  */
