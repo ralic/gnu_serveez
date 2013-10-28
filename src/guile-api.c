@@ -137,7 +137,7 @@ or @code{#f} on failure.  */)
   xproto = gi_scm2int (proto);
 
   /* Find out about given port.  */
-  if (!SCM_UNBNDP (port))
+  if (BOUNDP (port))
     {
       ASSERT_EXACT (3, port);
       VALIDATE_NETPORT (p, port, SCM_ARG3);
@@ -313,7 +313,7 @@ specified size in bytes.  */)
   int len;
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-  if (!SCM_UNBNDP (size))
+  if (BOUNDP (size))
     {
       ASSERT_EXACT (2, size);
       len = gi_scm2int (size);
@@ -354,7 +354,7 @@ the specified size in bytes.  */)
   int len;
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
-  if (!SCM_UNBNDP (size))
+  if (BOUNDP (size))
     {
       ASSERT_EXACT (2, size);
       len = gi_scm2int (size);
@@ -381,7 +381,7 @@ Return the number of bytes actually shuffled away.  */)
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
 
   /* Check if second length argument is given.  */
-  if (!SCM_UNBNDP (length))
+  if (BOUNDP (length))
     {
       ASSERT_EXACT (2, length);
       len = gi_scm2int (length);
@@ -417,7 +417,7 @@ the socket @var{sock}.  */)
   svz_address_to (&v4addr, xsock->remote_addr);
   pair = scm_cons (gi_nnint2scm (v4addr),
                    gi_integer2scm ((int) xsock->remote_port));
-  if (!SCM_UNBNDP (address))
+  if (BOUNDP (address))
     {
       SCM_ASSERT_TYPE (SCM_PAIRP (address) && gi_exactp (SCM_CAR (address))
                        && gi_exactp (SCM_CDR (address)), address, SCM_ARG2,
@@ -451,7 +451,7 @@ the socket @var{sock}.  */)
   svz_address_to (&v4addr, xsock->local_addr);
   pair = scm_cons (gi_nnint2scm (v4addr),
                    gi_integer2scm ((int) xsock->local_port));
-  if (!SCM_UNBNDP (address))
+  if (BOUNDP (address))
     {
       SCM_ASSERT_TYPE (SCM_PAIRP (address) && gi_exactp (SCM_CAR (address))
                        && gi_exactp (SCM_CDR (address)), address, SCM_ARG2,
@@ -481,7 +481,7 @@ socket @var{parent}.  Return either a valid
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xparent = svz_sock_getparent (xsock)) != NULL)
     oparent = socket_smob (xparent);
-  if (!SCM_UNBNDP (parent))
+  if (BOUNDP (parent))
     {
       CHECK_SMOB_ARG (socket, parent, SCM_ARG2, "svz-socket", xparent);
       svz_sock_setparent (xsock, xparent);
@@ -506,7 +506,7 @@ socket @var{referrer}.  Return either a valid
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xreferrer = svz_sock_getreferrer (xsock)) != NULL)
     oreferrer = socket_smob (xreferrer);
-  if (!SCM_UNBNDP (referrer))
+  if (BOUNDP (referrer))
     {
       CHECK_SMOB_ARG (socket, referrer, SCM_ARG2, "svz-socket", xreferrer);
       svz_sock_setreferrer (xsock, xreferrer);
@@ -536,7 +536,7 @@ returned socket object part of a server.  */)
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xserver = svz_server_find (xsock->cfg)) != NULL)
     oserver = server_smob (xserver);
-  if (!SCM_UNBNDP (server))
+  if (BOUNDP (server))
     {
       CHECK_SMOB_ARG (server, server, SCM_ARG2, "svz-server", xserver);
       xsock->cfg = xserver->cfg;
@@ -599,7 +599,7 @@ packet transfer in order to disable unnecessary delays.  */)
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (xsock->proto & SVZ_PROTO_TCP)
     {
-      if (!SCM_UNBNDP (enable))
+      if (BOUNDP (enable))
         {
           SCM_ASSERT_TYPE (SCM_BOOLP (enable) || gi_exactp (enable),
                            enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
@@ -609,7 +609,7 @@ packet transfer in order to disable unnecessary delays.  */)
         }
       if (svz_tcp_nodelay (xsock->sock_desc, set, &old) < 0)
         old = 0;
-      else if (SCM_UNBNDP (enable))
+      else if (!BOUNDP (enable))
         svz_tcp_nodelay (xsock->sock_desc, old, NULL);
     }
   return SCM_BOOL (old);
@@ -753,7 +753,7 @@ given, the set the @code{idle-counter}.  Please have a look at the
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   ocounter = xsock->idle_counter;
-  if (!SCM_UNBNDP (counter))
+  if (BOUNDP (counter))
     {
       ASSERT_EXACT (2, counter);
       xsock->idle_counter = gi_scm2int (counter);
@@ -853,7 +853,7 @@ If given no arguments, it behave like @code{getrpcent}.  */)
   struct rpcent *entry = NULL;
 
 #if HAVE_GETRPCENT
-  if (SCM_UNBNDP (arg))
+  if (!BOUNDP (arg))
     {
       if ((entry = getrpcent ()) == NULL)
         return SCM_BOOL_F;
@@ -905,7 +905,7 @@ this is equivalent to calling @code{endrpcent}.  Otherwise it is
 equivalent to calling @code{setrpcent} with arg 1.  */)
 {
 #define FUNC_NAME s_scm_setrpc
-  if (SCM_UNBNDP (stayopen))
+  if (!BOUNDP (stayopen))
     endrpcent ();
   else
     setrpcent (!SCM_FALSEP (stayopen));
@@ -940,7 +940,7 @@ available or an error occurred while fetching the list.  */)
   addr.sin_port = htons (PMAPPORT);
   addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
 #endif
-  if (!SCM_UNBNDP (address))
+  if (BOUNDP (address))
     {
       ASSERT_STRING (1, address);
       GI_GET_XREP (str, address);
@@ -994,7 +994,7 @@ on the machine's portmap service.  */)
   ASSERT_EXACT (1, prognum);
   ASSERT_EXACT (2, prognum);
 
-  if (SCM_UNBNDP (protocol) && SCM_UNBNDP (port))
+  if (!BOUNDP (protocol) && !BOUNDP (port))
     {
       if (!pmap_unset (gi_scm2int (prognum), gi_scm2int (versnum)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_unset ~A ~A",

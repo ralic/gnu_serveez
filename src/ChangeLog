@@ -1,5 +1,16 @@
 2013-10-28  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstraction: BOUNDP
+
+	* gi.h (BOUNDP): New macro.
+	* guile-api.c: Do ‘s/!SCM_UNBNDP/BOUNDP/g’
+	and ‘s/SCM_UNBNDP/!BOUNDP/g’.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+
+2013-10-28  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile] Fix bug: GC-protect saved load-port object.
 
 	* guile.c (guile_load_port): Delete var.

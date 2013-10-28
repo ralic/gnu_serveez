@@ -466,11 +466,11 @@ return all data until the end of @var{binary}.  */)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   ASSERT_EXACT (2, start);
-  if (! SCM_UNBNDP (end))
+  if (BOUNDP (end))
     ASSERT_EXACT (3, end);
 
   from = gi_scm2int (start);
-  to = SCM_UNBNDP (end) ? -1 : gi_scm2int (end);
+  to = !BOUNDP (end) ? -1 : gi_scm2int (end);
   if (to == -1)
     to = bin->size - 1;
 

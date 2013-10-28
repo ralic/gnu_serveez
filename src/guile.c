@@ -171,7 +171,7 @@ guile_get_current_load_port (void)
   if (!SCM_FALSEP (p) && SCM_PORTP (p))
     return p;
   p = stashed_load_port ();
-  if (!SCM_UNBNDP (p) && SCM_PORTP (p))
+  if (BOUNDP (p) && SCM_PORTP (p))
     return p;
   return SCM_UNDEFINED;
 }
@@ -187,7 +187,7 @@ guile_error (char *format, ...)
   va_list args;
   /* FIXME: Why is this port undefined in guile exceptions?  */
   SCM lp = guile_get_current_load_port ();
-  int lp_valid_p = !SCM_UNBNDP (lp)
+  int lp_valid_p = BOUNDP (lp)
     /* TODO: Investigate why ‘SCM_PORTP’ is (was) sufficient for
        Guile 1.8 but not 2.0 (which is succeptible to segv).
        TODO: Do all validation in ‘guile_get_current_load_port’.  */
@@ -299,7 +299,7 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
   int err = 0;
 
   /* Unpack if requested, ignore if null already (null == not existent).  */
-  if (dounpack && !SCM_NULLP (pairlist) && !SCM_UNBNDP (pairlist))
+  if (dounpack && !SCM_NULLP (pairlist) && BOUNDP (pairlist))
     pairlist = SCM_CAR (pairlist);
 
   for ( ; SCM_PAIRP (pairlist); pairlist = SCM_CDR (pairlist))
@@ -1033,7 +1033,7 @@ Emit error messages (to stderr).  Return @code{#t} on success,
   DEFINING ("%s `%s'", c_type, c_instance);
 
   /* Extract options if any.  */
-  if (SCM_UNBNDP (opts))
+  if (!BOUNDP (opts))
     options = optionhash_create ();
   else if (NULL == (options = guile_to_optionhash (opts, action, 0)))
     FAIL ();                    /* Message already emitted.  */
@@ -1522,7 +1522,7 @@ local interfaces as a list of ip addresses in dotted decimal form.  If
   svz_foreach_interface (access_interfaces_internal, &list);
 
   /* Is there an argument given to the guile procedure?  */
-  if (!SCM_UNBNDP (args))
+  if (BOUNDP (args))
     {
       if ((array = guile_to_strarray (args, FUNC_NAME)) != NULL)
         {
@@ -1569,7 +1569,7 @@ it can find additional server modules.  */)
   svz_array_destroy (paths);
 
   /* Set the load path if argument is given.  */
-  if (!SCM_UNBNDP (args))
+  if (BOUNDP (args))
     {
       if ((paths = guile_to_strarray (args, FUNC_NAME)) != NULL)
         svz_dynload_path_set (paths);
@@ -1647,7 +1647,7 @@ parm_accessor (char const *who, int param, SCM arg)
 
   GUILE_PRECALL ();
   value = gi_integer2scm (svz_runparm (-1, param));
-  if (!SCM_UNBNDP (arg))
+  if (BOUNDP (arg))
     {
       if (guile_to_integer (arg, &n))
         {
@@ -1669,7 +1669,7 @@ string_accessor (char const *who, char **x, SCM arg)
 
   GUILE_PRECALL ();
 
-  if (!SCM_UNBNDP (arg))
+  if (BOUNDP (arg))
     {
       if (! GI_GET_XREP_MAYBE (str, arg))
         {

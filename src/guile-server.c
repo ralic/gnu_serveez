@@ -144,7 +144,7 @@ servertype_smob (svz_servertype_t *orig)
                                                                 \
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1,                       \
                   "svz-socket", xsock);                         \
-  if (!SCM_UNBNDP (proc))                                       \
+  if (BOUNDP (proc))                                            \
     {                                                           \
       SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2,   \
                        FUNC_NAME, "procedure");                 \
@@ -192,7 +192,7 @@ optionhash_extract_proc (svz_hash_t *hash,
 
       GI_GET_XREP (str, hvalue);
       proc = gi_lookup (str);
-      if (!SCM_UNBNDP (proc) && SCM_PROCEDUREP (proc))
+      if (BOUNDP (proc) && SCM_PROCEDUREP (proc))
         *target = proc;
       else
         {
@@ -274,7 +274,7 @@ guile_sock_getfunction (svz_socket_t *sock, char *func)
 static void
 guile_unprotect (SCM proc)
 {
-  if (!SCM_UNBNDP (proc))
+  if (BOUNDP (proc))
     gi_gc_unprotect (proc);
 }
 
@@ -322,7 +322,7 @@ Optional arg @var{exit-value} specifies an exit value for the
 serveez program.  It is mapped to a number via @code{scm_exit_value}.  */)
 {
 #define FUNC_NAME s_guile_nuke_happened
-  if (! SCM_UNBNDP (exit_value))
+  if (BOUNDP (exit_value))
     /* The ‘cons’ avoids a segfault in Guile 1.8.7.  */
     global_exit_value = scm_exit_status (scm_cons (exit_value, SCM_EOL));
 
@@ -345,7 +345,7 @@ Return the current (boolean) setting.  */)
   SCM value = SCM_BOOL (guile_use_exceptions);
   int n;
 
-  if (!SCM_UNBNDP (enable))
+  if (BOUNDP (enable))
     {
       if (guile_to_boolean (enable, &n))
         guile_error ("%s: Invalid boolean value", FUNC_NAME);
@@ -462,7 +462,7 @@ guile_func_global_init (svz_servertype_t *stype)
   SCM global_init = guile_servertype_getfunction (stype, "global-init");
   SCM ret;
 
-  if (!SCM_UNBNDP (global_init))
+  if (BOUNDP (global_init))
     {
       ret = guile_call (global_init, 1, servertype_smob (stype));
       return integer_else (ret, -1);
@@ -481,7 +481,7 @@ guile_func_init (svz_server_t *server)
   SCM init = guile_servertype_getfunction (stype, "init");
   SCM ret;
 
-  if (!SCM_UNBNDP (init))
+  if (BOUNDP (init))
     {
       ret = guile_call (init, 1, server_smob (server));
       return integer_else (ret, -1);
@@ -499,7 +499,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
   SCM detect_proto = guile_servertype_getfunction (stype, "detect-proto");
   SCM ret;
 
-  if (!SCM_UNBNDP (detect_proto))
+  if (BOUNDP (detect_proto))
     {
       ret = guile_call (detect_proto, 2, server_smob (server),
                         socket_smob (sock));
@@ -530,7 +530,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   svz_hash_t *gsock;
 
   /* First call the guile callback if necessary.  */
-  if (!SCM_UNBNDP (disconnected))
+  if (BOUNDP (disconnected))
     {
       ret = guile_call (disconnected, 1, socket_smob (sock));
       retval = integer_else (ret, -1);
@@ -558,7 +558,7 @@ guile_func_kicked_socket (svz_socket_t *sock, int reason)
 #define FUNC_NAME __func__
   SCM ret, kicked = guile_sock_getfunction (sock, "kicked");
 
-  if (!SCM_UNBNDP (kicked))
+  if (BOUNDP (kicked))
     {
       ret = guile_call (kicked, 2, socket_smob (sock),
                         gi_integer2scm (reason));
@@ -580,7 +580,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
   /* Setup this function for later use.  */
   sock->disconnected_socket = guile_func_disconnected_socket;
 
-  if (!SCM_UNBNDP (connect_socket))
+  if (BOUNDP (connect_socket))
     {
       ret = guile_call (connect_socket, 2, server_smob (server),
                         socket_smob (sock));
@@ -600,7 +600,7 @@ guile_func_finalize (svz_server_t *server)
   int retval = 0;
   svz_hash_t *state;
 
-  if (!SCM_UNBNDP (finalize))
+  if (BOUNDP (finalize))
     {
       ret = guile_call (finalize, 1, server_smob (server));
       retval = integer_else (ret, -1);
@@ -625,7 +625,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
   SCM ret, global_finalize;
   global_finalize = guile_servertype_getfunction (stype, "global-finalize");
 
-  if (!SCM_UNBNDP (global_finalize))
+  if (BOUNDP (global_finalize))
     {
       ret = guile_call (global_finalize, 1, servertype_smob (stype));
       return integer_else (ret, -1);
@@ -648,7 +648,7 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
   SCM ret;
   static char text[1024];
 
-  if (!SCM_UNBNDP (info_client))
+  if (BOUNDP (info_client))
     {
       ret = guile_call (info_client, 2, server_smob (server),
                         socket_smob (sock));
@@ -669,7 +669,7 @@ guile_func_info_server (svz_server_t *server)
   SCM ret;
   static char text[1024];
 
-  if (!SCM_UNBNDP (info_server))
+  if (BOUNDP (info_server))
     {
       ret = guile_call (info_server, 1, server_smob (server));
       if (GI_GET_XREP_MAYBE (text, ret))
@@ -687,7 +687,7 @@ guile_func_notify (svz_server_t *server)
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM ret, notify = guile_servertype_getfunction (stype, "notify");
 
-  if (!SCM_UNBNDP (notify))
+  if (BOUNDP (notify))
     {
       ret = guile_call (notify, 1, server_smob (server));
       return integer_else (ret, -1);
@@ -704,7 +704,7 @@ guile_func_reset (svz_server_t *server)
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM ret, reset = guile_servertype_getfunction (stype, "reset");
 
-  if (!SCM_UNBNDP (reset))
+  if (BOUNDP (reset))
     {
       ret = guile_call (reset, 1, server_smob (server));
       return integer_else (ret, -1);
@@ -721,7 +721,7 @@ guile_func_check_request (svz_socket_t *sock)
   SCM ret, check_request;
   check_request = guile_sock_getfunction (sock, "check-request");
 
-  if (!SCM_UNBNDP (check_request))
+  if (BOUNDP (check_request))
     {
       ret = guile_call (check_request, 1, socket_smob (sock));
       return integer_else (ret, -1);
@@ -741,14 +741,14 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
   SCM ret, handle_request;
   handle_request = guile_sock_getfunction (sock, "handle-request");
 
-  if (SCM_UNBNDP (handle_request))
+  if (!BOUNDP (handle_request))
     {
       server = svz_server_find (sock->cfg);
       stype = svz_servertype_find (server);
       handle_request = guile_servertype_getfunction (stype, "handle-request");
     }
 
-  if (!SCM_UNBNDP (handle_request))
+  if (BOUNDP (handle_request))
     {
       ret = guile_call (handle_request, 3, socket_smob (sock),
                         guile_data_to_bin (request, len), gi_integer2scm (len));
@@ -765,7 +765,7 @@ guile_func_idle_func (svz_socket_t *sock)
 #define FUNC_NAME __func__
   SCM ret, idle_func = guile_sock_getfunction (sock, "idle");
 
-  if (!SCM_UNBNDP (idle_func))
+  if (BOUNDP (idle_func))
     {
       ret = guile_call (idle_func, 1, socket_smob (sock));
       return integer_else (ret, -1);
@@ -781,7 +781,7 @@ guile_func_trigger_cond (svz_socket_t *sock)
 #define FUNC_NAME __func__
   SCM ret, trigger_cond = guile_sock_getfunction (sock, "trigger-condition");
 
-  if (!SCM_UNBNDP (trigger_cond))
+  if (BOUNDP (trigger_cond))
     {
       ret = guile_call (trigger_cond, 1, socket_smob (sock));
       return gi_nfalsep (ret);
@@ -797,7 +797,7 @@ guile_func_trigger_func (svz_socket_t *sock)
 #define FUNC_NAME __func__
   SCM ret, trigger_func = guile_sock_getfunction (sock, "trigger");
 
-  if (!SCM_UNBNDP (trigger_func))
+  if (BOUNDP (trigger_func))
     {
       ret = guile_call (trigger_func, 1, socket_smob (sock));
       return integer_else (ret, -1);
@@ -814,7 +814,7 @@ guile_func_check_request_oob (svz_socket_t *sock)
   SCM ret, check_request_oob;
   check_request_oob = guile_sock_getfunction (sock, "check-oob-request");
 
-  if (!SCM_UNBNDP (check_request_oob))
+  if (BOUNDP (check_request_oob))
     {
       ret = guile_call (check_request_oob, 2, socket_smob (sock),
                         gi_integer2scm (sock->oob));
@@ -916,7 +916,7 @@ optional.  */)
 
   CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
   flags = xsock->flags;
-  if (!SCM_UNBNDP (flag))
+  if (BOUNDP (flag))
     {
       SCM_ASSERT_TYPE (SCM_BOOLP (flag) || gi_exactp (flag),
                        flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
@@ -1539,7 +1539,7 @@ Return @code{#t} on success.  */)
       err |= optionhash_extract_proc (options, guile_functions[n],
                                       1, SCM_UNDEFINED, &proc, action);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
-      if (!SCM_UNBNDP (proc))
+      if (BOUNDP (proc))
         gi_gc_protect (proc);
     }
 

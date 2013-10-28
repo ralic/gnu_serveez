@@ -80,6 +80,10 @@ extern int gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag);
 extern SCM gi_make_smob (svz_smob_tag_t tag, void *data);
 extern void *gi_smob_data (SCM smob);
 
+/* Idioms.  */
+
+#define BOUNDP(x)  (! SCM_UNBNDP (x))
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */
