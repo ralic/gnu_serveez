@@ -1,3 +1,9 @@
+2013-10-29  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Add abstractions: {UN,}PACK_POINTER
+
+	* gi.h (PACK_POINTER, UNPACK_POINTER): New macros.
+
 2013-10-28  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile int] Add abstraction: BOUNDP

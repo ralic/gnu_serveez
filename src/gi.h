@@ -84,6 +84,9 @@ extern void *gi_smob_data (SCM smob);
 
 #define BOUNDP(x)  (! SCM_UNBNDP (x))
 
+#define PACK_POINTER(x)    (scm_object_address (PTR2SCM (x)))
+#define UNPACK_POINTER(x)  ((void *) gi_scm2ulong (x))
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */
