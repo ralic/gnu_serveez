@@ -1,3 +1,14 @@
+2013-10-31  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Move bulk of ‘SOCK_CALLBACK_BODY’ into a function.
+
+	* guile-server.c (getset_fn_t): New typedef.
+	(sock_callback_details): New struct.
+	(sock_callback_body): New static func.
+	(SOCK_CALLBACK_BODY): Rewrite.
+	(guile_sock_handle_request, guile_sock_check_request):
+	No longer ‘#define FUNC_NAME’ and ‘#undef FUNC_NAME’.
+
 2013-10-29  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile int] Add abstractions: {UN,}PACK_POINTER
