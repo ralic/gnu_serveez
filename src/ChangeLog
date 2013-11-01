@@ -1,3 +1,9 @@
+2013-11-01  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[boot] Import Guile-BAUX headers.
+
+	* Makefile.am (EXTRA_DIST): Add gi-sup.
+
 2013-10-31  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile int] Move bulk of ‘SOCK_CALLBACK_BODY’ into a function.

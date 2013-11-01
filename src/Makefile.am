@@ -85,6 +85,7 @@ SUBDIRS   += prog-server
 PROTOLIBS += prog-server/libprog.a
 endif
 
+EXTRA_DIST += gi-sup
 bin_PROGRAMS = serveez
 
 if COURAGEOUS

@@ -79,6 +79,8 @@ Makefile.in
 /src/stamp-h*
 /src/svzconfig.h
 
+/src/gi-sup
+
 /src/irc-server/timestamp.c
 
 /src/libserveez/libserveez.tsar

@@ -25,6 +25,7 @@ done
 cd `dirname $0`
 
 # Make some Guile-BAUX functionality available.
+guile-baux-tool snuggle h src/gi-sup/
 guile-baux-tool snuggle m4 m4/
 guile-baux-tool import \
     c2x \
