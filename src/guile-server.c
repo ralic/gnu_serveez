@@ -118,6 +118,45 @@ MAKE_SMOB_DEFINITION (socket)
 MAKE_SMOB_DEFINITION (server)
 MAKE_SMOB_DEFINITION (servertype)
 
+
+/* A hash of smobs, keyed by the wrapped (C lang) object, a pointer.
+   This is consulted by ‘valid_smob’ and modified destructively by
+   ‘invalidate_smob’.  */
+static SCM goodstuff;
+
+#define GOODSTUFF(key)  scm_hashq_ref (goodstuff, key, SCM_BOOL_F)
+
+static SCM
+valid_smob (svz_smob_tag_t tag, void *orig)
+{
+  SCM key = gi_gc_protect (PACK_POINTER (orig));
+  SCM val = GOODSTUFF (key);
+
+  if (! gi_nfalsep (val))
+    {
+      val = gi_gc_protect (gi_make_smob (tag, orig));
+      scm_hashq_set_x (goodstuff, key, val);
+      gi_gc_unprotect (val);
+    }
+  gi_gc_unprotect (key);
+  return val;
+}
+
+#define VALID_SMOB(ctype,orig)  valid_smob (NAME_TAG (ctype), orig)
+
+static void
+invalidate_smob (const void *orig)
+{
+  SCM key = PACK_POINTER (orig);
+  SCM smob = GOODSTUFF (key);
+
+  if (gi_nfalsep (smob))
+    {
+      SCM_SET_SMOB_DATA (smob, NULL);
+      scm_hashq_remove_x (goodstuff, key);
+    }
+}
+
 static SCM
 socket_smob (svz_socket_t *orig)
 {
@@ -127,13 +166,13 @@ socket_smob (svz_socket_t *orig)
 static SCM
 server_smob (svz_server_t *orig)
 {
-  return MAKE_SMOB (server, orig);
+  return VALID_SMOB (server, orig);
 }
 
 static SCM
 servertype_smob (svz_servertype_t *orig)
 {
-  return MAKE_SMOB (servertype, orig);
+  return VALID_SMOB (servertype, orig);
 }
 
 /*
@@ -589,6 +628,8 @@ guile_func_finalize (svz_server_t *server)
       retval = integer_else (ret, -1);
     }
 
+  invalidate_smob (server);
+
   /* Release associated guile server state objects is necessary.  */
   if ((state = server->data) != NULL)
     {
@@ -606,14 +647,17 @@ guile_func_global_finalize (svz_servertype_t *stype)
 {
 #define FUNC_NAME __func__
   SCM ret, global_finalize;
+  int retval = 0;
+
   global_finalize = guile_servertype_getfunction (stype, "global-finalize");
 
   if (BOUNDP (global_finalize))
     {
       ret = guile_call (global_finalize, 1, servertype_smob (stype));
-      return integer_else (ret, -1);
+      retval = integer_else (ret, -1);
     }
-  return 0;
+  invalidate_smob (stype);
+  return retval;
 #undef FUNC_NAME
 
 }
@@ -1665,6 +1709,8 @@ guile_server_init (void)
   INIT_SMOB (server);
   INIT_SMOB (servertype);
 
+  goodstuff = gi_gc_protect (gi_make_hash_table (11));
+
 #include "guile-server.x"
 
   guile_bin_init ();
@@ -1692,6 +1738,10 @@ guile_server_finalize (void)
       svz_hash_destroy (guile_sock);
       guile_sock = NULL;
     }
+
+  /* Older Guile versions don't have ‘hashq-clear!’, unfortunately.  */
+  gi_gc_unprotect (goodstuff);
+  goodstuff = SCM_BOOL_F;
 }
 
 #else /* not ENABLE_GUILE_SERVER */

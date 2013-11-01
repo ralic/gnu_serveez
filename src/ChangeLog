@@ -1,5 +1,22 @@
 2013-11-01  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile] Fix bug: Make server, servertype smob/C-obj validity precise.
+
+	* gi.h: #include "gi-sup/level.h"; #include "gi-sup/mkhash.h".
+	(gi_make_hash_table): New macro.
+	* guile-server.c (goodstuff): New static var.
+	(GOODSTUFF): New macro.
+	(valid_smob): New static func.
+	(VALID_SMOB): New macro.
+	(invalidate_smob): New static func.
+	(server_smob, servertype_smob): Use ‘VALID_SMOB’.
+	(guile_func_finalize, guile_func_global_finalize):
+	Invalidate the smob/C-object correspondance.
+	(guile_server_init): Init ‘goodstuff’.
+	(guile_server_finalize): Drop GC prot for ‘goodstuff’; set it ‘#f’.
+
+2013-11-01  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[boot] Import Guile-BAUX headers.
 
 	* Makefile.am (EXTRA_DIST): Add gi-sup.

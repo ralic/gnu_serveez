@@ -19,6 +19,9 @@
 #ifndef __GI_H__
 #define __GI_H__ 1
 
+#include "gi-sup/level.h"
+#include "gi-sup/mkhash.h"
+
 extern void *gi_malloc (size_t len, const char *name);
 extern void *gi_realloc (void *mem, size_t olen, size_t nlen,
                          const char *name);
@@ -79,6 +82,8 @@ extern svz_smob_tag_t gi_make_tag (const char *description, size_t sz,
 extern int gi_smob_tagged_p (SCM obj, svz_smob_tag_t tag);
 extern SCM gi_make_smob (svz_smob_tag_t tag, void *data);
 extern void *gi_smob_data (SCM smob);
+
+#define gi_make_hash_table(size)   MAKE_HASH_TABLE (size)
 
 /* Idioms.  */
 
