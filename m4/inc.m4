@@ -111,15 +111,14 @@ AS_VAR_POPDEF([VAR])dnl
 
 dnl SVZ_GUILE_FLAGS
 dnl
-dnl First, call ‘GUILE_PROGS’ to define shell var ‘GUILE_CONFIG’.
+dnl First, call ‘SNUGGLE_PROGS’ to define shell var ‘GUILE_CONFIG’.
 dnl (If this fails, signal error and exit failurefully.)
 dnl Use that program to determine -I, -L and -l options, appended
 dnl respectively to shell vars ‘CPPFLAGS’, ‘LDFLAGS’, and ‘LIBS’.
 
 AC_DEFUN([SVZ_GUILE_FLAGS],[
-dnl Search for guile-config; bail if not found.
-AC_PATH_PROG([GUILE_CONFIG],[guile-config])
-AS_IF([! test -x "$GUILE_CONFIG"],[AC_MSG_ERROR([Guile not found])])
+dnl Find guile(1), guile-config(1) and guile-tools(1).
+SNUGGLE_PROGS
 dnl Set ‘CPPFLAGS’ directly.
 AS_VAR_APPEND([CPPFLAGS],[" `$GUILE_CONFIG compile`"])
 dnl Split the ‘link’ output to set ‘LDFLAGS’ and ‘LIBS’.
