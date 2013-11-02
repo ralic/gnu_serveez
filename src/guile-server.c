@@ -854,7 +854,12 @@ guile_func_check_request_oob (svz_socket_t *sock)
 
 /*
  * sock callbacks: {handle,check}-request
+ * (and others)
  */
+
+#define CHECK_SOCK_SMOB_ARG(svar,cvar)                          \
+  CHECK_SMOB_ARG (socket, svar, SCM_ARG1, "svz-socket", cvar)
+
 typedef int (* getset_fn_t) ();
 
 struct sock_callback_details {
@@ -871,7 +876,7 @@ sock_callback_body (const struct sock_callback_details *d,
   const char *FUNC_NAME = d->who;
   svz_socket_t *xsock;
 
-  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SOCK_SMOB_ARG (sock, xsock);
   if (BOUNDP (proc))
     {
       getset_fn_t *place = (void *) xsock + d->place;
@@ -939,7 +944,7 @@ For instance, you can arrange for Serveez to pass the
 #define FUNC_NAME s_guile_sock_boundary
   svz_socket_t *xsock;
 
-  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SOCK_SMOB_ARG (sock, xsock);
   SCM_ASSERT_TYPE (gi_exactp (boundary) || gi_stringp (boundary),
                    boundary, SCM_ARG2, FUNC_NAME, "string or exact");
 
@@ -983,7 +988,7 @@ optional.  */)
   svz_socket_t *xsock;
   int flags;
 
-  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SOCK_SMOB_ARG (sock, xsock);
   flags = xsock->flags;
   if (BOUNDP (flag))
     {
@@ -1013,7 +1018,7 @@ Return @code{#t} on success and @code{#f} on failure.  */)
   char *buf;
   int len, ret = -1;
 
-  CHECK_SMOB_ARG (socket, sock, SCM_ARG1, "svz-socket", xsock);
+  CHECK_SOCK_SMOB_ARG (sock, xsock);
   SCM_ASSERT_TYPE (gi_stringp (buffer) || guile_bin_check (buffer),
                    buffer, SCM_ARG2, FUNC_NAME, "string or binary");
 

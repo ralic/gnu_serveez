@@ -1,3 +1,11 @@
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Add abstraction: CHECK_SOCK_SMOB_ARG
+
+	* guile-server.c (CHECK_SOCK_SMOB_ARG): New macro.
+	(sock_callback_body, guile_sock_boundary)
+	(guile_sock_floodprotect, guile_sock_print): Use it.
+
 2013-11-01  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile] Fix bug: Make server, servertype smob/C-obj validity precise.
