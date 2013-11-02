@@ -1,3 +1,11 @@
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[int] Use object property to record Icecast server files.
+
+	* icecast-server.scm (available): New object property.
+	(icecast-init, icecast-next-file): Use ‘available’
+	instead of ‘svz:server:state-set!’ and ‘svz:server:state-ref’.
+
 2013-04-24  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Avoid ‘svz:sock:data’ in Mandelbrot client.

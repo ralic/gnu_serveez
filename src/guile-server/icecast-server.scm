@@ -31,6 +31,8 @@
   (println "icecast: resetting server")
   0)
 
+(define available (make-object-property))
+
 ;; server initialisation
 (define (icecast-init server)
   (let* ((files '())
@@ -52,7 +54,7 @@
               (begin
                 (println "icecast: " (length files) " file(s) found in `"
                          directory "'")
-                (svz:server:state-set! server "files" files)
+                (set! (available server) files)
                 0)))
         )))
 
@@ -210,7 +212,7 @@
   (let* ((server (svz:sock:server sock))
          (data (interesting sock))
          (seed (hash-ref data "seed"))
-         (files (svz:server:state-ref server "files"))
+         (files (available server))
          (n (random (length files) seed))
          (file (list-ref files n))
          (port '()))
