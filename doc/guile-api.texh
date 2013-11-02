@@ -226,12 +226,6 @@ details.
 
 @tsin i svz:server:config-ref
 
-@tsin i svz:server:state-set!
-
-@tsin i svz:server:state-ref
-
-@tsin i svz:server:state->hash
-
 @tsin i serveez-port?
 
 @tsin i serveez-server?

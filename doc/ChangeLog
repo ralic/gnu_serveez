@@ -1,3 +1,11 @@
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme] Remove procs: svz:server:state{-ref,-set!,->hash}
+
+	* guile-api.texh (Predefined Procedures): Delete
+	@tsin for ‘svz:server:state-set!’, ‘svz:server:state-ref’
+	and ‘svz:server:state->hash’.
+
 2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[maint] Decruft: Remove "make stage" support.

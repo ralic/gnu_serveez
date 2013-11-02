@@ -1,5 +1,13 @@
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[Scheme] Remove procs: svz:server:state{-ref,-set!,->hash}
+
+	* guile-server.c (guile_server_state_ref)
+	(guile_server_state_set_x, server_state_to_hash_internal)
+	(guile_server_state_to_hash): Delete SCM_DEFINEs, static func.
+
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Don't compare SCM to 0.
 
 	* guile-server.c (guile_servertype_getfunction)
