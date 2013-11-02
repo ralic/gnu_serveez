@@ -44,6 +44,8 @@
 #include "guile-server.h"
 #include "unused.h"
 
+#define SVZ_PTR2SCM(x)  ((SCM) SVZ_PTR2NUM (x))
+
 #define _CTYPE(ctype,x)     guile_svz_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
@@ -260,7 +262,7 @@ guile_servertype_getfunction (svz_servertype_t *server, char *func)
   if ((gserver = svz_hash_get (guile_server, server->prefix)) == NULL)
     return SCM_UNDEFINED;
 
-  if ((proc = (SCM) SVZ_PTR2NUM (svz_hash_get (gserver, func))) == 0)
+  if ((proc = SVZ_PTR2SCM (svz_hash_get (gserver, func))) == 0)
     return SCM_UNDEFINED;
 
   return proc;
@@ -285,7 +287,7 @@ guile_sock_getfunction (svz_socket_t *sock, char *func)
   if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
     return SCM_UNDEFINED;
 
-  if ((proc = (SCM) SVZ_PTR2NUM (svz_hash_get (gsock, func))) == 0)
+  if ((proc = SVZ_PTR2SCM (svz_hash_get (gsock, func))) == 0)
     return SCM_UNDEFINED;
 
   return proc;
@@ -358,7 +360,7 @@ Return the current (boolean) setting.  */)
 static SCM
 guile_call_body (void *data)
 {
-  SCM ls = (SCM) SVZ_PTR2NUM (data);
+  SCM ls = SVZ_PTR2SCM (data);
 
   return scm_apply (SCM_CAR (ls), SCM_CADR (ls), SCM_CDDR (ls));
 }
@@ -371,7 +373,7 @@ guile_call_body (void *data)
 static SCM
 guile_call_handler (void *data, SCM tag, SCM args)
 {
-  SCM procname = (SCM) SVZ_PTR2NUM (data);
+  SCM procname = SVZ_PTR2SCM (data);
   SCM ep = scm_current_error_port ();
 
   scm_puts ("exception in ", ep);
@@ -533,7 +535,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
 
   /* Release associated guile object is necessary.  */
   if (sock->data != NULL)
-    gi_gc_unprotect ((SCM) SVZ_PTR2NUM (sock->data));
+    gi_gc_unprotect (SVZ_PTR2SCM (sock->data));
 
   /* Free the socket boundary if set by guile.  */
   guile_sock_clear_boundary (sock);
@@ -871,7 +873,7 @@ sock_callback_body (const struct sock_callback_details *d,
         oldproc = SCM_UNDEFINED;
       else
         {
-          oldproc = (SCM) SVZ_PTR2NUM (was);
+          oldproc = SVZ_PTR2SCM (was);
           gi_gc_unprotect (oldproc);
         }
       return oldproc;
@@ -1155,7 +1157,7 @@ either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}.
 
   if ((hash = xserver->data) != NULL)
     if (svz_hash_exists (hash, str))
-      ret = (SCM) SVZ_PTR2NUM (svz_hash_get (hash, str));
+      ret = SVZ_PTR2SCM (svz_hash_get (hash, str));
   return ret;
 #undef FUNC_NAME
 }
@@ -1190,7 +1192,7 @@ will be deleted soon. ---ttn]  */)
     }
   if (svz_hash_exists (hash, str))
     {
-      ret = (SCM) SVZ_PTR2NUM (svz_hash_put (hash, str, SVZ_NUM2PTR (value)));
+      ret = SVZ_PTR2SCM (svz_hash_put (hash, str, SVZ_NUM2PTR (value)));
       gi_gc_unprotect (ret);
     }
   else
@@ -1205,7 +1207,7 @@ server_state_to_hash_internal (void *k, void *v, void *closure)
 {
   SCM *hash = closure;
 
-  scm_hash_set_x (*hash, gi_string2scm (k), (SCM) SVZ_PTR2NUM (v));
+  scm_hash_set_x (*hash, gi_string2scm (k), SVZ_PTR2SCM (v));
 }
 
 SCM_DEFINE

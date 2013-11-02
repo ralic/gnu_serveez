@@ -1,5 +1,16 @@
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstraction: SVZ_PTR2SCM
+
+	* guile-server.c (SVZ_PTR2SCM): New macro.
+	(guile_servertype_getfunction, guile_sock_getfunction)
+	(guile_call_body, guile_call_handler)
+	(guile_func_disconnected_socket, sock_callback_body)
+	(guile_server_state_ref, guile_server_state_set_x)
+	(server_state_to_hash_internal): Use ‘SVZ_PTR2SCM’.
+
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Incorporate ‘guile_sock_setfunction’ into unique caller.
 
 	* guile-server.c (sock_callback_body): ...here.
