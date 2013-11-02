@@ -300,37 +300,6 @@ guile_unprotect (SCM proc)
     gi_gc_unprotect (proc);
 }
 
-/*
- * Associate the given guile procedure @var{proc} hereby named @var{func}
- * with the socket structure @var{sock}.  The function returns the previously
- * set procedure if there is such a.
- */
-static SCM
-guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
-{
-  svz_hash_t *gsock;
-  SCM oldproc;
-
-  if (sock == NULL || func == NULL)
-    return SCM_UNDEFINED;
-
-  if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
-    {
-      gsock = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
-      svz_hash_put (guile_sock, svz_itoa (sock->id), gsock);
-    }
-
-  /* Put guile procedure into socket hash and protect it.  Removes old
-     guile procedure and unprotects it.  */
-  gi_gc_protect (proc);
-  oldproc = (SCM) SVZ_PTR2NUM (svz_hash_put (gsock, func, SVZ_NUM2PTR (proc)));
-  if (oldproc == 0)
-    return SCM_UNDEFINED;
-
-  gi_gc_unprotect (oldproc);
-  return oldproc;
-}
-
 extern int global_exit_value;
 
 SCM_DEFINE
@@ -880,11 +849,32 @@ sock_callback_body (const struct sock_callback_details *d,
   if (BOUNDP (proc))
     {
       getset_fn_t *place = (void *) xsock + d->place;
+      char *id = svz_itoa (xsock->id);
+      svz_hash_t *gsock;
+      void *was;
+      SCM oldproc;
 
       SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2,
                        FUNC_NAME, "procedure");
       *place = d->getset;
-      return guile_sock_setfunction (xsock, d->assoc, proc);
+
+      if ((gsock = svz_hash_get (guile_sock, id)) == NULL)
+        {
+          gsock = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
+          svz_hash_put (guile_sock, id, gsock);
+        }
+
+      /* Put the procedure into the socket's hash and protect it.
+         If there was one previously set, unprotect and return that.  */
+      gi_gc_protect (proc);
+      if ((was = svz_hash_put (gsock, d->assoc, SVZ_NUM2PTR (proc))) == NULL)
+        oldproc = SCM_UNDEFINED;
+      else
+        {
+          oldproc = (SCM) SVZ_PTR2NUM (was);
+          gi_gc_unprotect (oldproc);
+        }
+      return oldproc;
     }
   return guile_sock_getfunction (xsock, d->assoc);
 }

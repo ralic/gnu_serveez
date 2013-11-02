@@ -1,5 +1,11 @@
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Incorporate ‘guile_sock_setfunction’ into unique caller.
+
+	* guile-server.c (sock_callback_body): ...here.
+
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: CHECK_SOCK_SMOB_ARG
 
 	* guile-server.c (CHECK_SOCK_SMOB_ARG): New macro.
