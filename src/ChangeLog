@@ -1,5 +1,13 @@
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Don't compare SCM to 0.
+
+	* guile-server.c (guile_servertype_getfunction)
+	(guile_sock_getfunction): Check ‘svz_hash_get’ rv
+	against ‘NULL’; only if non-‘NULL’, then convert to SCM.
+
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: SVZ_PTR2SCM
 
 	* guile-server.c (SVZ_PTR2SCM): New macro.

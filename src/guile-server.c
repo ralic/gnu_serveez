@@ -254,7 +254,7 @@ static SCM
 guile_servertype_getfunction (svz_servertype_t *server, char *func)
 {
   svz_hash_t *gserver;
-  SCM proc;
+  void *fn;
 
   if (server == NULL || guile_server == NULL)
     return SCM_UNDEFINED;
@@ -262,10 +262,10 @@ guile_servertype_getfunction (svz_servertype_t *server, char *func)
   if ((gserver = svz_hash_get (guile_server, server->prefix)) == NULL)
     return SCM_UNDEFINED;
 
-  if ((proc = SVZ_PTR2SCM (svz_hash_get (gserver, func))) == 0)
+  if ((fn = svz_hash_get (gserver, func)) == NULL)
     return SCM_UNDEFINED;
 
-  return proc;
+  return SVZ_PTR2SCM (fn);
 }
 
 /*
@@ -276,7 +276,7 @@ static SCM
 guile_sock_getfunction (svz_socket_t *sock, char *func)
 {
   svz_hash_t *gsock;
-  SCM proc;
+  void *fn;
 
   if (sock == NULL || guile_sock == NULL)
     return SCM_UNDEFINED;
@@ -287,10 +287,10 @@ guile_sock_getfunction (svz_socket_t *sock, char *func)
   if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
     return SCM_UNDEFINED;
 
-  if ((proc = SVZ_PTR2SCM (svz_hash_get (gsock, func))) == 0)
+  if ((fn = svz_hash_get (gsock, func)) == NULL)
     return SCM_UNDEFINED;
 
-  return proc;
+  return SVZ_PTR2SCM (fn);
 }
 
 /* This function is used as destruction callback for the socket and
