@@ -22,8 +22,28 @@
 ;; load shared functionality
 (serveez-load "mandel-shared.scm")
 (use-modules
+ (srfi srfi-9)
  ((ice-9 and-let-star) #:select (and-let*))
  ((ice-9 rdelim) #:select (write-line)))
+
+(define-record-type state-record
+    (make-state-record)
+    state-record?                       ; unused
+  (data      sr-data      sr-data!)
+  (missing   sr-missing   sr-missing!)
+  (index     sr-index     sr-index!)
+  (x-ratio   sr-x-ratio   sr-x-ratio!)
+  (y-ratio   sr-y-ratio   sr-y-ratio!)
+  (palette   sr-palette   sr-palette!)
+  (bpp       sr-bpp       sr-bpp!))
+
+(define server-state (make-object-property))
+
+(define-macro (ss server field)
+  `(,(symbol-append 'sr- ,field) (server-state ,server)))
+
+(define-macro (ss! server field value)
+  `(,(symbol-append 'sr- ,field '!) (server-state ,server) ,value))
 
 ;; initialize the server state by calculating values from the configuration
 (define (mandel-init server)
@@ -36,11 +56,12 @@
          (x-ratio (/ x-diff x-res))
          (y-ratio (/ y-diff y-res)))
 
-    (svz:server:state-set! server "data" (make-vector (* x-res y-res) -1))
-    (svz:server:state-set! server "missing" (* x-res y-res))
-    (svz:server:state-set! server "index" 0)
-    (svz:server:state-set! server "x-ratio" x-ratio)
-    (svz:server:state-set! server "y-ratio" y-ratio)
+    (set! (server-state server) (make-state-record))
+    (ss! server 'data (make-vector (* x-res y-res) -1))
+    (ss! server 'missing (* x-res y-res))
+    (ss! server 'index 0)
+    (ss! server 'x-ratio x-ratio)
+    (ss! server 'y-ratio y-ratio)
     0
     ))
 
@@ -89,12 +110,12 @@
              (vector-set! (car rgb) i (generate-ascii char-range bpp i))
              (vector-set! (cdr rgb) i (left-zeros (number->string val 16) 6))
              (loop (1- i) (+ r 0.2) (+ g 0.02) (+ b 0.33)))))
-    (svz:server:state-set! server "palette" rgb)
-    (svz:server:state-set! server "bpp" (number->string bpp))))
+    (ss! server 'palette rgb)
+    (ss! server 'bpp (number->string bpp))))
 
 ;; save the generated palette to a file
 (define (mandel-save-palette server outfile)
-  (let* ((rgb (svz:server:state-ref server "palette"))
+  (let* ((rgb (ss server 'palette))
          (size (vector-length (car rgb))))
     (let loop ((i 0))
       (and (< i size)
@@ -107,7 +128,7 @@
 
 ;; write out a finished xpm picture
 (define (mandel-write server)
-  (let* ((data (svz:server:state-ref server "data"))
+  (let* ((data (ss server 'data))
          (x-res (svz:server:config-ref server "x-res"))
          (y-res (svz:server:config-ref server "y-res"))
          (colors (svz:server:config-ref server "colors"))
@@ -119,7 +140,7 @@
 
     ;; create color palette
     (mandel-palette server)
-    (set! cols (car (svz:server:state-ref server "palette")))
+    (set! cols (car (ss server 'palette)))
 
     ;; create header
     (write-line "/* XPM */" outfile)
@@ -128,7 +149,7 @@
                     (number->string x-res)
                     (number->string y-res)
                     (number->string colors)
-                    (svz:server:state-ref server "bpp"))
+                    (ss server 'bpp))
                 outfile)
 
     ;; write palette information
@@ -152,37 +173,36 @@
 
 ;; check if all points were calculated
 (define (finished? server)
-  (<= (svz:server:state-ref server "missing") 0))
+  (<= (ss server 'missing) 0))
 
 ;; store a calculated point
 (define (save-point! server index value)
-  (and-let* ((data (svz:server:state-ref server "data"))
+  (and-let* ((data (ss server 'data))
              ((< (vector-ref data index) 0)))
     (vector-set! data index value)
-    (svz:server:state-set! server "missing"
-                           (1- (svz:server:state-ref server "missing")))))
+    (ss! server 'missing (1- (ss server 'missing)))))
 
 ;; calculate the complex number at a given array index
 (define (index->z server index)
   (let* ((x (modulo index (svz:server:config-ref server "x-res")))
          (y (divide index (svz:server:config-ref server "x-res")))
          (offset (make-rectangular
-                  (* (+ x 0.5) (svz:server:state-ref server "x-ratio"))
-                  (* (+ y 0.5) (svz:server:state-ref server "y-ratio"))))
+                  (* (+ x 0.5) (ss server 'x-ratio))
+                  (* (+ y 0.5) (ss server 'y-ratio))))
          (z (+ (string->number (svz:server:config-ref server "start"))
                offset)))
     z))
 
 ;; determine the next index to be calculated
 (define (next-index! server)
-  (let* ((index (svz:server:state-ref server "index"))
-         (data (svz:server:state-ref server "data"))
+  (let* ((index (ss server 'index))
+         (data (ss server 'data))
          (size (vector-length data)))
     (set! index (let loop ((i index))
                   (and (>= i size)
                        (set! i 0))
                   (if (< (vector-ref data i) 0) i (loop (1+ i)))))
-    (svz:server:state-set! server "index" (1+ index))
+    (ss! server 'index (1+ index))
     index))
 
 ;; detect our client with a magic string
@@ -199,9 +219,9 @@
   (fs " ~A\r\n ~A: ~A\r\n ~A: ~A"
       "Mandelbrot calculation server."
       "Points given for calculation"
-      (svz:server:state-ref server "index")
+      (ss server 'index)
       "Missing points"
-      (svz:server:state-ref server "missing")))
+      (ss server 'missing)))
 
 ;; connect a new client
 (define (mandel-connect server sock)
@@ -216,6 +236,7 @@
 
 ;; server instance finalizer callback
 (define (mandel-finalize server)
+  (set! (server-state server) #f)
   (and (finished? server)
        (system)
        (system (fs "~A ~A"

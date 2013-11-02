@@ -1,5 +1,20 @@
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[int] Use object property and record for Mandelbrot server state.
+
+	* mandel-server.scm: Import SRFI 9.
+	(state-record): New record type.
+	(server-state): New object property.
+	(ss, ss!): New macros, via ‘define-macro’.
+	(mandel-init): Init the ‘server-state’ for ‘server’;
+	change all ‘svz:server:state-set!’ calls to ‘ss!’ calls.
+	(mandel-palette, mandel-save-palette, mandel-write, finished?)
+	(save-point!, index->z, next-index!, mandel-info, mandel-finalize):
+	Use ‘ss!’ and ‘ss’ instead of ‘svz:server:state-set!’
+	and ‘svz:server:state-ref’, respectively.
+
+2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[int] Use object property to record Icecast server files.
 
 	* icecast-server.scm (available): New object property.
