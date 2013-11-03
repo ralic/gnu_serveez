@@ -1,5 +1,11 @@
 2013-11-03  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Incorporate ‘guile_servertype_add’ into unique caller.
+
+	* guile-server.c (guile_define_servertype): ...here.
+
+2013-11-03  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Decruft: Remove unused macros GUILE_{MIN,MAX}.
 
 	* guile-server.c (GUILE_MIN, GUILE_MAX): Delete macros.

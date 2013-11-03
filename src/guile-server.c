@@ -233,19 +233,6 @@ optionhash_extract_proc (svz_hash_t *hash,
 }
 
 /*
- * Add another server type @var{server} to the list of known server types.
- * Each server type is associated with a number of functions which is also
- * a hash associating names with guile procedures.
- */
-static void
-guile_servertype_add (svz_servertype_t *server, svz_hash_t *functions)
-{
-  svz_hash_put (functions, "server-type", server);
-  svz_hash_put (guile_server, server->prefix, functions);
-  svz_servertype_add (server);
-}
-
-/*
  * Lookup a procedure named @var{func} in the list of known servertypes.
  * The returned guile procedure depends on the given server type
  * @var{server}.  If the lookup fails this routine return SCM_UNDEFINED.
@@ -1533,7 +1520,11 @@ Return @code{#t} on success.  */)
       server->notify = guile_func_notify;
       server->reset = guile_func_reset;
       server->handle_request = guile_func_handle_request;
-      guile_servertype_add (server, functions);
+
+      /* Hook it all up.  */
+      svz_hash_put (functions, "server-type", server);
+      svz_hash_put (guile_server, server->prefix, functions);
+      svz_servertype_add (server);
     }
   else
     {
