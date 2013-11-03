@@ -1,3 +1,9 @@
+2013-11-03  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Decruft: Remove unused macros GUILE_{MIN,MAX}.
+
+	* guile-server.c (GUILE_MIN, GUILE_MAX): Delete macros.
+
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme] Remove procs: svz:server:state{-ref,-set!,->hash}

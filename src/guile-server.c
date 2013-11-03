@@ -632,9 +632,6 @@ guile_func_global_finalize (svz_servertype_t *stype)
 #undef FUNC_NAME
 
 }
-/* Min-Max definitions.  */
-#define GUILE_MIN(x, y) (((x) < (y)) ? (x) : (y))
-#define GUILE_MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 /* Wrapper for the client info callback.  */
 static char *
