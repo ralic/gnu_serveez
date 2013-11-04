@@ -475,4 +475,14 @@ gi_smob_data (SCM smob)
 #endif
 }
 
+SCM
+gi_hash_clear_x (SCM table)
+{
+#if V17
+  return scm_hash_clear_x (table);
+#else
+  scm_vector_fill_x (table, SCM_EOL);
+#endif
+}
+
 /* gi.c ends here */

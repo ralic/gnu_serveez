@@ -85,6 +85,8 @@ extern void *gi_smob_data (SCM smob);
 
 #define gi_make_hash_table(size)   MAKE_HASH_TABLE (size)
 
+extern SCM gi_hash_clear_x (SCM table);
+
 /* Idioms.  */
 
 #define BOUNDP(x)  (! SCM_UNBNDP (x))
