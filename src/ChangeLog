@@ -1,5 +1,13 @@
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstractions: protected_ht, ht_zonk_out
+
+	* guile-server.c (protected_ht, ht_zonk_out): New static funcs.
+	(guile_server_init): Use ‘protected_ht’.
+	(guile_server_finalize): Use ‘ht_zonk_out’.
+
+2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Make ‘optionhash_extract_proc’ consult ‘guile_functions’.
 
 	* guile-server.c (optionhash_extract_proc): Don't take

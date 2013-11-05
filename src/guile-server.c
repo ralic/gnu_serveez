@@ -46,6 +46,20 @@
 
 #define SVZ_PTR2SCM(x)  ((SCM) SVZ_PTR2NUM (x))
 
+static SCM
+protected_ht (size_t size)
+{
+  return gi_gc_protect (gi_make_hash_table (size));
+}
+
+static void
+ht_zonk_out (SCM *table)
+{
+  gi_gc_unprotect (*table);
+  gi_hash_clear_x (*table);
+  *table = SCM_BOOL_F;
+}
+
 #define _CTYPE(ctype,x)     guile_svz_ ## ctype ## _ ## x
 #define NAME_TAG(ctype)     _CTYPE (ctype, tag)
 #define NAME_PRINT(ctype)   _CTYPE (ctype, print)
@@ -1581,7 +1595,7 @@ guile_server_init (void)
   INIT_SMOB (server);
   INIT_SMOB (servertype);
 
-  goodstuff = gi_gc_protect (gi_make_hash_table (11));
+  goodstuff = protected_ht (11);
 
 #include "guile-server.x"
 
@@ -1611,9 +1625,7 @@ guile_server_finalize (void)
       guile_sock = NULL;
     }
 
-  /* Older Guile versions don't have ‘hashq-clear!’, unfortunately.  */
-  gi_gc_unprotect (goodstuff);
-  goodstuff = SCM_BOOL_F;
+  ht_zonk_out (&goodstuff);
 }
 
 #else /* not ENABLE_GUILE_SERVER */
