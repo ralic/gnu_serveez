@@ -1,5 +1,12 @@
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Rename func to ‘servertype_getfunction’.
+
+	* guile-server.c (servertype_getfunction):
+	Rename from ‘guile_servertype_getfunction’.
+
+2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: symstr_t
 
 	* guile-server.c (symstr_t): New typedef.
