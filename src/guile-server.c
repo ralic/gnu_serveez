@@ -191,6 +191,13 @@ optionhash_extract_proc (svz_hash_t *hash,
   SCM proc, hvalue = optionhash_get (hash, key);
   int err = 0;
 
+#define BADNESS(fmtstr, ...)  do                \
+    {                                           \
+      err = 1;                                  \
+      guile_error (fmtstr, __VA_ARGS__);        \
+    }                                           \
+  while (0)
+
   /* Is there such a string in the option-hash?  */
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
@@ -198,10 +205,7 @@ optionhash_extract_proc (svz_hash_t *hash,
       if (hasdef)
         *target = defvar;
       else
-        {
-          guile_error ("No default procedure for `%s' %s", key, txt);
-          err = 1;
-        }
+        BADNESS ("No default procedure for `%s' %s", key, txt);
       return err;
     }
 
@@ -219,17 +223,13 @@ optionhash_extract_proc (svz_hash_t *hash,
       if (BOUNDP (proc) && SCM_PROCEDUREP (proc))
         *target = proc;
       else
-        {
-          guile_error ("No such procedure `%s' for `%s' %s", str, key, txt);
-          err = 1;
-        }
+        BADNESS ("No such procedure `%s' for `%s' %s", str, key, txt);
     }
   else
-    {
-      guile_error ("Invalid procedure for `%s' %s", key, txt);
-      err = 1;
-    }
+    BADNESS ("Invalid procedure for `%s' %s", key, txt);
   return err;
+
+#undef BADNESS
 }
 
 /*

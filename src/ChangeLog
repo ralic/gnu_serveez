@@ -1,5 +1,12 @@
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstraction: BADNESS
+
+	* guile-server.c (optionhash_extract_proc) [BADNESS]:
+	New internal macro, #undef:ed at end of func.
+
+2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Incorporate ‘guile_servertype_config_free’ into unique caller.
 
 	* guile-server.c (guile_servertype_destroy): ...here.
