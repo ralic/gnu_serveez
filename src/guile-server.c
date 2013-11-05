@@ -77,9 +77,20 @@ static svz_hash_t *guile_sock = NULL;
 
 /* List of procedures to configure for a server type.  */
 static char *guile_functions[] = {
-  "global-init", "init", "detect-proto", "connect-socket", "finalize",
-  "global-finalize", "info-client", "info-server", "notify", "reset",
-  "handle-request", NULL };
+  "global-init",
+  "init",
+  "detect-proto",
+  "connect-socket",
+  "finalize",
+  "global-finalize",
+  "info-client",
+  "info-server",
+  "notify",
+  "reset",
+  "handle-request"
+};
+#define guile_functions_count  (sizeof (guile_functions)        \
+                                / sizeof (guile_functions[0]))
 
 /* If set to zero exception handling is disabled.  */
 static int guile_use_exceptions = 1;
@@ -1479,7 +1490,7 @@ Return @code{#t} on success.  */)
 
   /* Set the procedures.  */
   functions = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
-  for (n = 0; guile_functions[n] != NULL; n++)
+  for (n = 0; n < (int) guile_functions_count; n++)
     {
       proc = SCM_UNDEFINED;
       err |= optionhash_extract_proc (options, n, &proc, action);

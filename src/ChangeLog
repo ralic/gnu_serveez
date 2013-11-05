@@ -1,5 +1,13 @@
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Keep precise count of ‘guile_functions’ elements.
+
+	* guile-server.c (guile_functions): Remove trailing ‘NULL’.
+	(guile_functions_count): New #define.
+	(guile_define_servertype): Use ‘guile_functions_count’.
+
+2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstractions: protected_ht, ht_zonk_out
 
 	* guile-server.c (protected_ht, ht_zonk_out): New static funcs.
