@@ -46,6 +46,11 @@
 
 #define SVZ_PTR2SCM(x)  ((SCM) SVZ_PTR2NUM (x))
 
+typedef union {
+  SCM          sym;
+  char * const str;
+} symstr_t;
+
 static SCM
 protected_ht (size_t size)
 {
@@ -76,18 +81,18 @@ static svz_hash_t *guile_server = NULL;
 static svz_hash_t *guile_sock = NULL;
 
 /* List of procedures to configure for a server type.  */
-static char *guile_functions[] = {
-  "global-init",
-  "init",
-  "detect-proto",
-  "connect-socket",
-  "finalize",
-  "global-finalize",
-  "info-client",
-  "info-server",
-  "notify",
-  "reset",
-  "handle-request"
+static symstr_t guile_functions[] = {
+  { .str = "global-init" },
+  { .str = "init" },
+  { .str = "detect-proto" },
+  { .str = "connect-socket" },
+  { .str = "finalize" },
+  { .str = "global-finalize" },
+  { .str = "info-client" },
+  { .str = "info-server" },
+  { .str = "notify" },
+  { .str = "reset" },
+  { .str = "handle-request" }
 };
 #define guile_functions_count  (sizeof (guile_functions)        \
                                 / sizeof (guile_functions[0]))
@@ -222,7 +227,7 @@ optionhash_extract_proc (svz_hash_t *hash,
     }                                           \
   while (0)
 
-  key = guile_functions[kidx];
+  key = guile_functions[kidx].str;
   hvalue = optionhash_get (hash, key);
 
   /* Is there such a string in the option-hash?  */
@@ -1494,7 +1499,7 @@ Return @code{#t} on success.  */)
     {
       proc = SCM_UNDEFINED;
       err |= optionhash_extract_proc (options, n, &proc, action);
-      svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
+      svz_hash_put (functions, guile_functions[n].str, SVZ_NUM2PTR (proc));
       if (BOUNDP (proc))
         gi_gc_protect (proc);
     }

@@ -1,5 +1,14 @@
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Add abstraction: symstr_t
+
+	* guile-server.c (symstr_t): New typedef.
+	(guile_functions): Change elem type to ‘symstr_t’; update init form.
+	(optionhash_extract_proc, guile_define_servertype):
+	Update ‘guile_functions’ elem access to use ‘.str’.
+
+2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Keep precise count of ‘guile_functions’ elements.
 
 	* guile-server.c (guile_functions): Remove trailing ‘NULL’.
