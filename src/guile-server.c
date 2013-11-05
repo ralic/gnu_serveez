@@ -182,11 +182,12 @@ servertype_smob (svz_servertype_t *orig)
  */
 static int
 optionhash_extract_proc (svz_hash_t *hash,
-                         char *key,        /* the key to find       */
+                         size_t kidx,      /* the key to find       */
                          SCM *target,      /* where to put it       */
                          char *txt)        /* appended to error     */
 {
-  SCM proc, hvalue = optionhash_get (hash, key);
+  char *key;
+  SCM proc, hvalue;
   int err = 0;
 
 #define BADNESS(fmtstr, ...)  do                \
@@ -195,6 +196,9 @@ optionhash_extract_proc (svz_hash_t *hash,
       guile_error (fmtstr, __VA_ARGS__);        \
     }                                           \
   while (0)
+
+  key = guile_functions[kidx];
+  hvalue = optionhash_get (hash, key);
 
   /* Is there such a string in the option-hash?  */
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
@@ -1464,8 +1468,7 @@ Return @code{#t} on success.  */)
   for (n = 0; guile_functions[n] != NULL; n++)
     {
       proc = SCM_UNDEFINED;
-      err |= optionhash_extract_proc (options, guile_functions[n],
-                                      &proc, action);
+      err |= optionhash_extract_proc (options, n, &proc, action);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
       if (BOUNDP (proc))
         gi_gc_protect (proc);
