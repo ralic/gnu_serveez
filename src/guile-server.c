@@ -1157,23 +1157,6 @@ guile_servertype_config_type (char *str, svz_key_value_pair_t *item, int *size)
 }
 
 /*
- * Release the default configuration items of a servertype defined
- * in Guile.  This is necessary because each of these items is dynamically
- * allocated if defined in Guile.
- */
-static void
-guile_servertype_config_free (svz_servertype_t *server)
-{
-  int n;
-  svz_config_prototype_t *prototype = &server->config_prototype;
-
-  for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
-    svz_free (prototype->items[n].name);
-  svz_config_free (prototype, prototype->start);
-  svz_free (prototype->items);
-}
-
-/*
  * Obtain a default value from the scheme cell @var{value}.  The configuration
  * item type is specified by @var{type}.  The default value is stored then at
  * @var{address}.  Returns zero on success.
@@ -1551,12 +1534,18 @@ static void
 guile_servertype_destroy (svz_hash_t *callbacks)
 {
   svz_servertype_t *stype;
+  svz_config_prototype_t *prototype;
+  int n;
 
   stype = svz_hash_delete (callbacks, "server-type");
   svz_hash_destroy (callbacks);
   svz_free (stype->prefix);
   svz_free (stype->description);
-  guile_servertype_config_free (stype);
+  prototype = &stype->config_prototype;
+  for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
+    svz_free (prototype->items[n].name);
+  svz_config_free (prototype, prototype->start);
+  svz_free (prototype->items);
   svz_free (stype);
 }
 
