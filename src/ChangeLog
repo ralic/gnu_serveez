@@ -1,5 +1,13 @@
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Incorporate constant args into ‘optionhash_extract_proc’.
+
+	* guile-server.c (optionhash_extract_proc): Don't take HASDEF
+	and DEFVAR; if no proc defined, use ‘SCM_UNDEFINED’ unconditionally.
+	(guile_define_servertype): Update call to ‘optionhash_extract_proc’.
+
+2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: BADNESS
 
 	* guile-server.c (optionhash_extract_proc) [BADNESS]:

@@ -183,8 +183,6 @@ servertype_smob (svz_servertype_t *orig)
 static int
 optionhash_extract_proc (svz_hash_t *hash,
                          char *key,        /* the key to find       */
-                         int hasdef,       /* if there is a default */
-                         SCM defvar,       /* default               */
                          SCM *target,      /* where to put it       */
                          char *txt)        /* appended to error     */
 {
@@ -201,11 +199,8 @@ optionhash_extract_proc (svz_hash_t *hash,
   /* Is there such a string in the option-hash?  */
   if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
-      /* Nothing in hash, try to use default.  */
-      if (hasdef)
-        *target = defvar;
-      else
-        BADNESS ("No default procedure for `%s' %s", key, txt);
+      /* Nothing in hash, use default.  */
+      *target = SCM_UNDEFINED;
       return err;
     }
 
@@ -1470,7 +1465,7 @@ Return @code{#t} on success.  */)
     {
       proc = SCM_UNDEFINED;
       err |= optionhash_extract_proc (options, guile_functions[n],
-                                      1, SCM_UNDEFINED, &proc, action);
+                                      &proc, action);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
       if (BOUNDP (proc))
         gi_gc_protect (proc);
