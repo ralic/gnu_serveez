@@ -1,3 +1,15 @@
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Use "stype" as var name for ‘svz_servertype_t *’.
+
+	Using "server" for both ‘svz_servertype_t *’ and ‘svz_server_t *’
+	objects is really confusing!
+
+	* guile-server.c (servertype_getfunction)
+	(guile_servertype_config_default, struct servertype_config_closure)
+	(servertype_config_internal, guile_servertype_config)
+	(guile_define_servertype): ...here.
+
 2013-11-05  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile int] Make ‘servertype_getfunction’ consult ‘guile_functions’.

@@ -273,20 +273,20 @@ optionhash_extract_proc (svz_hash_t *hash,
 }
 
 /*
- * Lookup a procedure named @var{func} in the list of known servertypes.
- * The returned guile procedure depends on the given server type
- * @var{server}.  If the lookup fails this routine return SCM_UNDEFINED.
+ * Return the procedure associated w/ the @var{fidx} entry
+ * in @code{guile_functions} for @var{stype},
+ * or ‘SCM_UNDEFINED’ on lookup failure.
  */
 static SCM
-servertype_getfunction (svz_servertype_t *server, size_t fidx)
+servertype_getfunction (svz_servertype_t *stype, size_t fidx)
 {
   svz_hash_t *gserver;
   void *fn;
 
-  if (server == NULL || guile_server == NULL)
+  if (stype == NULL || guile_server == NULL)
     return SCM_UNDEFINED;
 
-  if ((gserver = svz_hash_get (guile_server, server->prefix)) == NULL)
+  if ((gserver = svz_hash_get (guile_server, stype->prefix)) == NULL)
     return SCM_UNDEFINED;
 
   if ((fn = svz_hash_get (gserver, guile_functions[fidx].str)) == NULL)
@@ -1202,7 +1202,7 @@ guile_servertype_config_type (char *str, svz_key_value_pair_t *item, int *size)
  * @var{address}.  Returns zero on success.
  */
 static int
-guile_servertype_config_default (svz_servertype_t *server, SCM value,
+guile_servertype_config_default (svz_servertype_t *stype, SCM value,
                                  void *address, int len, int type, char *key)
 {
   int err = 0, n;
@@ -1218,7 +1218,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
       if (guile_to_integer (value, &n) != 0)
         {
           guile_error ("%s: Invalid integer value for `%s'",
-                       server->prefix, key);
+                       stype->prefix, key);
           err = -1;
         }
       else
@@ -1238,7 +1238,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
       if (! GI_GET_XREP_MAYBE (str, value))
         {
           guile_error ("%s: Invalid string value for `%s'",
-                       server->prefix, key);
+                       stype->prefix, key);
           err = -1;
         }
       else
@@ -1269,13 +1269,13 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
       if (! GI_GET_XREP_MAYBE (str, value))
         {
           guile_error ("%s: Invalid string value for `%s'",
-                       server->prefix, key);
+                       stype->prefix, key);
           err = -1;
         }
       else if ((port = svz_portcfg_get (str)) == NULL)
         {
           guile_error ("%s: No such port configuration: `%s'",
-                       server->prefix, str);
+                       stype->prefix, str);
           err = -1;
         }
       else
@@ -1290,7 +1290,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
       if (guile_to_boolean (value, &n) != 0)
         {
           guile_error ("%s: Invalid boolean value for `%s'",
-                       server->prefix, key);
+                       stype->prefix, key);
           err = -1;
         }
       else
@@ -1315,7 +1315,7 @@ items_append (svz_key_value_pair_t **all, unsigned int i,
 
 struct servertype_config_closure
 {
-  svz_servertype_t *server;
+  svz_servertype_t *stype;
   char *action;
   svz_hash_t *options;
   int error;
@@ -1386,7 +1386,7 @@ servertype_config_internal (void *k, UNUSED void *v, void *closure)
   if (item.defaultable == SVZ_ITEM_DEFAULTABLE)
     {
       x->error |= guile_servertype_config_default
-        (x->server, value, x->prototype + x->size - len,
+        (x->stype, value, x->prototype + x->size - len,
          len, item.type, key);
     }
 
@@ -1396,11 +1396,11 @@ servertype_config_internal (void *k, UNUSED void *v, void *closure)
 }
 
 /*
- * Parse the configuration of the server type @var{server} stored in the
+ * Parse the configuration of the server type @var{stype} stored in the
  * scheme cell @var{cfg}.
  */
 static int
-guile_servertype_config (svz_servertype_t *server, SCM cfg)
+guile_servertype_config (svz_servertype_t *stype, SCM cfg)
 {
 #define FUNC_NAME __func__
   unsigned int n;
@@ -1408,7 +1408,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
   char action[ACTIONBUFSIZE];
   struct servertype_config_closure x =
     {
-      server, action,
+      stype, action,
       NULL,                             /* .options */
       0,                                /* .error */
       0,                                /* .size */
@@ -1421,13 +1421,13 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 #define items    (x.items)
 #define options  (x.options)
 
-  DOING ("parsing configuration of `%s'", server->prefix);
+  DOING ("parsing configuration of `%s'", stype->prefix);
 
   /* Check if the configuration alist is given or not.  */
   if (SCM_EQ_P (cfg, SCM_UNSPECIFIED))
     {
       guile_error ("Missing servertype `configuration' for `%s'",
-                   server->prefix);
+                   stype->prefix);
       FAIL ();
     }
 
@@ -1436,7 +1436,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
     FAIL ();                    /* Message already emitted.  */
 
   /* Check the servertype configuration definition for duplicates.  */
-  err |= optionhash_validate (options, 1, "configuration", server->prefix);
+  err |= optionhash_validate (options, 1, "configuration", stype->prefix);
 
   /* Now check all configuration items.  */
   svz_hash_foreach (servertype_config_internal, options, &x);
@@ -1454,10 +1454,10 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
   for (n = 0; n < x.count; n++)
     items[n].address = (void *) ((unsigned long) items[n].address +
       (unsigned long) x.prototype);
-  server->config_prototype.start = x.prototype;
-  server->config_prototype.size = x.size;
+  stype->config_prototype.start = x.prototype;
+  stype->config_prototype.size = x.size;
 #undef items        /* Unfortunately, tidy is incorrect for next line LHS.  */
-  server->config_prototype.items = x.items;
+  stype->config_prototype.items = x.items;
 
  out:
   optionhash_destroy (options);
@@ -1481,11 +1481,11 @@ Return @code{#t} on success.  */)
   int n, err = 0;
   svz_hash_t *options;
   SCM proc;
-  svz_servertype_t *server;
+  svz_servertype_t *stype;
   svz_hash_t *functions;
   char action[ACTIONBUFSIZE];
 
-  server = svz_calloc (sizeof (svz_servertype_t));
+  stype = svz_calloc (sizeof (svz_servertype_t));
   DEFINING ("%s", "servertype");
 
   if (NULL == (options = guile_to_optionhash (args, action, 0)))
@@ -1493,16 +1493,16 @@ Return @code{#t} on success.  */)
 
   /* Obtain the servertype prefix variable (Mandatory).  */
   if (optionhash_extract_string (options, "prefix", 0, NULL,
-                                 &server->prefix, action) != 0)
+                                 &stype->prefix, action) != 0)
     FAIL ();
-  DEFINING ("servertype `%s'", server->prefix);
+  DEFINING ("servertype `%s'", stype->prefix);
 
   /* Check the servertype definition once.  */
-  err |= optionhash_validate (options, 1, "servertype", server->prefix);
+  err |= optionhash_validate (options, 1, "servertype", stype->prefix);
 
   /* Get the description of the server type.  */
   err |= optionhash_extract_string (options, "description", 0, NULL,
-                                    &server->description, action);
+                                    &stype->description, action);
 
   /* Set the procedures.  */
   functions = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
@@ -1516,44 +1516,44 @@ Return @code{#t} on success.  */)
     }
 
   /* Check duplicate server types.  */
-  if (svz_servertype_get (server->prefix, 0) != NULL)
+  if (svz_servertype_get (stype->prefix, 0) != NULL)
     {
-      guile_error ("Duplicate servertype definition: `%s'", server->prefix);
+      guile_error ("Duplicate servertype definition: `%s'", stype->prefix);
       err = -1;
     }
   else
     {
       /* Check the configuration items for this servertype.  */
-      err |= guile_servertype_config (server,
+      err |= guile_servertype_config (stype,
                                       optionhash_get (options,
                                                       "configuration"));
     }
 
   if (!err)
     {
-      server->global_init = guile_func_global_init;
-      server->init = guile_func_init;
-      server->detect_proto = guile_func_detect_proto;
-      server->connect_socket = guile_func_connect_socket;
-      server->finalize = guile_func_finalize;
-      server->global_finalize = guile_func_global_finalize;
-      server->info_client = guile_func_info_client;
-      server->info_server = guile_func_info_server;
-      server->notify = guile_func_notify;
-      server->reset = guile_func_reset;
-      server->handle_request = guile_func_handle_request;
+      stype->global_init = guile_func_global_init;
+      stype->init = guile_func_init;
+      stype->detect_proto = guile_func_detect_proto;
+      stype->connect_socket = guile_func_connect_socket;
+      stype->finalize = guile_func_finalize;
+      stype->global_finalize = guile_func_global_finalize;
+      stype->info_client = guile_func_info_client;
+      stype->info_server = guile_func_info_server;
+      stype->notify = guile_func_notify;
+      stype->reset = guile_func_reset;
+      stype->handle_request = guile_func_handle_request;
 
       /* Hook it all up.  */
-      svz_hash_put (functions, "server-type", server);
-      svz_hash_put (guile_server, server->prefix, functions);
-      svz_servertype_add (server);
+      svz_hash_put (functions, "server-type", stype);
+      svz_hash_put (guile_server, stype->prefix, functions);
+      svz_servertype_add (stype);
     }
   else
     {
-      svz_free (server->prefix);
-      if (server->description)
-        svz_free (server->description);
-      svz_free (server);
+      svz_free (stype->prefix);
+      if (stype->description)
+        svz_free (stype->description);
+      svz_free (stype);
       svz_hash_destroy (functions);
     }
 
