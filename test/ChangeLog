@@ -1,3 +1,9 @@
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile] Fix bug: Make socket smob/C-obj validity precise.
+
+	* Makefile.am (XFAIL_TESTS): Remove t008.
+
 2013-10-22  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[v int] Decruft: Don't push ‘.’ on ‘%load-path’ twice.

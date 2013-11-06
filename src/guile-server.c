@@ -200,10 +200,16 @@ invalidate_smob (const void *orig)
     }
 }
 
+static void
+invalidate_socket_smob (const svz_socket_t *sock)
+{
+  invalidate_smob (sock);
+}
+
 static SCM
 socket_smob (svz_socket_t *orig)
 {
-  return MAKE_SMOB (socket, orig);
+  return VALID_SMOB (socket, orig);
 }
 
 static SCM
@@ -1608,6 +1614,7 @@ guile_server_init (void)
   INIT_SMOB (server);
   INIT_SMOB (servertype);
 
+  svz_sock_pre_free = invalidate_socket_smob;
   goodstuff = protected_ht (11);
   all_servertypes = protected_ht (3);
 
@@ -1635,6 +1642,7 @@ guile_server_finalize (void)
 
   ht_zonk_out (&all_servertypes);
   ht_zonk_out (&goodstuff);
+  svz_sock_pre_free = NULL;
 }
 
 #else /* not ENABLE_GUILE_SERVER */

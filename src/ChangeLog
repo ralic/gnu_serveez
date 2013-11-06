@@ -1,5 +1,14 @@
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile] Fix bug: Make socket smob/C-obj validity precise.
+
+	* guile-server.c (invalidate_socket_smob): New static func.
+	(socket_smob): Use ‘VALID_SMOB’.
+	(guile_server_init): Set ‘svz_sock_pre_free’.
+	(guile_server_finalize): Clear ‘svz_sock_pre_free’.
+
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Use Scheme hash tables for servertype funcs.
 
 	* guile-server.c (all_servertypes): New static var.
