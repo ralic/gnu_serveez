@@ -1,5 +1,12 @@
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Avoid ‘svz_servertype_find’.
+
+	* guile-server.c (guile_server_config_ref):
+	Use ‘xserver->type’ directly.
+
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: server_getfunction
 
 	* guile-server.c (server_getfunction): New static func.

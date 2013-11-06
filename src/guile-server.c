@@ -1127,7 +1127,6 @@ string @var{key} is invalid (not defined in the configuration alist in
 {
 #define FUNC_NAME s_guile_server_config_ref
   SCM ret = SCM_EOL;
-  svz_servertype_t *stype;
   svz_server_t *xserver;
   int i;
   void *cfg, *address;
@@ -1138,9 +1137,8 @@ string @var{key} is invalid (not defined in the configuration alist in
   ASSERT_STRING (2, key);
 
   GI_GET_XREP (str, key);
-  stype = svz_servertype_find (xserver);
   cfg = xserver->cfg;
-  prototype = &stype->config_prototype;
+  prototype = &xserver->type->config_prototype;
 
   for (i = 0; prototype->items[i].type != SVZ_ITEM_END; i++)
     {
