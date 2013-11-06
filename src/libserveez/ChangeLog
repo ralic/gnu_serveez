@@ -1,3 +1,11 @@
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib] Add API element: svz_sock_pre_free
+
+	* socket.c (svz_sock_pre_free): New var.
+	(svz_sock_free): If ‘svz_sock_pre_free’ is set, call it on ‘sock’.
+	* socket.h (svz_sock_pre_free): Add var decl.
+
 2013-09-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[C int] Consolidate two ‘if’ CONDITIONs w/ identical BODY.

@@ -62,6 +62,11 @@
  */
 int svz_sock_connections = 0;
 
+/*
+ * Called immediately prior to a @code{svz_socket_t} being freed.
+ */
+void (* svz_sock_pre_free) (const svz_socket_t *);
+
 /**
  * Return the number of currently connected sockets.
  */
@@ -428,6 +433,8 @@ svz_sock_resize_buffers (svz_socket_t *sock,
 int
 svz_sock_free (svz_socket_t *sock)
 {
+  if (svz_sock_pre_free)
+    svz_sock_pre_free (sock);
   if (sock->remote_addr)
     svz_free (sock->remote_addr);
   if (sock->local_addr)

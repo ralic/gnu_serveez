@@ -1,3 +1,11 @@
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib] Add API element: svz_sock_pre_free
+
+	* serveez-api.texh (Socket management): Don't mention
+	creation and destruction in intro blurb; add intro blurb
+	and ‘@deftypevar’ for ‘svz_sock_pre_free’.
+
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme] Remove procs: svz:server:state{-ref,-set!,->hash}
