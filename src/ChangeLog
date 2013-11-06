@@ -1,5 +1,26 @@
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Use Scheme hash tables for servertype funcs.
+
+	* guile-server.c (all_servertypes): New static var.
+	(guile_server): Delete var.
+	(optionhash_extract_proc): Use .sym from ‘guile_functions’
+	elem; convert it dynamically to the key.
+	(servertype_getfunction): Rewrite to consult ‘all_servertypes’
+	and to use .sym from ‘guile_functions’ for lookup.
+	(guile_func_global_finalize): Remove the servertype from
+	‘all_servertypes’; incorporate ‘guile_servertype_destroy’.
+	(guile_define_servertype): Change ‘functions’ into a Scheme
+	hash table; update accumulation loop accordingly; add ‘functions’
+	to ‘all_servertypes’ keyed on new ‘servertype’ on success;
+	use ‘ht_zonk_out’ on ‘functions’ on error.
+	(guile_servertype_destroy): Delete static func.
+	(guile_server_init): Flip ‘guile_functions’
+	elems from .str to .sym; init ‘all_servertypes’.
+	(guile_server_finalize): Use ‘ht_zonk_out’ on ‘all_servertypes’.
+
+2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Avoid ‘svz_servertype_find’.
 
 	* guile-server.c (guile_server_config_ref):

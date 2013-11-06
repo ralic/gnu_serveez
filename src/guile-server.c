@@ -75,7 +75,7 @@ ht_zonk_out (SCM *table)
    : def)
 
 /* The guile server type hash.  */
-static svz_hash_t *guile_server = NULL;
+static SCM all_servertypes;
 
 /* The guile socket hash.  */
 static svz_hash_t *guile_sock = NULL;
@@ -227,7 +227,7 @@ optionhash_extract_proc (svz_hash_t *hash,
                          SCM *target,      /* where to put it       */
                          char *txt)        /* appended to error     */
 {
-  char *key;
+  char key[32];
   SCM proc, hvalue;
   int err = 0;
 
@@ -238,7 +238,7 @@ optionhash_extract_proc (svz_hash_t *hash,
     }                                           \
   while (0)
 
-  key = guile_functions[kidx].str;
+  GI_GET_XREP (key, guile_functions[kidx].sym);
   hvalue = optionhash_get (hash, key);
 
   /* Is there such a string in the option-hash?  */
@@ -280,19 +280,17 @@ optionhash_extract_proc (svz_hash_t *hash,
 static SCM
 servertype_getfunction (svz_servertype_t *stype, size_t fidx)
 {
-  svz_hash_t *gserver;
-  void *fn;
+  SCM servertype = servertype_smob (stype);
+  SCM functions;
 
-  if (stype == NULL || guile_server == NULL)
+  if (stype == NULL)
     return SCM_UNDEFINED;
 
-  if ((gserver = svz_hash_get (guile_server, stype->prefix)) == NULL)
+  functions = scm_hashq_ref (all_servertypes, servertype, SCM_BOOL_F);
+  if (! gi_nfalsep (functions))
     return SCM_UNDEFINED;
 
-  if ((fn = svz_hash_get (gserver, guile_functions[fidx].str)) == NULL)
-    return SCM_UNDEFINED;
-
-  return SVZ_PTR2SCM (fn);
+  return scm_hashq_ref (functions, guile_functions[fidx].sym, SCM_UNDEFINED);
 }
 
 /*
@@ -649,20 +647,30 @@ static int
 guile_func_global_finalize (svz_servertype_t *stype)
 {
 #define FUNC_NAME __func__
+  svz_config_prototype_t *prototype = &stype->config_prototype;
+  SCM servertype = servertype_smob (stype);
   SCM ret, global_finalize;
-  int retval = 0;
+  int i, retval = 0;
 
   global_finalize = servertype_getfunction (stype, fn_global_finalize);
 
   if (BOUNDP (global_finalize))
     {
-      ret = guile_call (global_finalize, 1, servertype_smob (stype));
+      ret = guile_call (global_finalize, 1, servertype);
       retval = integer_else (ret, -1);
     }
+
+  scm_hashq_remove_x (all_servertypes, servertype);
   invalidate_smob (stype);
+  svz_free (stype->prefix);
+  svz_free (stype->description);
+  for (i = 0; prototype->items[i].type != SVZ_ITEM_END; i++)
+    svz_free (prototype->items[i].name);
+  svz_config_free (prototype, prototype->start);
+  svz_free (prototype->items);
+  svz_free (stype);
   return retval;
 #undef FUNC_NAME
-
 }
 
 /* Wrapper for the client info callback.  */
@@ -1477,9 +1485,8 @@ Return @code{#t} on success.  */)
 #define FUNC_NAME s_guile_define_servertype
   int n, err = 0;
   svz_hash_t *options;
-  SCM proc;
+  SCM proc, functions;
   svz_servertype_t *stype;
-  svz_hash_t *functions;
   char action[ACTIONBUFSIZE];
 
   stype = svz_calloc (sizeof (svz_servertype_t));
@@ -1502,14 +1509,11 @@ Return @code{#t} on success.  */)
                                     &stype->description, action);
 
   /* Set the procedures.  */
-  functions = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
+  functions = protected_ht (3);
   for (n = 0; n < (int) guile_functions_count; n++)
     {
-      proc = SCM_UNDEFINED;
       err |= optionhash_extract_proc (options, n, &proc, action);
-      svz_hash_put (functions, guile_functions[n].str, SVZ_NUM2PTR (proc));
-      if (BOUNDP (proc))
-        gi_gc_protect (proc);
+      scm_hashq_set_x (functions, guile_functions[n].sym, proc);
     }
 
   /* Check duplicate server types.  */
@@ -1528,6 +1532,8 @@ Return @code{#t} on success.  */)
 
   if (!err)
     {
+      SCM servertype = servertype_smob (stype);
+
       stype->global_init = guile_func_global_init;
       stype->init = guile_func_init;
       stype->detect_proto = guile_func_detect_proto;
@@ -1541,8 +1547,8 @@ Return @code{#t} on success.  */)
       stype->handle_request = guile_func_handle_request;
 
       /* Hook it all up.  */
-      svz_hash_put (functions, "server-type", stype);
-      svz_hash_put (guile_server, stype->prefix, functions);
+      scm_hashq_set_x (all_servertypes, servertype, functions);
+      gi_gc_unprotect (functions);
       svz_servertype_add (stype);
     }
   else
@@ -1551,7 +1557,7 @@ Return @code{#t} on success.  */)
       if (stype->description)
         svz_free (stype->description);
       svz_free (stype);
-      svz_hash_destroy (functions);
+      ht_zonk_out (&functions);
     }
 
  out:
@@ -1559,30 +1565,6 @@ Return @code{#t} on success.  */)
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
 #undef FUNC_NAME
-}
-
-/*
- * Destroys the servertype represented by the hash @var{callbacks}.  Removes
- * the servertype pointer from the hash, destroys the remaining callback
- * hash and finally frees all resources allocated by the servertype.
- */
-static void
-guile_servertype_destroy (svz_hash_t *callbacks)
-{
-  svz_servertype_t *stype;
-  svz_config_prototype_t *prototype;
-  int n;
-
-  stype = svz_hash_delete (callbacks, "server-type");
-  svz_hash_destroy (callbacks);
-  svz_free (stype->prefix);
-  svz_free (stype->description);
-  prototype = &stype->config_prototype;
-  for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
-    svz_free (prototype->items[n].name);
-  svz_config_free (prototype, prototype->start);
-  svz_free (prototype->items);
-  svz_free (stype);
 }
 
 /*
@@ -1605,11 +1587,18 @@ guile_sock_destroy (svz_hash_t *callbacks)
 void
 guile_server_init (void)
 {
-  if (guile_server || guile_sock)
+  size_t i;
+  symstr_t *ss;
+
+  if (guile_sock)
     return;
 
-  guile_server =
-    svz_hash_create (4, (svz_free_func_t) guile_servertype_destroy);
+  for (i = 0; i < guile_functions_count; i++)
+    {
+      ss = guile_functions + i;
+      ss->sym = gi_gc_protect (gi_symbol2scm (ss->str));
+    }
+
   guile_sock =
     svz_hash_create (4, (svz_free_func_t) guile_sock_destroy);
 
@@ -1620,6 +1609,7 @@ guile_server_init (void)
   INIT_SMOB (servertype);
 
   goodstuff = protected_ht (11);
+  all_servertypes = protected_ht (3);
 
 #include "guile-server.x"
 
@@ -1637,18 +1627,13 @@ guile_server_finalize (void)
 {
   guile_api_finalize ();
 
-  if (guile_server)
-    {
-      svz_hash_destroy (guile_server);
-      guile_server = NULL;
-    }
-
   if (guile_sock)
     {
       svz_hash_destroy (guile_sock);
       guile_sock = NULL;
     }
 
+  ht_zonk_out (&all_servertypes);
   ht_zonk_out (&goodstuff);
 }
 
