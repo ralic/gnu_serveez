@@ -296,6 +296,15 @@ servertype_getfunction (svz_servertype_t *stype, size_t fidx)
 }
 
 /*
+ * Do ‘servertype_getfunction’ for @var{server}.
+ */
+static SCM
+server_getfunction (svz_server_t *server, size_t fidx)
+{
+  return servertype_getfunction (server->type, fidx);
+}
+
+/*
  * Return the procedure @var{func} associated with the socket structure
  * @var{sock} or SCM_UNDEFINED if there is no such procedure yet.
  */
@@ -497,8 +506,7 @@ static int
 guile_func_init (svz_server_t *server)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM init = servertype_getfunction (stype, fn_init);
+  SCM init = server_getfunction (server, fn_init);
   SCM ret;
 
   if (BOUNDP (init))
@@ -515,8 +523,7 @@ static int
 guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM detect_proto = servertype_getfunction (stype, fn_detect_proto);
+  SCM detect_proto = server_getfunction (server, fn_detect_proto);
   SCM ret;
 
   if (BOUNDP (detect_proto))
@@ -593,8 +600,7 @@ static int
 guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM connect_socket = servertype_getfunction (stype, fn_connect_socket);
+  SCM connect_socket = server_getfunction (server, fn_connect_socket);
   SCM ret;
 
   /* Setup this function for later use.  */
@@ -615,8 +621,7 @@ static int
 guile_func_finalize (svz_server_t *server)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM ret, finalize = servertype_getfunction (stype, fn_finalize);
+  SCM ret, finalize = server_getfunction (server, fn_finalize);
   int retval = 0;
   svz_hash_t *state;
 
@@ -665,8 +670,7 @@ static char *
 guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM info_client = servertype_getfunction (stype, fn_info_client);
+  SCM info_client = server_getfunction (server, fn_info_client);
   SCM ret;
   static char text[1024];
 
@@ -686,8 +690,7 @@ static char *
 guile_func_info_server (svz_server_t *server)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM info_server = servertype_getfunction (stype, fn_info_server);
+  SCM info_server = server_getfunction (server, fn_info_server);
   SCM ret;
   static char text[1024];
 
@@ -706,8 +709,7 @@ static int
 guile_func_notify (svz_server_t *server)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM ret, notify = servertype_getfunction (stype, fn_notify);
+  SCM ret, notify = server_getfunction (server, fn_notify);
 
   if (BOUNDP (notify))
     {
@@ -723,8 +725,7 @@ static int
 guile_func_reset (svz_server_t *server)
 {
 #define FUNC_NAME __func__
-  svz_servertype_t *stype = svz_servertype_find (server);
-  SCM ret, reset = servertype_getfunction (stype, fn_reset);
+  SCM ret, reset = server_getfunction (server, fn_reset);
 
   if (BOUNDP (reset))
     {
@@ -759,15 +760,13 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 {
 #define FUNC_NAME __func__
   svz_server_t *server;
-  svz_servertype_t *stype;
   SCM ret, handle_request;
   handle_request = guile_sock_getfunction (sock, "handle-request");
 
   if (!BOUNDP (handle_request))
     {
       server = svz_server_find (sock->cfg);
-      stype = svz_servertype_find (server);
-      handle_request = servertype_getfunction (stype, fn_handle_request);
+      handle_request = server_getfunction (server, fn_handle_request);
     }
 
   if (BOUNDP (handle_request))
