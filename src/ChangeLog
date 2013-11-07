@@ -1,3 +1,11 @@
+2013-11-07  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Add abstraction: INIT_SYMBOLSET
+
+	* guile-server.c (init_symbolset): New static func.
+	(INIT_SYMBOLSET): New macro.
+	(guile_server_init): Use ‘INIT_SYMBOLSET’.
+
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile] Fix bug: Make socket smob/C-obj validity precise.

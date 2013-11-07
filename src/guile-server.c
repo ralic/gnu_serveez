@@ -51,6 +51,21 @@ typedef union {
   char * const str;
 } symstr_t;
 
+static void
+init_symbolset (size_t count, symstr_t set[count])
+{
+  size_t i;
+  symstr_t *ss;
+
+  for (i = 0; i < count; i++)
+    {
+      ss = set + i;
+      ss->sym = gi_gc_protect (gi_symbol2scm (ss->str));
+    }
+}
+
+#define INIT_SYMBOLSET(set)  init_symbolset (set ## _count, set)
+
 static SCM
 protected_ht (size_t size)
 {
@@ -1593,17 +1608,10 @@ guile_sock_destroy (svz_hash_t *callbacks)
 void
 guile_server_init (void)
 {
-  size_t i;
-  symstr_t *ss;
-
   if (guile_sock)
     return;
 
-  for (i = 0; i < guile_functions_count; i++)
-    {
-      ss = guile_functions + i;
-      ss->sym = gi_gc_protect (gi_symbol2scm (ss->str));
-    }
+  INIT_SYMBOLSET (guile_functions);
 
   guile_sock =
     svz_hash_create (4, (svz_free_func_t) guile_sock_destroy);
