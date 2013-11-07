@@ -1,5 +1,21 @@
 2013-11-07  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[build int] Generate guile-server konstants code; use enum.
+
+	* gsk-make: New file.
+	* Makefile.am (BUILT_SOURCES): Add gsk.c.
+	(EXTRA_DIST): Add gsk-make.
+	(gsk.c): New target.
+	* guile-server.c: #include "gsk.c".
+	(guile_functions, fn_global_init, fn_init, fn_detect_proto)
+	(fn_connect_socket, fn_finalize, fn_global_finalize, fn_info_client)
+	(fn_info_server, fn_notify, fn_reset, fn_handle_request): Delete.
+	(optionhash_extract_proc, servertype_getfunction)
+	(server_getfunction, guile_define_servertype):
+	Change type of arg or local var to ‘enum guile_functions_ix’.
+
+2013-11-07  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Add abstraction: INIT_SYMBOLSET
 
 	* guile-server.c (init_symbolset): New static func.

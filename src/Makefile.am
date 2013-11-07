@@ -42,6 +42,7 @@ EXTRA_DIST = $(aclocal_DATA) guile-boot.scm
 CLEANFILES += libserveez.h
 BUILT_SOURCES = libserveez.h guile-boot.c
 BUILT_SOURCES += \
+  gsk.c \
   guile-bin.x \
   guile-server.x \
   guile.x
@@ -167,6 +168,10 @@ noinst_HEADERS = changedir.h misc-macros.h \
 	woe-statpred.h woe-wait.h
 
 EXTRA_serveez_SOURCES = guile-api.c guile-api.h
+
+EXTRA_DIST += gsk-make
+gsk.c: gsk-make
+	$(gx) $(srcdir)/gsk-make > $@
 
 serveez_DEPENDENCIES = $(PROTOLIBS) \
 	libserveez/libserveez.la

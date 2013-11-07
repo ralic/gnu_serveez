@@ -70,6 +70,7 @@ Makefile.in
 /src/c.tsar
 /src/config.h
 /src/config.h.in
+/src/gsk.c
 /src/guile-boot.c
 /src/guile-missing.h
 /src/libserveez.h

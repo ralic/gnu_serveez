@@ -51,6 +51,8 @@ typedef union {
   char * const str;
 } symstr_t;
 
+#include "gsk.c"                        /* (find-file "gsk-make") */
+
 static void
 init_symbolset (size_t count, symstr_t set[count])
 {
@@ -94,34 +96,6 @@ static SCM all_servertypes;
 
 /* The guile socket hash.  */
 static svz_hash_t *guile_sock = NULL;
-
-/* List of procedures to configure for a server type.  */
-static symstr_t guile_functions[] = {
-#define  fn_global_init              0
-  { .str = "global-init" },
-#define  fn_init                     1
-  { .str = "init" },
-#define  fn_detect_proto             2
-  { .str = "detect-proto" },
-#define  fn_connect_socket           3
-  { .str = "connect-socket" },
-#define  fn_finalize                 4
-  { .str = "finalize" },
-#define  fn_global_finalize          5
-  { .str = "global-finalize" },
-#define  fn_info_client              6
-  { .str = "info-client" },
-#define  fn_info_server              7
-  { .str = "info-server" },
-#define  fn_notify                   8
-  { .str = "notify" },
-#define  fn_reset                    9
-  { .str = "reset" },
-#define  fn_handle_request          10
-  { .str = "handle-request" }
-};
-#define guile_functions_count  (sizeof (guile_functions)        \
-                                / sizeof (guile_functions[0]))
 
 /* If set to zero exception handling is disabled.  */
 static int guile_use_exceptions = 1;
@@ -244,7 +218,7 @@ servertype_smob (svz_servertype_t *orig)
  */
 static int
 optionhash_extract_proc (svz_hash_t *hash,
-                         size_t kidx,      /* the key to find       */
+                         enum guile_functions_ix kidx, /* the key to find       */
                          SCM *target,      /* where to put it       */
                          char *txt)        /* appended to error     */
 {
@@ -299,7 +273,8 @@ optionhash_extract_proc (svz_hash_t *hash,
  * or ‘SCM_UNDEFINED’ on lookup failure.
  */
 static SCM
-servertype_getfunction (svz_servertype_t *stype, size_t fidx)
+servertype_getfunction (svz_servertype_t *stype,
+                        enum guile_functions_ix fidx)
 {
   SCM servertype = servertype_smob (stype);
   SCM functions;
@@ -318,7 +293,7 @@ servertype_getfunction (svz_servertype_t *stype, size_t fidx)
  * Do ‘servertype_getfunction’ for @var{server}.
  */
 static SCM
-server_getfunction (svz_server_t *server, size_t fidx)
+server_getfunction (svz_server_t *server, enum guile_functions_ix fidx)
 {
   return servertype_getfunction (server->type, fidx);
 }
@@ -1504,7 +1479,8 @@ works fine you have a freshly registered server type afterwards.)
 Return @code{#t} on success.  */)
 {
 #define FUNC_NAME s_guile_define_servertype
-  int n, err = 0;
+  enum guile_functions_ix n;
+  int err = 0;
   svz_hash_t *options;
   SCM proc, functions;
   svz_servertype_t *stype;
@@ -1531,7 +1507,7 @@ Return @code{#t} on success.  */)
 
   /* Set the procedures.  */
   functions = protected_ht (3);
-  for (n = 0; n < (int) guile_functions_count; n++)
+  for (n = 0; n < guile_functions_count; n++)
     {
       err |= optionhash_extract_proc (options, n, &proc, action);
       scm_hashq_set_x (functions, guile_functions[n].sym, proc);
