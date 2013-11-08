@@ -68,6 +68,16 @@ exec ${GUILE-guile} -s $0 # -*- scheme -*-
       ;; Add here.
       )
 
+(spew 'guile_sock_fns 'sfn
+      'disconnected
+      'kicked
+      'check-request
+      'handle-request
+      'idle
+      'trigger-condition
+      'trigger
+      'check-oob-request)
+
 (fso "/* ~A ends here */~%" YOW)
 
 ;;; gsk-make ends here

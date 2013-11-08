@@ -653,7 +653,7 @@ runs whenever the socket is lost for some external reason.
 Return the previously set handler if there is one.  */)
 {
 #define FUNC_NAME s_guile_sock_disconnected_socket
-  SOCK_CALLBACK_BODY (disconnected_socket, "disconnected");
+  SOCK_CALLBACK_BODY (disconnected_socket, sfn_disconnected);
 #undef FUNC_NAME
 }
 
@@ -668,7 +668,7 @@ set procedure.  This callback gets called whenever the socket gets
 closed by Serveez intentionally.  */)
 {
 #define FUNC_NAME s_guile_sock_kicked_socket
-  SOCK_CALLBACK_BODY (kicked_socket, "kicked");
+  SOCK_CALLBACK_BODY (kicked_socket, sfn_kicked);
 #undef FUNC_NAME
 }
 
@@ -684,7 +684,7 @@ server loop indicating whether the @code{trigger} callback should be
 run or not.  */)
 {
 #define FUNC_NAME s_guile_sock_trigger_cond
-  SOCK_CALLBACK_BODY (trigger_cond, "trigger-condition");
+  SOCK_CALLBACK_BODY (trigger_cond, sfn_trigger_condition);
 #undef FUNC_NAME
 }
 
@@ -699,7 +699,7 @@ The callback is run when the @code{trigger-condition} callback returns
 @code{#t}.  */)
 {
 #define FUNC_NAME s_guile_sock_trigger_func
-  SOCK_CALLBACK_BODY (trigger_func, "trigger");
+  SOCK_CALLBACK_BODY (trigger_func, sfn_trigger);
 #undef FUNC_NAME
 }
 
@@ -717,7 +717,7 @@ callback can reset @code{idle-counter} to some value and thus can
 re-schedule itself for a later task.  */)
 {
 #define FUNC_NAME s_guile_sock_idle_func
-  SOCK_CALLBACK_BODY (idle_func, "idle");
+  SOCK_CALLBACK_BODY (idle_func, sfn_idle);
 #undef FUNC_NAME
 }
 
@@ -733,7 +733,7 @@ The callback is run whenever urgent data (out-of-band)
 has been detected on the socket.  */)
 {
 #define FUNC_NAME s_guile_sock_check_request_oob
-  SOCK_CALLBACK_BODY (check_request_oob, "check-oob-request");
+  SOCK_CALLBACK_BODY (check_request_oob, sfn_check_oob_request);
 #undef FUNC_NAME
 }
 

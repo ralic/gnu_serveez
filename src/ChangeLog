@@ -1,3 +1,27 @@
+2013-11-08  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile int] Use symbols/enum for sock functions.
+
+	* gsk-make: Spew also ‘guile_sock_fns’.
+	* guile-server.c (guile_sock_getfunction): Take
+	‘enum guile_sock_fns_ix ix’ instead of ‘char *func’;
+	compute the latter by consulting ‘guile_sock_fns’.
+	(guile_func_disconnected_socket, guile_func_kicked_socket)
+	(guile_func_check_request, guile_func_handle_request)
+	(guile_func_idle_func, guile_func_trigger_cond)
+	(guile_func_trigger_func, guile_func_check_request_oob):
+	Update call to ‘guile_sock_getfunction’.
+	(struct sock_callback_details): Change
+	type of ‘assoc’ to ‘enum guile_sock_fns_ix’.
+	(sock_callback_body): Compute ‘func’ via ‘guile_sock_fns’.
+	(guile_server_init): Init ‘guile_sock_fns’.
+	(guile_sock_handle_request, guile_sock_check_request):
+	Update call to ‘SOCK_CALLBACK_BODY’.
+	* guile-api.c (guile_sock_disconnected_socket)
+	(guile_sock_kicked_socket, guile_sock_trigger_cond)
+	(guile_sock_trigger_func, guile_sock_idle_func)
+	(guile_sock_check_request_oob): Likewise.
+
 2013-11-07  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[build int] Generate guile-server konstants code; use enum.

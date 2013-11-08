@@ -299,12 +299,14 @@ server_getfunction (svz_server_t *server, enum guile_functions_ix fidx)
 }
 
 /*
- * Return the procedure @var{func} associated with the socket structure
- * @var{sock} or SCM_UNDEFINED if there is no such procedure yet.
+ * Return the procedure associated w/ the @var{ix} entry
+ * in @code{guile_sock_fns} for @var{sock},
+ * or ‘SCM_UNDEFINED’ on lookup failure.
  */
 static SCM
-guile_sock_getfunction (svz_socket_t *sock, char *func)
+guile_sock_getfunction (svz_socket_t *sock, enum guile_sock_fns_ix ix)
 {
+  char func[32];
   svz_hash_t *gsock;
   void *fn;
 
@@ -317,6 +319,7 @@ guile_sock_getfunction (svz_socket_t *sock, char *func)
   if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
     return SCM_UNDEFINED;
 
+  GI_GET_XREP (func, guile_sock_fns[ix].sym);
   if ((fn = svz_hash_get (gsock, func)) == NULL)
     return SCM_UNDEFINED;
 
@@ -546,7 +549,7 @@ static int
 guile_func_disconnected_socket (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  SCM ret, disconnected = guile_sock_getfunction (sock, "disconnected");
+  SCM ret, disconnected = guile_sock_getfunction (sock, sfn_disconnected);
   int retval = -1;
   svz_hash_t *gsock;
 
@@ -577,7 +580,7 @@ static int
 guile_func_kicked_socket (svz_socket_t *sock, int reason)
 {
 #define FUNC_NAME __func__
-  SCM ret, kicked = guile_sock_getfunction (sock, "kicked");
+  SCM ret, kicked = guile_sock_getfunction (sock, sfn_kicked);
 
   if (BOUNDP (kicked))
     {
@@ -746,7 +749,7 @@ guile_func_check_request (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
   SCM ret, check_request;
-  check_request = guile_sock_getfunction (sock, "check-request");
+  check_request = guile_sock_getfunction (sock, sfn_check_request);
 
   if (BOUNDP (check_request))
     {
@@ -765,7 +768,7 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 #define FUNC_NAME __func__
   svz_server_t *server;
   SCM ret, handle_request;
-  handle_request = guile_sock_getfunction (sock, "handle-request");
+  handle_request = guile_sock_getfunction (sock, sfn_handle_request);
 
   if (!BOUNDP (handle_request))
     {
@@ -788,7 +791,7 @@ static int
 guile_func_idle_func (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  SCM ret, idle_func = guile_sock_getfunction (sock, "idle");
+  SCM ret, idle_func = guile_sock_getfunction (sock, sfn_idle);
 
   if (BOUNDP (idle_func))
     {
@@ -804,7 +807,7 @@ static int
 guile_func_trigger_cond (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  SCM ret, trigger_cond = guile_sock_getfunction (sock, "trigger-condition");
+  SCM ret, trigger_cond = guile_sock_getfunction (sock, sfn_trigger_condition);
 
   if (BOUNDP (trigger_cond))
     {
@@ -820,7 +823,7 @@ static int
 guile_func_trigger_func (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
-  SCM ret, trigger_func = guile_sock_getfunction (sock, "trigger");
+  SCM ret, trigger_func = guile_sock_getfunction (sock, sfn_trigger);
 
   if (BOUNDP (trigger_func))
     {
@@ -837,7 +840,7 @@ guile_func_check_request_oob (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
   SCM ret, check_request_oob;
-  check_request_oob = guile_sock_getfunction (sock, "check-oob-request");
+  check_request_oob = guile_sock_getfunction (sock, sfn_check_oob_request);
 
   if (BOUNDP (check_request_oob))
     {
@@ -864,7 +867,7 @@ struct sock_callback_details {
   const char  *who;
   getset_fn_t  getset;
   size_t       place;                   /* ‘svz_socket_t’ offset */
-  char        *assoc;
+  enum guile_sock_fns_ix assoc;
 };
 
 static SCM
@@ -877,6 +880,7 @@ sock_callback_body (const struct sock_callback_details *d,
   CHECK_SOCK_SMOB_ARG (sock, xsock);
   if (BOUNDP (proc))
     {
+      char func[32];
       getset_fn_t *place = (void *) xsock + d->place;
       char *id = svz_itoa (xsock->id);
       svz_hash_t *gsock;
@@ -896,7 +900,8 @@ sock_callback_body (const struct sock_callback_details *d,
       /* Put the procedure into the socket's hash and protect it.
          If there was one previously set, unprotect and return that.  */
       gi_gc_protect (proc);
-      if ((was = svz_hash_put (gsock, d->assoc, SVZ_NUM2PTR (proc))) == NULL)
+      GI_GET_XREP (func, guile_sock_fns[d->assoc].sym);
+      if ((was = svz_hash_put (gsock, func, SVZ_NUM2PTR (proc))) == NULL)
         oldproc = SCM_UNDEFINED;
       else
         {
@@ -928,7 +933,7 @@ SCM_DEFINE
 Set the @code{handle-request} member of the socket structure @var{sock}
 to @var{proc}.  Return the previously set handler if there is any.  */)
 {
-  SOCK_CALLBACK_BODY (handle_request, "handle-request");
+  SOCK_CALLBACK_BODY (handle_request, sfn_handle_request);
 }
 
 SCM_DEFINE
@@ -939,7 +944,7 @@ SCM_DEFINE
 Set the @code{check-request} member of the socket structure @var{sock}
 to @var{proc}.  Return the previously handler if there is any.  */)
 {
-  SOCK_CALLBACK_BODY (check_request, "check-request");
+  SOCK_CALLBACK_BODY (check_request, sfn_check_request);
 }
 
 
@@ -1588,6 +1593,7 @@ guile_server_init (void)
     return;
 
   INIT_SYMBOLSET (guile_functions);
+  INIT_SYMBOLSET (guile_sock_fns);
 
   guile_sock =
     svz_hash_create (4, (svz_free_func_t) guile_sock_destroy);
