@@ -1,4 +1,4 @@
-;;; segfault due to error after config file closed
+;;; t007 --- segfault due to error after config file closed
 
 ;; Copyright (C) 2013 Thien-Thi Nguyen
 ;;

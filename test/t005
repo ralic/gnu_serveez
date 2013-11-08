@@ -1,4 +1,4 @@
-;;; procs for binary objects
+;;; t005 --- procs for binary objects
 
 ;; Copyright (C) 2011-2013 Thien-Thi Nguyen
 ;; Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>

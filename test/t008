@@ -1,4 +1,4 @@
-;;; object property on socket disappears
+;;; t008 --- object property on socket disappears
 
 ;; Copyright (C) 2013 Thien-Thi Nguyen
 ;;
