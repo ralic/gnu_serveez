@@ -1,5 +1,21 @@
 2013-11-08  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Use Scheme hash tables for socket funcs.
+
+	* guile-server.c (all_sockets): New static var.
+	(guile_sock): Delete var.
+	(guile_sock_getfunction): Look for func in ‘all_sockets’.
+	(guile_unprotect): Delete func.
+	(guile_func_disconnected_socket): Remove sock from ‘all_sockets’.
+	(sock_callback_body): Add ‘proc’ to ‘functions’ hash table,
+	creating ‘functions’ in ‘all_sockets’ if necessary;
+	don't bother with GC protection.
+	(guile_sock_destroy): Delete func.
+	(guile_server_init): Init ‘all_sockets’.
+	(guile_server_finalize): Use ‘ht_zonk_out’ on ‘all_sockets’.
+
+2013-11-08  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Use symbols/enum for sock functions.
 
 	* gsk-make: Spew also ‘guile_sock_fns’.

@@ -95,7 +95,7 @@ ht_zonk_out (SCM *table)
 static SCM all_servertypes;
 
 /* The guile socket hash.  */
-static svz_hash_t *guile_sock = NULL;
+static SCM all_sockets;
 
 /* If set to zero exception handling is disabled.  */
 static int guile_use_exceptions = 1;
@@ -306,33 +306,20 @@ server_getfunction (svz_server_t *server, enum guile_functions_ix fidx)
 static SCM
 guile_sock_getfunction (svz_socket_t *sock, enum guile_sock_fns_ix ix)
 {
-  char func[32];
-  svz_hash_t *gsock;
-  void *fn;
+  SCM ssock, functions;
 
-  if (sock == NULL || guile_sock == NULL)
+  if (sock == NULL)
     return SCM_UNDEFINED;
 
   if (svz_sock_find (sock->id, sock->version) != sock)
     return SCM_UNDEFINED;
 
-  if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
+  ssock = socket_smob (sock);
+  functions = scm_hashq_ref (all_sockets, ssock, SCM_BOOL_F);
+  if (! gi_nfalsep (functions))
     return SCM_UNDEFINED;
 
-  GI_GET_XREP (func, guile_sock_fns[ix].sym);
-  if ((fn = svz_hash_get (gsock, func)) == NULL)
-    return SCM_UNDEFINED;
-
-  return SVZ_PTR2SCM (fn);
-}
-
-/* This function is used as destruction callback for the socket and
- * servertype hashes used in the Guile servers.  */
-static void
-guile_unprotect (SCM proc)
-{
-  if (BOUNDP (proc))
-    gi_gc_unprotect (proc);
+  return scm_hashq_ref (functions, guile_sock_fns[ix].sym, SCM_UNDEFINED);
 }
 
 extern int global_exit_value;
@@ -549,20 +536,19 @@ static int
 guile_func_disconnected_socket (svz_socket_t *sock)
 {
 #define FUNC_NAME __func__
+  SCM ssock = socket_smob (sock);
   SCM ret, disconnected = guile_sock_getfunction (sock, sfn_disconnected);
   int retval = -1;
-  svz_hash_t *gsock;
 
   /* First call the guile callback if necessary.  */
   if (BOUNDP (disconnected))
     {
-      ret = guile_call (disconnected, 1, socket_smob (sock));
+      ret = guile_call (disconnected, 1, ssock);
       retval = integer_else (ret, -1);
     }
 
-  /* Delete all the associated guile callbacks and unprotect these.  */
-  if ((gsock = svz_hash_delete (guile_sock, svz_itoa (sock->id))) != NULL)
-    svz_hash_destroy (gsock);
+  /* Delete all the associated guile callbacks.  */
+  scm_hashq_remove_x (all_sockets, ssock);
 
   /* Release associated guile object is necessary.  */
   if (sock->data != NULL)
@@ -880,34 +866,29 @@ sock_callback_body (const struct sock_callback_details *d,
   CHECK_SOCK_SMOB_ARG (sock, xsock);
   if (BOUNDP (proc))
     {
-      char func[32];
+      SCM func = guile_sock_fns[d->assoc].sym;
       getset_fn_t *place = (void *) xsock + d->place;
-      char *id = svz_itoa (xsock->id);
-      svz_hash_t *gsock;
-      void *was;
+      SCM functions;
       SCM oldproc;
 
       SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2,
                        FUNC_NAME, "procedure");
       *place = d->getset;
 
-      if ((gsock = svz_hash_get (guile_sock, id)) == NULL)
+      functions = scm_hashq_ref (all_sockets, sock, SCM_BOOL_F);
+      if (! gi_nfalsep (functions))
         {
-          gsock = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
-          svz_hash_put (guile_sock, id, gsock);
+          functions = protected_ht (3);
+          scm_hashq_set_x (all_sockets, sock, functions);
+          gi_gc_unprotect (functions);
         }
 
-      /* Put the procedure into the socket's hash and protect it.
-         If there was one previously set, unprotect and return that.  */
-      gi_gc_protect (proc);
-      GI_GET_XREP (func, guile_sock_fns[d->assoc].sym);
-      if ((was = svz_hash_put (gsock, func, SVZ_NUM2PTR (proc))) == NULL)
+      /* Put the procedure into the socket's hash.
+         If there was one previously set, return that.  */
+      oldproc = scm_hashq_ref (functions, func, SCM_BOOL_F);
+      if (! gi_nfalsep (oldproc))
         oldproc = SCM_UNDEFINED;
-      else
-        {
-          oldproc = SVZ_PTR2SCM (was);
-          gi_gc_unprotect (oldproc);
-        }
+      scm_hashq_set_x (functions, func, proc);
       return oldproc;
     }
   return guile_sock_getfunction (xsock, d->assoc);
@@ -1569,16 +1550,6 @@ Return @code{#t} on success.  */)
 #undef FUNC_NAME
 }
 
-/*
- * Destroys the given socket represented by the hash @var{callbacks} and
- * destroy this hash recursively.
- */
-static void
-guile_sock_destroy (svz_hash_t *callbacks)
-{
-  svz_hash_destroy (callbacks);
-}
-
 #include "guile-api.c"
 
 /*
@@ -1589,14 +1560,8 @@ guile_sock_destroy (svz_hash_t *callbacks)
 void
 guile_server_init (void)
 {
-  if (guile_sock)
-    return;
-
   INIT_SYMBOLSET (guile_functions);
   INIT_SYMBOLSET (guile_sock_fns);
-
-  guile_sock =
-    svz_hash_create (4, (svz_free_func_t) guile_sock_destroy);
 
   /* Initialize the guile SMOB things.  Previously defined via
      MAKE_SMOB_DEFINITION ().  */
@@ -1607,6 +1572,7 @@ guile_server_init (void)
   svz_sock_pre_free = invalidate_socket_smob;
   goodstuff = protected_ht (11);
   all_servertypes = protected_ht (3);
+  all_sockets = protected_ht (23);
 
 #include "guile-server.x"
 
@@ -1624,12 +1590,7 @@ guile_server_finalize (void)
 {
   guile_api_finalize ();
 
-  if (guile_sock)
-    {
-      svz_hash_destroy (guile_sock);
-      guile_sock = NULL;
-    }
-
+  ht_zonk_out (&all_sockets);
   ht_zonk_out (&all_servertypes);
   ht_zonk_out (&goodstuff);
   svz_sock_pre_free = NULL;
