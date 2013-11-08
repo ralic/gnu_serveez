@@ -276,12 +276,12 @@ static SCM
 servertype_getfunction (svz_servertype_t *stype,
                         enum guile_functions_ix fidx)
 {
-  SCM servertype = servertype_smob (stype);
-  SCM functions;
+  SCM servertype, functions;
 
   if (stype == NULL)
     return SCM_UNDEFINED;
 
+  servertype = servertype_smob (stype);
   functions = scm_hashq_ref (all_servertypes, servertype, SCM_BOOL_F);
   if (! gi_nfalsep (functions))
     return SCM_UNDEFINED;

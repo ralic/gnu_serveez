@@ -1,5 +1,12 @@
 2013-11-08  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[guile int] Avoid ‘servertype_smob’ call for NULL ‘stype’.
+
+	* guile-server.c (servertype_getfunction): Don't
+	make smob until after we know that ‘stype’ is non-‘NULL’.
+
+2013-11-08  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[guile int] Use Scheme hash tables for socket funcs.
 
 	* guile-server.c (all_sockets): New static var.
