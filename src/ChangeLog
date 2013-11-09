@@ -1,5 +1,16 @@
 2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	Add option to list builtin servers.
+
+	* cfgfile.c (print_available_servers): New func.
+	* cfgfile.h (print_available_servers): New func decl.
+	* option.c: #include "cfgfile.h".
+	(usage): Add support for ‘--list-servers’ aka ‘-L’.
+	(SERVEEZ_OPTIONS): Add "L".
+	(handle_options): On 'L', display builtin servers and exit.
+
+2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[C int] Convert repetitive funcalls to array iteration.
 
 	* cfgfile.c (builtin): New static array of ‘svz_servertype_t *’.

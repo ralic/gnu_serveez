@@ -324,6 +324,15 @@ terminal.
 Display this help and exit.
 @item -V, --version
 Display version information and exit.
+@item -L, --list-servers
+Display prefix and description of each builtin server,
+one per line, and exit.
+If Serveez was configured to include the Guile server
+(@pxref{Build and install}),
+the output includes an additional line:
+@example
+(dynamic)      (servers defined in scheme)
+@end example
 @item -i, --iflist
 List local network interfaces and exit.
 @item -f, --cfg-file=FILENAME

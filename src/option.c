@@ -30,6 +30,7 @@
 #endif
 
 #include "networking-headers.h"
+#include "cfgfile.h"
 #include "libserveez.h"
 #include "option.h"
 #include "unused.h"
@@ -183,6 +184,7 @@ usage (int exitval)
   } all[] = {
     {'h', NULL, "display this help and exit"},
     {'V', NULL, "display version information and exit"},
+    {'L', NULL, "display builtin servers and exit"},
     {'i', NULL, "list local network interfaces and exit"},
     {'f', "FILENAME", "file to use as configuration file (serveez.cfg)"},
     {'v', "LEVEL", "set level of verbosity"},
@@ -244,6 +246,7 @@ usage (int exitval)
 static struct option serveez_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'V'},
+  {"list-servers", no_argument, NULL, 'L'},
   {"iflist", no_argument, NULL, 'i'},
   {"daemon", no_argument, NULL, 'd'},
   {"stdin", no_argument, NULL, 'c'},
@@ -260,9 +263,9 @@ static struct option serveez_options[] = {
 #endif /* HAVE_GETOPT_LONG */
 
 #if ENABLE_CONTROL_PROTO
-#define SERVEEZ_OPTIONS "l:hViv:f:P:m:dcs"
+#define SERVEEZ_OPTIONS "l:hVLiv:f:P:m:dcs"
 #else
-#define SERVEEZ_OPTIONS "l:hViv:f:m:dcs"
+#define SERVEEZ_OPTIONS "l:hVLiv:f:m:dcs"
 #endif
 
 static int
@@ -326,6 +329,11 @@ handle_options (int argc, char **argv)
 
         case 'V':
           version ();
+          exit (EXIT_SUCCESS);
+          break;
+
+        case 'L':
+          print_available_servers ();
           exit (EXIT_SUCCESS);
           break;
 

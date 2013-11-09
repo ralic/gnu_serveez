@@ -23,5 +23,6 @@
 #define __CFGFILE_H__ 1
 
 void init_server_definitions (void);
+void print_available_servers (void);
 
 #endif /* not __CFGFILE_H__ */

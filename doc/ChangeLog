@@ -1,3 +1,10 @@
+2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Add option to list builtin servers.
+
+	* serveez.1in: Add ‘-L, --list-servers’.
+	* serveez.texi (Command line options): Likewise.
+
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib] Add API element: svz_sock_pre_free

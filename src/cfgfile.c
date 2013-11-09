@@ -99,3 +99,19 @@ init_server_definitions (void)
   for (i = 0; i < builtin_count; i++)
     svz_servertype_add (builtin[i]);
 }
+
+/*
+ * Display available servers to stdout.
+ */
+void
+print_available_servers (void)
+{
+  const char format[] = "%-20s%s\n";
+  size_t i;
+
+  for (i = 0; i < builtin_count; i++)
+    printf (format, builtin[i]->prefix, builtin[i]->description);
+#if ENABLE_GUILE_SERVER
+  printf (format, "(dynamic)", "(servers defined in scheme)");
+#endif
+}
