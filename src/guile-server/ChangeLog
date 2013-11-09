@@ -1,3 +1,10 @@
+2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[icecast int] Avoid ‘fseek’; use ‘seek’ directly.
+
+	* icecast-server.scm (fseek): Delete.
+	(icecast-id3-tag): Use ‘seek’ directly.
+
 2013-11-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[int] Use object property and record for Mandelbrot server state.

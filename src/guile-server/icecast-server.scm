@@ -18,11 +18,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
-;; compatibility stuff to make this server run with Guile 1.6 and later
-(or (defined? 'fseek)
-    (define (fseek obj offset whence)
-      (seek obj offset whence)))
-
 (use-modules
  ((ice-9 and-let-star) #:select (and-let*)))
 
@@ -297,9 +292,9 @@
           (and (> size 128)
                (begin
                  ;; read the last 128 bytes
-                 (fseek port -128 SEEK_END)
+                 (seek port -128 SEEK_END)
                  (set! buffer (svz:read-file port 128))
-                 (fseek port 0 SEEK_SET))))
+                 (seek port 0 SEEK_SET))))
         (println "icecast: `" file "'is not a regular file"))
 
     (and-let* (size
