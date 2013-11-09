@@ -1,5 +1,14 @@
 2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[doc] Add blank lines to improve readability.
+
+	* guile-api.texh: ...here, throughout,
+	before ‘@example’, ‘@item’, ‘@table’, ‘@multitable’.
+	* serveez-api.texh: Likewise.
+	* serveez.texi: Likewise.
+
+2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	Add option to list builtin servers.
 
 	* serveez.1in: Add ‘-L, --list-servers’.

@@ -1,3 +1,9 @@
+2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[doc] Add blank lines to improve readability.
+
+	* address.c (svz_address_make): Add blank line before ‘@item’.
+
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib] Add API element: svz_sock_pre_free

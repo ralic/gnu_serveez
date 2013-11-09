@@ -64,11 +64,14 @@ following set of option.
 @table @code
 @item -h, --help
 Displays the usage information.
+
 @item -v, --version
 Displays installed Serveez version.
+
 @item -l, --ldflags
 Prints the linker flags (libraries to link with including
 directory information).
+
 @item -c, --cflags
 Prints the compiler flags to compile with.
 @end table
@@ -175,23 +178,30 @@ Here is a table describing the features in detail:
 @table @code
 @item debug
 Present when @samp{--enable-debug}.
+
 @item heap-counters
 Present when @samp{--enable-heap-count}.
+
 @item interface-list
 Present when @samp{--enable-iflist}.
+
 @item poll
 Present when @samp{--enable-poll} and you have poll(2).
+
 @item sendfile
 Present when @samp{--enable-sendfile} and you have sendfile(2)
 or some workalike (e.g., @code{TransmitFile}).
+
 @item log-mutex
 Present when @code{svz_log} uses a mutex around its internal stdio
 operations, implying that you have some kind of thread capability
 (perhaps in a separate library).  If your system has
 @code{fwrite_unlocked}, the configure script assumes that @code{fwrite}
 et al already operate in a locked fashion, and disables this.
+
 @item flood-protection
 Present when @samp{--enable-flood}.
+
 @item core
 The networking core.  This is always present.
 @end table
@@ -915,6 +925,7 @@ libserveez core API:
 @table @code
 @item SVZ_RUNPARM_VERBOSITY
 The log-level verbosity.
+
 @item SVZ_RUNPARM_MAX_SOCKETS
 Maxium number of clients allowed to connect.
 @end table

@@ -54,6 +54,7 @@ struct svz_address
  * @table @code
  * @item AF_INET
  * An IPv4 address; @var{bits} is @code{in_addr_t *}.
+ *
  * @item AF_INET6
  * (if supported by your system) An IPv6 address;
  * @var{bits} is @code{struct in6_addr *}.

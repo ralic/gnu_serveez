@@ -136,11 +136,13 @@ If not, configuration will fail with message ``Guile not found''.
 @subsubsection Installation
 @table @asis
 @item Unpack the distribution tarball:
+
 @example
 sleepless ~> gzip -cd serveez-@value{VERSION}.tar.gz | tar xvf -
 @end example
 
 @item Change into the source directory:
+
 @example
 sleepless ~> cd serveez-@value{VERSION}
 @end example
@@ -152,9 +154,11 @@ GNU Serveez needs a reasonably conformant C99 compiler to build.
 If the @file{configure} script is not able to automatically find
 and enable such a compiler, you can specify it directly using
 the @samp{CC} command-line option.  For example:
+
 @example
 sleepless ~> ./configure --prefix /gnu CC='/gnu/bin/gcc'
 @end example
+
 Note that in this example you can achieve the same results by
 making sure @file{/gnu/bin} is in the @code{PATH} env var.
 
@@ -171,70 +175,88 @@ options.  The list of known options can the obtained via
 All of the debug messages (debug: some annoying crap text) can
 be suppressed by setting the debug level (-v).  If you do not
 want these messages built in at all then disable this feature.
+
 @item --enable-control-proto
 If you enable this feature the control protocol will be supported
 by Serveez.  This protocol is for remote control of the server.
+
 @item --enable-irc-proto
 Enabling this feature tells the software package to support the
 IRC (Internet Relay Chat) protocol.
+
 @item --enable-irc-ts
 This feature is only available if you enabled the IRC protocol.
 If you enabled both of them then Serveez will support the so
 called TimeStamp protocol, which is an EFNet extension of the
 original IRC protocol.  In order to connect to EFNet you MUST
 use this option.
+
 @item --enable-http-proto
 When using Serveez as part of the textSure (C) chat system you
 will will have need of an additional web server.  This option
 makes Serveez support a simple HTTP protocol.
+
 @item --enable-flood
 If you enable this feature Serveez will support a simple built-in
 flood protection.  It is always useful to protect the software
 from flood clients.
+
 @item --with-mingw=DIR
 When compiling under M$-Windows the @var{DIR} argument specifies the
 path to the extra MinGW32 library and header files.  If you want the
 final executable to use the Cygwin project's @file{cygwin1.dll} instead,
 you have to disable this option by passing the configure script
 @samp{--without-mingw} or @samp{--with-mingw=no}.
+
 @item --enable-sntp-proto
 This option enables support for a simple network time protocol
 server.
+
 @item --enable-poll
 If the target system supports @code{poll} and this feature is
 enabled the main file descriptor loop is done via @code{poll}.
 This helps to work around the (g)libc's file descriptor limit.
 Otherwise Serveez always falls back to the @code{select} system call.
+
 @item --enable-sendfile
 This option enables the use of the @code{sendfile} system call.
 Disabling it using @samp{--disable-sendfile} provides a work-around
 for bogus implementations of @code{sendfile}.
+
 @item --enable-gnutella
 If you do *not* want the Gnutella spider client compiled in you
 need to *disable* this option.
+
 @item --enable-crypt
 This option tells Serveez to process any passwords as @code{crypt}ed.
+
 @item --enable-tunnel
 If you enable this feature the port forwarder will be included.
 This is useful if you plan to use Serveez as a gateway or
 firewall workaround.
+
 @item --enable-fakeident
 By enabling this you will get a fake ident server included in
 the binary executable.
+
 @item --enable-guile-server
 If you enable this feature the user is able to write servers
 using Guile.
+
 @item --enable-passthrough
 This includes the program passthrough server in the Serveez
 binary.  The server provides basic inetd functionality.
+
 @item --enable-iflist
 If Serveez is unable to detect the correct list of local network
 interfaces (@samp{serveez -i}) you can disable this option and setup
 them manually in the configuration file.
+
 @item --enable-heap-count
 This option depends on @samp{--enable-debug}.  With the debugging option
 disabled there is also no support for heap counters.  The heap
 counters are used to detect memory leaks in Serveez.
+
 @item --enable-libserveez-install
 This causes @samp{make install} to also copy libserveez and its
 header files to @code{$(libdir)} and @code{$(includedir)}, respectively.
@@ -272,6 +294,7 @@ sleepless ~/serveez-@value{VERSION}> ./configure \
 @end example
 
 @item Now compile the package:
+
 @example
 sleepless ~/serveez-@value{VERSION}> make
 @end example
@@ -280,6 +303,7 @@ sleepless ~/serveez-@value{VERSION}> make
 You must have root privileges if you want to install the package in the
 standard location @file{/usr/local} or in any location that is only writable
 by root.
+
 @example
 sleepless ~/serveez-@value{VERSION}> make install
 @end example
@@ -322,35 +346,47 @@ terminal.
 @table @code
 @item -h, --help
 Display this help and exit.
+
 @item -V, --version
 Display version information and exit.
+
 @item -L, --list-servers
 Display prefix and description of each builtin server,
 one per line, and exit.
 If Serveez was configured to include the Guile server
 (@pxref{Build and install}),
 the output includes an additional line:
+
 @example
 (dynamic)      (servers defined in scheme)
 @end example
+
 @item -i, --iflist
 List local network interfaces and exit.
+
 @item -f, --cfg-file=FILENAME
 File to use as configuration file (@value{s_PACKAGE}.cfg).
+
 @item -v, --verbose=LEVEL
 Set level of logging verbosity.
+
 @item -l, --log-file=FILENAME
 Use @code{FILENAME} for logging (default is stderr).
+
 @item -P, --password=STRING
 Set the password for control connections.
 This option is available only if the control protocol is enabled.
 @xref{Control Protocol Server}.
+
 @item -m, --max-sockets=COUNT
 Set the maximum number of socket descriptors.
+
 @item -d, --daemon
 Start as daemon in background.
+
 @item -c, --stdin
 Use standard input as configuration file.
+
 @item -s, --solitary
 Do not start any builtin coserver instances.
 @end table
@@ -834,13 +870,17 @@ Use sysctl -w kern.maxfiles=nnnn to raise limit.
 
 @item GNU/Linux
 See Bodo Bauer's /proc documentation.  On current 2.2.x kernels,
+
 @example
 echo 32768 > /proc/sys/fs/file-max
 @end example
+
 increases the system limit on open files, and
+
 @example
 ulimit -n 32768
 @end example
+
 increases the current process' limit.  We verified that a process on
 Linux kernel 2.2.5 (plus patches) can open at least 31000 file
 descriptors this way.  It has also been verified that a process on
@@ -1317,19 +1357,25 @@ configuration file.  @var{item} is the name of the item to be configured.
 @table @asis
 @item Integer@*
 Example: (item . 42)
+
 @item Integer array@*
 Example: (item . (0 1 2 3))
+
 @item String@*
 Example: (item . "a character string")
+
 @item String array@*
 Example: (item . ("abc" "cba" "bca" "acb"))
+
 @item Boolean@*
 A normal boolean in guile is represented by #t or #f.  But the configuration
 file parser additional understand some bare words and numbers.@*
 Example: (item . #f)
+
 @item Hash@*
 Hash maps associate keys with values.  Both must be character strings.@*
 Example: (item . (key1 . "value1") (key2 . "value2"))
+
 @item Port configuration@*
 @xref{Define ports}, for more information on this.  When configuring a port
 configuration you need to define it via @code{define-port!} previously and
@@ -1510,9 +1556,11 @@ The format of the access logfile.  There are special placeholders for
 different kinds of logging information.  The default log format is the
 Common Log Format (CLF).  It contains a separate line for each request.  A
 line is composed of several tokens separated by spaces.
+
 @example
 CLF = host ident authuser date request status bytes
 @end example
+
 If a token does not have a value then it is represented by a hyphen (-).
 The meanings and values of these tokens are as follows:
 
@@ -1520,14 +1568,18 @@ The meanings and values of these tokens are as follows:
 @item %h (host)
 The fully-qualified domain name of the client, or its IP number if the name
 is not available.
+
 @item %i (ident)
 This is the identity information reported by the client.  Not active, so
 we will see a hyphen (-).
+
 @item %u (authuser)
 If the request was for an password protected document, then this is the
 userid used in the request.
+
 @item %t (date)
 The date and time of the request, in the following format:
+
 @example
 date   = [day/month/year:hour:minute:second zone]
 day    = 2*digit
@@ -1538,14 +1590,19 @@ minute = 2*digit
 second = 2*digit
 zone   = (`+' | `-') 4*digit
 @end example
+
 @item %R (request)
 The request line from the client, enclosed in double quotes (").
+
 @item %r (referrer)
 Which document referred to this document.
+
 @item %a (agent)
 What kind of web browser did the remote client use.
+
 @item %c (status)
 The three digit status code returned to the client.
+
 @item %l (bytes)
 The number of bytes in the object returned to the client, not including
 any headers.
@@ -1608,6 +1665,7 @@ The TCP level configuration of this IRC server.  The server info field
 is sometimes given to the client for informational use.  The server will
 croak about if the settings do not correspond with the actual bindings.
 The format of this line is:
+
 @example
 ":" virtual hostname
 ":" optional bind address (real hostname)
@@ -1617,6 +1675,7 @@ The format of this line is:
 
 @item A-line (string, no default, mandatory)
 The administrative info, printed by the /ADMIN command.
+
 @example
 ":" administrative info (department, university)
 ":" the server's geographical location
@@ -1628,6 +1687,7 @@ The connection classes.  They are used in other parameters (e.g., I-lines).
 A Y-line describes a group of connections.  You usually have at least
 two Y-lines: One for server connections and one for client connections.
 Format of each line is:
+
 @example
 ":" class number (higher numbers refer to a higher priority)
 ":" ping frequency (in seconds)
@@ -1640,6 +1700,7 @@ Format of each line is:
 @item I-lines (string array, no default, mandatory)
 Authorization of clients, wildcards permitted, a valid client is matched
 @email{user@@ip} OR @email{user@@host}.
+
 @example
 ":" user@@ip, you can specify @samp{NOMATCH} here to force
     matching user@@host
@@ -1651,6 +1712,7 @@ Authorization of clients, wildcards permitted, a valid client is matched
 
 @item O-lines (string array, no default, optional)
 Authorize operator, wildcards allowed.
+
 @example
 ":" user@@host, user@@ forces checking ident
 ":" password
@@ -1659,6 +1721,7 @@ Authorize operator, wildcards allowed.
 
 @item o-lines (string array, no default, optional)
 Authorize local operator.
+
 @example
 ":" user@@host, user@@ forces checking ident
 ":" password
@@ -1670,6 +1733,7 @@ List of servers to connect to.
 Note: C and N lines can also use the user@@ combination in order to
 check specific users (ident) starting servers.  C and N lines are
 usually given in pairs.
+
 @example
 ":" host name
 ":" password
@@ -1680,6 +1744,7 @@ usually given in pairs.
 
 @item N-lines (string array, no default, networked)
 Servers which may connect.
+
 @example
 ":" host name
 ":" password
@@ -1692,6 +1757,7 @@ Servers which may connect.
 
 @item K-lines (string array, no default, optional)
 Kill user, wildcards allowed.
+
 @example
 ":" host
 ":" time of day
@@ -1711,9 +1777,11 @@ Otherwise, feel free to skip to the next section.
 
 Serveez implements something like a telnet protocol for
 administrative purposes.  You just need to start a telnet session like:
+
 @example
 $ telnet www.lkcc.org 42420
 @end example
+
 After pressing @key{RET} you will be asked for a password which you
 might setup passing Serveez the -P argument.
 @xref{Using Serveez}.  The next section describes the interactive commands
@@ -2012,6 +2080,7 @@ ICMP packet data.  Since this section does not cover raw sockets we leave
 the IP header structure out here.
 
 The modified ICMP message format is as:
+
 @multitable @columnfractions .2 .2 .6
 @item Offset @tab Size @tab Meaning
 @item 0 @tab 1 @tab Message type.
@@ -2041,6 +2110,7 @@ which is @samp{42} (@code{ICMP_SERVEEZ}) by default.
 @item Message type sub code
 Serveez also defines its own message type sub codes described
 in the following table.
+
 @multitable @columnfractions .2 .4 .4
 @item Sub code @tab Constant identifier @tab Description
 @item 0 @tab @code{ICMP_SERVEEZ_DATA} @tab packet contains data
@@ -2602,45 +2672,59 @@ order.
 @item
 RFC 760@*
 The Internet Protocol
+
 @item
 RFC 1071@*
 Computing the Internet Checksum
+
 @item
 RFC 1413@*
 Identification Protocol
+
 @item
 RFC 1459@*
 Internet Relay Chat Protocol
+
 @item
 RFC 1945@*
 Hypertext Transfer Protocol -- HTTP/1.0
+
 @item
 RFC 2068@*
 Hypertext Transfer Protocol -- HTTP/1.1
+
 @item
 RFC 2616@*
 Hypertext Transfer Protocol -- HTTP/1.1
+
 @item
 RFC 768@*
 User Datagram Protocol
+
 @item
 RFC 791@*
 Internet Protocol
+
 @item
 RFC 777@*
 Internet Control Message Protocol
+
 @item
 @uref{http://www.mingw.org/}@*
 Home of the MinGW (Minimal GNU for Windows) project
+
 @item
 @uref{http://gnutelladev.wego.com/}@*
 The Gnutella Protocol
+
 @item
 @uref{http://www.efnet.org/}@*
 The official EFNet site (includes Hybrid IRC server)
+
 @item
 @uref{http://www.sockets.com/}@*
 Winsock Development Information
+
 @item
 @uref{http://tangentsoft.net/wskfaq/}@*
 Winsock Programmer's FAQ

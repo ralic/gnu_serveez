@@ -22,8 +22,10 @@ data structures of Serveez's core API.
 @itemize @bullet
 @item @code{#<svz-servertype>}
 represents a server type.
+
 @item @code{#<svz-server>}
 represents a server (an instance of a server type).
+
 @item @code{#<svz-socket>}
 represents a socket structure.
 @end itemize
