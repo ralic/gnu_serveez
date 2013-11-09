@@ -57,34 +57,45 @@
 #endif
 
 /*
+ * Aggregate them for easy iteration.
+ */
+static svz_servertype_t *builtin[] = {
+#if ENABLE_HTTP_PROTO
+  &http_server_definition,
+#endif
+#if ENABLE_IRC_PROTO
+  &irc_server_definition,
+#endif
+#if ENABLE_CONTROL_PROTO
+  &ctrl_server_definition,
+#endif
+#if ENABLE_SNTP_PROTO
+  &sntp_server_definition,
+#endif
+#if ENABLE_GNUTELLA
+  &nut_server_definition,
+#endif
+#if ENABLE_TUNNEL
+  &tnl_server_definition,
+#endif
+#if ENABLE_FAKEIDENT
+  &fakeident_server_definition,
+#endif
+#if ENABLE_PROG_SERVER
+  &prog_server_definition,
+#endif
+  &foo_server_definition
+};
+#define builtin_count  (sizeof (builtin) / sizeof (builtin[0]))
+
+/*
  * Initialize all static server definitions.
  */
 void
 init_server_definitions (void)
 {
-  svz_servertype_add (&foo_server_definition);
-#if ENABLE_HTTP_PROTO
-  svz_servertype_add (&http_server_definition);
-#endif
-#if ENABLE_IRC_PROTO
-  svz_servertype_add (&irc_server_definition);
-#endif
-#if ENABLE_CONTROL_PROTO
-  svz_servertype_add (&ctrl_server_definition);
-#endif
-#if ENABLE_SNTP_PROTO
-  svz_servertype_add (&sntp_server_definition);
-#endif
-#if ENABLE_GNUTELLA
-  svz_servertype_add (&nut_server_definition);
-#endif
-#if ENABLE_TUNNEL
-  svz_servertype_add (&tnl_server_definition);
-#endif
-#if ENABLE_FAKEIDENT
-  svz_servertype_add (&fakeident_server_definition);
-#endif
-#if ENABLE_PROG_SERVER
-  svz_servertype_add (&prog_server_definition);
-#endif
+  size_t i;
+
+  for (i = 0; i < builtin_count; i++)
+    svz_servertype_add (builtin[i]);
 }

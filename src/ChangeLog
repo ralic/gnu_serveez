@@ -1,3 +1,10 @@
+2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[C int] Convert repetitive funcalls to array iteration.
+
+	* cfgfile.c (builtin): New static array of ‘svz_servertype_t *’.
+	(init_server_definitions): Iterate over ‘builtin’.
+
 2013-11-08  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile int] Avoid ‘servertype_smob’ call for NULL ‘stype’.
