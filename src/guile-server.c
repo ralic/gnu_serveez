@@ -606,7 +606,6 @@ guile_func_finalize (svz_server_t *server)
 #define FUNC_NAME __func__
   SCM ret, finalize = server_getfunction (server, fn_finalize);
   int retval = 0;
-  svz_hash_t *state;
 
   if (BOUNDP (finalize))
     {
@@ -615,14 +614,6 @@ guile_func_finalize (svz_server_t *server)
     }
 
   invalidate_smob (server);
-
-  /* Release associated guile server state objects is necessary.  */
-  if ((state = server->data) != NULL)
-    {
-      svz_hash_destroy (state);
-      server->data = NULL;
-    }
-
   return retval;
 }
 #undef FUNC_NAME

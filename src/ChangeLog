@@ -1,3 +1,12 @@
+2013-11-12  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Don't bother clearing ‘svz_server_t.state’.
+
+	Omission from 2013-11-02, "Remove procs:
+	svz:server:state{-ref,-set!,->hash}".
+
+	* guile-server.c (guile_func_finalize): ...here.
+
 2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Add option to list builtin servers.
