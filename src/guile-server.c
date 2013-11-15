@@ -550,10 +550,6 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   /* Delete all the associated guile callbacks.  */
   scm_hashq_remove_x (all_sockets, ssock);
 
-  /* Release associated guile object is necessary.  */
-  if (sock->data != NULL)
-    gi_gc_unprotect (SVZ_PTR2SCM (sock->data));
-
   /* Free the socket boundary if set by guile.  */
   guile_sock_clear_boundary (sock);
 

@@ -1,3 +1,11 @@
+2013-11-15  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[Scheme int] Don't bother clearing ‘svz_socket_t.data’.
+
+	Omission from 2013-04-25, "Remove proc: svz:sock:data".
+
+	* guile-server.c (guile_func_disconnected_socket): ...here.
+
 2013-11-12  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Don't bother clearing ‘svz_server_t.state’.
