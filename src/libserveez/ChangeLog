@@ -1,5 +1,12 @@
 2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Use local var more.
+
+	* server-core.c (svz_sock_find):
+	Access socktab‘[id]’ exactly once; return ‘sock’ directly.
+
+2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib] Redesign sock pre-free hook for multiple callers.
 
 	* socket.c (svz_sock_pre_free): Delete var.

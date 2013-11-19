@@ -778,7 +778,7 @@ svz_sock_find (int id, int version)
       return NULL;
     }
 
-  return socktab[id];
+  return sock;
 }
 
 /*
