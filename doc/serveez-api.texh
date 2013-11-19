@@ -593,14 +593,10 @@ on which kind of socket it can handle and what they are for.
 
 Because libserveez manages the creation and destruction of
 @code{svz_socket_t} objects internally, the following API element
-is useful for syncronizing client code with those objects.
+is useful for syncronizing client-code references to those objects
+with those objects.
 
-@deftypevar {void (*)(const svz_socket_t *)} svz_sock_pre_free
-The value of this variable should be either @code{NULL}, or a
-function that takes a @code{const} socket object pointer and does
-not return any value.
-This is called immediately prior to freeing the socket object.
-@end deftypevar
+@tsin i "F svz_sock_prefree"
 
 @node Coserver functions
 @subsection Coserver functions

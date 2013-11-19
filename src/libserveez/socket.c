@@ -62,11 +62,6 @@
  */
 int svz_sock_connections = 0;
 
-/*
- * Called immediately prior to a @code{svz_socket_t} being freed.
- */
-void (* svz_sock_pre_free) (const svz_socket_t *);
-
 /**
  * Return the number of currently connected sockets.
  */
@@ -74,6 +69,49 @@ int
 svz_sock_nconnections (void)
 {
   return svz_sock_connections;
+}
+
+/*
+ * User-supplied functions called immediately prior to
+ * a @code{svz_socket_t} being freed.
+ */
+static svz_array_t *prefree;
+
+/**
+ * Register (if @var{addsub} is non-zero), or unregister (otherwise)
+ * the function @var{fn} to be called immediately
+ * prior to a @code{svz_socket_t} being freed.
+ * @var{fn} is called with one arg @code{sock},
+ * and should not return anything.  In other words:
+ *
+ * @vindex svz_sock_prefree_fn
+ * @example
+ * typedef void (svz_sock_prefree_fn) (const svz_socket_t *);
+ * @end example
+ *
+ * Note the @code{const}!
+ */
+void
+svz_sock_prefree (int addsub, svz_sock_prefree_fn fn)
+{
+  if (prefree == NULL)
+    prefree = svz_array_create (1, NULL);
+
+  if (addsub)
+    /* Add.  */
+    svz_array_add (prefree, fn);
+  else
+    /* Subtract.  */
+    {
+      size_t i;
+
+      for (i = 0; i < svz_array_size (prefree); i++)
+        if (fn == svz_array_get (prefree, i))
+          {
+            svz_array_del (prefree, i);
+            i--;
+          }
+    }
 }
 
 /*
@@ -433,8 +471,15 @@ svz_sock_resize_buffers (svz_socket_t *sock,
 int
 svz_sock_free (svz_socket_t *sock)
 {
-  if (svz_sock_pre_free)
-    svz_sock_pre_free (sock);
+  size_t i = svz_array_size (prefree);
+  svz_sock_prefree_fn *fn;
+
+  while (i--)
+    {
+      fn = svz_array_get (prefree, i);
+      fn (sock);
+    }
+
   if (sock->remote_addr)
     svz_free (sock->remote_addr);
   if (sock->local_addr)

@@ -249,7 +249,8 @@ SBO int svz_sock_unique_id (svz_socket_t *);
 SBO int svz_sock_detect_proto (svz_socket_t *);
 SBO int svz_sock_flood_protect (svz_socket_t *, int);
 
-SERVEEZ_API void (* svz_sock_pre_free) (const svz_socket_t *);
+typedef void (svz_sock_prefree_fn) (const svz_socket_t *);
+SERVEEZ_API void svz_sock_prefree (int addsub, svz_sock_prefree_fn fn);
 SERVEEZ_API int svz_sock_nconnections (void);
 SERVEEZ_API int svz_sock_write (svz_socket_t *, char *, int);
 SERVEEZ_API int svz_sock_printf (svz_socket_t *, const char *, ...);

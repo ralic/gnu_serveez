@@ -1,3 +1,11 @@
+2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib] Redesign sock pre-free hook for multiple callers.
+
+	* serveez-api.texh (Socket management): Remove @deftypevar
+	for ‘svz_sock_pre_free’; update intro blurb to say "references";
+	add @tsin for "F svz_sock_prefree".
+
 2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[doc] Add blank lines to improve readability.

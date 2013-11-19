@@ -1,3 +1,15 @@
+2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib] Redesign sock pre-free hook for multiple callers.
+
+	* socket.c (svz_sock_pre_free): Delete var.
+	(prefree): New static var.
+	(svz_sock_prefree): New func.
+	(svz_sock_free): Iterate over ‘prefree’ funcs.
+	* socket.h (svz_sock_pre_free): Delete var decl.
+	(svz_sock_prefree_fn): New typedef.
+	(svz_sock_prefree): New func decl, marked ‘SERVEEZ_API’.
+
 2013-11-09  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[doc] Add blank lines to improve readability.

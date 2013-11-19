@@ -1556,7 +1556,7 @@ guile_server_init (void)
   INIT_SMOB (server);
   INIT_SMOB (servertype);
 
-  svz_sock_pre_free = invalidate_socket_smob;
+  svz_sock_prefree (1, invalidate_socket_smob);
   goodstuff = protected_ht (11);
   all_servertypes = protected_ht (3);
   all_sockets = protected_ht (23);
@@ -1580,7 +1580,7 @@ guile_server_finalize (void)
   ht_zonk_out (&all_sockets);
   ht_zonk_out (&all_servertypes);
   ht_zonk_out (&goodstuff);
-  svz_sock_pre_free = NULL;
+  svz_sock_prefree (0, invalidate_socket_smob);
 }
 
 #else /* not ENABLE_GUILE_SERVER */

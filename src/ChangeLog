@@ -1,3 +1,12 @@
+2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib] Redesign sock pre-free hook for multiple callers.
+
+	* guile-server.c (guile_server_init): For socket
+	smob invalidation func, don't jam ‘svz_sock_pre_free’;
+	instead, register via ‘svz_sock_prefree’.
+	(guile_server_finalize): Likewise for unregistering.
+
 2013-11-15  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[Scheme int] Don't bother clearing ‘svz_socket_t.data’.
