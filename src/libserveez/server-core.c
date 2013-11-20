@@ -782,24 +782,6 @@ svz_sock_find (int id, int version)
 }
 
 /*
- * Create the socket lookup table initially.
- */
-static void
-table_create (void)
-{
-  socktab = svz_calloc (sock_limit * sizeof (svz_socket_t *));
-}
-
-/*
- * Destroy the socket lookup table finally.
- */
-static void
-table_destroy (void)
-{
-  svz_free_and_zero (socktab);
-}
-
-/*
  * Calculate unique socket structure id and assign a version for a
  * given @var{sock}.  The version is for validating socket structures.  It is
  * currently used in the coserver callbacks.
@@ -1304,10 +1286,10 @@ svz__strsignal_updn (int direction)
 void
 svz__sock_table_updn (int direction)
 {
-  (direction
-   ? table_create
-   : table_destroy)
-    ();
+  if (direction)
+    socktab = svz_calloc (sock_limit * sizeof (svz_socket_t *));
+  else
+    svz_free_and_zero (socktab);
 }
 
 void

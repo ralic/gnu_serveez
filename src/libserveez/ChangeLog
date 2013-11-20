@@ -1,3 +1,11 @@
+2013-11-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib int] Incorporate table_{create,destroy} into unique caller.
+
+	* server-core.c (table_create, table_destroy):
+	Delete static funcs, moving bodies into...
+	(svz__sock_table_updn): ...this func.
+
 2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib int] Use local var more.
