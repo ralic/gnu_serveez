@@ -1003,76 +1003,6 @@ svz_sock_check_bogus (void)
 }
 
 /*
- * Setup signaling for the core library.
- */
-static void
-signals_up (void)
-{
-#ifdef SIGTERM
-  signal (SIGTERM, handle_signal);
-#endif
-#ifdef SIGQUIT
-  signal (SIGQUIT, handle_signal);
-#endif
-#ifdef SIGINT
-  signal (SIGINT, handle_signal);
-#endif
-#ifdef SIGBREAK
-  signal (SIGBREAK, handle_signal);
-#endif
-#ifdef SIGCHLD
-  signal (SIGCHLD, handle_signal);
-#endif
-#ifdef SIGHUP
-  signal (SIGHUP, handle_signal);
-#endif
-#ifdef SIGPIPE
-  signal (SIGPIPE, handle_signal);
-#endif
-#ifdef SIGURG
-  signal (SIGURG, handle_signal);
-#endif
-#ifdef SIGSEGV
-  signal (SIGSEGV, handle_segv);
-#endif
-}
-
-/*
- * Deinstall signaling for the core library.
- */
-static void
-signals_dn (void)
-{
-#ifdef SIGTERM
-  signal (SIGTERM, SIG_DFL);
-#endif
-#ifdef SIGQUIT
-  signal (SIGQUIT, SIG_DFL);
-#endif
-#ifdef SIGINT
-  signal (SIGINT, SIG_DFL);
-#endif
-#ifdef SIGBREAK
-  signal (SIGBREAK, SIG_DFL);
-#endif
-#ifdef SIGCHLD
-  signal (SIGCHLD, SIG_DFL);
-#endif
-#ifdef SIGHUP
-  signal (SIGHUP, SIG_DFL);
-#endif
-#ifdef SIGPIPE
-  signal (SIGPIPE, SIG_DFL);
-#endif
-#ifdef SIGURG
-  signal (SIGURG, SIG_DFL);
-#endif
-#ifdef SIGSEGV
-  signal (SIGSEGV, SIG_DFL);
-#endif
-}
-
-/*
  * This routine checks whether the child process specified by the @code{pid}
  * handle stored in the socket structure @var{sock} is still alive.  It
  * returns zero if so, otherwise (when the child process died) non-zero.
@@ -1295,8 +1225,44 @@ svz__sock_table_updn (int direction)
 void
 svz__signal_updn (int direction)
 {
-  (direction
-   ? signals_up
-   : signals_dn)
-    ();
+  /* Some of these (marked) are required for C99 conformance.
+     TODO: Move them to the end, unconditionalize, and zonk dummy.  */
+  int normal[] =
+     {
+#ifdef SIGTERM                          /* C99 */
+       SIGTERM,
+#endif
+#ifdef SIGQUIT
+       SIGQUIT,
+#endif
+#ifdef SIGINT                           /* C99 */
+       SIGINT,
+#endif
+#ifdef SIGBREAK
+       SIGBREAK,
+#endif
+#ifdef SIGCHLD
+       SIGCHLD,
+#endif
+#ifdef SIGHUP
+       SIGHUP,
+#endif
+#ifdef SIGPIPE
+       SIGPIPE,
+#endif
+#ifdef SIGURG
+       SIGURG,
+#endif
+       -1                               /* dummy */
+     };
+  size_t i = (sizeof (normal) / sizeof (normal[0])
+              /* Ignore dummy.  */
+              - 1);
+
+  while (i--)
+    signal (normal[i], direction ? handle_signal : SIG_DFL);
+
+#ifdef SIGSEGV                          /* C99 */
+  signal (SIGSEGV, direction ? handle_segv : SIG_DFL);
+#endif
 }

@@ -1,5 +1,12 @@
 2013-11-20  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Incorporate signals_{up,dn} into unique caller.
+
+	* server-core.c (signals_up, signals_dn): Delete funcs.
+	(svz__signal_updn): Rewrite.
+
+2013-11-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Incorporate table_{create,destroy} into unique caller.
 
 	* server-core.c (table_create, table_destroy):
