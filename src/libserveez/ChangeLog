@@ -1,5 +1,19 @@
 2013-11-20  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Don't bother caching ‘strsignal’ rv.
+
+	* boot.c (strsignal): Delete ‘UPDN’.
+	(svz_boot): Don't ‘UP (strsignal)’.
+	(svz_halt): Don't ‘DN (strsignal)’.
+	* server-core.c (signal_blurbs): Delete var.
+	(strsignal) [!defined HAVE_STRSIGNAL]: New macro.
+	(strsignal_init, strsignal_destroy, signal_blurb): Delete funcs.
+	(svz_loop_one): Call ‘strsignal’ directly;
+	construct default descriptions locally.
+	(svz__strsignal_updn): Delete func.
+
+2013-11-20  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Incorporate signals_{up,dn} into unique caller.
 
 	* server-core.c (signals_up, signals_dn): Delete funcs.

@@ -265,82 +265,14 @@ handle_signal (int sig)
 /* 65 is hopefully a safe bet, kill(1) accepts 0..64, *sigh* */
 #define SVZ_NUMBER_OF_SIGNALS 65
 
-/* Cached results of strsignal calls.  */
-static svz_array_t *signal_blurbs = NULL;
-
 /* On some platforms ‘strsignal’ can be resolved but is nowhere declared.  */
 #if defined (HAVE_STRSIGNAL) && !HAVE_DECL_STRSIGNAL
 extern char * strsignal (int);
 #endif
 
-/*
- * Prepare library so that @code{svz_strsignal} works.
- */
-static void
-strsignal_init (void)
-{
-  int i;
-  char *str;
-  const char *format = "Signal %d";
-
-  if (signal_blurbs != NULL)
-    return;
-
-  signal_blurbs = svz_array_create (SVZ_NUMBER_OF_SIGNALS, svz_free);
-  for (i = 0; i < SVZ_NUMBER_OF_SIGNALS; i++)
-    {
-#if HAVE_STRSIGNAL
-      if (NULL == (str = (char *) strsignal (i)))
-        {
-          str = svz_malloc (128);
-          snprintf (str, 128, format, i);
-          svz_array_add (signal_blurbs, svz_strdup (str));
-          svz_free (str);
-        }
-      else
-        {
-          svz_array_add (signal_blurbs, svz_strdup (str));
-        }
-#else /* not HAVE_STRSIGNAL */
-      str = svz_malloc (128);
-      snprintf (str, 128, format, i);
-      svz_array_add (signal_blurbs, svz_strdup (str));
-      svz_free (str);
-#endif /* HAVE_STRSIGNAL */
-    }
-}
-
-/*
- * The function @code{svz_strsignal} does not work afterwards anymore.
- */
-static void
-strsignal_destroy (void)
-{
-  svz_array_destroy (signal_blurbs);
-  signal_blurbs = NULL;
-}
-
-/*
- * Resolve the given signal number to form a describing string.
- * This function is reentrant, use it from the signal handler.
- * It does not return NULL.  The returned pointer is shared amongst
- * all users.  For unknown signals (which is not supposed to happen)
- * the returned string points to a statically allocated buffer (which
- * destroys the reentrance, of course) [who cares :-].
- */
-static char *
-signal_blurb (int sig)
-{
-  static char fallback[128];
-
-  if (sig >= 0 && sig < SVZ_NUMBER_OF_SIGNALS)
-    return (char *) svz_array_get (signal_blurbs, sig);
-  else
-    {
-      snprintf (fallback, 128, "No such signal %d", sig);
-      return fallback;
-    }
-}
+#if !defined HAVE_STRSIGNAL             /* TODO: Use gnulib.  */
+#define strsignal(i)  NULL
+#endif
 
 /*
  * Abort the process, printing the error message @var{msg} first.
@@ -1120,7 +1052,21 @@ svz_loop_one (void)
   if (signo != -1)
     {
       /* Log the current signal.  */
-      svz_log (SVZ_LOG_WARNING, "signal: %s\n", signal_blurb (signo));
+      const size_t sz = 128;
+      char buf[sz];
+
+      if (signo >= 0 && signo < SVZ_NUMBER_OF_SIGNALS)
+        {
+          char *str = strsignal (signo);
+
+          if (str == NULL)
+            snprintf (buf, sz, "Signal %d", signo);
+          else
+            strncpy (buf, str, sz);
+        }
+      else
+        snprintf (buf, sz, "No such signal %d", signo);
+      svz_log (SVZ_LOG_WARNING, "signal: %s\n", buf);
       signo = -1;
     }
 
@@ -1204,15 +1150,6 @@ svz_loop (void)
 }
 
 
-void
-svz__strsignal_updn (int direction)
-{
-  (direction
-   ? strsignal_init
-   : strsignal_destroy)
-    ();
-}
-
 void
 svz__sock_table_updn (int direction)
 {

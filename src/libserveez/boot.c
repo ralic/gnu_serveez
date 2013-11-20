@@ -152,7 +152,6 @@ svz__net_updn (int direction)
 #define UPDN(x)  SBO void svz__ ## x ## _updn (int direction)
 
 UPDN (log);
-UPDN (strsignal);
 UPDN (sock_table);
 UPDN (signal);
 UPDN (interface);
@@ -180,7 +179,6 @@ svz_boot (char const *client)
 #define UP(x)  svz__ ## x ## _updn (1)
 
   UP (log);
-  UP (strsignal);
   UP (sock_table);
   UP (signal);
   UP (interface);
@@ -263,7 +261,6 @@ svz_halt (void)
   DN (interface);
   DN (signal);
   DN (sock_table);
-  DN (strsignal);
   DN (log);
 
 #undef DN
