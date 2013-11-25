@@ -630,3 +630,27 @@ svz_pp_server_bindings (char *buf, size_t size, svz_server_t *server)
  out:
   return w - buf;
 }
+
+
+void
+zonk_sock_ears (const svz_socket_t *sock)
+{
+  if (sock->flags & SVZ_SOFLG_LISTENING)
+    {
+      if (sock->data)
+        svz_array_destroy (sock->data);
+    }
+}
+
+void
+svz__bindings_updn (int direction)
+{
+  if (direction)
+    {
+      svz_sock_prefree (1, zonk_sock_ears);
+    }
+  else
+    {
+      svz_sock_prefree (0, zonk_sock_ears);
+    }
+}

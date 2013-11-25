@@ -153,6 +153,7 @@ svz__net_updn (int direction)
 
 UPDN (log);
 UPDN (sock_table);
+UPDN (bindings);
 UPDN (signal);
 UPDN (interface);
 UPDN (pipe);
@@ -180,6 +181,7 @@ svz_boot (char const *client)
 
   UP (log);
   UP (sock_table);
+  UP (bindings);
   UP (signal);
   UP (interface);
   UP (net);
@@ -260,6 +262,7 @@ svz_halt (void)
   DN (net);
   DN (interface);
   DN (signal);
+  DN (bindings);
   DN (sock_table);
   DN (log);
 

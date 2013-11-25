@@ -488,11 +488,6 @@ svz_sock_free (svz_socket_t *sock)
     svz_free (sock->recv_buffer);
   if (sock->send_buffer)
     svz_free (sock->send_buffer);
-  if (sock->flags & SVZ_SOFLG_LISTENING)
-    {
-      if (sock->data)
-        svz_array_destroy (sock->data);
-    }
   if (sock->recv_pipe)
     svz_free (sock->recv_pipe);
   if (sock->send_pipe)

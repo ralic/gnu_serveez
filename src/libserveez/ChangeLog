@@ -1,5 +1,16 @@
 2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Move sock ears destruction to prefree hook.
+
+	* binding.c (zonk_sock_ears): New static func.
+	(svz__bindings_updn): New func.
+	* boot.c (bindings): New ‘UPDN’.
+	(svz_boot): Do ‘UP (bindings)’.
+	(svz_halt): Do ‘DN (bindings)’.
+	* socket.c (svz_sock_free): Don't bother to destroy the sock ears.
+
+2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Move ‘delete_server’ to binding.[ch]; rename.
 
 	* binding.c (svz_sock_bindings_zonk_server): New func.
