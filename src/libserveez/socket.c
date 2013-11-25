@@ -173,7 +173,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
   svz_array_t *bindings;
 
   /* return if there are no servers bound to this socket */
-  if (sock->data == NULL)
+  if (svz_sock_bindings (sock) == NULL)
     return -1;
 
   /* get port configuration of parent */

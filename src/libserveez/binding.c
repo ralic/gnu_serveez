@@ -39,6 +39,12 @@
 #include "libserveez/server-socket.h"
 #include "libserveez/binding.h"
 
+svz_array_t *
+svz_sock_bindings (const svz_socket_t *sock)
+{
+  return sock->data;
+}
+
 static int
 portcfg_exactly_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 {
@@ -67,7 +73,7 @@ from_server (svz_socket_t *sock, svz_server_t *server)
   svz_binding_t *binding;
   size_t i;
 
-  svz_array_foreach (sock->data, binding, i)
+  svz_array_foreach (svz_sock_bindings (sock), binding, i)
     if (binding->server == server)
       svz_array_add (bindings, binding);
   return svz_array_destroy_zero (bindings);
@@ -207,7 +213,7 @@ find_binding (svz_socket_t *sock, svz_server_t *server,
   svz_binding_t *binding;
   size_t i;
 
-  svz_array_foreach (sock->data, binding, i)
+  svz_array_foreach (svz_sock_bindings (sock), binding, i)
     if (binding->server == server)
       if (portcfg_exactly_equal (binding->port, port))
         return binding;
@@ -225,7 +231,7 @@ add_server (svz_socket_t *sock, svz_server_t *server, svz_portcfg_t *port)
   svz_binding_t *binding = make_binding (server, port);
 
   /* Create server array if necessary.  */
-  if (sock->data == NULL)
+  if (svz_sock_bindings (sock) == NULL)
     {
       sock->data = svz_array_create (1, (svz_free_func_t) svz_binding_destroy);
       svz_array_add (sock->data, binding);
@@ -285,7 +291,7 @@ static svz_array_t *
 sock_bindings (svz_socket_t *sock)
 {
   if (sock && sock->flags & SVZ_SOFLG_LISTENING && sock->port != NULL)
-    return sock->data;
+    return svz_sock_bindings (sock);
   return NULL;
 }
 
@@ -311,14 +317,14 @@ svz_sock_bindings_zonk_server (svz_socket_t *sock, svz_server_t *server)
   svz_binding_t *binding;
   size_t i;
 
-  svz_array_foreach (sock->data, binding, i)
+  svz_array_foreach (svz_sock_bindings (sock), binding, i)
     if (binding->server == server)
       {
         svz_binding_destroy (binding);
         svz_array_del (sock->data, i);
         i--;
       }
-  return svz_array_size (sock->data);
+  return svz_array_size (svz_sock_bindings (sock));
 }
 
 /*
@@ -445,7 +451,7 @@ svz_binding_contains_server (svz_socket_t *sock, svz_server_t *server)
   svz_binding_t *binding;
   size_t i;
 
-  svz_array_foreach (sock->data, binding, i)
+  svz_array_foreach (svz_sock_bindings (sock), binding, i)
     if (binding->server == server)
       return 1;
   return 0;
@@ -479,7 +485,7 @@ static svz_array_t *
 filter_pipe (svz_socket_t *sock)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
-  svz_array_t *bindings = sock->data;
+  svz_array_t *bindings = svz_sock_bindings (sock);
   svz_binding_t *binding;
   size_t i;
 
@@ -500,7 +506,7 @@ static svz_array_t *
 filter_net (svz_socket_t *sock, in_addr_t addr, in_port_t port)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
-  svz_array_t *bindings = sock->data;
+  svz_array_t *bindings = svz_sock_bindings (sock);
   struct sockaddr_in *portaddr;
   svz_binding_t *binding;
   size_t i;

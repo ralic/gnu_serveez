@@ -233,7 +233,7 @@ svz_udp_check_request (svz_socket_t *sock)
   svz_array_t *bindings;
   svz_binding_t *binding;
 
-  if (sock->data == NULL && sock->handle_request == NULL)
+  if (svz_sock_bindings (sock) == NULL && sock->handle_request == NULL)
     return -1;
 
   /*

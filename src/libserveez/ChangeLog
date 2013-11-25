@@ -1,5 +1,19 @@
 2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Add abstraction: svz_sock_bindings
+
+	* binding.c (svz_sock_bindings): New func.
+	(from_server, find_binding, add_server, sock_bindings)
+	(svz_sock_bindings_zonk_server, svz_binding_contains_server)
+	(filter_pipe, filter_net): Use ‘svz_sock_bindings’.
+	* binding.h (svz_sock_bindings): New func decl.
+	* icmp-socket.c (svz_icmp_check_request): Use ‘svz_sock_bindings’.
+	* server.c (server_unbind): Likewise.
+	* socket.c (svz_sock_detect_proto): Likewise.
+	* udp-socket.c (svz_udp_check_request): Likewise.
+
+2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Move sock ears destruction to prefree hook.
 
 	* binding.c (zonk_sock_ears): New static func.
