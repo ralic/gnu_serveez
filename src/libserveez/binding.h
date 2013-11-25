@@ -41,6 +41,7 @@ svz_binding_t;
 
 __BEGIN_DECLS
 SBO void svz_sock_bindings_set (svz_socket_t *, svz_socket_t *);
+SBO size_t svz_sock_bindings_zonk_server (svz_socket_t *, svz_server_t *);
 SBO void svz_binding_destroy (svz_binding_t *);
 SBO svz_array_t *svz_binding_filter (svz_socket_t *);
 

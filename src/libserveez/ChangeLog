@@ -1,5 +1,14 @@
 2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Move ‘delete_server’ to binding.[ch]; rename.
+
+	* binding.c (svz_sock_bindings_zonk_server): New func.
+	* binding.h (svz_sock_bindings_zonk_server): New func decl, marked SBO.
+	* server.c (delete_server): Delete func.
+	(server_unbind): Use ‘svz_sock_bindings_zonk_server’.
+
+2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Add abstraction: svz_sock_bindings_set
 
 	* binding.c (svz_sock_bindings_set): New func.

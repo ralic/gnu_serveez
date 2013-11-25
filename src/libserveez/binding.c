@@ -301,6 +301,27 @@ svz_sock_bindings_set (svz_socket_t *sock, svz_socket_t *from)
 }
 
 /*
+ * Removes the server instance @var{server} from the listening socket
+ * structure @var{sock} and returns the remaining number of servers bound
+ * to the socket structure.
+ */
+size_t
+svz_sock_bindings_zonk_server (svz_socket_t *sock, svz_server_t *server)
+{
+  svz_binding_t *binding;
+  size_t i;
+
+  svz_array_foreach (sock->data, binding, i)
+    if (binding->server == server)
+      {
+        svz_binding_destroy (binding);
+        svz_array_del (sock->data, i);
+        i--;
+      }
+  return svz_array_size (sock->data);
+}
+
+/*
  * This function adds the bindings stored in the listening server socket
  * structure @var{sock} to the binding array @var{bindings} and returns the
  * resulting array.  If @var{bindings} is @code{NULL} a new array is created.
