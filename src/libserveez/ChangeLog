@@ -1,3 +1,13 @@
+2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib int] Add abstraction: svz_sock_bindings_set
+
+	* binding.c (svz_sock_bindings_set): New func.
+	* binding.h (svz_sock_bindings_set): New func decl, marked SBO.
+	* server-socket.c: #include "libserveez/binding.h".
+	(tcp_accept, pipe_accept): Use ‘svz_sock_bindings_set’.
+	* socket.c (svz_sock_detect_proto): Likewise.
+
 2013-11-20  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib int] Don't bother caching ‘strsignal’ rv.

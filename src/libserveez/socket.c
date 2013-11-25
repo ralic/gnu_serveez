@@ -196,7 +196,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
         {
           svz_array_destroy (bindings);
           sock->idle_func = NULL;
-          sock->data = NULL;
+          svz_sock_bindings_set (sock, NULL);
           sock->cfg = server->cfg;
           sock->port = binding->port;
           if (!server->connect_socket)

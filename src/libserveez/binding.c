@@ -290,6 +290,17 @@ sock_bindings (svz_socket_t *sock)
 }
 
 /*
+ * Make @var{sock} have no bindings.
+ */
+void
+svz_sock_bindings_set (svz_socket_t *sock, svz_socket_t *from)
+{
+  sock->data = from
+    ? from->data
+    : NULL;
+}
+
+/*
  * This function adds the bindings stored in the listening server socket
  * structure @var{sock} to the binding array @var{bindings} and returns the
  * resulting array.  If @var{bindings} is @code{NULL} a new array is created.
@@ -324,7 +335,7 @@ adjoin (svz_array_t *bindings, svz_socket_t *sock)
   svz_array_destroy (old);
 
   /* Invalidate the binding array.  */
-  sock->data = NULL;
+  svz_sock_bindings_set (sock, NULL);
   return bindings;
 }
 

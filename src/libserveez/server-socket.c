@@ -52,6 +52,7 @@
 #include "libserveez/icmp-socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
+#include "libserveez/binding.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/server-socket.h"
 #include "misc-macros.h"
@@ -208,7 +209,7 @@ tcp_accept (svz_socket_t *server_sock)
   if ((sock = svz_sock_create (client_socket)) != NULL)
     {
       sock->flags |= SVZ_SOFLG_CONNECTED;
-      sock->data = server_sock->data;
+      svz_sock_bindings_set (sock, server_sock);
       sock->check_request = server_sock->check_request;
       sock->idle_func = idle_protect;
       sock->idle_counter = 1;
@@ -399,7 +400,7 @@ pipe_accept (svz_socket_t *server_sock)
   sock->read_socket = svz_pipe_read_socket;
   sock->write_socket = svz_pipe_write_socket;
   svz_sock_setreferrer (sock, server_sock);
-  sock->data = server_sock->data;
+  svz_sock_bindings_set (sock, server_sock);
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
   sock->idle_func = idle_protect;
