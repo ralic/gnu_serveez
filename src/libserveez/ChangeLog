@@ -1,3 +1,9 @@
+2013-11-26  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib int] Use local var instead of multiple ‘svz_sock_bindings’.
+
+	* binding.c (svz_sock_bindings_zonk_server): ...here.
+
 2013-11-25  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib int] Add abstraction: svz_sock_bindings

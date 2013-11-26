@@ -314,17 +314,18 @@ svz_sock_bindings_set (svz_socket_t *sock, svz_socket_t *from)
 size_t
 svz_sock_bindings_zonk_server (svz_socket_t *sock, svz_server_t *server)
 {
+  svz_array_t *bindings = svz_sock_bindings (sock);
   svz_binding_t *binding;
   size_t i;
 
-  svz_array_foreach (svz_sock_bindings (sock), binding, i)
+  svz_array_foreach (bindings, binding, i)
     if (binding->server == server)
       {
         svz_binding_destroy (binding);
-        svz_array_del (sock->data, i);
+        svz_array_del (bindings, i);
         i--;
       }
-  return svz_array_size (svz_sock_bindings (sock));
+  return svz_array_size (bindings);
 }
 
 /*
