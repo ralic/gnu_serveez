@@ -92,6 +92,11 @@ static svz_hash_t *callbacks = NULL;
 static svz_array_t *coservers = NULL;
 
 /*
+ * Hash table to map a socket to a coserver.
+ */
+static svz_hash_t *friendly;
+
+/*
  * Invoke a @var{request} for one of the running internal coservers
  * with type @var{type}.  @var{handle_result} and @var{arg} specify what
  * should happen if the coserver delivers a result.
@@ -594,7 +599,7 @@ check_request (svz_socket_t *sock)
   char *p = packet;
   int request_len;
   int len = 0;
-  svz_coserver_t *coserver = sock->data;
+  svz_coserver_t *coserver = svz_hash_get (friendly, svz_itoa (sock->id));
 
   assert (coserver);
   do
@@ -1027,7 +1032,7 @@ start (int type)
 #endif /* __MINGW32__ and Unices */
 
   coservertypes[coserver->type].last_start = (long) time (NULL);
-  sock->data = coserver;
+  svz_hash_put (friendly, svz_itoa (sock->id), coserver);
   sock->check_request = check_request;
   sock->handle_request = handle_request;
   sock->flags |= (SVZ_SOFLG_NOFLOOD | SVZ_SOFLG_COSERVER);
@@ -1115,6 +1120,12 @@ svz_coserver_create (int type)
   return coserver;
 }
 
+static void
+forget_sock (const svz_socket_t *sock)
+{
+  svz_hash_delete (friendly, svz_itoa (sock->id));
+}
+
 /*
  * Global coserver initialization.  Here you should start all the internal
  * coservers you want to use later.
@@ -1124,6 +1135,9 @@ init (void)
 {
   int i, n;
   svz_coservertype_t *coserver;
+
+  friendly = svz_hash_create (1, NULL);
+  svz_sock_prefree (1, forget_sock);
 
   callbacks = svz_hash_create (4, svz_free);
   callback_id = 1;
@@ -1162,6 +1176,11 @@ finalize (void)
 
   /* Destroy all callbacks left so far.  */
   svz_hash_destroy (callbacks);
+
+  svz_sock_prefree (0, forget_sock);
+  svz_hash_destroy (friendly);
+  friendly = NULL;
+
   return 0;
 }
 

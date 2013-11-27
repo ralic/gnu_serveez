@@ -1,5 +1,16 @@
 2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib] Make coservers avoid ‘svz_socket_t.data’ completely.
+
+	* coserver/coserver.c (friendly): New static var.
+	(check_request): Retrieve ‘coserver’ from ‘friendly’.
+	(start): Associate ‘sock’ to ‘coserver’ in ‘friendly’.
+	(forget_sock): New static func.
+	(init): Init ‘friendly’; add ‘forget_sock’ to prefree hook.
+	(finalize): Remove ‘forget_sock’ from prefree hook; destroy ‘friendly’.
+
+2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Add "socket property" funcs.
 
 	* soprop.c: New file.
