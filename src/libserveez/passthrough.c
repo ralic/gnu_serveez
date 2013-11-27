@@ -1171,11 +1171,7 @@ create_child (svz_process_t *proc)
 svz_envblock_t *
 svz_envblock_create (void)
 {
-  svz_envblock_t *env;
-
-  env = svz_malloc (sizeof (svz_envblock_t));
-  memset (env, 0, sizeof (svz_envblock_t));
-  return env;
+  return svz_calloc (sizeof (svz_envblock_t));
 }
 
 /*

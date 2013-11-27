@@ -417,8 +417,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
       xsock->idle_counter = NUT_CONNECT_TIMEOUT;
 
       /* initialize transfer data */
-      transfer = svz_malloc (sizeof (nut_transfer_t));
-      memset (transfer, 0, sizeof (nut_transfer_t));
+      transfer = svz_calloc (sizeof (nut_transfer_t));
       transfer->original_size = record->size;
       transfer->file = svz_strdup (file);
       transfer->start = time (NULL);
@@ -907,8 +906,7 @@ nut_init_upload (svz_socket_t *sock, nut_file_t *entry)
   sock->flags |= SVZ_SOFLG_FILE;
   cfg->uploads++;
 
-  transfer = svz_malloc (sizeof (nut_transfer_t));
-  memset (transfer, 0, sizeof (nut_transfer_t));
+  transfer = svz_calloc (sizeof (nut_transfer_t));
   transfer->size = buf.st_size;
   transfer->original_size = buf.st_size;
   transfer->file = svz_strdup (file);

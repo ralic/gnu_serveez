@@ -195,11 +195,7 @@ tnl_free_connect (svz_socket_t *sock)
 static tnl_connect_t *
 tnl_create_connect (void)
 {
-  tnl_connect_t *source;
-
-  source = svz_malloc (sizeof (tnl_connect_t));
-  memset (source, 0, sizeof (tnl_connect_t));
-  return source;
+  return svz_calloc (sizeof (tnl_connect_t));
 }
 
 static void

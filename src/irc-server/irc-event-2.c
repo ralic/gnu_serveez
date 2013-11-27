@@ -539,10 +539,8 @@ irc_create_ban (irc_client_t *client, char *request, int len)
   int n, size = 0;
 
   /* reserve and initialize buffer space */
-  ban = svz_malloc (sizeof (irc_ban_t));
-  memset (ban, 0, sizeof (irc_ban_t));
-  tmp = svz_malloc (MAX_MSG_LEN);
-  memset (tmp, 0, MAX_MSG_LEN);
+  ban = svz_calloc (sizeof (irc_ban_t));
+  tmp = svz_calloc (MAX_MSG_LEN);
 
   ban->since = time (NULL);
   sprintf (tmp, "%s!%s@%s", client->nick, client->user, client->host);

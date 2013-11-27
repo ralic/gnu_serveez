@@ -390,8 +390,7 @@ svz_sock_alloc (void)
   char *in;
   char *out;
 
-  sock = svz_malloc (sizeof (svz_socket_t));
-  memset (sock, 0, sizeof (svz_socket_t));
+  sock = svz_calloc (sizeof (svz_socket_t));
   in = svz_malloc (RECV_BUF_SIZE);
   out = svz_malloc (SEND_BUF_SIZE);
 

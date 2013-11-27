@@ -229,11 +229,7 @@ http_check_cache (char *file, http_cache_t *cache)
 static http_cache_entry_t *
 http_cache_create_entry (void)
 {
-  http_cache_entry_t *cache;
-
-  cache = svz_malloc (sizeof (http_cache_entry_t));
-  memset (cache, 0, sizeof (http_cache_entry_t));
-  return cache;
+  return svz_calloc (sizeof (http_cache_entry_t));
 }
 
 /*

@@ -55,8 +55,7 @@ svz_array_create (size_t capacity, svz_free_func_t destroy)
 
   if (!capacity)
     capacity = 4;
-  array = svz_malloc (sizeof (svz_array_t));
-  memset (array, 0, sizeof (svz_array_t));
+  array = svz_calloc (sizeof (svz_array_t));
   array->data = svz_malloc (sizeof (void *) * capacity);
   array->capacity = capacity;
   array->destroy = destroy;

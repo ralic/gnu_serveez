@@ -41,11 +41,7 @@
 nut_client_t *
 nut_create_client (void)
 {
-  nut_client_t *client;
-
-  client = svz_malloc (sizeof (nut_client_t));
-  memset (client, 0, sizeof (nut_client_t));
-  return client;
+  return svz_calloc (sizeof (nut_client_t));
 }
 
 /*

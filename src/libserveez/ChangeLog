@@ -1,5 +1,13 @@
 2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[C int] Use ‘svz_calloc’ instead of ‘svz_alloc’ + ‘memset’.
+
+	* array.c (svz_array_create): ...here.
+	* passthrough.c (svz_envblock_create): Likewise.
+	* socket.c (svz_sock_alloc): Likewise.
+
+2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib] Make coservers avoid ‘svz_socket_t.data’ completely.
 
 	* coserver/coserver.c (friendly): New static var.

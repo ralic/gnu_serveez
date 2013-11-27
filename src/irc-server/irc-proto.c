@@ -845,8 +845,7 @@ irc_add_channel (irc_config_t *cfg, char *name)
   if (irc_find_channel (cfg, name))
     return NULL;
 
-  channel = svz_malloc (sizeof (irc_channel_t));
-  memset (channel, 0, sizeof (irc_channel_t));
+  channel = svz_calloc (sizeof (irc_channel_t));
   channel->name = svz_strdup (name);
   svz_hash_put (cfg->channels, name, channel);
   return channel;
@@ -1076,8 +1075,7 @@ irc_create_client (irc_config_t *cfg)
 {
   irc_client_t *client;
 
-  client = svz_malloc (sizeof (irc_client_t));
-  memset (client, 0, sizeof (irc_client_t));
+  client = svz_calloc (sizeof (irc_client_t));
   cfg->users++;
   return client;
 }
