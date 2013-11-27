@@ -1,5 +1,14 @@
 2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
 
+	[lib int] Add "socket property" funcs.
+
+	* soprop.c: New file.
+	* soprop.h: New file.
+	* Makefile.am (libserveez_la_SOURCES): Add soprop.c
+	(EXTRA_DIST): Add soprop.h.
+
+2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
+
 	[lib int] Minimize direct ‘sock->data’ access.
 
 	* binding.c (add_server)

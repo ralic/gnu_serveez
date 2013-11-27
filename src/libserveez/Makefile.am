@@ -46,6 +46,10 @@ libserveez_la_SOURCES = address.c alloc.c util.c hash.c                   \
   interface.c dynload.c core.c socket.c array.c portcfg.c                 \
   binding.c passthrough.c cfg.c mutex.c
 
+# internal
+libserveez_la_SOURCES += soprop.c
+EXTRA_DIST            += soprop.h
+
 if MINGW32
 libserveez_la_SOURCES += windoze.c
 endif MINGW32
