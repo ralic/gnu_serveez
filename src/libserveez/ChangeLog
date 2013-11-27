@@ -1,3 +1,11 @@
+2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[lib int] Minimize direct ‘sock->data’ access.
+
+	* binding.c (add_server)
+	(svz_sock_bindings_set, zonk_sock_ears):
+	Use local var, ‘svz_sock_bindings’.
+
 2013-11-26  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib int] Use local var instead of multiple ‘svz_sock_bindings’.

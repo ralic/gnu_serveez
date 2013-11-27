@@ -229,19 +229,21 @@ static int
 add_server (svz_socket_t *sock, svz_server_t *server, svz_portcfg_t *port)
 {
   svz_binding_t *binding = make_binding (server, port);
+  svz_array_t *bindings = svz_sock_bindings (sock);
 
   /* Create server array if necessary.  */
-  if (svz_sock_bindings (sock) == NULL)
+  if (bindings == NULL)
     {
-      sock->data = svz_array_create (1, (svz_free_func_t) svz_binding_destroy);
-      svz_array_add (sock->data, binding);
+      bindings = svz_array_create (1, (svz_free_func_t) svz_binding_destroy);
+      svz_array_add (bindings, binding);
+      sock->data = bindings;
       return 0;
     }
   /* Attach a server/port binding to a single listener only once.  */
   else if (find_binding (sock, server, port) == NULL)
     {
       /* Extend the server array.  */
-      svz_array_add (sock->data, binding);
+      svz_array_add (bindings, binding);
       return 0;
     }
   /* Binding already done.  */
@@ -301,9 +303,11 @@ sock_bindings (svz_socket_t *sock)
 void
 svz_sock_bindings_set (svz_socket_t *sock, svz_socket_t *from)
 {
-  sock->data = from
-    ? from->data
+  svz_array_t *bindings = from
+    ? svz_sock_bindings (from)
     : NULL;
+
+  sock->data = bindings;
 }
 
 /*
@@ -644,8 +648,10 @@ zonk_sock_ears (const svz_socket_t *sock)
 {
   if (sock->flags & SVZ_SOFLG_LISTENING)
     {
-      if (sock->data)
-        svz_array_destroy (sock->data);
+      svz_array_t *bindings = svz_sock_bindings (sock);
+
+      if (bindings != NULL)
+        svz_array_destroy (bindings);
     }
 }
 
