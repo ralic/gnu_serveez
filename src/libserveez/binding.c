@@ -38,11 +38,23 @@
 #include "libserveez/portcfg.h"
 #include "libserveez/server-socket.h"
 #include "libserveez/binding.h"
+#include "libserveez/soprop.h"
+
+/*
+ * Hash table to map a socket to an array of bindings.
+ */
+static svz_hash_t *all_ears;
+
+static void *
+all_ears_x (const svz_socket_t *sock, svz_array_t *bindings)
+{
+  return svz_soprop_put (all_ears, sock, bindings);
+}
 
 svz_array_t *
 svz_sock_bindings (const svz_socket_t *sock)
 {
-  return sock->data;
+  return svz_soprop_get (all_ears, sock);
 }
 
 static int
@@ -236,7 +248,7 @@ add_server (svz_socket_t *sock, svz_server_t *server, svz_portcfg_t *port)
     {
       bindings = svz_array_create (1, (svz_free_func_t) svz_binding_destroy);
       svz_array_add (bindings, binding);
-      sock->data = bindings;
+      all_ears_x (sock, bindings);
       return 0;
     }
   /* Attach a server/port binding to a single listener only once.  */
@@ -307,7 +319,7 @@ svz_sock_bindings_set (svz_socket_t *sock, svz_socket_t *from)
     ? svz_sock_bindings (from)
     : NULL;
 
-  sock->data = bindings;
+  all_ears_x (sock, bindings);
 }
 
 /*
@@ -425,7 +437,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
               /* Create a fresh listener.  */
               if ((sock = make_listener_socket (copy)) != NULL)
                 {
-                  sock->data = bindings;
+                  all_ears_x (sock, bindings);
                   add_server (sock, server, copy);
                 }
               else
@@ -648,7 +660,7 @@ zonk_sock_ears (const svz_socket_t *sock)
 {
   if (sock->flags & SVZ_SOFLG_LISTENING)
     {
-      svz_array_t *bindings = svz_sock_bindings (sock);
+      svz_array_t *bindings = all_ears_x (sock, NULL);
 
       if (bindings != NULL)
         svz_array_destroy (bindings);
@@ -660,10 +672,18 @@ svz__bindings_updn (int direction)
 {
   if (direction)
     {
+      /* We don't specify DESTROY to ‘svz_soprop_create’ because the value
+         (bindings array) is shared by the listener socket w/ those derived
+         from it.  Unsharing is implemented by discarding the reference,
+         w/o destroying the bindings.  Bindings destruction happens only
+         when the listener socket is destroyed (see ‘zonk_sock_ears’).  */
+      all_ears = svz_soprop_create (1, NULL);
       svz_sock_prefree (1, zonk_sock_ears);
     }
   else
     {
       svz_sock_prefree (0, zonk_sock_ears);
+      svz_soprop_destroy (all_ears);
+      all_ears = NULL;
     }
 }
