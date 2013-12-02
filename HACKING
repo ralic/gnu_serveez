@@ -10,7 +10,7 @@ See the end for copying conditions.
 ***** DONE ([[file:BUGS::B0021][B0021]]) support VPATH "make check"
 ***** DONE ([[file:BUGS::B0022][B0022]]) coserver touch ‘svz_socket_t.data’
 ***** DONE ([[file:BUGS::B0023][B0023]]) libserveez core touches ‘svz_socket_t.data’
-*** TODO retirement of Guile 1.3.4 support
+*** DONE retirement of Guile 1.3.4 support
 
 * other stuff to do
 *** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
