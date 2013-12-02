@@ -2,6 +2,101 @@ NEWS for GNU Serveez
 See end for copying conditions.
 
 
+- 0.2.2 | 2013-12-02
+
+  - bugfixes
+
+    - make SMOB/C-object correspondance precise
+
+      Previously, the "socket", "server" and "servertype" SMOBs were
+      consed on-demand, that is, on every callback invocation, thus
+      defeating Scheme functionality requiring stable object identity
+      (notably, object properties).
+
+      Now, Scheme objects persist "normally" and the correspondance
+      between Scheme and the underlying C object is precise; when the
+      C object undergoes "finalization", the Scheme object likewise
+      undergoes "invalidation" -- breaking the correspondance -- but
+      otherwise leaving the identity intact.  The upshot is that
+      object properties will still work, although passing the Scheme
+      object to procs that expect to access the underlying C object
+      will have undefined (crash or demons-from-nose or ...) behavior.
+
+    - libserveez/coservers don't touch ‘svz_socket_t.data’
+
+      The ‘data’ member of ‘svz_socket_t’ is for exclusive use by the
+      servers (clients of libserveez).  Regardless, if you wish to run
+      multiple servers bound to one port, those still need to find a
+      way to share (i.e., not clobber each other's) ‘sock->data’.
+      The Guile server explicitly avoids ‘sock->data’ as well, so the
+      only thing you need to worry about is builtin servers written
+      in C.
+
+  - removed
+
+    - Scheme user-data procs
+
+      These procs are no longer provided:
+
+       svz:sock:data
+       svz:server:state-ref
+       svz:server:state-set!
+       svz:server:state->hash
+
+      The Scheme way is to use object properties.  For example, the
+      src/guile-server/{mandel,icecast}-* code now does just that.
+
+    - Guile 1.3.4 support
+
+      This was announced in Serveez 0.2.1 (2013-03-24) NEWS.
+
+  - changes to libserveez
+
+    - new API element: ‘svz_sock_prefree’
+
+      This function can be used to register/unregister a function to
+      be called by the libserveez core immediately prior to freeing a
+      ‘svz_socket_t’ object.
+
+      Clients that "wrap" ‘svz_socket_t’ can use it to update the
+      validity of the C object wrt the outer object.  (This is what
+      the Guile server does, in fact -- see src/guile-server.c.)
+
+    - version spec bump: ‘2:0:1’
+
+      As a consequence of the new API element, the libserveez version
+      spec is now ‘2:0:1’.
+
+       (info "(libtool) Updating version info")
+
+      Briefly, this means that this libserveez is backward-compatible
+      w/ that of GNU Serveez 0.2.1.
+
+  - new option: ‘serveez --list-servers’
+
+    (Short form: ‘-L’.)  This displays prefix and description for
+    each builtin server, with a special case for the Guile server.
+
+  - ‘serveez --help’ shows home page / "gethelp" info
+  - ‘serveez --version’ shows copyright / license
+
+    This is for compliance w/ the GNU coding standards.
+
+     (info "(standards) --version")
+     (info "(standards) --help")
+
+  - documentation more spacious
+
+    There are now blank lines between ‘@item’s and before
+    ‘@example’, ‘@table’ and ‘@multitable’ blocks.  Texinfo 4.13
+    used to add them automagically, but 5.x is not so generous.
+
+  - maintainer tools upgraded
+    - GNU Automake 1.14
+    - GNU Texinfo 5.2
+    - Guile-BAUX 20130913.1631.fcfbe70
+
+
 - 0.2.1 | 2013-03-24
 
   - planned retirement: Guile 1.3.4 support
