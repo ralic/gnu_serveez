@@ -23,7 +23,7 @@ dnl ----------------------------------------------------------------------
 dnl init
 
 AC_PREREQ([2.64])
-AC_INIT([GNU Serveez],[0.2.1],[bug-serveez@gnu.org])
+AC_INIT([GNU Serveez],[0.2.2],[bug-serveez@gnu.org])
 AC_CONFIG_HEADERS([src/config.h src/svzconfig.h src/guile-missing.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -36,9 +36,7 @@ AM_MAINTAINER_MODE
 dnl ----------------------------------------------------------------------
 dnl information on the package
 
-PROGRAM_VERSION='1.3'
-## History (reconstructed, roughly --ttn)
-## ----    -------------------------------------------------------
+PROGRAM_VERSION='1.4'
 ## 1.3  -- new option: --solitary
 ## 1.2  -- new option: --daemon
 ## 1.1  -- drop option: --port PORT
@@ -47,7 +45,10 @@ AC_SUBST([PROGRAM_VERSION])
 AC_DEFINE_UNQUOTED([PROGRAM_VERSION],["$PROGRAM_VERSION"],
   [Version of serveez(1).])
 
-LIBSERVEEZ_INTERFACE='1:0:0'
+LIBSERVEEZ_INTERFACE='2:0:1'
+## 2:0:1       -- new typedef: svz_sock_prefree_fn
+##                new func: svz_sock_prefree
+## 1:0:0       -- initial
 AC_SUBST([LIBSERVEEZ_INTERFACE])
 AC_DEFINE_UNQUOTED([LIBSERVEEZ_INTERFACE],["$LIBSERVEEZ_INTERFACE"],
   [The triple CUR:REV:AGE describing the libserveez API.])

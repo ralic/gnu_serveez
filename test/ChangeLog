@@ -1,3 +1,7 @@
+2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Release: 0.2.2
+
 2013-11-06  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[guile] Fix bug: Make socket smob/C-obj validity precise.

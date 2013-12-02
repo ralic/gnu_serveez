@@ -1,3 +1,7 @@
+2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Release: 0.2.2
+
 2013-11-30  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib] Fix bug: Don't store bindings array in ‘svz_socket_t.data’.

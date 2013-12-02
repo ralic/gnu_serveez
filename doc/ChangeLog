@@ -1,3 +1,7 @@
+2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	Release: 0.2.2
+
 2013-11-19  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[lib] Redesign sock pre-free hook for multiple callers.
