@@ -1,3 +1,9 @@
+2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[build int] Move serveez(1) version into configure.ac.
+
+	* option.c (PROGRAM_VERSION): Delete #define.
+
 2013-11-27  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[C int] Use ‘svz_calloc’ instead of ‘svz_alloc’ + ‘memset’.

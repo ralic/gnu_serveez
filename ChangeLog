@@ -1,3 +1,10 @@
+2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[build int] Move serveez(1) version into configure.ac.
+
+	* configure.ac (PROGRAM_VERSION):
+	New var, AC_SUBST and AC_DEFINE_UNQUOTED.
+
 2013-11-01  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[boot] Import Guile-BAUX headers.

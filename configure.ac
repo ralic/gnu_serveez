@@ -36,6 +36,17 @@ AM_MAINTAINER_MODE
 dnl ----------------------------------------------------------------------
 dnl information on the package
 
+PROGRAM_VERSION='1.3'
+## History (reconstructed, roughly --ttn)
+## ----    -------------------------------------------------------
+## 1.3  -- new option: --solitary
+## 1.2  -- new option: --daemon
+## 1.1  -- drop option: --port PORT
+## 1.0  -- initial revision
+AC_SUBST([PROGRAM_VERSION])
+AC_DEFINE_UNQUOTED([PROGRAM_VERSION],["$PROGRAM_VERSION"],
+  [Version of serveez(1).])
+
 LIBSERVEEZ_INTERFACE='1:0:0'
 AC_SUBST([LIBSERVEEZ_INTERFACE])
 AC_DEFINE_UNQUOTED([LIBSERVEEZ_INTERFACE],["$LIBSERVEEZ_INTERFACE"],
