@@ -5,22 +5,19 @@ It lives in the repo but is not included in the distribution.
 See the end for copying conditions.
 
 * next
-*** DONE bugfixes
-***** DONE ([[file:BUGS::B0020][B0020]]) cache ‘svz_socket_t *’ SMOB
-***** DONE ([[file:BUGS::B0021][B0021]]) support VPATH "make check"
-***** DONE ([[file:BUGS::B0022][B0022]]) coserver touch ‘svz_socket_t.data’
-***** DONE ([[file:BUGS::B0023][B0023]]) libserveez core touches ‘svz_socket_t.data’
-*** DONE retirement of Guile 1.3.4 support
+*** features
+***** Check for [[http://www.gnuvola.org/software/xdgdirs/][xdgdirs]]; use if no ‘-c FILENAME’.
+*** internal
+***** Move options processing to Scheme.
+***** Move serveez ‘main’ to Scheme.
+***** Start using gnulib.
 
 * other stuff to do
 *** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
 *** admin
 ***** Offload [[file:BUGS][BUGS]] to savannah (can we preserve history?).
-***** Use ranges for copyright notices.
-***** Use nicer single quotes in informative files.
 *** build
 ***** Use hydra for continuous integration.
-***** Investigate using gnulib.
 ***** Use libtool more (libltdl et al).
 *** Spiff docs (grammar and misc style fixes).
 *** Support IPv6.
@@ -39,6 +36,11 @@ See the end for copying conditions.
 *** Serveez on HURD.
 
 * stuff that is already done
+*** retirement of Guile 1.3.4 support
+*** ([[file:BUGS::B0023][B0023]]) libserveez core touches ‘svz_socket_t.data’
+*** ([[file:BUGS::B0022][B0022]]) coserver touch ‘svz_socket_t.data’
+*** ([[file:BUGS::B0021][B0021]]) support VPATH "make check"
+*** ([[file:BUGS::B0020][B0020]]) cache ‘svz_socket_t *’ SMOB
 *** Also distribute .lz tarball.
 *** Fix bugs.
 ***** (Guile 2) segfault in ‘guile_error’ if config file already closed
