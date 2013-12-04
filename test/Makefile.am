@@ -25,8 +25,10 @@ include $(top_srcdir)/build-aux/common.mk
 
 # FIXME: Make ‘SVZ_GUILE’ (../configure.ac) set this.
 GUILE = guile
+CHECKSHELL = $(SHELL)
 
 TESTS_ENVIRONMENT =					\
+	CHECKSHELL="$(CHECKSHELL)"			\
 	GUILE_LOAD_PATH=".:$(srcdir):$$GUILE_LOAD_PATH"	\
 	$(GUILE) -s
 XFAIL_TESTS =

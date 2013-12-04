@@ -1,3 +1,15 @@
+2013-12-04  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[v] Add support to specify shell for "make check" child procs.
+
+	Suggested by Eric Bavier:
+	<http://lists.gnu.org/archive/html/bug-serveez/2013-12/msg00002.html>.
+
+	* Makefile.am (CHECKSHELL): New var.
+	(TESTS_ENVIRONMENT): Include also ‘CHECKSHELL’.
+	* t004 <top-level CGI init>: Consult env var
+	‘CHECKSHELL’ instead of hardcoded "/bin/sh".
+
 2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.2

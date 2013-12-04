@@ -72,7 +72,7 @@
   (lambda ()
     (for-each (lambda (line)
                 (fso "~A~%" line))
-              '("#!/bin/sh"
+              `(,(fs "#!~A" (getenv "CHECKSHELL"))
                 "exec ${GUILE-guile} -s $0 ;# -*- scheme -*-"
                 "!#"))
     (for-each write SCRIPT-BODY)
