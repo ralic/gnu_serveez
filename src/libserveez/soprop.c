@@ -1,7 +1,7 @@
 /*
  * soprop.c - socket property
  *
- * Copyright (C) 2013 Thien-Thi Nguyen
+ * Copyright (C) 2013, 2014 Thien-Thi Nguyen
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by

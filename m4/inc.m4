@@ -1,6 +1,6 @@
 dnl inc.m4 --- some -*-autoconf-*- macros for configuring GNU Serveez
 dnl
-dnl Copyright (C) 2011-2013 Thien-Thi Nguyen
+dnl Copyright (C) 2011-2014 Thien-Thi Nguyen
 dnl Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 dnl
 dnl This is free software; you can redistribute it and/or modify

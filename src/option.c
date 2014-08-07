@@ -1,7 +1,7 @@
 /*
  * option.c - getopt function implementation
  *
- * Copyright (C) 2011-2013 Thien-Thi Nguyen
+ * Copyright (C) 2011-2014 Thien-Thi Nguyen
  * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
@@ -121,7 +121,7 @@ static void
 version (void)
 {
   fprintf (stdout, "serveez (%s) %s\n"
-           "Copyright (C) 2011-2013 Thien-Thi Nguyen\n"
+           "Copyright (C) 2011-2014 Thien-Thi Nguyen\n"
            "Copyright (C) 2000-2009 Martin Grabmueller,"
            " Stefan Jahn, Raimund Jacob, Andreas Rottmann\n"
            "License GPLv3+: GNU GPL version 3 or later"

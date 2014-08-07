@@ -3,7 +3,7 @@ exec ${GUILE-guile} -s $0 # -*- scheme -*-
 !#
 ;;; gsk-make --- spew C code representing guile-server konstants
 
-;; Copyright (C) 2013 Thien-Thi Nguyen
+;; Copyright (C) 2013, 2014 Thien-Thi Nguyen
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as

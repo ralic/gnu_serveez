@@ -1,7 +1,7 @@
 /*
  * server.h - generic server definitions
  *
- * Copyright (C) 2011-2013 Thien-Thi Nguyen
+ * Copyright (C) 2011-2014 Thien-Thi Nguyen
  * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *

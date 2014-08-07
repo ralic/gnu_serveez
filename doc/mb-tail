@@ -1,6 +1,6 @@
 .\" mb-tail                                           -*- nroff -*-
 .\"
-.\" Copyright (C) 2013 Thien-Thi Nguyen
+.\" Copyright (C) 2013, 2014 Thien-Thi Nguyen
 .\"
 .\" Copying and distribution of this file, with or without modification,
 .\" are permitted in any medium without royalty provided the copyright
@@ -10,7 +10,7 @@
 .SH "REPORTING BUGS"
 Please send bug reports to <bug-serveez@gnu.org>.
 .SH "COPYRIGHT"
-Copyright \(co 2013 Thien-Thi Nguyen
+Copyright \(co 2013, 2014 Thien-Thi Nguyen
 .PP
 Copying and distribution of this manpage, with or without modification,
 are permitted in any medium without royalty provided the copyright

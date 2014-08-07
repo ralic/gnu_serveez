@@ -4,7 +4,7 @@
 #
 # Simple network time protocol server.
 #
-# Copyright (C) 2011-2013 Thien-Thi Nguyen
+# Copyright (C) 2011-2014 Thien-Thi Nguyen
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify

@@ -1,4 +1,4 @@
-# Copyright (C) 2011-2013 Thien-Thi Nguyen
+# Copyright (C) 2011-2014 Thien-Thi Nguyen
 #
 # This file is part of GNU Serveez.
 #

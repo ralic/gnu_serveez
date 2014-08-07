@@ -1,7 +1,7 @@
 /*
  * array.c - array functions
  *
- * Copyright (C) 2011-2013 Thien-Thi Nguyen
+ * Copyright (C) 2011-2014 Thien-Thi Nguyen
  * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
  *
