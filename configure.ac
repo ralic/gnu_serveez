@@ -262,6 +262,13 @@ AS_IF([test xno = x"$ac_cv_prog_cc_c99"],
 [AC_MSG_ERROR([No C99 capable compiler found -- see README.])])
 
 dnl
+dnl Figure out how to invoke the C preprocessor.  This is mainly
+dnl to allow "guile-baux c2x" to invoke it correctly for compilers
+dnl (like LLVM) where "cc -E" behaves differently from "cpp".
+dnl
+AC_PROG_CPP
+
+dnl
 dnl Libtool.  FIXME: Is this the right place?
 dnl
 AC_MSG_NOTICE([beg: libtool stuff])

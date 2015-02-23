@@ -1,5 +1,11 @@
 2015-02-23  Julian Graham  <joolean@gmail.com>
 
+	[build llvm] Have c2x invoke preprocessor via $(CPP).
+
+	* configure.ac (AC_PROG_CPP): New macro call.
+
+2015-02-23  Julian Graham  <joolean@gmail.com>
+
 	[build] Fix bug: Specify dependencies for some Sun RPC headers checks.
 
 	Some headers depend on <rpc/types.h> and <rpc/xdr.h>;

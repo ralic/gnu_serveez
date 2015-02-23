@@ -1,5 +1,11 @@
 2015-02-23  Julian Graham  <joolean@gmail.com>
 
+	[build llvm] Have c2x invoke preprocessor via $(CPP).
+
+	* Makefile.am (.c.x): Call c2x with --cpp "$(CPP)".
+
+2015-02-23  Julian Graham  <joolean@gmail.com>
+
 	[build] Support both GNU and BSD date(1) for irc-server timestamp.
 
 	* irc-server/Makefile.am (timestamp.c): Detect BSD date

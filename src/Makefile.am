@@ -184,7 +184,7 @@ serveez_LDFLAGS = $(SERVEEZ_LDFLAGS) $(LDFLAGS)
 snarfcppopts = $(DEFAULT_INCLUDES) $(CPPFLAGS)
 
 .c.x:
-	$(gx) c2x -o $@ $< -- $(snarfcppopts)
+	$(gx) c2x -o $@ --cpp '$(CPP)' $< -- $(snarfcppopts)
 
 if MAINTAINER_MODE
 noinst_DATA = scm.tsar c.tsar
