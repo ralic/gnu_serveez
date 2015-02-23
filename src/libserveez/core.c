@@ -491,6 +491,16 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
 
+#elif defined (__APPLE__) && defined (__MACH__)
+
+  /* Mac OS X: Almost identical to FreeBSD except that the count parameter
+     is reused to capture sent bytes. */
+
+  off_t sbytes = count;
+  ret = sendfile (in_fd, out_fd, *offset, &sbytes, NULL, 0);
+  *offset += sbytes;
+  ret = ret ? -1 : (int) sbytes;
+
 #elif defined (__MINGW32__)
 
   /* ‘TransmitFile’

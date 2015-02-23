@@ -1,3 +1,10 @@
+2015-02-23  Julian Graham  <joolean@gmail.com>
+
+	[build osx] Add support for Mac OS X sendfile(2).
+
+	* core.c (svz_sendfile) [__APPLE__ && __MACH__]:
+	Handle Mac OS X flavor of sendfile(2).
+
 2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.2
