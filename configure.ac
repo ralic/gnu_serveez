@@ -369,8 +369,8 @@ AC_CHECK_HEADERS_ONCE([
   sys/time.h sys/poll.h pwd.h varargs.h
   getopt.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h
   ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h
-  mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h
-  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h
+  mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h
+  rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h
 ])
 
 AC_CHECK_HEADERS_ONCE([netinet/tcp.h])
@@ -382,6 +382,11 @@ dnl IRIX.
 AC_CHECK_HEADERS_ONCE([sys/sysget.h sys/sysinfo.h])
 
 AS_IF([SVZ_Y([enable_crypt])],[AC_CHECK_HEADERS([crypt.h])])
+
+AC_CHECK_HEADERS([rpc/pmap_clnt.h rpc/pmap_prot.h],,,[
+#include <rpc/types.h>
+#include <rpc/xdr.h>
+])
 
 AC_CHECK_HEADERS([guile/gh.h],,,[
 #include <libguile.h>

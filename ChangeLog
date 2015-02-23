@@ -1,3 +1,14 @@
+2015-02-23  Julian Graham  <joolean@gmail.com>
+
+	[build] Fix bug: Specify dependencies for some Sun RPC headers checks.
+
+	Some headers depend on <rpc/types.h> and <rpc/xdr.h>;
+	they cannot be in a "check once" construct.
+
+	* configure.ac (AC_CHECK_HEADERS_ONCE):
+	Move rpc/pmap_clnt.h and rpc/pmap_prot.h from here...
+	(AC_CHECK_HEADERS): ...to here, a new specific check.
+
 2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.2
