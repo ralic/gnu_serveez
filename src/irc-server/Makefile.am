@@ -42,5 +42,19 @@ libircserver_a_SOURCES = \
 
 BUILT_SOURCES = timestamp.c
 
+# The arguments to GNU and BSD date(1) used for parsing and formatting date
+# strings are different (and conflicting).  Additionally, extracting file
+# modification time and formatting it predictably are notoriously tricky to
+# do portably.  mdate-sh, as part of the GNU Autotools suite, takes
+# responsibility for "pretty-printing" a modification timestamp for a file,
+# so it seems reasonable to delegate to it when reproducing the behavior of
+# GNU date's ‘-r’ flag, which BSD date does not support.
+
 timestamp.c: $(top_builddir)/config.status
-	date -r $< -u +'static char created[] = "%Y-%m-%d %R UTC";' > $@
+	if date --version >/dev/null 2>&1 ; then			\
+	  DATESTR=`date -r $< -u +'%Y-%m-%d %R UTC'` ;			\
+	else								\
+	  MDATE=`$(top_builddir)/build-aux/mdate-sh $<` ;		\
+	  DATESTR=`date -jf "%d %B %Y" "$$MDATE" +'%Y-%m-%d %R UTC'` ;	\
+	fi ;								\
+	printf 'static char created[] = "%s";\n' "$$DATESTR" > $@

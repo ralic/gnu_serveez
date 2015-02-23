@@ -1,3 +1,11 @@
+2015-02-23  Julian Graham  <joolean@gmail.com>
+
+	[build] Support both GNU and BSD date(1) for irc-server timestamp.
+
+	* irc-server/Makefile.am (timestamp.c): Detect BSD date
+	and conditionally use mdate-sh to capture modification
+	date of config.status.
+
 2013-12-02  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	Release: 0.2.2
