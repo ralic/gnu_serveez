@@ -186,7 +186,7 @@ snarfcppopts = $(DEFAULT_INCLUDES) $(CPPFLAGS)
 .c.x:
 	$(gx) c2x -o $@ --cpp '$(CPP)' $< -- $(snarfcppopts)
 
-if MAINTAINER_MODE
+if MAINT_MODE
 noinst_DATA = scm.tsar c.tsar
 endif
 

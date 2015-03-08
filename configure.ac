@@ -31,7 +31,8 @@ AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([1.12.2 no-define no-dist-gzip dist-lzip dist-xz serial-tests])
-AM_MAINTAINER_MODE
+
+SNUGGLE_MAINT_MODE
 
 dnl ----------------------------------------------------------------------
 dnl information on the package

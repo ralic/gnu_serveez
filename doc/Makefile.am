@@ -43,10 +43,10 @@ DISTCLEANFILES = stamp-*
 MAINTAINERCLEANFILES += $(gen)
 EXTRA_DIST += $(gen) $(gen:%.texi=%.texh)
 
-if MAINTAINER_MODE
+if MAINT_MODE
 # "mb" stands for "manpage bits" (ugh).
 BUILT_SOURCES = mb-rel mb-blurb
-endif MAINTAINER_MODE
+endif MAINT_MODE
 
 mb-rel: $(top_srcdir)/configure
 	@{ echo '.ds SZ $(PACKAGE_NAME)' ;		\
@@ -78,7 +78,7 @@ EXTRA_DIST += blurb.texi
 snippets: ../src/scm.tsar ../src/c.tsar ../src/libserveez/libserveez.tsar
 	$(gx) tsar -f $@ -c utf-8 concat $^
 
-if MAINTAINER_MODE
+if MAINT_MODE
 $(gen) : snippets
 
 .texh.texi:

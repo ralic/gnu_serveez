@@ -1,3 +1,9 @@
+2015-03-08  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[build] Replace ‘AM_MAINTAINER_MODE’ w/ ‘SNUGGLE_MAINT_MODE’.
+
+	* Makefile.am: Do ‘s/MAINTAINER_MODE/MAINT_MODE/g’.
+
 2015-02-23  Julian Graham  <joolean@gmail.com>
 
 	[build llvm] Have c2x invoke preprocessor via $(CPP).

@@ -63,7 +63,7 @@ noinst_HEADERS = ipdata.h iphlpapi.h raw-socket.h server-socket.h
 
 CLEANFILES += svzpath.h
 
-if MAINTAINER_MODE
+if MAINT_MODE
 noinst_DATA = libserveez.tsar
 endif
 
