@@ -156,7 +156,7 @@ MAKE_SMOB_DEFINITION (servertype)
    ‘invalidate_smob’.  */
 static SCM goodstuff;
 
-#define GOODSTUFF(key)  scm_hashq_ref (goodstuff, key, SCM_BOOL_F)
+#define GOODSTUFF(key)  scm_hashv_ref (goodstuff, key, SCM_BOOL_F)
 
 static SCM
 valid_smob (svz_smob_tag_t tag, void *orig)
@@ -167,7 +167,7 @@ valid_smob (svz_smob_tag_t tag, void *orig)
   if (! gi_nfalsep (val))
     {
       val = gi_gc_protect (gi_make_smob (tag, orig));
-      scm_hashq_set_x (goodstuff, key, val);
+      scm_hashv_set_x (goodstuff, key, val);
       gi_gc_unprotect (val);
     }
   gi_gc_unprotect (key);
@@ -185,7 +185,7 @@ invalidate_smob (const void *orig)
   if (gi_nfalsep (smob))
     {
       SCM_SET_SMOB_DATA (smob, NULL);
-      scm_hashq_remove_x (goodstuff, key);
+      scm_hashv_remove_x (goodstuff, key);
     }
 }
 

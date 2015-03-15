@@ -1,3 +1,13 @@
+2015-03-15  Thien-Thi Nguyen  <ttn@gnu.org>
+
+	[guile] Fix bug: Use ‘eqv?’ for goodstuff hashing.
+
+	Using ‘eq?’ loses for integers greater than ‘most-positive-fixnum’.
+
+	* guile-server.c (GOODSTUFF): Use ‘scm_hashv_ref’.
+	(valid_smob): Use ‘scm_hashv_set_x’.
+	(invalidate_smob): Use ‘scm_hashv_remove_x’.
+
 2015-03-08  Thien-Thi Nguyen  <ttn@gnu.org>
 
 	[build] Replace ‘AM_MAINTAINER_MODE’ w/ ‘SNUGGLE_MAINT_MODE’.
