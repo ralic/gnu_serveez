@@ -58,3 +58,6 @@ s390-ibm-linux-gnu		gcc	0.1.4	  ok
 m68k-unknown-linux-gnu		gcc	0.1.4	  ok
 nsr-tandem-nsk			gcc	0.1.6	  ok
 i686-pc-linux-gnu		gcc	0.2.0	  ok
+i686-pc-linux-gnu		gcc	0.2.1	  ok
+i686-pc-linux-gnu		gcc	0.2.2	  ok
+x86_64-suse-linux		clang	0.2.2	  ok, clang 3.3, thread-model: posix, openSUSE 13.1
